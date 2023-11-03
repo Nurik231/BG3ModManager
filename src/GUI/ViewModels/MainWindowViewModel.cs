@@ -2307,8 +2307,6 @@ Directory the zip will be extracted to:
 			}, RxApp.MainThreadScheduler);
 		}
 
-		private CancellationToken workshopModLoadingCancelToken;
-
 		private readonly List<string> ignoredModProjectNames = new List<string> { "Test", "Debug" };
 		private bool CanFetchWorkshopData(DivinityModData mod)
 		{
@@ -2328,10 +2326,13 @@ Directory the zip will be extracted to:
 			return String.IsNullOrEmpty(mod.WorkshopData.ID) || !UpdateHandler.Workshop.CacheData.Mods.ContainsKey(mod.UUID);
 		}
 
+		private IDisposable _refreshAllModUpdatesBackgroundTask;
+
 		private void RefreshAllModUpdatesBackground()
 		{
 			IsRefreshingModUpdates = true;
-			var disposable = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
+			_refreshAllModUpdatesBackgroundTask?.Dispose();
+			_refreshAllModUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
 			{
 				UpdateHandler.Workshop.SteamAppID = AppSettings.DefaultPathways.Steam.AppID;
 
@@ -2349,11 +2350,10 @@ Directory the zip will be extracted to:
 					{
 						workshopMods.AddOrUpdate(loadedWorkshopMods);
 						DivinityApp.Log($"Loaded '{workshopMods.Count}' workshop mods from '{Settings.WorkshopPath}'.");
-						if (!workshopModLoadingCancelToken.IsCancellationRequested)
+						if (!cts.IsCancellationRequested)
 						{
-							CheckForWorkshopModUpdates(workshopModLoadingCancelToken);
+							CheckForWorkshopModUpdates(cts);
 						}
-						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
 
@@ -2558,7 +2558,7 @@ Directory the zip will be extracted to:
 					LoadExtenderSettingsBackground();
 				}
 
-				//RefreshAllModUpdatesBackground();
+				RefreshModUpdatesCommand.Execute().Subscribe();
 
 				return Unit.Default;
 			}, RxApp.MainThreadScheduler);
@@ -5012,7 +5012,7 @@ Directory the zip will be extracted to:
 				RefreshAllModUpdatesBackground();
 			}, canRefreshModUpdates, RxApp.MainThreadScheduler);
 
-			Keys.RefreshModUpdates.AddAction(() => RefreshModUpdatesCommand.Execute(Unit.Default).Subscribe(), canRefreshModUpdates);
+			Keys.RefreshModUpdates.AddAction(() => RefreshModUpdatesCommand.Execute().Subscribe(), canRefreshModUpdates);
 
 			IObservable<bool> canStartExport = this.WhenAny(x => x.MainProgressToken, (t) => t != null).StartWith(false);
 			Keys.ExportOrderToZip.AddAction(ExportLoadOrderToArchive_Start, canStartExport);
