@@ -982,7 +982,11 @@
 										<Setter Property="Opacity" Value="1.0" />
 									</DataTrigger>
 									<DataTrigger Binding="{Binding Path=ExtenderModStatus}" Value="{x:Static dapp:DivinityExtenderModStatus.REQUIRED_DISABLED}">
-										<Setter Property="Source" Value="{StaticResource AlertBar_Danger}" />
+										<Setter Property="Source" Value="{StaticResource AlertBar_Warning}" />
+										<Setter Property="Opacity" Value="1.0" />
+									</DataTrigger>
+									<DataTrigger Binding="{Binding Path=ExtenderModStatus}" Value="{x:Static dapp:DivinityExtenderModStatus.REQUIRED_MISSING_UPDATER}">
+										<Setter Property="Source" Value="{StaticResource AlertBar_Warning}" />
 										<Setter Property="Opacity" Value="1.0" />
 									</DataTrigger>
 									<DataTrigger Binding="{Binding Path=ExtenderModStatus}" Value="{x:Static dapp:DivinityExtenderModStatus.REQUIRED_OLD}">

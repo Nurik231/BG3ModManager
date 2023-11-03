@@ -2253,13 +2253,17 @@ Directory the zip will be extracted to:
 			{
 				if (mod.ScriptExtenderData.Lua)
 				{
-					if (!Settings.ExtenderSettings.EnableExtensions)
+					if (!Settings.ExtenderUpdaterSettings.UpdaterIsAvailable)
+					{
+						mod.ExtenderModStatus = DivinityExtenderModStatus.REQUIRED_MISSING_UPDATER;
+					}
+					else if (!Settings.ExtenderSettings.EnableExtensions)
 					{
 						mod.ExtenderModStatus = DivinityExtenderModStatus.REQUIRED_DISABLED;
 					}
 					else
 					{
-						if (Settings.ExtenderSettings.ExtenderMajorVersion > -1 && Settings.ExtenderUpdaterSettings.UpdaterIsAvailable)
+						if (Settings.ExtenderSettings.ExtenderMajorVersion > -1)
 						{
 							if (mod.ScriptExtenderData.RequiredVersion > -1 && Settings.ExtenderSettings.ExtenderMajorVersion < mod.ScriptExtenderData.RequiredVersion)
 							{
@@ -2796,9 +2800,8 @@ Directory the zip will be extracted to:
 					var mod = ActiveMods.FirstOrDefault(m => m.UUID == entry.UUID);
 					if (mod != null)
 					{
-						if (mod.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_DISABLED || mod.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_MISSING)
+						if (mod.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_MISSING)
 						{
-							DivinityApp.Log($"{mod.Name} | ExtenderModStatus: {mod.ExtenderModStatus}");
 							extenderRequiredMods.Add(new DivinityMissingModData
 							{
 								Index = mod.Index,
@@ -2814,9 +2817,8 @@ Directory the zip will be extracted to:
 									if (TryGetMod(dependency.UUID, out var dependencyMod))
 									{
 										// Dependencies not in the order that require the extender
-										if (dependencyMod.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_DISABLED || dependencyMod.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_MISSING)
+										if (dependencyMod.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_MISSING)
 										{
-											DivinityApp.Log($"{mod.Name} | ExtenderModStatus: {mod.ExtenderModStatus}");
 											extenderRequiredMods.Add(new DivinityMissingModData
 											{
 												Index = mod.Index - 1,
@@ -2837,8 +2839,8 @@ Directory the zip will be extracted to:
 					DivinityApp.Log("Displaying mods that require the extender.");
 					View.MainWindowMessageBox_OK.WindowBackground = new SolidColorBrush(Color.FromRgb(219, 40, 40));
 					View.MainWindowMessageBox_OK.Closed += MainWindowMessageBox_Closed_ResetColor;
-					View.MainWindowMessageBox_OK.ShowMessageBox(String.Join("\n", extenderRequiredMods.OrderBy(x => x.Index)),
-						"Mods Require the Script Extender - Install it with the Tools menu!", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+					View.MainWindowMessageBox_OK.ShowMessageBox("Functionality may be limited without the Script Extender.\n" + String.Join("\n", extenderRequiredMods.OrderBy(x => x.Index)),
+						"Mods Require the Script Extender", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
 				}
 			}
 		}

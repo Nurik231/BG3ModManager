@@ -63,13 +63,18 @@ namespace DivinityModManager.Models
 				case DivinityExtenderModStatus.REQUIRED_MISSING:
 				case DivinityExtenderModStatus.REQUIRED_DISABLED:
 				case DivinityExtenderModStatus.REQUIRED_OLD:
+				case DivinityExtenderModStatus.REQUIRED_MISSING_UPDATER:
 					if (status == DivinityExtenderModStatus.REQUIRED_MISSING)
 					{
 						result = "[MISSING] ";
 					}
+					else if (status == DivinityExtenderModStatus.REQUIRED_MISSING_UPDATER)
+					{
+						result = "[SE DISABLED] ";
+					}
 					else if (status == DivinityExtenderModStatus.REQUIRED_DISABLED)
 					{
-						result = "[EXTENSIONS DISABLED] ";
+						result = "[EXTENDER DISABLED] ";
 					}
 					else if (status == DivinityExtenderModStatus.REQUIRED_OLD)
 					{
@@ -85,11 +90,15 @@ namespace DivinityModManager.Models
 					}
 					if (status == DivinityExtenderModStatus.REQUIRED_DISABLED)
 					{
-						result += " (Enable Extensions in the Script Extender config)";
+						result += "\n(Enable Extensions in the Script Extender Settings)";
 					}
-					if (status == DivinityExtenderModStatus.REQUIRED_OLD)
+					else if (status == DivinityExtenderModStatus.REQUIRED_MISSING_UPDATER)
 					{
-						result += " (Update by running the game)";
+						result += "\n(Missing DWrite.dll)";
+					}
+					else if (status == DivinityExtenderModStatus.REQUIRED_OLD)
+					{
+						result += "\n(The installed SE version is older)";
 					}
 					break;
 				case DivinityExtenderModStatus.SUPPORTS:
@@ -113,11 +122,11 @@ namespace DivinityModManager.Models
 			}
 			if (currentVersion > -1)
 			{
-				result += $"(Currently installed version is v{currentVersion})";
+				result += $"Currently installed version is v{currentVersion}";
 			}
 			else
 			{
-				result += "(No installed extender version found)";
+				result += "No installed extender version found";
 			}
 			return result;
 		}
