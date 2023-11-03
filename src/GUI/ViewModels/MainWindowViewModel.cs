@@ -484,7 +484,7 @@ namespace DivinityModManager.ViewModels
 				System.IO.Stream unzippedEntryStream = null;
 				try
 				{
-					await SetMainProgressTextAsync($"Downloading {PathwayData.ScriptExtenderLatestReleaseUrl}...");
+					await SetMainProgressTextAsync($"Downloading {PathwayData.ScriptExtenderLatestReleaseUrl}");
 					webStream = await WebHelper.DownloadFileAsStreamAsync(PathwayData.ScriptExtenderLatestReleaseUrl, MainProgressToken.Token);
 					if (webStream != null)
 					{
@@ -510,7 +510,7 @@ namespace DivinityModManager.ViewModels
 				}
 				catch (Exception ex)
 				{
-					DivinityApp.Log($"Error extracting package: {ex}");
+					DivinityApp.Log($"Error downloading the script extender: {ex}");
 				}
 				finally
 				{

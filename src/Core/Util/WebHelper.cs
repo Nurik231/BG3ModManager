@@ -28,24 +28,32 @@ namespace DivinityModManager.Util
 
         public static async Task<Stream> DownloadFileAsStreamAsync(string downloadUrl, CancellationToken token)
         {
-            using (System.Net.WebClient webClient = new System.Net.WebClient())
-            {
-                int receivedBytes = 0;
+			try
+			{
+				using (var webClient = new WebClient())
+				{
+					int receivedBytes = 0;
 
-                Stream stream = await webClient.OpenReadTaskAsync(downloadUrl);
-                MemoryStream ms = new MemoryStream();
-                var buffer = new byte[4096];
-                int read = 0;
-                var totalBytes = Int32.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
+					Stream stream = await webClient.OpenReadTaskAsync(downloadUrl);
+					MemoryStream ms = new MemoryStream();
+					var buffer = new byte[4096];
+					int read = 0;
+					var totalBytes = Int32.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
 
-                while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
-                {
-                    ms.Write(buffer, 0, read);
-                    receivedBytes += read;
-                }
-                stream.Close();
-                return ms;
-            }
+					while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+					{
+						ms.Write(buffer, 0, read);
+						receivedBytes += read;
+					}
+					stream.Close();
+					return ms;
+				}
+			}
+			catch(Exception ex)
+			{
+				DivinityApp.Log($"Error downloading url ({downloadUrl}):\n{ex}");
+			}
+			return null;
         }
 
         public static string DownloadUrlAsString(string downloadUrl)
