@@ -20,10 +20,10 @@ namespace DivinityModManager.ModUpdater
 	public class ModUpdateHandler : ReactiveObject
 	{
 		private readonly NexusModsCacheHandler _nexus;
-		public NexusModsCacheHandler Nexus => _nexus;
+		public NexusModsCacheHandler NexusMods => _nexus;
 
 		private readonly SteamWorkshopCacheHandler _workshop;
-		public SteamWorkshopCacheHandler Workshop => _workshop;
+		public SteamWorkshopCacheHandler SteamWorkshop => _workshop;
 
 		private readonly GithubModsCacheHandler _github;
 		public GithubModsCacheHandler Github => _github;
@@ -39,48 +39,25 @@ namespace DivinityModManager.ModUpdater
 		public async Task<bool> UpdateAsync(IEnumerable<DivinityModData> mods, CancellationToken cts)
 		{
 			IsRefreshing = true;
-			if (Workshop.IsEnabled)
-			{
-				await Workshop.Update(mods, cts);
-			}
-			if(Nexus.IsEnabled)
-			{
-				await Nexus.Update(mods, cts);
-			}
-			if(Github.IsEnabled)
-			{
-				await Github.Update(mods, cts);
-			}
+			if (SteamWorkshop.IsEnabled) await SteamWorkshop.Update(mods, cts);
+			if (NexusMods.IsEnabled) await NexusMods.Update(mods, cts);
+			if (Github.IsEnabled) await Github.Update(mods, cts);
 			IsRefreshing = false;
 			return false;
 		}
 
 		public async Task<bool> LoadAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)
 		{
-			if(Workshop.IsEnabled)
+			if(SteamWorkshop.IsEnabled)
 			{
-				if((DateTimeOffset.Now.ToUnixTimeSeconds() - Workshop.CacheData.LastUpdated >= 3600))
+				if((DateTimeOffset.Now.ToUnixTimeSeconds() - SteamWorkshop.CacheData.LastUpdated >= 3600))
 				{
-					await Workshop.LoadCacheAsync(currentAppVersion, cts);
+					await SteamWorkshop.LoadCacheAsync(currentAppVersion, cts);
 				}
 			}
-			if(Nexus.IsEnabled)
+			if(NexusMods.IsEnabled)
 			{
-				var data = await Nexus.LoadCacheAsync(currentAppVersion, cts);
-				foreach (var entry in data.Mods)
-				{
-					if (Nexus.CacheData.Mods.TryGetValue(entry.Key, out var existing))
-					{
-						if (existing.UpdatedTimestamp < entry.Value.UpdatedTimestamp || !existing.IsUpdated)
-						{
-							Nexus.CacheData.Mods[entry.Key] = entry.Value;
-						}
-					}
-					else
-					{
-						Nexus.CacheData.Mods[entry.Key] = entry.Value;
-					}
-				}
+				await NexusMods.LoadCacheAsync(currentAppVersion, cts);
 			}
 			if(Github.IsEnabled)
 			{
@@ -91,9 +68,9 @@ namespace DivinityModManager.ModUpdater
 			{
 				foreach(var mod in mods)
 				{
-					if (Workshop.IsEnabled)
+					if (SteamWorkshop.IsEnabled)
 					{
-						if (Workshop.CacheData.Mods.TryGetValue(mod.UUID, out var workshopData))
+						if (SteamWorkshop.CacheData.Mods.TryGetValue(mod.UUID, out var workshopData))
 						{
 							if (string.IsNullOrEmpty(mod.WorkshopData.ID) || mod.WorkshopData.ID == workshopData.WorkshopID)
 							{
@@ -109,9 +86,9 @@ namespace DivinityModManager.ModUpdater
 							}
 						}
 					}
-					if (Nexus.IsEnabled)
+					if (NexusMods.IsEnabled)
 					{
-						if(Nexus.CacheData.Mods.TryGetValue(mod.UUID, out var nexusData))
+						if(NexusMods.CacheData.Mods.TryGetValue(mod.UUID, out var nexusData))
 						{
 							mod.NexusModsData.Update(nexusData);
 						}
@@ -132,17 +109,17 @@ namespace DivinityModManager.ModUpdater
 
 		public async Task<bool> SaveAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)
 		{
-			if(Workshop.IsEnabled)
+			if(SteamWorkshop.IsEnabled)
 			{
-				await Workshop.SaveCacheAsync(true, currentAppVersion, cts);
+				await SteamWorkshop.SaveCacheAsync(true, currentAppVersion, cts);
 			}
-			if(Nexus.IsEnabled)
+			if(NexusMods.IsEnabled)
 			{
 				foreach (var mod in mods.Where(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START).Select(x => x.NexusModsData))
 				{
-					Nexus.CacheData.Mods[mod.UUID] = mod;
+					NexusMods.CacheData.Mods[mod.UUID] = mod;
 				}
-				await Nexus.SaveCacheAsync(true, currentAppVersion, cts);
+				await NexusMods.SaveCacheAsync(true, currentAppVersion, cts);
 			}
 			if(Github.IsEnabled)
 			{
@@ -153,7 +130,103 @@ namespace DivinityModManager.ModUpdater
 
 		public bool DeleteCache()
 		{
-			return Nexus.DeleteCache() || Workshop.DeleteCache() || Github.DeleteCache();
+			var b1 = NexusMods.DeleteCache();
+			var b2 = SteamWorkshop.DeleteCache();
+			var b3 = Github.DeleteCache();
+			return b1 || b2 || b3;
+		}
+
+		public async Task<bool> RefreshGithubAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)
+		{
+			try
+			{
+				await Github.LoadCacheAsync(currentAppVersion, cts);
+				await Github.Update(mods, cts);
+				await Github.SaveCacheAsync(true, currentAppVersion, cts);
+
+				await Observable.Start(() =>
+				{
+					foreach (var mod in mods)
+					{
+						if (Github.CacheData.Mods.TryGetValue(mod.UUID, out var githubData))
+						{
+							mod.GithubData.Update(githubData);
+						}
+					}
+					return Unit.Default;
+				}, RxApp.MainThreadScheduler);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error fetching Github updates:\n{ex}");
+			}
+			return false;
+		}
+
+		public async Task<bool> RefreshNexusModsAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)
+		{
+			try
+			{
+				await NexusMods.LoadCacheAsync(currentAppVersion, cts);
+				await NexusMods.Update(mods, cts);
+				await NexusMods.SaveCacheAsync(true, currentAppVersion, cts);
+				await Observable.Start(() =>
+				{
+					foreach (var mod in mods)
+					{
+						if (NexusMods.CacheData.Mods.TryGetValue(mod.UUID, out var nexusData))
+						{
+							mod.NexusModsData.Update(nexusData);
+						}
+					}
+					return Unit.Default;
+				}, RxApp.MainThreadScheduler);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error fetching NexusMods updates:\n{ex}");
+			}
+			return false;
+		}
+
+		public async Task<bool> RefreshSteamWorkshopAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)
+		{
+			try
+			{
+				await SteamWorkshop.LoadCacheAsync(currentAppVersion, cts);
+				await SteamWorkshop.Update(mods, cts);
+				await SteamWorkshop.SaveCacheAsync(true, currentAppVersion, cts);
+				await Observable.Start(() =>
+				{
+					foreach (var mod in mods)
+					{
+						if (SteamWorkshop.CacheData.Mods.TryGetValue(mod.UUID, out var workshopData))
+						{
+							if (string.IsNullOrEmpty(mod.WorkshopData.ID) || mod.WorkshopData.ID == workshopData.WorkshopID)
+							{
+								mod.WorkshopData.ID = workshopData.WorkshopID;
+								mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(workshopData.Created);
+								mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(workshopData.LastUpdated);
+								mod.WorkshopData.Tags = workshopData.Tags;
+								mod.AddTags(workshopData.Tags);
+								if (workshopData.LastUpdated > 0)
+								{
+									mod.LastUpdated = mod.WorkshopData.UpdatedDate;
+								}
+							}
+						}
+					}
+					return Unit.Default;
+				}, RxApp.MainThreadScheduler);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error fetching SteamWorkshop updates:\n{ex}");
+			}
+			return false;
 		}
 
 		public ModUpdateHandler()

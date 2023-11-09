@@ -23,14 +23,15 @@ namespace DivinityModManager.ModUpdater.Cache
 
 		bool IsEnabled { get; set; }
 		T CacheData { get; set; }
+		void OnCacheUpdated(T cachedData);
 		Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts);
 	}
 
 	public static class IExternalModCacheDataExtensions
 	{
-		public static async Task<T> LoadCacheAsync<T>(this IExternalModCacheHandler<T> cacheData, string currentAppVersion, CancellationToken cts) where T : IModCacheData
+		public static async Task<T> LoadCacheAsync<T>(this IExternalModCacheHandler<T> handler, string currentAppVersion, CancellationToken cts) where T : IModCacheData
 		{
-			var filePath = DivinityApp.GetAppDirectory("Data", cacheData.FileName);
+			var filePath = DivinityApp.GetAppDirectory("Data", handler.FileName);
 
 			if (File.Exists(filePath))
 			{
@@ -42,6 +43,7 @@ namespace DivinityModManager.ModUpdater.Cache
 						cachedData.LastUpdated = -1;
 					}
 					cachedData.CacheUpdated = true;
+					handler.OnCacheUpdated(cachedData);
 					return cachedData;
 				}
 			}

@@ -295,7 +295,9 @@ namespace DivinityModManager.ViewModels
 		#endregion
 		[Reactive] public bool IsRenamingOrder { get; set; }
 		[Reactive] public Visibility StatusBarBusyIndicatorVisibility { get; set; }
-		[Reactive] public bool WorkshopSupportEnabled { get; set; }
+		[ObservableAsProperty] public bool GithubModSupportEnabled { get; }
+		[ObservableAsProperty] public bool NexusModsSupportEnabled { get; }
+		[ObservableAsProperty] public bool SteamWorkshopSupportEnabled { get; }
 		[Reactive] public bool CanMoveSelectedMods { get; set; }
 
 		private readonly ObservableAsPropertyHelper<Visibility> _updatingBusyIndicatorVisibility;
@@ -329,6 +331,9 @@ namespace DivinityModManager.ViewModels
 		public ReactiveCommand<object, Unit> ToggleOrderRenamingCommand { get; set; }
 		public ReactiveCommand<Unit, Unit> RefreshCommand { get; private set; }
 		public ReactiveCommand<Unit, Unit> RefreshModUpdatesCommand { get; private set; }
+		public ICommand CheckForGithubModUpdatesCommand { get; private set; }
+		public ICommand CheckForNexusModsUpdatesCommand { get; private set; }
+		public ICommand CheckForSteamWorkshopUpdatesCommand { get; private set; }
 		public ICommand UpdateNexusModsLimitsCommand { get; private set; }
 		public EventHandler OnRefreshed { get; set; }
 
@@ -362,7 +367,7 @@ namespace DivinityModManager.ViewModels
 		public ICommand OpenGameMasterCampaignInFileExplorerCommand { get; private set; }
 		public ICommand CopyGameMasterCampaignPathToClipboardCommand { get; private set; }
 
-		private AppServices.IFileWatcherWrapper _modSettingsWatcher;
+		private readonly AppServices.IFileWatcherWrapper _modSettingsWatcher;
 
 		private void SetLoadedGMCampaigns(IEnumerable<DivinityGameMasterCampaign> data)
 		{
@@ -909,7 +914,7 @@ Directory the zip will be extracted to:
 		{
 			DivinityApp.DependencyFilter = Settings.WhenAnyValue(x => x.DebugModeEnabled).Select(MakeDependencyFilter);
 
-			var canOpenWorkshopFolder = this.WhenAnyValue(x => x.WorkshopSupportEnabled, x => x.Settings.WorkshopPath,
+			var canOpenWorkshopFolder = this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled, x => x.Settings.WorkshopPath,
 				(b, p) => (b && !String.IsNullOrEmpty(p) && Directory.Exists(p))).StartWith(false);
 
 			var canOpenGameExe = Settings.WhenAnyValue(x => x.GameExecutablePath, p => !String.IsNullOrEmpty(p) && File.Exists(p)).StartWith(false);
@@ -1177,23 +1182,21 @@ Directory the zip will be extracted to:
 				{
 					DivinityApp.Log($"Found workshop folder at: '{Settings.WorkshopPath}'.");
 				}
-				WorkshopSupportEnabled = true;
 			}
 			else
 			{
-				WorkshopSupportEnabled = false;
 				Settings.WorkshopPath = "";
 			}
 
-			if (DivinityApp.WorkshopEnabled != workshopSupportEnabled || DivinityApp.NexusModsEnabled != nexusModsSupportEnabled)
+			if (UpdateHandler.SteamWorkshop.IsEnabled != workshopSupportEnabled || UpdateHandler.NexusMods.IsEnabled != nexusModsSupportEnabled)
 			{
-				DivinityApp.WorkshopEnabled = workshopSupportEnabled;
-				DivinityApp.NexusModsEnabled = nexusModsSupportEnabled;
+				UpdateHandler.SteamWorkshop.IsEnabled = workshopSupportEnabled;
+				UpdateHandler.NexusMods.IsEnabled = nexusModsSupportEnabled;
 
 				foreach (var mod in mods.Items)
 				{
-					mod.WorkshopEnabled = DivinityApp.WorkshopEnabled;
-					mod.NexusModsEnabled = DivinityApp.NexusModsEnabled;
+					mod.WorkshopEnabled = workshopSupportEnabled;
+					mod.NexusModsEnabled = nexusModsSupportEnabled;
 				}
 			}
 
@@ -1555,8 +1558,8 @@ Directory the zip will be extracted to:
 			mods.Clear();
 			foreach (var mod in loadedMods)
 			{
-				mod.WorkshopEnabled = DivinityApp.WorkshopEnabled;
-				mod.NexusModsEnabled = DivinityApp.NexusModsEnabled;
+				mod.WorkshopEnabled = SteamWorkshopSupportEnabled;
+				mod.NexusModsEnabled = NexusModsSupportEnabled;
 
 				if (mod.IsLarianMod)
 				{
@@ -1951,9 +1954,9 @@ Directory the zip will be extracted to:
 						await AddModFromFile(builtinMods, result, f, MainProgressToken.Token, toActiveList);
 					}
 
-					if (UpdateHandler.Nexus.IsEnabled && result.Mods.Count > 0 && result.Mods.Any(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START))
+					if (UpdateHandler.NexusMods.IsEnabled && result.Mods.Count > 0 && result.Mods.Any(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START))
 					{
-						await UpdateHandler.Nexus.Update(result.Mods, MainProgressToken.Token);
+						await UpdateHandler.NexusMods.Update(result.Mods, MainProgressToken.Token);
 					}
 
 					await ctrl.Yield();
@@ -2314,7 +2317,7 @@ Directory the zip will be extracted to:
 		private readonly List<string> ignoredModProjectNames = new List<string> { "Test", "Debug" };
 		private bool CanFetchWorkshopData(DivinityModData mod)
 		{
-			if (UpdateHandler.Workshop.CacheData.NonWorkshopMods.Contains(mod.UUID))
+			if (UpdateHandler.SteamWorkshop.CacheData.NonWorkshopMods.Contains(mod.UUID))
 			{
 				return false;
 			}
@@ -2327,7 +2330,46 @@ Directory the zip will be extracted to:
 			{
 				return false;
 			}
-			return String.IsNullOrEmpty(mod.WorkshopData.ID) || !UpdateHandler.Workshop.CacheData.Mods.ContainsKey(mod.UUID);
+			return String.IsNullOrEmpty(mod.WorkshopData.ID) || !UpdateHandler.SteamWorkshop.CacheData.Mods.ContainsKey(mod.UUID);
+		}
+
+		private IDisposable _refreshGithubModsUpdatesBackgroundTask;
+
+		private void RefreshGithubModsUpdatesBackground()
+		{
+			_refreshGithubModsUpdatesBackgroundTask?.Dispose();
+			_refreshGithubModsUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
+			{
+				await UpdateHandler.RefreshGithubAsync(UserMods, Version, cts);
+			});
+		}
+
+		private IDisposable _refreshNexusModsUpdatesBackgroundTask;
+
+		private void RefreshNexusModsUpdatesBackground()
+		{
+			UpdateHandler.NexusMods.APIKey = Settings.NexusModsAPIKey;
+			UpdateHandler.NexusMods.AppName = AutoUpdater.AppTitle;
+			UpdateHandler.NexusMods.AppVersion = Version;
+
+			_refreshNexusModsUpdatesBackgroundTask?.Dispose();
+			_refreshNexusModsUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
+			{
+				await UpdateHandler.RefreshNexusModsAsync(UserMods, Version, cts);
+			});
+		}
+
+		private IDisposable _refreshSteamWorkshopUpdatesBackgroundTask;
+
+		private void RefreshSteamWorkshopUpdatesBackground()
+		{
+			UpdateHandler.SteamWorkshop.SteamAppID = AppSettings.DefaultPathways.Steam.AppID;
+
+			_refreshSteamWorkshopUpdatesBackgroundTask?.Dispose();
+			_refreshSteamWorkshopUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
+			{
+				await UpdateHandler.RefreshSteamWorkshopAsync(UserMods, Version, cts);
+			});
 		}
 
 		private IDisposable _refreshAllModUpdatesBackgroundTask;
@@ -2338,16 +2380,13 @@ Directory the zip will be extracted to:
 			_refreshAllModUpdatesBackgroundTask?.Dispose();
 			_refreshAllModUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
 			{
-				UpdateHandler.Workshop.SteamAppID = AppSettings.DefaultPathways.Steam.AppID;
+				UpdateHandler.SteamWorkshop.SteamAppID = AppSettings.DefaultPathways.Steam.AppID;
 
-				UpdateHandler.Nexus.APIKey = Settings.NexusModsAPIKey;
-				UpdateHandler.Nexus.AppName = AutoUpdater.AppTitle;
-				UpdateHandler.Nexus.AppVersion = Version;
+				UpdateHandler.NexusMods.APIKey = Settings.NexusModsAPIKey;
+				UpdateHandler.NexusMods.AppName = AutoUpdater.AppTitle;
+				UpdateHandler.NexusMods.AppVersion = Version;
 
-				UpdateHandler.Workshop.IsEnabled = WorkshopSupportEnabled && !Settings.DisableWorkshopTagCheck;
-				UpdateHandler.Nexus.IsEnabled = DivinityApp.NexusModsEnabled;
-
-				if (UpdateHandler.Workshop.IsEnabled)
+				if (UpdateHandler.SteamWorkshop.IsEnabled)
 				{
 					var loadedWorkshopMods = await LoadWorkshopModsAsync(cts);
 					await Observable.Start(() =>
@@ -3093,7 +3132,7 @@ Directory the zip will be extracted to:
 					await ImportArchiveAsync(builtinMods, result, dialog.FileName, false, MainProgressToken.Token);
 					if (result.Mods.Count > 0 && result.Mods.Any(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START))
 					{
-						await UpdateHandler.Nexus.Update(result.Mods, MainProgressToken.Token);
+						await UpdateHandler.NexusMods.Update(result.Mods, MainProgressToken.Token);
 					}
 					await ctrl.Yield();
 					RxApp.MainThreadScheduler.Schedule(_ =>
@@ -3164,8 +3203,8 @@ Directory the zip will be extracted to:
 
 		private void AddImportedMod(DivinityModData mod, bool toActiveList = false)
 		{
-			mod.WorkshopEnabled = DivinityApp.WorkshopEnabled;
-			mod.NexusModsEnabled = DivinityApp.NexusModsEnabled;
+			mod.WorkshopEnabled = SteamWorkshopSupportEnabled;
+			mod.NexusModsEnabled = NexusModsSupportEnabled;
 
 			if (mod.IsForceLoaded && !mod.IsForceLoadedMergedMod)
 			{
@@ -3323,7 +3362,7 @@ Directory the zip will be extracted to:
 					if (info.Success && success)
 					{
 						//Still save cache from imported zips, even if we aren't updating
-						await UpdateHandler.Nexus.SaveCacheAsync(false, Version, MainProgressToken.Token);
+						await UpdateHandler.NexusMods.SaveCacheAsync(false, Version, MainProgressToken.Token);
 					}
 
 					IncreaseMainProgressValue(taskStepAmount);
@@ -3456,7 +3495,7 @@ Directory the zip will be extracted to:
 					if (info.Success && success)
 					{
 						//Still save cache from imported zips, even if we aren't updating
-						await UpdateHandler.Nexus.SaveCacheAsync(false, Version, MainProgressToken.Token);
+						await UpdateHandler.NexusMods.SaveCacheAsync(false, Version, MainProgressToken.Token);
 					}
 
 					IncreaseMainProgressValue(taskStepAmount);
@@ -4949,6 +4988,10 @@ Directory the zip will be extracted to:
 				UpdateNexusModsLimitsCommand.Execute(e);
 			};
 
+			UpdateHandler.SteamWorkshop.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.SteamWorkshopSupportEnabled, true, RxApp.MainThreadScheduler);
+			UpdateHandler.NexusMods.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.NexusModsSupportEnabled, true, RxApp.MainThreadScheduler);
+			UpdateHandler.Github.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.GithubModSupportEnabled, true, RxApp.MainThreadScheduler);
+
 			_isLocked = this.WhenAnyValue(x => x.IsDragging, x => x.IsRefreshing, x => x.IsLoadingOrder, (b1, b2, b3) => b1 || b2 || b3).StartWith(false).ToProperty(this, nameof(IsLocked));
 			_allowDrop = this.WhenAnyValue(x => x.IsLoadingOrder, x => x.IsRefreshing, x => x.IsInitialized, (b1, b2, b3) => !b1 && !b2 && b3).StartWith(true).ToProperty(this, nameof(AllowDrop));
 
@@ -5015,6 +5058,10 @@ Directory the zip will be extracted to:
 			}, canRefreshModUpdates, RxApp.MainThreadScheduler);
 
 			Keys.RefreshModUpdates.AddAction(() => RefreshModUpdatesCommand.Execute().Subscribe(), canRefreshModUpdates);
+
+			CheckForGithubModUpdatesCommand = ReactiveCommand.Create(RefreshGithubModsUpdatesBackground, this.WhenAnyValue(x => x.GithubModSupportEnabled));
+			CheckForNexusModsUpdatesCommand = ReactiveCommand.Create(RefreshNexusModsUpdatesBackground, this.WhenAnyValue(x => x.NexusModsSupportEnabled));
+			CheckForSteamWorkshopUpdatesCommand = ReactiveCommand.Create(RefreshSteamWorkshopUpdatesBackground, this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled));
 
 			IObservable<bool> canStartExport = this.WhenAny(x => x.MainProgressToken, (t) => t != null).StartWith(false);
 			Keys.ExportOrderToZip.AddAction(ExportLoadOrderToArchive_Start, canStartExport);

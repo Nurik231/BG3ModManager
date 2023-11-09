@@ -3,6 +3,9 @@ using DivinityModManager.Models.Cache;
 
 using Newtonsoft.Json;
 
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.ModUpdater.Cache
 {
-	public class GithubModsCacheHandler : IExternalModCacheHandler<GithubModsCachedData>
+	public class GithubModsCacheHandler : ReactiveObject, IExternalModCacheHandler<GithubModsCachedData>
 	{
 		public ModSourceType SourceType => ModSourceType.GITHUB;
 		public string FileName => "githubdata.json";
@@ -24,12 +27,18 @@ namespace DivinityModManager.ModUpdater.Cache
 			Formatting = Formatting.Indented,
 		};
 
-		public bool IsEnabled { get; set; }
+		[Reactive] public bool IsEnabled { get; set; }
 		public GithubModsCachedData CacheData { get; set; }
 
-		public GithubModsCacheHandler() : base()
+		public GithubModsCacheHandler()
 		{
 			CacheData = new GithubModsCachedData();
+			IsEnabled = false;
+		}
+
+		public void OnCacheUpdated(GithubModsCachedData cachedData)
+		{
+
 		}
 
 		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)

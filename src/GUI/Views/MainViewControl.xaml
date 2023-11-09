@@ -180,7 +180,14 @@
 						<MenuItem
 							x:Name="ToolsMenuItem"
 							Header="Tools"
-							Style="{StaticResource MenuItemHightlightBlink}" />
+							Style="{StaticResource MenuItemHightlightBlink}">
+							<MenuItem x:Name="UpdatesParentMenuItem" Header="Check For Updates">
+								<MenuItem x:Name="UpdateAllSourcesMenuItem" Header="All" />
+								<MenuItem x:Name="UpdateGithubMenuItem" Header="Github" />
+								<MenuItem x:Name="UpdateNexusModsMenuItem" Header="Nexus Mods" />
+								<MenuItem x:Name="UpdateSteamWorkshopMenuItem" Header="Steam Workshop" />
+							</MenuItem>
+						</MenuItem>
 						<MenuItem x:Name="HelpMenuItem" Header="Help" />
 					</Menu>
 					<StackPanel

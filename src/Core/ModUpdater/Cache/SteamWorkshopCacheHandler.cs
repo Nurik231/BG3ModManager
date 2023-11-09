@@ -4,6 +4,9 @@ using DivinityModManager.Util;
 
 using Newtonsoft.Json;
 
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,19 +16,25 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.ModUpdater.Cache
 {
-	public class SteamWorkshopCacheHandler : IExternalModCacheHandler<SteamWorkshopCachedData>
+	public class SteamWorkshopCacheHandler : ReactiveObject, IExternalModCacheHandler<SteamWorkshopCachedData>
 	{
 		public ModSourceType SourceType => ModSourceType.STEAM;
 		public string FileName => "workshopdata.json";
 		public JsonSerializerSettings SerializerSettings => ModUpdateHandler.DefaultSerializerSettings;
 		public SteamWorkshopCachedData CacheData { get; set; }
-		public bool IsEnabled { get; set; } = false;
+		[Reactive] public bool IsEnabled { get; set; }
 
 		public string SteamAppID { get; set; }
 
-		public SteamWorkshopCacheHandler() : base()
+		public SteamWorkshopCacheHandler()
 		{
 			CacheData = new SteamWorkshopCachedData();
+			IsEnabled = false;
+		}
+
+		public void OnCacheUpdated(SteamWorkshopCachedData cachedData)
+		{
+
 		}
 
 		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)

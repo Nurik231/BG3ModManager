@@ -4,6 +4,9 @@ using DivinityModManager.Util;
 
 using Newtonsoft.Json;
 
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +16,40 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.ModUpdater.Cache
 {
-	public class NexusModsCacheHandler : IExternalModCacheHandler<NexusModsCachedData>
+	public class NexusModsCacheHandler : ReactiveObject, IExternalModCacheHandler<NexusModsCachedData>
 	{
 		public ModSourceType SourceType => ModSourceType.NEXUSMODS;
 		public string FileName => "nexusmodsdata.json";
 		public JsonSerializerSettings SerializerSettings => ModUpdateHandler.DefaultSerializerSettings;
-		public bool IsEnabled { get; set; } = false;
+		[Reactive] public bool IsEnabled { get; set; }
 		public NexusModsCachedData CacheData { get; set; }
 
 		public string APIKey { get; set; }
 		public string AppName { get; set; }
 		public string AppVersion { get; set; }
 
-		public NexusModsCacheHandler() : base()
+		public NexusModsCacheHandler()
 		{
 			CacheData = new NexusModsCachedData();
+			IsEnabled = false;
+		}
+
+		public void OnCacheUpdated(NexusModsCachedData cachedData)
+		{
+			foreach (var entry in cachedData.Mods)
+			{
+				if (CacheData.Mods.TryGetValue(entry.Key, out var existing))
+				{
+					if (existing.UpdatedTimestamp < entry.Value.UpdatedTimestamp || !existing.IsUpdated)
+					{
+						CacheData.Mods[entry.Key] = entry.Value;
+					}
+				}
+				else
+				{
+					CacheData.Mods[entry.Key] = entry.Value;
+				}
+			}
 		}
 
 		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)
