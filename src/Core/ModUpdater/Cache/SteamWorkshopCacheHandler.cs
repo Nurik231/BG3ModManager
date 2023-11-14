@@ -39,6 +39,7 @@ namespace DivinityModManager.ModUpdater.Cache
 
 		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)
 		{
+			DivinityApp.Log("Checking for Steam Workshop updates.");
 			var success = await WorkshopDataLoader.GetAllWorkshopDataAsync(CacheData, SteamAppID, cts);
 			if (success)
 			{

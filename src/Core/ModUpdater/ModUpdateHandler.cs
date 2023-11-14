@@ -1,4 +1,5 @@
 ﻿using DivinityModManager.Models;
+using DivinityModManager.Models.NexusMods;
 using DivinityModManager.ModUpdater.Cache;
 using DivinityModManager.Util;
 
@@ -164,13 +165,14 @@ namespace DivinityModManager.ModUpdater
 			return false;
 		}
 
-		public async Task<bool> RefreshNexusModsAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)
+		public async Task<List<NexusModsModDownloadLink>> RefreshNexusModsAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)
 		{
 			try
 			{
 				await NexusMods.LoadCacheAsync(currentAppVersion, cts);
 				await NexusMods.Update(mods, cts);
 				await NexusMods.SaveCacheAsync(true, currentAppVersion, cts);
+				var updates = await NexusModsDataLoader.GetLatestDownloadsForModsAsync(mods, cts);
 				await Observable.Start(() =>
 				{
 					foreach (var mod in mods)
@@ -182,13 +184,13 @@ namespace DivinityModManager.ModUpdater
 					}
 					return Unit.Default;
 				}, RxApp.MainThreadScheduler);
-				return true;
+				return updates;
 			}
 			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error fetching NexusMods updates:\n{ex}");
 			}
-			return false;
+			return null;
 		}
 
 		public async Task<bool> RefreshSteamWorkshopAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken cts)

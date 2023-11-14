@@ -1957,6 +1957,7 @@ Directory the zip will be extracted to:
 					if (UpdateHandler.NexusMods.IsEnabled && result.Mods.Count > 0 && result.Mods.Any(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START))
 					{
 						await UpdateHandler.NexusMods.Update(result.Mods, MainProgressToken.Token);
+						await UpdateHandler.NexusMods.SaveCacheAsync(false, Version, MainProgressToken.Token);
 					}
 
 					await ctrl.Yield();
@@ -2355,7 +2356,36 @@ Directory the zip will be extracted to:
 			_refreshNexusModsUpdatesBackgroundTask?.Dispose();
 			_refreshNexusModsUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
 			{
-				await UpdateHandler.RefreshNexusModsAsync(UserMods, Version, cts);
+				var updates = await UpdateHandler.RefreshNexusModsAsync(UserMods, Version, cts);
+				if(updates != null && updates.Count > 0)
+				{
+					await Observable.Start(() =>
+					{
+						foreach (var update in updates)
+						{
+							var updatedMod = DivinityModData.Clone(update.Mod);
+							updatedMod.NexusModsData.Version = update.File.Version;
+							updatedMod.NexusModsData.UpdatedTimestamp = update.File.UploadedTimestamp;
+							try
+							{
+								var updateData = new DivinityModUpdateData()
+								{
+									LocalMod = update.Mod,
+									UpdatedMod = updatedMod,
+									Source = ModSourceType.NEXUSMODS,
+								};
+								ModUpdatesViewData.Mods.Add(updateData);
+							}
+							catch(Exception ex)
+							{
+								DivinityApp.Log($"{ex}");
+							}
+						}
+						//ModUpdatesViewData.SelectAll(true);
+						//ModUpdatesViewData.OnLoaded?.Invoke();
+						DivinityApp.Log($"Updates: {ModUpdatesViewData.Mods.Count}");
+					}, RxApp.MainThreadScheduler);
+				}
 			});
 		}
 
@@ -2388,6 +2418,7 @@ Directory the zip will be extracted to:
 
 				if (UpdateHandler.SteamWorkshop.IsEnabled)
 				{
+					DivinityApp.Log("Checking for Steam Workshop mods.");
 					var loadedWorkshopMods = await LoadWorkshopModsAsync(cts);
 					await Observable.Start(() =>
 					{
@@ -3359,12 +3390,6 @@ Directory the zip will be extracted to:
 						outputStream?.Dispose();
 					}
 
-					if (info.Success && success)
-					{
-						//Still save cache from imported zips, even if we aren't updating
-						await UpdateHandler.NexusMods.SaveCacheAsync(false, Version, MainProgressToken.Token);
-					}
-
 					IncreaseMainProgressValue(taskStepAmount);
 				}
 			}
@@ -3490,12 +3515,6 @@ Directory the zip will be extracted to:
 								}
 							}
 						}
-					}
-
-					if (info.Success && success)
-					{
-						//Still save cache from imported zips, even if we aren't updating
-						await UpdateHandler.NexusMods.SaveCacheAsync(false, Version, MainProgressToken.Token);
 					}
 
 					IncreaseMainProgressValue(taskStepAmount);

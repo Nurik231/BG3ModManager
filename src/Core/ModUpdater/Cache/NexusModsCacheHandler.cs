@@ -61,6 +61,7 @@ namespace DivinityModManager.ModUpdater.Cache
 
 			if (NexusModsDataLoader.CanFetchData)
 			{
+				DivinityApp.Log("Checking for Nexus Mods updates.");
 				var result = await NexusModsDataLoader.LoadAllModsDataAsync(mods, cts);
 
 				if (result.Success)
@@ -76,7 +77,7 @@ namespace DivinityModManager.ModUpdater.Cache
 				}
 				else
 				{
-					DivinityApp.Log($"Failed to update NexusMods mod info:\n{result.FailureMessage}");
+					DivinityApp.Log($"Failed to update NexusMods info:\n{result.FailureMessage}");
 				}
 			}
 			else

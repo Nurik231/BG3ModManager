@@ -227,8 +227,7 @@ namespace DivinityModManager.Util
 					var tagsText = GetAttributeWithId(moduleInfoNode, "Tags", "");
 					if (!String.IsNullOrWhiteSpace(tagsText))
 					{
-						var tags = tagsText.Split(';');
-						modData.AddTags(tags);
+						modData.AddTags(tagsText.Split(';'));
 					}
 					//var dependenciesNodes = xDoc.SelectNodes("//node[@id='ModuleShortDesc']");
 					var dependenciesNodes = xDoc.Descendants("node").Where(n => n.Attribute("id")?.Value == "ModuleShortDesc");

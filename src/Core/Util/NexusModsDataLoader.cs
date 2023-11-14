@@ -115,10 +115,10 @@ namespace DivinityModManager.Util
 			if (_pendingDispose) Dispose();
 		}
 
-		public static async Task<List<NexusModsModDownloadLink>> GetLatestDownloadsForMods(List<DivinityModData> mods, CancellationToken t)
+		public static async Task<List<NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken t)
 		{
 			var links = new List<NexusModsModDownloadLink>();
-			if (!CanFetchData || mods.Count <= 0) return links;
+			if (!CanFetchData) return links;
 			_isActive = true;
 
 			try
@@ -132,31 +132,29 @@ namespace DivinityModManager.Util
 					OnTaskDone();
 					return links;
 				}
-				using (var dataLoader = new InfosInquirer(_client))
+				var dataLoader = new InfosInquirer(_client);
+				foreach (var mod in mods)
 				{
-					foreach (var mod in mods)
+					if (mod.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START)
 					{
-						if (mod.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START)
+						var result = await dataLoader.ModFiles.GetModFilesAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, t);
+						if (result != null)
 						{
-							var result = await dataLoader.ModFiles.GetModFilesAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, t);
-							if (result != null)
+							var file = result.ModFiles.FirstOrDefault(x => x.IsPrimary || x.Category == NexusModFileCategory.Main);
+							if(file != null)
 							{
-								var file = result.ModFiles.FirstOrDefault(x => x.IsPrimary);
-								if(file != null)
+								var fileId = file.FileId;
+								var linkResult = await dataLoader.ModFiles.GetModFileDownloadLinksAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, fileId, t);
+								if(linkResult != null && linkResult.Count() > 0)
 								{
-									var fileId = file.FileId;
-									var linkResult = await dataLoader.ModFiles.GetModFileDownloadLinksAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, fileId, t);
-									if(linkResult != null && linkResult.Count() > 0)
-									{
-										var primaryLink = linkResult.FirstOrDefault();
-										links.Add(new NexusModsModDownloadLink(mod, primaryLink));
-									}
+									var primaryLink = linkResult.FirstOrDefault();
+									links.Add(new NexusModsModDownloadLink(mod, primaryLink, file));
 								}
 							}
 						}
-
-						if (t.IsCancellationRequested) break;
 					}
+
+					if (t.IsCancellationRequested) break;
 				}
 			}
 			catch(Exception ex)
@@ -213,20 +211,18 @@ namespace DivinityModManager.Util
 
 				DivinityApp.Log($"Using NexusMods API to update {total} mods");
 
-				using (var dataLoader = new InfosInquirer(_client))
+				var dataLoader = new InfosInquirer(_client);
+				foreach (var mod in targetMods)
 				{
-					foreach (var mod in targetMods)
+					var result = await dataLoader.Mods.GetMod(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, t);
+					if (result != null)
 					{
-						var result = await dataLoader.Mods.GetMod(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, t);
-						if (result != null)
-						{
-							mod.NexusModsData.Update(result);
-							taskResult.UpdatedMods.Add(mod);
-							totalLoaded++;
-						}
-
-						if (t.IsCancellationRequested) break;
+						mod.NexusModsData.Update(result);
+						taskResult.UpdatedMods.Add(mod);
+						totalLoaded++;
 					}
+
+					if (t.IsCancellationRequested) break;
 				}
 			}
 			catch(Exception ex)
