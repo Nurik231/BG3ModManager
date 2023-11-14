@@ -405,7 +405,7 @@ namespace DivinityModManager.Models
 
 			WorkshopData = new DivinityModWorkshopData();
 			NexusModsData = new NexusModsModData();
-			//GithubData = new GithubModData();
+			GithubData = new GithubModData();
 
 			this.WhenAnyValue(x => x.UUID).BindTo(NexusModsData, x => x.UUID);
 
@@ -444,7 +444,7 @@ namespace DivinityModManager.Models
 
 			var connection = this.Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler);
 			connection.Bind(out displayedDependencies).DisposeMany().Subscribe();
-			dependencyCount = connection.Count().StartWith(0).ToProperty(this, nameof(TotalDependencies));
+			dependencyCount = connection.CountChanged().Select(x => x.Count).ToProperty(this, nameof(TotalDependencies));
 			hasDependencies = this.WhenAnyValue(x => x.TotalDependencies, c => c > 0).StartWith(false).ToProperty(this, nameof(HasDependencies));
 			dependencyVisibility = this.WhenAnyValue(x => x.HasDependencies, b => b ? Visibility.Visible : Visibility.Collapsed).StartWith(Visibility.Collapsed).ToProperty(this, nameof(DependencyVisibility));
 			this.WhenAnyValue(x => x.IsActive, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod,
@@ -521,6 +521,31 @@ namespace DivinityModManager.Models
 
 			_hasFilePathVisibility = this.WhenAnyValue(x => x.FilePath).Select(x => !String.IsNullOrEmpty(x) ? Visibility.Visible : Visibility.Collapsed).StartWith(Visibility.Collapsed).ToProperty(this, nameof(HasFilePathVisibility), true, RxApp.MainThreadScheduler);
 			_displayVersion = this.WhenAnyValue(x => x.Version.Version).StartWith("0.0.0.0").ToProperty(this, nameof(DisplayVersion), true, RxApp.MainThreadScheduler);
+		}
+
+		public static DivinityModData Clone(DivinityModData mod)
+		{
+			var cloneMod = new DivinityModData()
+			{
+				HasMetadata = mod.HasMetadata,
+				UUID = mod.UUID,
+				Name = mod.Name,
+				Author = mod.Author,
+				Version = new DivinityModVersion2(mod.Version.VersionInt),
+				HeaderVersion = new DivinityModVersion2(mod.HeaderVersion.VersionInt),
+				PublishVersion = new DivinityModVersion2(mod.PublishVersion.VersionInt),
+				Folder = mod.Folder,
+				Description = mod.Description,
+				MD5 = mod.MD5,
+				ModType = mod.ModType,
+				Tags = mod.Tags.ToList(),
+				Targets = mod.Targets,
+			};
+			cloneMod.Dependencies.AddRange(mod.Dependencies.Items);
+			cloneMod.NexusModsData.Update(mod.NexusModsData);
+			cloneMod.WorkshopData.Update(mod.WorkshopData);
+			cloneMod.GithubData.Update(mod.GithubData);
+			return cloneMod;
 		}
 	}
 }

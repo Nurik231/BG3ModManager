@@ -5503,7 +5503,7 @@ Directory the zip will be extracted to:
 			_hideModList = this.WhenAnyValue(x => x.MainProgressIsActive, x => x.IsDeletingFiles, (a, b) => a || b).StartWith(true).ToProperty(this, nameof(HideModList), false, RxApp.MainThreadScheduler);
 
 			var forceLoadedModsConnection = this.ForceLoadedMods.ToObservableChangeSet().ObserveOn(RxApp.MainThreadScheduler);
-			_hasForceLoadedMods = forceLoadedModsConnection.Count().StartWith(0).Select(x => x > 0).ToProperty(this, nameof(HasForceLoadedMods), true, RxApp.MainThreadScheduler);
+			_hasForceLoadedMods = forceLoadedModsConnection.CountChanged().Select(x => x.Count > 0).ToProperty(this, nameof(HasForceLoadedMods), true, RxApp.MainThreadScheduler);
 
 			DivinityInteractions.ConfirmModDeletion.RegisterHandler((Func<InteractionContext<DeleteFilesViewConfirmationData, bool>, Task>)(async interaction =>
 			{

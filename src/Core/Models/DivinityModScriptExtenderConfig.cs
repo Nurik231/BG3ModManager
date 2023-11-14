@@ -34,7 +34,7 @@ namespace DivinityModManager.Models
 			RequiredVersion = -1;
 			FeatureFlags = new ObservableCollectionExtended<string>();
 			var featureFlagsConnection = FeatureFlags.ToObservableChangeSet();
-			_totalFeatureFlags = featureFlagsConnection.Count().StartWith(0).ToProperty(this, nameof(TotalFeatureFlags));
+			_totalFeatureFlags = featureFlagsConnection.CountChanged().Select(x => x.Count).ToProperty(this, nameof(TotalFeatureFlags));
 			_hasAnySettings = this.WhenAnyValue(x => x.RequiredVersion, x => x.TotalFeatureFlags, x => x.ModTable)
 				.Select(x => x.Item1 > -1 || x.Item2 > 0 || !String.IsNullOrEmpty(x.Item3)).ToProperty(this, nameof(HasAnySettings));
 		}
