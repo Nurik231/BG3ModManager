@@ -233,7 +233,7 @@
 									</GridViewColumn.HeaderContainerStyle>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding LastModified, StringFormat={x:Static dapp:DivinityApp.DateTimeColumnFormat}}" ToolTip="{Binding WorkshopMod.LastModified, StringFormat={x:Static dapp:DivinityApp.DateTimeTooltipFormat}}" />
+											<TextBlock Text="{Binding LastModified, StringFormat={x:Static dapp:DivinityApp.DateTimeColumnFormat}}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>

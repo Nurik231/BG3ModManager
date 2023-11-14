@@ -18,48 +18,34 @@ namespace DivinityModManager.Models.Updates
 		[Reactive] public Visibility Visibility { get; set; }
 		[Reactive] public ModSourceType Source { get; set; }
 
-		private readonly ObservableAsPropertyHelper<DivinityModData> _primaryModData;
-		public DivinityModData PrimaryModData => _primaryModData.Value;
+		[Reactive] public DivinityModData PrimaryModData { get; private set; }
 
-		private readonly ObservableAsPropertyHelper<bool> _isEditorMod;
-		public bool IsEditorMod => _isEditorMod.Value;
+		[ObservableAsProperty] public bool IsEditorMod { get; }
+		[ObservableAsProperty] public string Author { get; }
+		[ObservableAsProperty] public string CurrentVersion { get; }
+		[ObservableAsProperty] public string UpdateVersion { get; }
+		[ObservableAsProperty] public string SourceText { get; }
+		[ObservableAsProperty] public Uri UpdateLink { get; }
+		[ObservableAsProperty] public string LocalFilePath { get; }
+		[ObservableAsProperty] public string UpdateFilePath { get; }
+		[ObservableAsProperty] public DateTime? LastModified { get; }
 
-		private readonly ObservableAsPropertyHelper<string> _author;
-		public string Author => _author.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _currentVersion;
-		public string CurrentVersion => _currentVersion.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _updateVersion;
-		public string UpdateVersion => _updateVersion.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _sourceText;
-		public string SourceText => _sourceText.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _updateLink;
-		public string UpdateLink => _updateLink.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _localFilePath;
-		public string LocalFilePath => _localFilePath.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _updateFilePath;
-		public string UpdateFilePath => _updateFilePath.Value;
-
-		private readonly ObservableAsPropertyHelper<DateTime?> _lastModified;
-		public DateTime? LastModified => _lastModified.Value;
-
-		private DivinityModData GetNonNull(DivinityModData a, DivinityModData b)
+		private DivinityModData GetNonNull(ValueTuple<DivinityModData, DivinityModData> items)
 		{
-			return a ?? b;
+			return items.Item1 ?? items.Item2;
 		}
 
-		private string SourceToLink(ValueTuple<DivinityModData, ModSourceType> data)
+		private Uri SourceToLink(ValueTuple<DivinityModData, ModSourceType> data)
 		{
 			if(data.Item1 != null)
 			{
-				data.Item1.GetURL(data.Item2);
+				var url = data.Item1.GetURL(data.Item2);
+				if(!String.IsNullOrEmpty(url))
+				{
+					return new Uri(url);
+				}
 			}
-			return "";
+			return null;
 		}
 
 		public DivinityModUpdateData()
@@ -69,20 +55,20 @@ namespace DivinityModManager.Models.Updates
 			Visibility = Visibility.Visible;
 
 			//Get whichever mod data isn't null, prioritizing LocalMod
-			_primaryModData = this.WhenAnyValue(x => x.LocalMod, x => x.UpdatedMod).Select(x => x.Item1 ?? x.Item2).ToProperty(this, nameof(PrimaryModData));
+			this.WhenAnyValue(x => x.LocalMod, x => x.UpdatedMod).Select(GetNonNull).BindTo(this, x => x.PrimaryModData);
 
-			_sourceText = this.WhenAnyValue(x => x.Source).Select(x => x.GetDescription()).ToProperty(this, nameof(SourceText));
-			_updateLink = this.WhenAnyValue(x => x.UpdatedMod, x => x.Source).Select(SourceToLink).ToProperty(this, nameof(UpdateLink));
+			this.WhenAnyValue(x => x.Source).Select(x => x.GetDescription()).ToPropertyEx(this, x => x.SourceText, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.UpdatedMod, x => x.Source).Select(SourceToLink).ToPropertyEx(this, x => x.UpdateLink, true, RxApp.MainThreadScheduler);
 
-			_isEditorMod = this.WhenAnyValue(x => PrimaryModData.IsEditorMod).ToProperty(this, nameof(IsEditorMod));
-			_author = this.WhenAnyValue(x => x.PrimaryModData.Author).ToProperty(this, nameof(Author));
-			_currentVersion = this.WhenAnyValue(x => x.PrimaryModData.Version.Version).ToProperty(this, nameof(CurrentVersion));
-			_localFilePath = this.WhenAnyValue(x => x.PrimaryModData.FilePath).ToProperty(this, nameof(LocalFilePath));
+			this.WhenAnyValue(x => x.PrimaryModData.IsEditorMod).ToPropertyEx(this, x => x.IsEditorMod, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.PrimaryModData.Author).ToPropertyEx(this, x => x.Author, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.PrimaryModData.Version.Version).ToPropertyEx(this, x => x.CurrentVersion, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.PrimaryModData.FilePath).ToPropertyEx(this, x => x.LocalFilePath, true, RxApp.MainThreadScheduler);
 
-			_lastModified = this.WhenAnyValue(x => x.UpdatedMod.LastModified).ToProperty(this, nameof(LastModified));
-			_updateVersion = this.WhenAnyValue(x => x.UpdatedMod.Version.Version).ToProperty(this, nameof(UpdateVersion));
+			this.WhenAnyValue(x => x.UpdatedMod.LastModified).ToPropertyEx(this, x => x.LastModified, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.UpdatedMod.Version.Version).ToPropertyEx(this, x => x.UpdateVersion, true, RxApp.MainThreadScheduler);
 
-			_updateFilePath = this.WhenAnyValue(x => x.UpdatedMod.FilePath).ToProperty(this, nameof(UpdateFilePath));
+			this.WhenAnyValue(x => x.UpdatedMod.FilePath).ToPropertyEx(this, x => x.UpdateFilePath, true, RxApp.MainThreadScheduler);
 		}
 	}
 }

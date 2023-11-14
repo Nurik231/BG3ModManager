@@ -43,5 +43,13 @@ namespace DivinityModManager.Models
 				this.RaiseAndSetIfChanged(ref tags, value);
 			}
 		}
+
+		public void Update(DivinityModWorkshopData otherData)
+		{
+			ID = otherData.ID;
+			CreatedDate = otherData.CreatedDate;
+			UpdatedDate = otherData.UpdatedDate;
+			Tags = otherData.Tags;
+		}
 	}
 }

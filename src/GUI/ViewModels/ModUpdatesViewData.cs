@@ -5,6 +5,7 @@ using DivinityModManager.Views;
 
 using DynamicData;
 using DynamicData.Binding;
+using DynamicData.Aggregation;
 
 using Ookii.Dialogs.Wpf;
 
@@ -249,7 +250,7 @@ namespace DivinityModManager.ViewModels
 
 			var modsConnection = Mods.Connect();
 
-			_totalUpdates = modsConnection.Count().ToProperty(this, nameof(TotalUpdates));
+			_totalUpdates = modsConnection.CountChanged().Select(x => x.Count).ToProperty(this, nameof(TotalUpdates), true, RxApp.MainThreadScheduler);
 
 			var splitList = modsConnection.AutoRefresh(x => x.IsNewMod);
 			var newModsConnection = splitList.Filter(x => x.IsNewMod);
@@ -258,8 +259,8 @@ namespace DivinityModManager.ViewModels
 			newModsConnection.Bind(out _newMods).Subscribe();
 			updatedModsConnection.Bind(out _updatedMods).Subscribe();
 
-			var hasNewMods = newModsConnection.Count().Select(x => x > 0);
-			var hasUpdatedMods = updatedModsConnection.Count().Select(x => x > 0);
+			var hasNewMods = newModsConnection.CountChanged().Select(x => x.Count > 0);
+			var hasUpdatedMods = updatedModsConnection.CountChanged().Select(x => x.Count > 0);
 			_newAvailable = hasNewMods.ToProperty(this, nameof(NewAvailable));
 			_updatesAvailable = hasUpdatedMods.ToProperty(this, nameof(UpdatesAvailable));
 
