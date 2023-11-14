@@ -869,7 +869,7 @@ Directory the zip will be extracted to:
 			{
 				await CheckForLatestExtenderUpdaterRelease(t);
 				await LoadExtenderSettingsAsync(t);
-				await Observable.Start(() => UpdateExtender(true, t), RxApp.TaskpoolScheduler);
+				UpdateExtender(true, t);
 				return Disposable.Empty;
 			});
 		}
@@ -5048,7 +5048,9 @@ Directory the zip will be extracted to:
 
 			Keys.Refresh.AddAction(() => RefreshCommand.Execute(Unit.Default).Subscribe(), canRefreshObservable);
 
-			var canRefreshModUpdates = this.WhenAnyValue(x => x.IsRefreshing, x => x.IsRefreshingModUpdates, x => x.AppSettingsLoaded, (b1, b2, b3) => !b1 && !b2 && b3).StartWith(false);
+			var canRefreshModUpdates = this.WhenAnyValue(x => x.IsRefreshing, x => x.IsRefreshingModUpdates, x => x.AppSettingsLoaded,
+			(b1, b2, b3) => !b1 && !b2 && b3)
+			.ObserveOn(RxApp.MainThreadScheduler).StartWith(false);
 
 			RefreshModUpdatesCommand = ReactiveCommand.Create(() =>
 			{
@@ -5059,9 +5061,9 @@ Directory the zip will be extracted to:
 
 			Keys.RefreshModUpdates.AddAction(() => RefreshModUpdatesCommand.Execute().Subscribe(), canRefreshModUpdates);
 
-			CheckForGithubModUpdatesCommand = ReactiveCommand.Create(RefreshGithubModsUpdatesBackground, this.WhenAnyValue(x => x.GithubModSupportEnabled));
-			CheckForNexusModsUpdatesCommand = ReactiveCommand.Create(RefreshNexusModsUpdatesBackground, this.WhenAnyValue(x => x.NexusModsSupportEnabled));
-			CheckForSteamWorkshopUpdatesCommand = ReactiveCommand.Create(RefreshSteamWorkshopUpdatesBackground, this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled));
+			CheckForGithubModUpdatesCommand = ReactiveCommand.Create(RefreshGithubModsUpdatesBackground, this.WhenAnyValue(x => x.GithubModSupportEnabled), RxApp.MainThreadScheduler);
+			CheckForNexusModsUpdatesCommand = ReactiveCommand.Create(RefreshNexusModsUpdatesBackground, this.WhenAnyValue(x => x.NexusModsSupportEnabled), RxApp.MainThreadScheduler);
+			CheckForSteamWorkshopUpdatesCommand = ReactiveCommand.Create(RefreshSteamWorkshopUpdatesBackground, this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled), RxApp.MainThreadScheduler);
 
 			IObservable<bool> canStartExport = this.WhenAny(x => x.MainProgressToken, (t) => t != null).StartWith(false);
 			Keys.ExportOrderToZip.AddAction(ExportLoadOrderToArchive_Start, canStartExport);
