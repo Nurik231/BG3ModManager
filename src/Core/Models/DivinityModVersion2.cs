@@ -67,6 +67,20 @@ namespace DivinityModManager.Models
 			}
 		}
 
+		public void ParseString(string nextVersion)
+		{
+			var values = nextVersion.Split('.');
+			if (values.Length > 0)
+			{
+				Major = ulong.Parse(values[0]);
+				if(values.Length > 1) Minor = ulong.Parse(values[1]);
+				if(values.Length > 2) Revision = ulong.Parse(values[2]);
+				if(values.Length > 3) Build = ulong.Parse(values[3]);
+				versionInt = ToInt();
+				this.RaisePropertyChanged("VersionInt");
+			}
+		}
+
 		public static DivinityModVersion2 FromInt(ulong vInt)
 		{
 			if (vInt == 1 || vInt == 268435456)
