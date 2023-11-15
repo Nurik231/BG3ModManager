@@ -400,6 +400,27 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
+		public static async Task<bool> CopyFileAsync(string copyFromPath, string copyToPath, CancellationToken cts)
+		{
+			try
+			{
+				using (var sourceFile = File.Open(copyFromPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
+				{
+					using (var outputFile = File.Open(copyFromPath, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None, 4096, true))
+					{
+
+						await sourceFile.CopyToAsync(outputFile, 4096, cts);
+						return true;
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error copying file: {ex}");
+			}
+			return false;
+		}
+
 		public static void TryOpenPath(string path, string args = "")
 		{
 			try

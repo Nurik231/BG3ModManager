@@ -22,6 +22,12 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="../Themes/MainResourceDictionary.xaml" />
 			</ResourceDictionary.MergedDictionaries>
+			<Style
+				x:Key="DivinityModUpdateListItem"
+				BasedOn="{StaticResource DivinityModUpdateNewListItem}"
+				TargetType="{x:Type ListViewItem}">
+				<Setter Property="Tag" Value="{Binding Mod}" />
+			</Style>
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.Style>
@@ -71,7 +77,7 @@
 					x:Name="NewFilesModListView"
 					BorderThickness="0"
 					GridViewColumnHeader.Click="SortNewModsGridView"
-					ItemContainerStyle="{StaticResource DivinityModUpdateNewListItem}">
+					ItemContainerStyle="{StaticResource DivinityModUpdateListItem}">
 					<controls:ModListView.View>
 						<GridView
 							x:Name="NewModsGridView"
@@ -179,9 +185,14 @@
 								</GridViewColumn>
 								<GridViewColumn
 									Width="400"
-									CellTemplate="{StaticResource ModUpdateNameTemplate}"
 									Header="Name"
-									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}" />
+									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
+									<GridViewColumn.CellTemplate>
+										<DataTemplate>
+											<ContentControl Content="{Binding Mod}" ContentTemplate="{StaticResource ModNameTemplate}" />
+										</DataTemplate>
+									</GridViewColumn.CellTemplate>
+								</GridViewColumn>
 								<GridViewColumn
 									Width="100"
 									Header="Author"
@@ -233,7 +244,7 @@
 									</GridViewColumn.HeaderContainerStyle>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding LastModified, StringFormat={x:Static dapp:DivinityApp.DateTimeColumnFormat}}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
+											<TextBlock Text="{Binding UpdateDateText}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>

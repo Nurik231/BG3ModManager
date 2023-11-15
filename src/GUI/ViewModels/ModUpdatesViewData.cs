@@ -65,8 +65,6 @@ namespace DivinityModManager.ViewModels
 		public ICommand SelectAllNewModsCommand { get; private set; }
 		public ICommand SelectAllUpdatesCommand { get; private set; }
 
-		public Action OnLoaded { get; set; }
-
 		public Action<bool> CloseView { get; set; }
 
 		private readonly MainWindowViewModel _mainWindowViewModel;

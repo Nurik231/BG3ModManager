@@ -520,8 +520,8 @@ namespace DivinityModManager.ViewModels
 				finally
 				{
 					await SetMainProgressTextAsync("Cleaning up...");
-					webStream?.Close();
-					unzippedEntryStream?.Close();
+					webStream?.Dispose();
+					unzippedEntryStream?.Dispose();
 					successes += 1;
 					await IncreaseMainProgressValueAsync(taskStepAmount);
 				}
@@ -1308,8 +1308,15 @@ Directory the zip will be extracted to:
 
 							ModUpdatesViewData.Mods.Add(new DivinityModUpdateData()
 							{
-								LocalMod = pakMod,
-								UpdatedMod = workshopMod,
+								Mod = pakMod,
+								DownloadData = new ModDownloadData()
+								{
+									DownloadPath = workshopMod.FilePath,
+									DownloadPathType = ModDownloadPathType.FILE,
+									DownloadSourceType = ModSourceType.STEAM,
+									Version = workshopMod.Version.Version,
+									Date = workshopMod.LastModified
+								},
 								IsNewMod = false,
 							});
 							count++;
@@ -1325,7 +1332,15 @@ Directory the zip will be extracted to:
 				{
 					ModUpdatesViewData.Mods.Add(new DivinityModUpdateData()
 					{
-						UpdatedMod = workshopMod,
+						Mod = workshopMod,
+						DownloadData = new ModDownloadData()
+						{
+							DownloadPath = workshopMod.FilePath,
+							DownloadPathType = ModDownloadPathType.FILE,
+							DownloadSourceType = ModSourceType.STEAM,
+							Version = workshopMod.Version.Version,
+							Date = workshopMod.LastModified
+						},
 						IsNewMod = true,
 					});
 					count++;
@@ -1336,7 +1351,6 @@ Directory the zip will be extracted to:
 				ModUpdatesViewData.SelectAll(true);
 				DivinityApp.Log($"'{count}' mod updates pending.");
 			}
-			ModUpdatesViewData.OnLoaded?.Invoke();
 			IsRefreshingModUpdates = false;
 		}
 
@@ -2363,16 +2377,19 @@ Directory the zip will be extracted to:
 					{
 						foreach (var update in updates)
 						{
-							var updatedMod = DivinityModData.Clone(update.Mod);
-							updatedMod.NexusModsData.Version = update.File.Version;
-							updatedMod.NexusModsData.UpdatedTimestamp = update.File.UploadedTimestamp;
 							try
 							{
 								var updateData = new DivinityModUpdateData()
 								{
-									LocalMod = update.Mod,
-									UpdatedMod = updatedMod,
-									Source = ModSourceType.NEXUSMODS,
+									Mod = update.Mod,
+									DownloadData = new ModDownloadData()
+									{
+										DownloadPath = update.DownloadLink.Uri.ToString(),
+										DownloadPathType = ModDownloadPathType.URL,
+										DownloadSourceType = ModSourceType.NEXUSMODS,
+										Version = update.File.ModVersion,
+										Date = DateUtils.UnixTimeStampToDateTime(update.File.UploadedTimestamp)
+									},
 								};
 								ModUpdatesViewData.Mods.Add(updateData);
 							}

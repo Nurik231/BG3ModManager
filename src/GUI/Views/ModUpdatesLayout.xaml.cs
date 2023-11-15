@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,6 +18,9 @@ namespace DivinityModManager.Views
 
 	public partial class ModUpdatesLayout : ModUpdatesLayoutBase
 	{
+		private static readonly GridLength CollapsedLength = new GridLength(0, GridUnitType.Pixel);
+		private static readonly GridLength StarLength = new GridLength(1, GridUnitType.Star);
+
 		public ModUpdatesLayout()
 		{
 			InitializeComponent();
@@ -25,8 +29,6 @@ namespace DivinityModManager.Views
 
 			this.WhenActivated(d =>
 			{
-				ViewModel.OnLoaded = new Action(OnLoaded);
-
 				this.OneWayBind(ViewModel, vm => vm.Unlocked, view => view.IsManipulationEnabled);
 				this.OneWayBind(ViewModel, vm => vm.Unlocked, view => view.IsEnabled);
 
@@ -43,28 +45,10 @@ namespace DivinityModManager.Views
 
 				this.OneWayBind(ViewModel, vm => vm.AllModUpdatesSelected, view => view.ModUpdatesCheckboxHeader.IsChecked);
 				this.BindCommand(ViewModel, vm => vm.SelectAllUpdatesCommand, view => view.ModUpdatesCheckboxHeader, vm => vm.AllModUpdatesSelected);
+
+				ViewModel.WhenAnyValue(x => x.NewAvailable).Select(b => b ? StarLength : CollapsedLength).BindTo(NewModsGridRow, x => x.Height);
+				ViewModel.WhenAnyValue(x => x.UpdatesAvailable).Select(b => b ? StarLength : CollapsedLength).BindTo(UpdatesGridRow, x => x.Height);
 			});
-		}
-
-		private void OnLoaded()
-		{
-			if (!ViewModel.NewAvailable)
-			{
-				NewModsGridRow.Height = new GridLength(75, GridUnitType.Pixel);
-			}
-			else
-			{
-				NewModsGridRow.Height = new GridLength(1, GridUnitType.Star);
-			}
-
-			if (!ViewModel.UpdatesAvailable)
-			{
-				UpdatesGridRow.Height = new GridLength(75, GridUnitType.Pixel);
-			}
-			else
-			{
-				UpdatesGridRow.Height = new GridLength(2, GridUnitType.Star);
-			}
 		}
 
 		private static readonly List<string> _ignoreColors = new List<string>{"#FFEDEDED", "#00FFFFFF", "#FFFFFFFF", "#FFF4F4F4", "#FFE8E8E8", "#FF000000" };
@@ -93,7 +77,7 @@ namespace DivinityModManager.Views
 			
 			if (modUpdatesGrid && sortBy != "IsSelected" && sortBy != "UpdatedMod.Version.Version") 
 			{
-				sortBy = "LocalMod." + sortBy;
+				sortBy = "Mod." + sortBy;
 			}
 
 			if (sortBy != "")

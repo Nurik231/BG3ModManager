@@ -425,12 +425,6 @@
 		<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 		<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
 	</Style>
-	<Style
-		x:Key="DivinityModUpdateListItem"
-		BasedOn="{StaticResource DivinityModUpdateNewListItem}"
-		TargetType="{x:Type ListViewItem}">
-		<Setter Property="Tag" Value="{Binding UpdatedMod}" />
-	</Style>
 	<Style BasedOn="{StaticResource {x:Type ListView}}" TargetType="controls:ModListView">
 		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}" />
 	</Style>
@@ -1194,10 +1188,6 @@
 			</GridViewColumn>
 		</GridView.Columns>
 	</GridView>
-
-	<DataTemplate x:Key="ModUpdateNameTemplate" DataType="{x:Type updates:DivinityModUpdateData}">
-		<ContentControl Content="{Binding UpdatedMod}" ContentTemplate="{StaticResource ModNameTemplate}" />
-	</DataTemplate>
 
 	<Style x:Key="BusyIndicatorProgressStyle" TargetType="{x:Type xc:BusyIndicator}">
 		<Setter Property="OverlayStyle">
