@@ -34,6 +34,7 @@ namespace DivinityModManager
 
 			Services.RegisterSingleton<IFileWatcherService>(new FileWatcherService());
 			Services.RegisterSingleton<IGithubService>(new GithubService(appName, version));
+			Services.RegisterSingleton<INexusModsService>(new NexusModsService(appName, version));
 
 			// POCO type warning suppression
 			Services.Register<ICreatesObservableForProperty>(() => new DivinityModManager.Util.CustomPropertyResolver());

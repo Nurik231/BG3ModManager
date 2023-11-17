@@ -54,15 +54,11 @@ namespace DivinityModManager.ModUpdater.Cache
 
 		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)
 		{
-			if (!NexusModsDataLoader.IsInitialized && !string.IsNullOrEmpty(APIKey))
-			{
-				NexusModsDataLoader.Init(APIKey, AppName, AppVersion);
-			}
-
-			if (NexusModsDataLoader.CanFetchData)
+			var nexusModsService = Services.Get<INexusModsService>();
+			if (nexusModsService.CanFetchData)
 			{
 				DivinityApp.Log("Checking for Nexus Mods updates.");
-				var result = await NexusModsDataLoader.LoadAllModsDataAsync(mods, cts);
+				var result = await nexusModsService.LoadAllModsDataAsync(mods, cts);
 
 				if (result.Success)
 				{

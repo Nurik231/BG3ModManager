@@ -183,7 +183,7 @@ namespace DivinityModManager.ModUpdater
 					}
 					return Unit.Default;
 				}, RxApp.MainThreadScheduler);
-				var updates = await NexusModsDataLoader.GetLatestDownloadsForModsAsync(mods, cts);
+				var updates = await Services.Get<INexusModsService>().GetLatestDownloadsForModsAsync(mods, cts);
 				return updates;
 			}
 			catch (Exception ex)

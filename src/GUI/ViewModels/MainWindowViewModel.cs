@@ -1095,17 +1095,8 @@ Directory the zip will be extracted to:
 				}
 			});
 
-			Settings.WhenAnyValue(x => x.NexusModsAPIKey).Subscribe((key) =>
-			{
-				if (String.IsNullOrEmpty(key))
-				{
-					NexusModsDataLoader.Dispose();
-				}
-				else
-				{
-					NexusModsDataLoader.Init(key, AutoUpdater.AppTitle, Version);
-				}
-			});
+			var nexusModsService = Services.Get<INexusModsService>();
+			Settings.WhenAnyValue(x => x.NexusModsAPIKey).BindTo(nexusModsService, x => x.ApiKey);
 
 			Settings.WhenAnyValue(x => x.SaveWindowLocation).Subscribe(Window.ToggleWindowPositionSaving);
 		}
@@ -4983,9 +4974,9 @@ Directory the zip will be extracted to:
 			}
 		}
 
-		private void OnNexusModsRateLimitsUpdated(NexusModsRateLimitsUpdatedEventArgs e)
+		private void OnNexusModsRateLimitsUpdated(NexusModsObservableApiLimits limits)
 		{
-			StatusBarRightText = $"NexusMods Limits [Hourly ({e.Limits.HourlyRemaining}/{e.Limits.HourlyLimit}) Daily ({e.Limits.DailyRemaining}/{e.Limits.DailyLimit})]";
+			StatusBarRightText = $"NexusMods Limits [Hourly ({limits.HourlyRemaining}/{limits.HourlyLimit}) Daily ({limits.DailyRemaining}/{limits.DailyLimit})]";
 		}
 
 		public MainWindowViewModel() : base()
@@ -5017,12 +5008,10 @@ Directory the zip will be extracted to:
 				if (!disposables.Contains(this.Disposables)) disposables.Add(this.Disposables);
 			});
 
-			UpdateNexusModsLimitsCommand = ReactiveCommand.Create<NexusModsRateLimitsUpdatedEventArgs>(OnNexusModsRateLimitsUpdated, outputScheduler:RxApp.MainThreadScheduler);
+			UpdateNexusModsLimitsCommand = ReactiveCommand.Create<NexusModsObservableApiLimits>(OnNexusModsRateLimitsUpdated, outputScheduler:RxApp.MainThreadScheduler);
 
-			NexusModsDataLoader.RateLimitsUpdated += (sender, e) =>
-			{
-				UpdateNexusModsLimitsCommand.Execute(e);
-			};
+			var nexusModsService = Services.Get<INexusModsService>();
+			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).InvokeCommand(UpdateNexusModsLimitsCommand);
 
 			UpdateHandler.SteamWorkshop.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.SteamWorkshopSupportEnabled, true, RxApp.MainThreadScheduler);
 			UpdateHandler.NexusMods.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.NexusModsSupportEnabled, true, RxApp.MainThreadScheduler);
