@@ -1,5 +1,6 @@
 ﻿using DivinityModManager.Models;
 using DivinityModManager.Models.Cache;
+using DivinityModManager.Util;
 
 using Newtonsoft.Json;
 
@@ -44,7 +45,37 @@ namespace DivinityModManager.ModUpdater.Cache
 		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)
 		{
 			DivinityApp.Log("Checking for Github mod updates.");
-			return false;
+			var success = false;
+			try
+			{
+				var github = Services.Get<IGithubService>();
+
+				foreach (var mod in mods)
+				{
+					if (mod.GithubData != null && !String.IsNullOrEmpty(mod.GithubData.Author) && !String.IsNullOrEmpty(mod.GithubData.Repository))
+					{
+						var latestRelease = await github.GetLatestReleaseAsync(mod.GithubData.Author, mod.GithubData.Repository);
+						if (latestRelease != null)
+						{
+							var releaseAsset = latestRelease.Assets.FirstOrDefault();
+							if(releaseAsset != null)
+							{
+								mod.GithubData.LatestRelease.Version = latestRelease.TagName;
+								mod.GithubData.LatestRelease.Date = latestRelease.CreatedAt.Ticks;
+								mod.GithubData.LatestRelease.Description = latestRelease.Body;
+								mod.GithubData.LatestRelease.BrowserDownloadLink = releaseAsset.BrowserDownloadUrl;
+								success = true;
+							}
+						}
+						CacheData.Mods[mod.UUID] = mod.GithubData;
+					}
+				}
+			}
+			catch(Exception ex)
+			{
+				DivinityApp.Log($"Error fetching updates: {ex}");
+			}
+			return success;
 		}
 	}
 }

@@ -71,9 +71,9 @@ namespace DivinityModManager.Util
 			return false;
 		}
 
-		public static bool CanFetchData => _client != null && !_client.RateLimitsManagement.ApiDailyLimitExceeded() && !_client.RateLimitsManagement.ApiHourlyLimitExceeded();
-		public static bool LimitExceeded => _client != null && (_client.RateLimitsManagement.ApiDailyLimitExceeded() || !_client.RateLimitsManagement.ApiHourlyLimitExceeded());
 		public static bool IsInitialized => _client != null;
+		public static bool LimitExceeded => IsInitialized && (_client.RateLimitsManagement.ApiDailyLimitExceeded() || _client.RateLimitsManagement.ApiHourlyLimitExceeded());
+		public static bool CanFetchData => IsInitialized && !LimitExceeded;
 
 		private static bool LimitExceededCheck()
 		{

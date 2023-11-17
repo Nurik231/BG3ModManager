@@ -762,7 +762,7 @@ Directory the zip will be extracted to:
 			{
 				string latestReleaseZipUrl = "";
 				DivinityApp.Log($"Checking for latest {DivinityApp.EXTENDER_UPDATER_FILE} release at 'https://github.com/{DivinityApp.EXTENDER_REPO_URL}'.");
-				var latestReleaseData = await GithubHelper.GetLatestReleaseDataAsync(DivinityApp.EXTENDER_REPO_URL, t);
+				var latestReleaseData = await GithubHelper.GetLatestReleaseJsonStringAsync(DivinityApp.EXTENDER_REPO_URL, t);
 				if (!String.IsNullOrEmpty(latestReleaseData))
 				{
 					var jsonData = DivinityJsonUtils.SafeDeserialize<Dictionary<string, object>>(latestReleaseData);
@@ -2355,7 +2355,7 @@ Directory the zip will be extracted to:
 			_refreshGithubModsUpdatesBackgroundTask?.Dispose();
 			_refreshGithubModsUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
 			{
-				await UpdateHandler.RefreshGithubAsync(UserMods, Version, cts);
+				await UpdateHandler.GetGithubUpdatesAsync(UserMods, Version, cts);
 			});
 		}
 
@@ -2370,7 +2370,7 @@ Directory the zip will be extracted to:
 			_refreshNexusModsUpdatesBackgroundTask?.Dispose();
 			_refreshNexusModsUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
 			{
-				var updates = await UpdateHandler.RefreshNexusModsAsync(UserMods, Version, cts);
+				var updates = await UpdateHandler.GetNexusModsUpdatesAsync(UserMods, Version, cts);
 				if(updates != null && updates.Count > 0)
 				{
 					await Observable.Start(() =>

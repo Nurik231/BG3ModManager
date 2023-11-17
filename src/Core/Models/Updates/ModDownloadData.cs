@@ -27,6 +27,7 @@ namespace DivinityModManager.Models.Updates
 		[Reactive] public ModSourceType DownloadSourceType { get; set; }
 		[Reactive] public DateTime? Date { get; set; }
 		[Reactive] public string Version { get; set; }
+		[Reactive] public string Description { get; set; }
 
 		private static System.IO.Stream MakeFileStream(string path) => File.Open(path, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None, 4096, true);
 

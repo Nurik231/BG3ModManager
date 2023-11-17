@@ -14,14 +14,24 @@ namespace DivinityModManager.Models.Github
 	{
 		[Reactive] public string Author { get; set; }
 		[Reactive] public string Repository { get; set; }
-		[Reactive] public Uri LatestRelease { get; set; }
+		[Reactive] public GithubLatestReleaseData LatestRelease { get; set; }
 
 		public void Update(GithubModData data)
 		{
-			//TODO
 			Author = data.Author;
 			Repository = data.Repository;
-			LatestRelease = data.LatestRelease;
+			if(data.LatestRelease != null)
+			{
+				LatestRelease.Version =	data.LatestRelease.Version;
+				LatestRelease.Description =	data.LatestRelease.Description;
+				LatestRelease.Date =	data.LatestRelease.Date;
+				LatestRelease.BrowserDownloadLink = data.LatestRelease.BrowserDownloadLink;
+			}
+		}
+
+		public GithubModData()
+		{
+			LatestRelease = new GithubLatestReleaseData();
 		}
 	}
 }

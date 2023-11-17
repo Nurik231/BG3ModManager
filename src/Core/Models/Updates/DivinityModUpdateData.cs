@@ -29,6 +29,7 @@ namespace DivinityModManager.Models.Updates
 		[ObservableAsProperty] public string LocalFileDateText { get; }
 		[ObservableAsProperty] public string UpdateFilePath { get; }
 		[ObservableAsProperty] public string UpdateDateText { get; }
+		[ObservableAsProperty] public string UpdateToolTip { get; }
 
 		private DivinityModData GetNonNull(ValueTuple<DivinityModData, DivinityModData> items)
 		{
@@ -57,6 +58,23 @@ namespace DivinityModManager.Models.Updates
 			return "";
 		}
 
+		private string GetUpdateTooltip(ValueTuple<string, string> data)
+		{
+			var description = data.Item1;
+			var url = data.Item2;
+			var result = "";
+			if (!String.IsNullOrEmpty(description))
+			{
+				result = description;
+			}
+			if (!String.IsNullOrEmpty(url))
+			{
+				if (!String.IsNullOrEmpty(result)) result += Environment.NewLine;
+				result += url;
+			}
+			return result;
+		}
+
 		public DivinityModUpdateData()
 		{
 			CanDrag = true;
@@ -77,6 +95,9 @@ namespace DivinityModManager.Models.Updates
 			this.WhenAnyValue(x => x.DownloadData.Version).ToPropertyEx(this, x => x.UpdateVersion, true, RxApp.MainThreadScheduler);
 
 			this.WhenAnyValue(x => x.Mod, x => x.Source).Select(SourceToLink).ToPropertyEx(this, x => x.UpdateLink, true, RxApp.MainThreadScheduler);
+
+
+			this.WhenAnyValue(x => x.DownloadData.Description, x => x.DownloadData.DownloadPath).Select(GetUpdateTooltip).ToPropertyEx(this, x => x.UpdateToolTip, true, RxApp.MainThreadScheduler);
 		}
 	}
 }

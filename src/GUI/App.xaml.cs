@@ -28,7 +28,12 @@ namespace DivinityModManager
 			// Fix for loading C++ dlls from _Lib
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
+			var assembly = Assembly.GetExecutingAssembly();
+			var appName = ((AssemblyProductAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyProductAttribute), false)).Product;
+			var version = assembly.GetName().Version.ToString();
+
 			Services.RegisterSingleton<IFileWatcherService>(new FileWatcherService());
+			Services.RegisterSingleton<IGithubService>(new GithubService(appName, version));
 
 			// POCO type warning suppression
 			Services.Register<ICreatesObservableForProperty>(() => new DivinityModManager.Util.CustomPropertyResolver());

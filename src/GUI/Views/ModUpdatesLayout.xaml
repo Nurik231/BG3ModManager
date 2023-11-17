@@ -259,7 +259,7 @@
 									</GridViewColumn.HeaderContainerStyle>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock ToolTip="{Binding UpdateLink}">
+											<TextBlock ToolTip="{Binding UpdateToolTip}">
 												<Hyperlink
 													Command="{Binding Path=OpenURLCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 													CommandParameter="{Binding UpdateLink}"

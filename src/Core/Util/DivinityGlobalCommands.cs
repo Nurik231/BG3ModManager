@@ -34,7 +34,7 @@ namespace DivinityModManager.Util
 		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageInSteamCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> OpenNexusModsPageCommand { get; private set; }
-		public ReactiveCommand<string, Unit> OpenURLCommand { get; private set; }
+		public ReactiveCommand<object, Unit> OpenURLCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> ToggleForceAllowInLoadOrderCommand { get; private set; }
 
 		public void OpenFile(string path)
@@ -185,7 +185,7 @@ namespace DivinityModManager.Util
 				}
 			}, canExecuteViewModelCommands);
 
-			OpenURLCommand = ReactiveCommand.Create<string>(OpenURL, canExecuteViewModelCommands);
+			OpenURLCommand = ReactiveCommand.Create<object>(x => OpenURL(x.ToString()), canExecuteViewModelCommands);
 			OpenSteamWorkshopPageCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPage, canExecuteViewModelCommands);
 			OpenSteamWorkshopPageInSteamCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPageInSteam, canExecuteViewModelCommands);
 			OpenNexusModsPageCommand = ReactiveCommand.Create<DivinityModData>(OpenNexusModsPage, canExecuteViewModelCommands);
