@@ -60,6 +60,7 @@
     </Target>
     <ItemGroup>
         <ProjectReference Include="$(SolutionDir)\src\Core\DivinityModManagerCore.csproj" />
+		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="AdonisUI" Version="1.17.1" />
@@ -86,7 +87,6 @@
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2045.28" />
         <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="NexusModsNET" Version="1.0.5" />
         <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
         <PackageReference Include="Pharmacist.Common" Version="2.0.8" />
         <PackageReference Include="ReactiveUI" Version="19.4.1" />

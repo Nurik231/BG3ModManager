@@ -19,12 +19,15 @@
         <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="NexusModsNET" Version="1.0.5" />
+        <PackageReference Include="Octokit" Version="9.0.0" />
         <PackageReference Include="ReactiveHistory" Version="0.10.7" />
         <PackageReference Include="ReactiveProperty" Version="9.3.2" />
         <PackageReference Include="ReactiveUI" Version="19.4.1" />
         <PackageReference Include="ReactiveUI.Fody" Version="19.4.1" />
         <PackageReference Include="System.Reactive" Version="6.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Reference Include="LSLib">
