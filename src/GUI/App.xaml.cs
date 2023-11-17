@@ -9,6 +9,7 @@ using ReactiveUI;
 using System;
 using System.Globalization;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
@@ -32,9 +33,10 @@ namespace DivinityModManager
 			var appName = ((AssemblyProductAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyProductAttribute), false)).Product;
 			var version = assembly.GetName().Version.ToString();
 
+			var productName = Regex.Replace(appName.Trim(), @"\s+", String.Empty);
 			Services.RegisterSingleton<IFileWatcherService>(new FileWatcherService());
-			Services.RegisterSingleton<IGithubService>(new GithubService(appName, version));
-			Services.RegisterSingleton<INexusModsService>(new NexusModsService(appName, version));
+			Services.RegisterSingleton<IGithubService>(new GithubService(productName, version));
+			Services.RegisterSingleton<INexusModsService>(new NexusModsService(productName, version));
 
 			// POCO type warning suppression
 			Services.Register<ICreatesObservableForProperty>(() => new DivinityModManager.Util.CustomPropertyResolver());
