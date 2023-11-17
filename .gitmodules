@@ -1,0 +1,3 @@
+[submodule "External/NexusModsNET"]
+	path = External/NexusModsNET
+	url = https://github.com/laughingLeader/NexusModsNET
