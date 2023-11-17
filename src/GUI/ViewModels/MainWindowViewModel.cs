@@ -5011,7 +5011,7 @@ Directory the zip will be extracted to:
 			UpdateNexusModsLimitsCommand = ReactiveCommand.Create<NexusModsObservableApiLimits>(OnNexusModsRateLimitsUpdated, outputScheduler:RxApp.MainThreadScheduler);
 
 			var nexusModsService = Services.Get<INexusModsService>();
-			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).InvokeCommand(UpdateNexusModsLimitsCommand);
+			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).ObserveOn(RxApp.MainThreadScheduler).InvokeCommand(UpdateNexusModsLimitsCommand);
 
 			UpdateHandler.SteamWorkshop.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.SteamWorkshopSupportEnabled, true, RxApp.MainThreadScheduler);
 			UpdateHandler.NexusMods.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.NexusModsSupportEnabled, true, RxApp.MainThreadScheduler);
