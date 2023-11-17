@@ -21,11 +21,8 @@ namespace DivinityModManager.Models
 
 		[DataMember] public ObservableCollectionExtended<string> FeatureFlags { get; set; }
 
-		private ObservableAsPropertyHelper<int> _totalFeatureFlags;
-		public int TotalFeatureFlags => _totalFeatureFlags.Value;
-
-		private ObservableAsPropertyHelper<bool> _hasAnySettings;
-		public bool HasAnySettings => _hasAnySettings.Value;
+		[ObservableAsProperty] public int TotalFeatureFlags { get; }
+		[ObservableAsProperty] public bool HasAnySettings { get; }
 
 		public bool Lua => FeatureFlags.Contains("Lua");
 
@@ -34,9 +31,9 @@ namespace DivinityModManager.Models
 			RequiredVersion = -1;
 			FeatureFlags = new ObservableCollectionExtended<string>();
 			var featureFlagsConnection = FeatureFlags.ToObservableChangeSet();
-			_totalFeatureFlags = featureFlagsConnection.CountChanged().Select(x => x.Count).ToProperty(this, nameof(TotalFeatureFlags));
-			_hasAnySettings = this.WhenAnyValue(x => x.RequiredVersion, x => x.TotalFeatureFlags, x => x.ModTable)
-				.Select(x => x.Item1 > -1 || x.Item2 > 0 || !String.IsNullOrEmpty(x.Item3)).ToProperty(this, nameof(HasAnySettings));
+			featureFlagsConnection.CountChanged().Select(x => x.Count).ToPropertyEx(this, x => TotalFeatureFlags);
+			this.WhenAnyValue(x => x.RequiredVersion, x => x.TotalFeatureFlags, x => x.ModTable)
+			.Select(x => x.Item1 > -1 || x.Item2 > 0 || !String.IsNullOrEmpty(x.Item3)).ToPropertyEx(this, x => HasAnySettings);
 		}
 	}
 }
