@@ -4,7 +4,7 @@ PublishRelease.py
 _Backup/
 
 # External Libraries, such as lslib
-External/
+External/lslib
 
 ## Visual Studio Code specific files and folder
 .vscode/*
