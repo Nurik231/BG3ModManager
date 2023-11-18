@@ -63,13 +63,13 @@ namespace DivinityModManager.ViewModels
 
 		public event EventHandler<FileDeletionCompleteEventArgs> FileDeletionComplete;
 
-		public override async Task<bool> Run(CancellationToken cts)
+		public override async Task<bool> Run(CancellationToken token)
 		{
 			var targetFiles = Files.Where(x => x.IsSelected).ToList();
 
 			await UpdateProgress($"Confirming deletion...", "", 0d);
 
-			var result = await DivinityInteractions.ConfirmModDeletion.Handle(new DeleteFilesViewConfirmationData { Total = targetFiles.Count, PermanentlyDelete = PermanentlyDelete, Token = cts });
+			var result = await DivinityInteractions.ConfirmModDeletion.Handle(new DeleteFilesViewConfirmationData { Total = targetFiles.Count, PermanentlyDelete = PermanentlyDelete, Token = token });
 			if (result)
 			{
 				var eventArgs = new FileDeletionCompleteEventArgs()
@@ -85,7 +85,7 @@ namespace DivinityModManager.ViewModels
 				{
 					try
 					{
-						if (cts.IsCancellationRequested)
+						if (token.IsCancellationRequested)
 						{
 							DivinityApp.Log("Deletion stopped.");
 							break;

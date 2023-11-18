@@ -112,7 +112,7 @@ namespace DivinityModManager.Util
 			return totalLoaded;
 		}
 
-		public static async Task<bool> GetAllWorkshopDataAsync(SteamWorkshopCachedData cachedData, string appid, CancellationToken cts)
+		public static async Task<bool> GetAllWorkshopDataAsync(SteamWorkshopCachedData cachedData, string appid, CancellationToken token)
 		{
 			DivinityApp.Log($"Attempting to get workshop data for mods missing workshop folders.");
 			int totalFound = 0;
@@ -123,12 +123,12 @@ namespace DivinityModManager.Util
 
 			while (page < maxPage)
 			{
-				if (cts.IsCancellationRequested) break;
+				if (token.IsCancellationRequested) break;
 				string url = $"https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/?key={ApiKeys.STEAM_WEB_API}&appid={appid}&return_short_description=true&numperpage=99&return_tags=true&return_metadata=true&requiredtags[0]=Definitive+Edition&excludedtags[0]=GM+Campaign&page={page}";
 				string responseData = "";
 				try
 				{
-					var response = await WebHelper.Client.GetAsync(url, cts);
+					var response = await WebHelper.Client.GetAsync(url, token);
 					responseData = await response.Content.ReadAsStringAsync();
 				}
 				catch (Exception ex)

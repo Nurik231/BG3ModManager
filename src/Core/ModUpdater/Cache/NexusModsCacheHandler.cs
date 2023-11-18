@@ -20,7 +20,7 @@ namespace DivinityModManager.ModUpdater.Cache
 	{
 		public ModSourceType SourceType => ModSourceType.NEXUSMODS;
 		public string FileName => "nexusmodsdata.json";
-		public JsonSerializerSettings SerializerSettings => ModUpdateHandler.DefaultSerializerSettings;
+		public JsonSerializerSettings SerializerSettings { get; }
 		[Reactive] public bool IsEnabled { get; set; }
 		public NexusModsCachedData CacheData { get; set; }
 
@@ -28,8 +28,9 @@ namespace DivinityModManager.ModUpdater.Cache
 		public string AppName { get; set; }
 		public string AppVersion { get; set; }
 
-		public NexusModsCacheHandler()
+		public NexusModsCacheHandler(JsonSerializerSettings serializerSettings)
 		{
+			SerializerSettings = serializerSettings;
 			CacheData = new NexusModsCachedData();
 			IsEnabled = false;
 		}
@@ -52,13 +53,13 @@ namespace DivinityModManager.ModUpdater.Cache
 			}
 		}
 
-		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)
+		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
 			var nexusModsService = Services.Get<INexusModsService>();
 			if (nexusModsService.CanFetchData)
 			{
 				DivinityApp.Log("Checking for Nexus Mods updates.");
-				var result = await nexusModsService.LoadAllModsDataAsync(mods, cts);
+				var result = await nexusModsService.FetchModInfoAsync(mods, token);
 
 				if (result.Success)
 				{

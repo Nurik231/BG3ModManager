@@ -42,7 +42,7 @@ namespace DivinityModManager.ModUpdater.Cache
 
 		}
 
-		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)
+		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
 			DivinityApp.Log("Checking for Github mod updates.");
 			var success = false;

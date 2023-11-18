@@ -477,7 +477,7 @@ namespace DivinityModManager.ViewModels
 				{
 					try
 					{
-						if (Main.UpdateHandler.DeleteCache())
+						if (Services.Get<IModUpdaterService>().DeleteCache())
 						{
 							ShowAlert($"Deleted local cache in {DivinityApp.GetAppDirectory("Data")}", AlertType.Success, 20);
 						}

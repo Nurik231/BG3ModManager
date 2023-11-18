@@ -676,11 +676,11 @@ namespace DivinityModManager.Util
 			}
 		}
 
-		public static async Task<DivinityModData> LoadModDataFromPakAsync(string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken cts)
+		public static async Task<DivinityModData> LoadModDataFromPakAsync(string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
 		{
 			try
 			{
-				while (!cts.IsCancellationRequested)
+				while (!token.IsCancellationRequested)
 				{
 					return await LoadModDataFromPakAsync(pakPath, builtinMods);
 				}
@@ -692,11 +692,11 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		public static async Task<DivinityModData> LoadModDataFromPakAsync(System.IO.Stream stream, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken cts)
+		public static async Task<DivinityModData> LoadModDataFromPakAsync(System.IO.Stream stream, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
 		{
 			try
 			{
-				while (!cts.IsCancellationRequested)
+				while (!token.IsCancellationRequested)
 				{
 					stream.Position = 0;
 					using (var pr = new LSLib.LS.PackageReader())
@@ -713,7 +713,7 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		public static async Task<ModLoadingResults> LoadModPackageDataAsync(string modsFolderPath, CancellationToken cts)
+		public static async Task<ModLoadingResults> LoadModPackageDataAsync(string modsFolderPath, CancellationToken token)
 		{
 			var builtinMods = DivinityApp.IgnoredMods.SafeToDictionary(x => x.Folder, x => x);
 
@@ -750,9 +750,9 @@ namespace DivinityModManager.Util
 				{
 					while (partition.MoveNext())
 					{
-						if (cts.IsCancellationRequested) return;
+						if (token.IsCancellationRequested) return;
 						await Task.Yield(); // prevents a sync/hot thread hangup
-						var modData = await LoadModDataFromPakAsync(partition.Current, builtinMods, cts);
+						var modData = await LoadModDataFromPakAsync(partition.Current, builtinMods, token);
 						if (modData != null)
 						{
 							loadedMods.Add(modData);

@@ -80,9 +80,9 @@ namespace DivinityModManager.Util
 			return false;
 		}
 
-		public static async Task<T> DeserializeFromPathAsync<T>(string path, CancellationToken cts)
+		public static async Task<T> DeserializeFromPathAsync<T>(string path, CancellationToken token)
 		{
-			var fileBytes = await DivinityFileUtils.LoadFileAsync(path, cts);
+			var fileBytes = await DivinityFileUtils.LoadFileAsync(path, token);
 			if(fileBytes != null)
 			{
 				var contents = Encoding.UTF8.GetString(fileBytes);

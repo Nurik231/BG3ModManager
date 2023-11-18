@@ -72,7 +72,7 @@ namespace DivinityModManager.ViewModels
 
 		public ReactiveCommand<Unit, Unit> SelectAllCommand { get; private set; }
 
-		public override async Task<bool> Run(CancellationToken cts)
+		public override async Task<bool> Run(CancellationToken token)
 		{
 			//Only visible + selected entries
 			var exportedMods = Entries.Where(x => x.IsSelected);

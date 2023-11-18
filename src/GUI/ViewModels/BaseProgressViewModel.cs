@@ -52,7 +52,7 @@ namespace DivinityModManager.ViewModels
 			return Unit.Default;
 		}
 
-		public virtual async Task<bool> Run(CancellationToken cts)
+		public virtual async Task<bool> Run(CancellationToken token)
 		{
 			return true;
 		}

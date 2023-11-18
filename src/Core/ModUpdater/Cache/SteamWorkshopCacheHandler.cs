@@ -20,14 +20,15 @@ namespace DivinityModManager.ModUpdater.Cache
 	{
 		public ModSourceType SourceType => ModSourceType.STEAM;
 		public string FileName => "workshopdata.json";
-		public JsonSerializerSettings SerializerSettings => ModUpdateHandler.DefaultSerializerSettings;
+		public JsonSerializerSettings SerializerSettings { get; }
 		public SteamWorkshopCachedData CacheData { get; set; }
 		[Reactive] public bool IsEnabled { get; set; }
 
 		public string SteamAppID { get; set; }
 
-		public SteamWorkshopCacheHandler()
+		public SteamWorkshopCacheHandler(JsonSerializerSettings serializerSettings)
 		{
+			SerializerSettings = serializerSettings;
 			CacheData = new SteamWorkshopCachedData();
 			IsEnabled = false;
 		}
@@ -37,10 +38,10 @@ namespace DivinityModManager.ModUpdater.Cache
 
 		}
 
-		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts)
+		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
 			DivinityApp.Log("Checking for Steam Workshop updates.");
-			var success = await WorkshopDataLoader.GetAllWorkshopDataAsync(CacheData, SteamAppID, cts);
+			var success = await WorkshopDataLoader.GetAllWorkshopDataAsync(CacheData, SteamAppID, token);
 			if (success)
 			{
 				var cachedGUIDs = CacheData.Mods.Keys.ToHashSet();

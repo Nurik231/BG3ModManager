@@ -24,18 +24,18 @@ namespace DivinityModManager.ModUpdater.Cache
 		bool IsEnabled { get; set; }
 		T CacheData { get; set; }
 		void OnCacheUpdated(T cachedData);
-		Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken cts);
+		Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken token);
 	}
 
 	public static class IExternalModCacheDataExtensions
 	{
-		public static async Task<T> LoadCacheAsync<T>(this IExternalModCacheHandler<T> handler, string currentAppVersion, CancellationToken cts) where T : IModCacheData
+		public static async Task<T> LoadCacheAsync<T>(this IExternalModCacheHandler<T> handler, string currentAppVersion, CancellationToken token) where T : IModCacheData
 		{
 			var filePath = DivinityApp.GetAppDirectory("Data", handler.FileName);
 
 			if (File.Exists(filePath))
 			{
-				var cachedData = await DivinityJsonUtils.DeserializeFromPathAsync<T>(filePath, cts);
+				var cachedData = await DivinityJsonUtils.DeserializeFromPathAsync<T>(filePath, token);
 				if (cachedData != null)
 				{
 					if (string.IsNullOrEmpty(cachedData.LastVersion) || cachedData.LastVersion != currentAppVersion)
@@ -50,7 +50,7 @@ namespace DivinityModManager.ModUpdater.Cache
 			return default;
 		}
 
-		public static async Task<bool> SaveCacheAsync<T>(this IExternalModCacheHandler<T> handler, bool updateLastTimestamp, string currentAppVersion, CancellationToken cts) where T : IModCacheData
+		public static async Task<bool> SaveCacheAsync<T>(this IExternalModCacheHandler<T> handler, bool updateLastTimestamp, string currentAppVersion, CancellationToken token) where T : IModCacheData
 		{
 			try
 			{
@@ -70,7 +70,7 @@ namespace DivinityModManager.ModUpdater.Cache
 				using (var fs = new System.IO.FileStream(filePath, System.IO.FileMode.Create,
 					System.IO.FileAccess.Write, System.IO.FileShare.None, buffer.Length, true))
 				{
-					await fs.WriteAsync(buffer, 0, buffer.Length, cts);
+					await fs.WriteAsync(buffer, 0, buffer.Length, token);
 				}
 
 				return true;

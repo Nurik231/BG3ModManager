@@ -382,14 +382,14 @@ namespace DivinityModManager.Util
 			}
 		}
 
-		public static async Task<byte[]> LoadFileAsync(string path, CancellationToken cts)
+		public static async Task<byte[]> LoadFileAsync(string path, CancellationToken token)
 		{
 			try
 			{
 				using (var file = File.Open(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
 				{
 					var result = new byte[file.Length];
-					var totalBytesRead = await file.ReadAsync(result, 0, (int)file.Length, cts);
+					var totalBytesRead = await file.ReadAsync(result, 0, (int)file.Length, token);
 					return result;
 				}
 			}
@@ -400,7 +400,7 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		public static async Task<bool> CopyFileAsync(string copyFromPath, string copyToPath, CancellationToken cts)
+		public static async Task<bool> CopyFileAsync(string copyFromPath, string copyToPath, CancellationToken token)
 		{
 			try
 			{
@@ -409,7 +409,7 @@ namespace DivinityModManager.Util
 					using (var outputFile = File.Open(copyFromPath, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None, 4096, true))
 					{
 
-						await sourceFile.CopyToAsync(outputFile, 4096, cts);
+						await sourceFile.CopyToAsync(outputFile, 4096, token);
 						return true;
 					}
 				}

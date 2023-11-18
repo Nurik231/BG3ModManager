@@ -31,20 +31,20 @@ namespace DivinityModManager.Models.Updates
 
 		private static System.IO.Stream MakeFileStream(string path) => File.Open(path, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None, 4096, true);
 
-		public async Task<bool> DownloadAsync(string outputDirectory, CancellationToken cts)
+		public async Task<bool> DownloadAsync(string outputDirectory, CancellationToken token)
 		{
 			try
 			{
 				if (DownloadPathType == ModDownloadPathType.FILE)
 				{
 					var outputFilePath = Path.Combine(outputDirectory, DownloadPath);
-					await DivinityFileUtils.CopyFileAsync(DownloadPath, outputFilePath, cts);
+					await DivinityFileUtils.CopyFileAsync(DownloadPath, outputFilePath, token);
 					return true;
 				}
 				else if (DownloadPathType == ModDownloadPathType.URL)
 				{
 					var success = false;
-					using (var webStream = await WebHelper.DownloadFileAsStreamAsync(DownloadPath, cts))
+					using (var webStream = await WebHelper.DownloadFileAsStreamAsync(DownloadPath, token))
 					{
 						if (webStream == null) return false;
 
@@ -53,7 +53,7 @@ namespace DivinityModManager.Models.Updates
 							var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(DownloadPath));
 							using (var outputFile = MakeFileStream(outputFilePath))
 							{
-								await webStream.CopyToAsync(outputFile, 4096, cts);
+								await webStream.CopyToAsync(outputFile, 4096, token);
 								success = true;
 							}
 						}
@@ -69,7 +69,7 @@ namespace DivinityModManager.Models.Updates
 										var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(entry.Name));
 										using (var outputFile = MakeFileStream(outputFilePath))
 										{
-											await entryStream.CopyToAsync(outputFile, 4096, cts);
+											await entryStream.CopyToAsync(outputFile, 4096, token);
 											success = true;
 										}
 									}
