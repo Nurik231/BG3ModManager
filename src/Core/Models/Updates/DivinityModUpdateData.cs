@@ -58,7 +58,7 @@ namespace DivinityModManager.Models.Updates
 			return "";
 		}
 
-		private string GetUpdateTooltip(ValueTuple<string, string> data)
+		private string GetUpdateTooltip(ValueTuple<string, Uri> data)
 		{
 			var description = data.Item1;
 			var url = data.Item2;
@@ -67,10 +67,10 @@ namespace DivinityModManager.Models.Updates
 			{
 				result = description;
 			}
-			if (!String.IsNullOrEmpty(url))
+			if (url != null && !String.IsNullOrEmpty(url.AbsoluteUri))
 			{
 				if (!String.IsNullOrEmpty(result)) result += Environment.NewLine;
-				result += url;
+				result += url.AbsoluteUri;
 			}
 			return result;
 		}
@@ -97,7 +97,7 @@ namespace DivinityModManager.Models.Updates
 			this.WhenAnyValue(x => x.Mod, x => x.Source).Select(SourceToLink).ToPropertyEx(this, x => x.UpdateLink, true, RxApp.MainThreadScheduler);
 
 
-			this.WhenAnyValue(x => x.DownloadData.Description, x => x.DownloadData.DownloadPath).Select(GetUpdateTooltip).ToPropertyEx(this, x => x.UpdateToolTip, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.DownloadData.Description, x => x.UpdateLink).Select(GetUpdateTooltip).ToPropertyEx(this, x => x.UpdateToolTip, true, RxApp.MainThreadScheduler);
 		}
 	}
 }

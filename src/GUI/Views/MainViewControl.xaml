@@ -649,10 +649,25 @@
 				Padding="8,0"
 				HorizontalAlignment="Right"
 				VerticalAlignment="Stretch">
-				<TextBlock
-					x:Name="StatusBarLoadingOperationTextBlock"
+				<StackPanel
 					HorizontalAlignment="Center"
-					VerticalAlignment="Center" />
+					VerticalAlignment="Center"
+					Orientation="Horizontal">
+					<TextBlock x:Name="StatusBarLoadingOperationTextBlock" />
+					<Image
+						x:Name="NexusModsProfileImage"
+						MaxWidth="16"
+						MaxHeight="16"
+						Margin="4"
+						RenderOptions.BitmapScalingMode="HighQuality"
+						Stretch="UniformToFill"
+						Visibility="Collapsed" />
+					<TextBlock
+						x:Name="StatusBarNexusLimitsTextBlock"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center" />
+				</StackPanel>
+
 			</StatusBarItem>
 		</StatusBar>
 	</Grid>

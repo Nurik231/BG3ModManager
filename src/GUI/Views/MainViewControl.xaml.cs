@@ -252,6 +252,9 @@ namespace DivinityModManager.Views
 			this.WhenAnyValue(x => x.ViewModel).BindTo(this, x => x.ModLayout.ViewModel);
 
 			this.OneWayBind(ViewModel, vm => vm.StatusBarRightText, view => view.StatusBarLoadingOperationTextBlock.Text);
+			this.OneWayBind(ViewModel, vm => vm.NexusModsLimitsText, view => view.StatusBarNexusLimitsTextBlock.Text);
+			this.OneWayBind(ViewModel, vm => vm.NexusModsProfileAvatarVisibility, view => view.NexusModsProfileImage.Visibility);
+			this.OneWayBind(ViewModel, vm => vm.NexusModsProfileBitmapImage, view => view.NexusModsProfileImage.Source);
 
 			this.OneWayBind(ViewModel, vm => vm.ModUpdatesAvailable, view => view.UpdatesButtonPanel.IsEnabled);
 

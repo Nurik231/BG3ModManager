@@ -6,6 +6,7 @@ using DynamicData.Binding;
 
 using NexusModsNET;
 using NexusModsNET.DataModels;
+using NexusModsNET.Inquirers;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -13,6 +14,7 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +27,9 @@ namespace DivinityModManager
 		bool IsInitialized { get; }
 		bool LimitExceeded { get; }
 		bool CanFetchData { get; }
+		bool IsPremium { get; }
+		Uri ProfileAvatarUrl { get; }
+
 		NexusModsObservableApiLimits ApiLimits { get; }
 
 		IObservable<NexusModsObservableApiLimits> WhenLimitsChange { get; }
@@ -39,8 +44,11 @@ namespace DivinityModManager.AppServices
 	public class NexusModsService : ReactiveObject, INexusModsService
 	{
 		private INexusModsClient _client;
+		private InfosInquirer _dataLoader;
 
 		[Reactive] public string ApiKey { get; set; }
+		[Reactive] public bool IsPremium { get; private set; }
+		[Reactive] public Uri ProfileAvatarUrl { get; private set; }
 
 		private readonly NexusModsObservableApiLimits _apiLimits;
 		public NexusModsObservableApiLimits ApiLimits => _apiLimits;
@@ -86,34 +94,38 @@ namespace DivinityModManager.AppServices
 			return false;
 		}
 
+		public async Task<NexusUser> GetUserAsync(CancellationToken t)
+		{
+			if (!CanFetchData) return null;
+			return await _dataLoader.User.GetUserAsync(t);
+		}
+
 		public async Task<List<NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken t)
 		{
 			var links = new List<NexusModsModDownloadLink>();
 			if (!CanFetchData) return links;
-
+			
 			try
 			{
+				//1 call for the mod files, 1 call to get a mod file link
 				var apiCallAmount = mods.Count(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START) & 2;
 				if (!CanDoTask(apiCallAmount))
 				{
-					var apiAmounts = _client.RateLimitsManagement.APILimits;
-
-					DivinityApp.Log($"Task would exceed hourly or daily API limits. ExpectedCalls({apiCallAmount}) HourlyRemaining({apiAmounts.HourlyRemaining}/{apiAmounts.HourlyLimit}) DailyRemaining({apiAmounts.DailyRemaining}/{apiAmounts.DailyLimit})");
+					DivinityApp.Log($"Task would exceed hourly or daily API limits. ExpectedCalls({apiCallAmount}) HourlyRemaining({ApiLimits.HourlyRemaining}/{ApiLimits.HourlyLimit}) DailyRemaining({ApiLimits.DailyRemaining}/{ApiLimits.DailyLimit})");
 					return links;
 				}
-				var dataLoader = new InfosInquirer(_client);
 				foreach (var mod in mods)
 				{
 					if (mod.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START)
 					{
-						var result = await dataLoader.ModFiles.GetModFilesAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, t);
+						var result = await _dataLoader.ModFiles.GetModFilesAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, t);
 						if (result != null)
 						{
 							var file = result.ModFiles.FirstOrDefault(x => x.IsPrimary || x.Category == NexusModFileCategory.Main);
 							if (file != null)
 							{
 								var fileId = file.FileId;
-								var linkResult = await dataLoader.ModFiles.GetModFileDownloadLinksAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, fileId, t);
+								var linkResult = await _dataLoader.ModFiles.GetModFileDownloadLinksAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, fileId, t);
 								if (linkResult != null && linkResult.Count() > 0)
 								{
 									var primaryLink = linkResult.FirstOrDefault();
@@ -167,9 +179,7 @@ namespace DivinityModManager.AppServices
 				var apiCallAmount = total; // 1 call for 1 mod
 				if (!CanDoTask(total))
 				{
-					var apiAmounts = _client.RateLimitsManagement.APILimits;
-
-					DivinityApp.Log($"Task would exceed hourly or daily API limits. ExpectedCalls({apiCallAmount}) HourlyRemaining({apiAmounts.HourlyRemaining}/{apiAmounts.HourlyLimit}) DailyRemaining({apiAmounts.DailyRemaining}/{apiAmounts.DailyLimit})");
+					DivinityApp.Log($"Task would exceed hourly or daily API limits. ExpectedCalls({apiCallAmount}) HourlyRemaining({ApiLimits.HourlyRemaining}/{ApiLimits.HourlyLimit}) DailyRemaining({ApiLimits.DailyRemaining}/{ApiLimits.DailyLimit})");
 					return taskResult;
 				}
 
@@ -204,9 +214,25 @@ namespace DivinityModManager.AppServices
 			this.WhenAnyValue(x => x.ApiKey).Subscribe(key =>
 			{
 				_client?.Dispose();
+				_dataLoader?.Dispose();
+
 				if (!String.IsNullOrEmpty(key))
 				{
 					_client = NexusModsClient.Create(key, appName, appVersion, _apiLimits);
+					_dataLoader = new InfosInquirer(_client);
+
+					if (ProfileAvatarUrl == null)
+					{
+						RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
+						{
+							var user = await GetUserAsync(cts);
+							if (user != null)
+							{
+								IsPremium = user.IsPremium;
+								ProfileAvatarUrl = user.ProfileAvatarUrl;
+							}
+						});
+					}
 				}
 				else
 				{

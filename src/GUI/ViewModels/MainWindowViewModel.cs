@@ -58,6 +58,8 @@ using SharpCompress.Archives;
 using ZstdSharp;
 using SharpCompress.Compressors.Xz;
 using SharpCompress.Compressors.BZip2;
+using DivinityModManager.Converters;
+using System.Windows.Media.Imaging;
 
 namespace DivinityModManager.ViewModels
 {
@@ -250,6 +252,11 @@ namespace DivinityModManager.ViewModels
 
 		[Reactive] public string StatusText { get; set; }
 		[Reactive] public string StatusBarRightText { get; set; }
+
+		[ObservableAsProperty] public string NexusModsLimitsText { get; }
+		[ObservableAsProperty] public Visibility NexusModsProfileAvatarVisibility { get; }
+		[ObservableAsProperty] public BitmapImage NexusModsProfileBitmapImage { get; }
+
 		[Reactive] public bool ModUpdatesAvailable { get; set; }
 		[Reactive] public bool ModUpdatesViewVisible { get; set; }
 		[Reactive] public bool HighlightExtenderDownload { get; set; }
@@ -334,7 +341,6 @@ namespace DivinityModManager.ViewModels
 		public ICommand CheckForGithubModUpdatesCommand { get; private set; }
 		public ICommand CheckForNexusModsUpdatesCommand { get; private set; }
 		public ICommand CheckForSteamWorkshopUpdatesCommand { get; private set; }
-		public ICommand UpdateNexusModsLimitsCommand { get; private set; }
 		public EventHandler OnRefreshed { get; set; }
 
 		#region DungeonMaster Support
@@ -4974,9 +4980,22 @@ Directory the zip will be extracted to:
 			}
 		}
 
-		private void OnNexusModsRateLimitsUpdated(NexusModsObservableApiLimits limits)
+		private static string NexusModsLimitToText(NexusModsObservableApiLimits limits)
 		{
-			StatusBarRightText = $"NexusMods Limits [Hourly ({limits.HourlyRemaining}/{limits.HourlyLimit}) Daily ({limits.DailyRemaining}/{limits.DailyLimit})]";
+			return $"NexusMods Limits [Hourly ({limits.HourlyRemaining}/{limits.HourlyLimit}) Daily ({limits.DailyRemaining}/{limits.DailyLimit})]";
+		}
+
+		private static BitmapImage UriToImage(Uri uri)
+		{
+			if(uri != null)
+			{
+				var bitmap = new BitmapImage();
+				bitmap.BeginInit();
+				bitmap.UriSource = uri;
+				bitmap.EndInit();
+				return bitmap;
+			}
+			return null;
 		}
 
 		public MainWindowViewModel() : base()
@@ -5008,10 +5027,11 @@ Directory the zip will be extracted to:
 				if (!disposables.Contains(this.Disposables)) disposables.Add(this.Disposables);
 			});
 
-			UpdateNexusModsLimitsCommand = ReactiveCommand.Create<NexusModsObservableApiLimits>(OnNexusModsRateLimitsUpdated, outputScheduler:RxApp.MainThreadScheduler);
-
 			var nexusModsService = Services.Get<INexusModsService>();
-			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).ObserveOn(RxApp.MainThreadScheduler).InvokeCommand(UpdateNexusModsLimitsCommand);
+			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(NexusModsLimitToText).ToPropertyEx(this, x => x.NexusModsLimitsText, true, RxApp.MainThreadScheduler);
+			var whenNexusModsAvatar = nexusModsService.WhenAnyValue(x => x.ProfileAvatarUrl);
+			whenNexusModsAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToPropertyEx(this, x => x.NexusModsProfileAvatarVisibility, true, RxApp.MainThreadScheduler);
+			whenNexusModsAvatar.Select(UriToImage).ToPropertyEx(this, x => x.NexusModsProfileBitmapImage, true, RxApp.MainThreadScheduler);
 
 			UpdateHandler.SteamWorkshop.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.SteamWorkshopSupportEnabled, true, RxApp.MainThreadScheduler);
 			UpdateHandler.NexusMods.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.NexusModsSupportEnabled, true, RxApp.MainThreadScheduler);
