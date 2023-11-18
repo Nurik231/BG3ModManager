@@ -1251,30 +1251,6 @@ Directory the zip will be extracted to:
 			_deferSave = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(250), () => SaveSettings());
 		}
 
-		public async Task<List<DivinityModData>> LoadWorkshopModsAsync(CancellationToken token)
-		{
-			if (Directory.Exists(Settings.WorkshopPath))
-			{
-				var workshopResults = await DivinityModDataLoader.LoadModPackageDataAsync(Settings.WorkshopPath, token);
-				if (token.IsCancellationRequested)
-				{
-					return workshopResults.Mods;
-				}
-				foreach (var workshopMod in workshopResults.Mods)
-				{
-					string workshopID = Directory.GetParent(workshopMod.FilePath)?.Name;
-					if (!String.IsNullOrEmpty(workshopID))
-					{
-						workshopMod.WorkshopData.ID = workshopID;
-					}
-				}
-
-				return workshopResults.Mods.OrderBy(m => m.Name).ToList();
-			}
-
-			return new List<DivinityModData>();
-		}
-
 		public void CheckForWorkshopModUpdates(CancellationToken token)
 		{
 			ModUpdatesViewData.Clear();
@@ -2378,7 +2354,7 @@ Directory the zip will be extracted to:
 				{
 					await Observable.Start(() =>
 					{
-						foreach (var update in updates)
+						foreach (var update in updates.Values)
 						{
 							try
 							{
@@ -2420,7 +2396,7 @@ Directory the zip will be extracted to:
 			_refreshSteamWorkshopUpdatesBackgroundTask?.Dispose();
 			_refreshSteamWorkshopUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
 			{
-				await updater.GetSteamWorkshopUpdatesAsync(UserMods, Version, cts);
+				await updater.GetSteamWorkshopUpdatesAsync(Settings, UserMods, Version, cts);
 			});
 		}
 
@@ -2430,7 +2406,7 @@ Directory the zip will be extracted to:
 		{
 			IsRefreshingModUpdates = true;
 			_refreshAllModUpdatesBackgroundTask?.Dispose();
-			_refreshAllModUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
+			_refreshAllModUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, token) =>
 			{
 				var updater = Services.Get<IModUpdaterService>();
 
@@ -2440,24 +2416,23 @@ Directory the zip will be extracted to:
 				updater.NexusMods.AppName = AutoUpdater.AppTitle;
 				updater.NexusMods.AppVersion = Version;
 
-				if (updater.SteamWorkshop.IsEnabled)
+				//await updater.LoadCacheAsync(UserMods, Version, token);
+				//await updater.UpdateInfoAsync(UserMods, cts);
+				//await updater.SaveCacheAsync(UserMods, Version, token);
+				var results = await updater.FetchUpdatesAsync(Settings, UserMods, token);
+
+				if (results.SteamWorkshop.Count > 0)
 				{
-					DivinityApp.Log("Checking for Steam Workshop mods.");
-					var loadedWorkshopMods = await LoadWorkshopModsAsync(cts);
 					await Observable.Start(() =>
 					{
-						workshopMods.AddOrUpdate(loadedWorkshopMods);
+						workshopMods.AddOrUpdate(results.SteamWorkshop.Values);
 						DivinityApp.Log($"Loaded '{workshopMods.Count}' workshop mods from '{Settings.WorkshopPath}'.");
-						if (!cts.IsCancellationRequested)
+						if (!token.IsCancellationRequested)
 						{
-							CheckForWorkshopModUpdates(cts);
+							CheckForWorkshopModUpdates(token);
 						}
 					}, RxApp.MainThreadScheduler);
 				}
-
-				await updater.LoadAsync(UserMods, Version, cts);
-				await updater.UpdateAsync(UserMods, cts);
-				await updater.SaveAsync(UserMods, Version, cts);
 
 				IsRefreshingModUpdates = false;
 			});

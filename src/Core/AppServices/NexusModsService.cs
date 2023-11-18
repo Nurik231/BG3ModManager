@@ -34,7 +34,7 @@ namespace DivinityModManager
 
 		IObservable<NexusModsObservableApiLimits> WhenLimitsChange { get; }
 
-		Task<List<NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
+		Task<Dictionary<string, NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
 		Task<UpdateResult> FetchModInfoAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
 	}
 }
@@ -100,9 +100,9 @@ namespace DivinityModManager.AppServices
 			return await _dataLoader.User.GetUserAsync(token);
 		}
 
-		public async Task<List<NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken token)
+		public async Task<Dictionary<string, NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
-			var links = new List<NexusModsModDownloadLink>();
+			var links = new Dictionary<string, NexusModsModDownloadLink>();
 			if (!CanFetchData) return links;
 			
 			try
@@ -129,7 +129,7 @@ namespace DivinityModManager.AppServices
 								if (linkResult != null && linkResult.Count() > 0)
 								{
 									var primaryLink = linkResult.FirstOrDefault();
-									links.Add(new NexusModsModDownloadLink(mod, primaryLink, file));
+									links.Add(mod.UUID, new NexusModsModDownloadLink(mod, primaryLink, file));
 								}
 							}
 						}

@@ -1,5 +1,9 @@
-﻿using DivinityModManager.Models;
+﻿using Alphaleonis.Win32.Filesystem;
+
+using DivinityModManager.Models;
+using DivinityModManager.Models.Github;
 using DivinityModManager.Models.NexusMods;
+using DivinityModManager.ModUpdater;
 using DivinityModManager.ModUpdater.Cache;
 using DivinityModManager.Util;
 
@@ -24,12 +28,14 @@ namespace DivinityModManager
 		NexusModsCacheHandler NexusMods { get; }
 		SteamWorkshopCacheHandler SteamWorkshop { get; }
 		GithubModsCacheHandler Github { get; }
-		Task<bool> UpdateAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
-		Task<bool> LoadAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
-		Task<bool> SaveAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
-		Task<bool> GetGithubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
-		Task<List<NexusModsModDownloadLink>> GetNexusModsUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
-		Task<bool> GetSteamWorkshopUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
+		Task<bool> UpdateInfoAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
+		Task<bool> LoadCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
+		Task<bool> SaveCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
+
+		Task<ModUpdaterResults> FetchUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, CancellationToken token);
+		Task<Dictionary<string, GithubLatestReleaseData>> GetGithubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
+		Task<Dictionary<string, NexusModsModDownloadLink>> GetNexusModsUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
+		Task<Dictionary<string, DivinityModData>> GetSteamWorkshopUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 
 		bool DeleteCache();
 	}
@@ -58,7 +64,7 @@ namespace DivinityModManager.AppServices
 			Formatting = Formatting.None
 		};
 
-		public async Task<bool> UpdateAsync(IEnumerable<DivinityModData> mods, CancellationToken token)
+		public async Task<bool> UpdateInfoAsync(IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
 			IsRefreshing = true;
 			if (SteamWorkshop.IsEnabled) await SteamWorkshop.Update(mods, token);
@@ -68,7 +74,7 @@ namespace DivinityModManager.AppServices
 			return false;
 		}
 
-		public async Task<bool> LoadAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
+		public async Task<bool> LoadCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
 		{
 			if (SteamWorkshop.IsEnabled)
 			{
@@ -129,7 +135,7 @@ namespace DivinityModManager.AppServices
 			return false;
 		}
 
-		public async Task<bool> SaveAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
+		public async Task<bool> SaveCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
 		{
 			if (SteamWorkshop.IsEnabled)
 			{
@@ -158,24 +164,26 @@ namespace DivinityModManager.AppServices
 			return b1 || b2 || b3;
 		}
 
-		public async Task<bool> FetchUpdatesAsync(IEnumerable<DivinityModData> mods, CancellationToken token)
+		public async Task<ModUpdaterResults> FetchUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
 			//TODO
 			IsRefreshing = true;
-			var githubResult = await GetGithubUpdatesAsync(mods, _appVersion, token);
-			var nexusResult = await GetNexusModsUpdatesAsync(mods, _appVersion, token);
-			var workshopResult = await GetSteamWorkshopUpdatesAsync(mods, _appVersion, token);
+			var githubResults = await GetGithubUpdatesAsync(mods, _appVersion, token);
+			var nexusResults = await GetNexusModsUpdatesAsync(mods, _appVersion, token);
+			var workshopResults = await GetSteamWorkshopUpdatesAsync(settings, mods, _appVersion, token);
 			IsRefreshing = false;
-			return false;
+			return new ModUpdaterResults(githubResults, nexusResults, workshopResults);
 		}
 
-		public async Task<bool> GetGithubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
+		public async Task<Dictionary<string, GithubLatestReleaseData>> GetGithubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
 		{
+			var results = new Dictionary<string, GithubLatestReleaseData>();
 			try
 			{
-				if (!Github.IsEnabled) return false;
-				if(!Github.CacheData.CacheUpdated)
+				if (!Github.IsEnabled) return results;
+				if (!Github.CacheData.CacheUpdated)
 				{
+
 					await Github.LoadCacheAsync(currentAppVersion, token);
 					await Github.Update(mods, token);
 					await Github.SaveCacheAsync(true, currentAppVersion, token);
@@ -186,27 +194,27 @@ namespace DivinityModManager.AppServices
 						{
 							if (Github.CacheData.Mods.TryGetValue(mod.UUID, out var githubData))
 							{
+								results.Add(mod.UUID, githubData.LatestRelease);
 								mod.GithubData.Update(githubData);
 							}
 						}
 						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
-				//TODO
-				return true;
 			}
 			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error fetching Github updates:\n{ex}");
 			}
-			return false;
+			return results;
 		}
 
-		public async Task<List<NexusModsModDownloadLink>> GetNexusModsUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
+		public async Task<Dictionary<string, NexusModsModDownloadLink>> GetNexusModsUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
 		{
+			var results = new Dictionary<string, NexusModsModDownloadLink>();
 			try
 			{
-				if (!NexusMods.IsEnabled) return null;
+				if (!NexusMods.IsEnabled) return results;
 				if (!NexusMods.CacheData.CacheUpdated)
 				{
 					await NexusMods.LoadCacheAsync(currentAppVersion, token);
@@ -224,21 +232,21 @@ namespace DivinityModManager.AppServices
 						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
-				var updates = await Services.Get<INexusModsService>().GetLatestDownloadsForModsAsync(mods, token);
-				return updates;
+				results = await Services.Get<INexusModsService>().GetLatestDownloadsForModsAsync(mods, token);
 			}
 			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error fetching NexusMods updates:\n{ex}");
 			}
-			return null;
+			return results;
 		}
 
-		public async Task<bool> GetSteamWorkshopUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
+		public async Task<Dictionary<string, DivinityModData>> GetSteamWorkshopUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
 		{
+			var results = new Dictionary<string, DivinityModData>();
 			try
 			{
-				if (!SteamWorkshop.IsEnabled) return false;
+				if (!SteamWorkshop.IsEnabled) return results;
 				if (!SteamWorkshop.CacheData.CacheUpdated)
 				{
 					await SteamWorkshop.LoadCacheAsync(currentAppVersion, token);
@@ -267,14 +275,27 @@ namespace DivinityModManager.AppServices
 						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
-				//TODO
-				return true;
+
+				var workshopMods = await DivinityModDataLoader.LoadModPackageDataAsync(settings.WorkshopPath, token);
+				foreach (var workshopMod in workshopMods.Mods)
+				{
+					string workshopID = Directory.GetParent(workshopMod.FilePath)?.Name;
+					if (!String.IsNullOrEmpty(workshopID))
+					{
+						workshopMod.WorkshopData.ID = workshopID;
+					}
+				}
+
+				foreach (var mod in workshopMods.Mods)
+				{
+					results.Add(mod.UUID, mod);
+				}
 			}
 			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error fetching SteamWorkshop updates:\n{ex}");
 			}
-			return false;
+			return results;
 		}
 
 		public ModUpdaterService(string appVersion)
