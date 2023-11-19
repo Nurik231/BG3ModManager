@@ -1,14 +1,20 @@
-﻿using AutoUpdaterDotNET;
+﻿using Alphaleonis.Win32.Filesystem;
+
+using AutoUpdaterDotNET;
 
 using DivinityModManager.Extensions;
 using DivinityModManager.Models;
 using DivinityModManager.Models.App;
+using DivinityModManager.Models.Extender;
+using DivinityModManager.Models.NexusMods;
+using DivinityModManager.Models.Updates;
+using DivinityModManager.ModUpdater.Cache;
 using DivinityModManager.Util;
 using DivinityModManager.Views;
 
 using DynamicData;
-using DynamicData.Binding;
 using DynamicData.Aggregation;
+using DynamicData.Binding;
 
 using Microsoft.Win32;
 
@@ -18,7 +24,11 @@ using Newtonsoft.Json.Linq;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
+using SharpCompress.Archives;
 using SharpCompress.Common;
+using SharpCompress.Compressors.BZip2;
+using SharpCompress.Compressors.Xz;
+using SharpCompress.Readers;
 using SharpCompress.Writers;
 
 using System;
@@ -26,7 +36,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
-using Alphaleonis.Win32.Filesystem;
 using System.IO.Compression;
 using System.Linq;
 using System.Reactive;
@@ -39,27 +48,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using SharpCompress.Archives.SevenZip;
-using SharpCompress.Readers;
-using System.Reactive.Subjects;
-using System.Windows.Markup;
-using DivinityModManager.Models.Extender;
-using DynamicData.Kernel;
-using DivinityModManager.Models.NexusMods;
-using DivinityModManager.Models.Updates;
-using DivinityModManager.Models.Cache;
-using DivinityModManager.ModUpdater;
-using DivinityModManager.ModUpdater.Cache;
-using SharpCompress.Archives;
-using ZstdSharp;
-using SharpCompress.Compressors.Xz;
-using SharpCompress.Compressors.BZip2;
-using DivinityModManager.Converters;
 using System.Windows.Media.Imaging;
+
+using ZstdSharp;
 
 namespace DivinityModManager.ViewModels
 {
@@ -203,7 +197,7 @@ namespace DivinityModManager.ViewModels
 
 		[Reactive] public int SelectedModOrderIndex { get; set; }
 
-		[ObservableAsProperty] public DivinityLoadOrder SelectedModOrder { get; }
+		[Reactive] public DivinityLoadOrder SelectedModOrder { get; private set; }
 		[ObservableAsProperty] public string SelectedModOrderName { get; }
 		[ObservableAsProperty] public bool IsBaseLoadOrder { get; }
 
@@ -5202,14 +5196,14 @@ Directory the zip will be extracted to:
 				}
 			});
 
-			var profileChanged = this.WhenAnyValue(x => x.SelectedProfileIndex, x => x.Profiles.Count).Select(x => Profiles.ElementAtOrDefault(x.Item1));
-			profileChanged.ToUIProperty(this, x => x.SelectedProfile);
-			var hasNonNullProfile = this.WhenAnyValue(x => x.SelectedProfile).Select(x => x != null);
+			this.WhenAnyValue(x => x.SelectedProfileIndex).Select(x => Profiles.ElementAtOrDefault(x)).BindTo(this, x => x.SelectedProfile);
+			var whenProfile = this.WhenAnyValue(x => x.SelectedProfile);
+			var hasNonNullProfile = whenProfile.Select(x => x != null);
 			hasNonNullProfile.ToUIProperty(this, x => x.HasProfile);
 
 			Keys.ExportOrderToGame.AddAction(ExportLoadOrder, hasNonNullProfile);
 
-			profileChanged.Subscribe((profile) =>
+			whenProfile.Subscribe(profile =>
 			{
 				if (profile != null && profile.ActiveMods != null && profile.ActiveMods.Count > 0)
 				{
@@ -5235,48 +5229,57 @@ Directory the zip will be extracted to:
 				}
 			});
 
-			this.WhenAnyValue(x => x.SelectedModOrderIndex, x => x.ModOrderList.Count).
-				Select(x => ModOrderList.ElementAtOrDefault(x.Item1)).ToUIProperty(this, x => x.SelectedModOrder);
-			this.WhenAnyValue(x => x.SelectedModOrder).WhereNotNull().Select(x => x.Name).ToUIProperty(this, x => x.SelectedModOrderName);
+			this.WhenAnyValue(x => x.SelectedModOrderIndex).Select(x => ModOrderList.ElementAtOrDefault(x)).BindTo(this, x => x.SelectedModOrder);
+			this.WhenAnyValue(x => x.SelectedModOrder).Select(x => x != null ? x.Name : "None").ToUIProperty(this, x => x.SelectedModOrderName);
 			this.WhenAnyValue(x => x.SelectedModOrder).Select(x => x != null && x.IsModSettings).ToUIProperty(this, x => x.IsBaseLoadOrder);
 
-			//Throttle in case the index changes quickly in a short timespan
-			this.WhenAnyValue(vm => vm.SelectedModOrderIndex).ObserveOn(RxApp.MainThreadScheduler).Subscribe((_) =>
+			var lastProfileIndex = -1;
+			var lastModOrderIndex = -1;
+
+			this.WhenAnyValue(x => x.SelectedProfileIndex, x => x.SelectedModOrderIndex).Throttle(TimeSpan.FromMilliseconds(25))
+				.ObserveOn(RxApp.MainThreadScheduler).Subscribe(data =>
 			{
-				if (!this.IsRefreshing && SelectedModOrderIndex > -1)
+				var profileIndex = data.Item1;
+				var orderIndex = data.Item2;
+				if (!IsRefreshing && !IsLoadingOrder)
 				{
-					if (SelectedModOrder != null && !IsLoadingOrder)
+					if (lastProfileIndex != profileIndex)
 					{
-						if (!SelectedModOrder.OrderEquals(ActiveMods.Select(x => x.UUID)))
+						lastProfileIndex = profileIndex;
+						if(profileIndex > -1 && Profiles.ElementAtOrDefault(profileIndex) is var profile && profile != null)
 						{
-							if (LoadModOrder(SelectedModOrder))
+							if (orderIndex > -1)
 							{
-								DivinityApp.Log($"Successfully loaded order {SelectedModOrder.Name}.");
+								BuildModOrderList(orderIndex);
 							}
 							else
 							{
-								DivinityApp.Log($"Failed to load order {SelectedModOrder.Name}.");
+								BuildModOrderList(0);
 							}
 						}
-						else
-						{
-							DivinityApp.Log($"Order changed to {SelectedModOrder.Name}. Skipping list loading since the orders match.");
-						}
 					}
-				}
-			});
+					else if (orderIndex != lastModOrderIndex)
+					{
+						lastModOrderIndex = orderIndex;
 
-			this.WhenAnyValue(vm => vm.SelectedProfileIndex, (index) => index > -1 && index < Profiles.Count).Subscribe((b) =>
-			{
-				if (!IsRefreshing && b)
-				{
-					if (SelectedModOrder != null)
-					{
-						BuildModOrderList(SelectedModOrderIndex);
-					}
-					else
-					{
-						BuildModOrderList(0);
+						if (orderIndex > -1 && ModOrderList.ElementAtOrDefault(orderIndex) is var order && order != null)
+						{
+							if (!order.OrderEquals(ActiveMods.Select(x => x.UUID)))
+							{
+								if (LoadModOrder(order))
+								{
+									DivinityApp.Log($"Successfully loaded order {order.Name}.");
+								}
+								else
+								{
+									DivinityApp.Log($"Failed to load order {order.Name}.");
+								}
+							}
+							else
+							{
+								DivinityApp.Log($"Order changed to {order.Name}. Skipping list loading since the orders match.");
+							}
+						}
 					}
 				}
 			});
