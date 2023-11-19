@@ -47,8 +47,7 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public string Description { get; set; }
 		[Reactive] public bool DebugModeOnly { get; set; }
 
-		private readonly ObservableAsPropertyHelper<bool> _hasTooltip;
-		public bool HasToolTip => _hasTooltip.Value;
+		[ObservableAsProperty] public bool HasToolTip { get; }
 
 		public GameLaunchParamEntry(string name, string description, bool debug = false)
 		{
@@ -56,7 +55,7 @@ namespace DivinityModManager.ViewModels
 			Description = description;
 			DebugModeOnly = debug;
 
-			_hasTooltip = this.WhenAnyValue(x => x.Description).Select(x => !String.IsNullOrEmpty(x)).ToProperty(this, nameof(HasToolTip), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.Description).Select(x => !String.IsNullOrEmpty(x)).ToUIProperty(this, x => x.HasToolTip);
 		}
 	}
 
@@ -75,34 +74,15 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public Hotkey SelectedHotkey { get; set; }
 		[Reactive] public bool HasFetchedManifest { get; set; }
 
-		private readonly ObservableAsPropertyHelper<bool> _isVisible;
-		public bool IsVisible => _isVisible.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _extenderTabIsVisible;
-		public bool ExtenderTabIsVisible => _extenderTabIsVisible.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _keybindingsTabIsVisible;
-		public bool KeybindingsTabIsVisible => _keybindingsTabIsVisible.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _developerModeVisibility;
-		public Visibility DeveloperModeVisibility => _developerModeVisibility.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _extenderTabVisibility;
-		public Visibility ExtenderTabVisibility => _extenderTabVisibility.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _extenderUpdaterVisibility;
-		public Visibility ExtenderUpdaterVisibility => _extenderUpdaterVisibility.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _resetSettingsCommandToolTip;
-		public string ResetSettingsCommandToolTip => _resetSettingsCommandToolTip.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _extenderSettingsFilePath;
-		public string ExtenderSettingsFilePath => _extenderSettingsFilePath.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _extenderUpdaterSettingsFilePath;
-		public string ExtenderUpdaterSettingsFilePath => _extenderUpdaterSettingsFilePath.Value;
-
-		private Visibility BoolToVisibility(bool b) => b ? Visibility.Visible : Visibility.Collapsed;
+		[ObservableAsProperty] public bool IsVisible { get; }
+		[ObservableAsProperty] public bool ExtenderTabIsVisible { get; }
+		[ObservableAsProperty] public bool KeybindingsTabIsVisible { get; }
+		[ObservableAsProperty] public Visibility DeveloperModeVisibility { get; }
+		[ObservableAsProperty] public Visibility ExtenderTabVisibility { get; }
+		[ObservableAsProperty] public Visibility ExtenderUpdaterVisibility { get; }
+		[ObservableAsProperty] public string ResetSettingsCommandToolTip { get; }
+		[ObservableAsProperty] public string ExtenderSettingsFilePath { get; }
+		[ObservableAsProperty] public string ExtenderUpdaterSettingsFilePath { get; }
 
 		public ICommand SaveSettingsCommand { get; private set; }
 		public ICommand OpenSettingsFolderCommand { get; private set; }
@@ -361,7 +341,7 @@ namespace DivinityModManager.ViewModels
 			View = view;
 			TargetVersion = _emptyVersion;
 
-			_isVisible = this.WhenAnyValue(x => x.View.IsVisible).ToProperty(this, nameof(IsVisible));
+			this.WhenAnyValue(x => x.View.IsVisible).ToUIProperty(this, x => x.IsVisible);
 
 			Main.WhenAnyValue(x => x.Settings).BindTo(this, x => x.Settings);
 			Main.WhenAnyValue(x => x.Settings.ExtenderSettings).BindTo(this, x => x.ExtenderSettings);
@@ -386,23 +366,23 @@ namespace DivinityModManager.ViewModels
 			};
 
 			var whenTab = this.WhenAnyValue(x => x.SelectedTabIndex);
-			_extenderTabIsVisible = whenTab.Select(x => x == SettingsWindowTab.Extender).ToProperty(this, nameof(ExtenderTabIsVisible));
-			_keybindingsTabIsVisible = whenTab.Select(x => x == SettingsWindowTab.Keybindings).ToProperty(this, nameof(KeybindingsTabIsVisible));
+			whenTab.Select(x => x == SettingsWindowTab.Extender).ToUIProperty(this, x => x.ExtenderTabIsVisible);
+			whenTab.Select(x => x == SettingsWindowTab.Keybindings).ToUIProperty(this, x => x.KeybindingsTabIsVisible);
 
 			this.WhenAnyValue(x => x.Settings.SkipLauncher, x => x.KeybindingsTabIsVisible);
 			this.WhenAnyValue(x => x.TargetVersion).WhereNotNull().ObserveOn(RxApp.MainThreadScheduler).Subscribe(OnTargetVersionSelected);
 
-			_resetSettingsCommandToolTip = this.WhenAnyValue(x => x.SelectedTabIndex).Select(SelectedTabToResetTooltip).ToProperty(this, nameof(ResetSettingsCommandToolTip), scheduler: RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.SelectedTabIndex).Select(SelectedTabToResetTooltip).ToUIProperty(this, x => x.ResetSettingsCommandToolTip);
 
-			_developerModeVisibility = ExtenderSettings.WhenAnyValue(x => x.DeveloperMode).Select(BoolToVisibility).ToProperty(this, nameof(DeveloperModeVisibility), scheduler: RxApp.MainThreadScheduler);
+			ExtenderSettings.WhenAnyValue(x => x.DeveloperMode).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.DeveloperModeVisibility);
 
-			_extenderTabVisibility = this.WhenAnyValue(x => x.ExtenderUpdaterSettings.UpdaterIsAvailable)
-				.Select(BoolToVisibility).ToProperty(this, nameof(ExtenderTabVisibility), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.ExtenderUpdaterSettings.UpdaterIsAvailable)
+				.Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.ExtenderTabVisibility);
 
-			_extenderUpdaterVisibility = this.WhenAnyValue(x => x.ExtenderUpdaterSettings.UpdaterIsAvailable, 
+			this.WhenAnyValue(x => x.ExtenderUpdaterSettings.UpdaterIsAvailable, 
 				x => x.Settings.DebugModeEnabled,
 				x => x.ExtenderSettings.DeveloperMode)
-				.Select(x => BoolToVisibility(x.Item1 && (x.Item2 || x.Item3))).ToProperty(this, nameof(ExtenderUpdaterVisibility), true, RxApp.MainThreadScheduler);
+				.Select(x => PropertyConverters.BoolToVisibility(x.Item1 && (x.Item2 || x.Item3))).ToUIProperty(this, x => x.ExtenderUpdaterVisibility);
 
 			ExtenderUpdaterSettings.WhenAnyValue(x => x.UpdateChannel).Subscribe((channel) =>
 			{
@@ -412,8 +392,8 @@ namespace DivinityModManager.ViewModels
 				}
 			});
 
-			_extenderSettingsFilePath = Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Combine(Path.GetDirectoryName(x), DivinityApp.EXTENDER_CONFIG_FILE)).ToProperty(this, nameof(ExtenderSettingsFilePath), true, RxApp.MainThreadScheduler);
-			_extenderUpdaterSettingsFilePath = Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Combine(Path.GetDirectoryName(x), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE)).ToProperty(this, nameof(ExtenderUpdaterSettingsFilePath), true, RxApp.MainThreadScheduler);
+			Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Combine(Path.GetDirectoryName(x), DivinityApp.EXTENDER_CONFIG_FILE)).ToUIProperty(this, x => x.ExtenderSettingsFilePath);
+			Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Combine(Path.GetDirectoryName(x), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE)).ToUIProperty(this, x => x.ExtenderUpdaterSettingsFilePath);
 
 			var settingsProperties = new HashSet<string>();
 			settingsProperties.UnionWith(Settings.GetSettingsAttributes().Select(x => x.Property.Name));

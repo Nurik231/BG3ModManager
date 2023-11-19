@@ -41,14 +41,9 @@ namespace DivinityModManager.Models.Extender
 		[DataMember][Reactive] public string Version { get; set; }
 		[DataMember][Reactive] public string Signature { get; set; }
 
-		private readonly ObservableAsPropertyHelper<string> _displayName;
-		public string DisplayName => _displayName.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _buildDateDate;
-		public string BuildDateDisplayString => _buildDateDate.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _isEmpty;
-		public bool IsEmpty => _isEmpty.Value;
+		[ObservableAsProperty] public string DisplayName { get; }
+		[ObservableAsProperty] public string BuildDateDisplayString { get; }
+		[ObservableAsProperty] public bool IsEmpty { get; }
 
 		private string TimestampToReadableString(long timestamp)
 		{
@@ -73,9 +68,9 @@ namespace DivinityModManager.Models.Extender
 
 		public ScriptExtenderUpdateVersion()
 		{
-			_isEmpty = this.WhenAnyValue(x => x.Version).Select(x => String.IsNullOrEmpty(x)).ToProperty(this, nameof(IsEmpty), true, RxApp.MainThreadScheduler);
-			_buildDateDate = this.WhenAnyValue(x => x.BuildDate).Select(TimestampToReadableString).ToProperty(this, nameof(BuildDateDisplayString), true, RxApp.MainThreadScheduler);
-			_displayName = this.WhenAnyValue(x => x.Version, x => x.MinGameVersion, x => x.BuildDateDisplayString).Select(ToDisplayName).ToProperty(this, nameof(DisplayName), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.Version).Select(x => String.IsNullOrEmpty(x)).ToUIProperty(this, x => x.IsEmpty);
+			this.WhenAnyValue(x => x.BuildDate).Select(TimestampToReadableString).ToUIProperty(this, x => x.BuildDateDisplayString);
+			this.WhenAnyValue(x => x.Version, x => x.MinGameVersion, x => x.BuildDateDisplayString).Select(ToDisplayName).ToUIProperty(this, x => x.DisplayName);
 		}
 	}
 }

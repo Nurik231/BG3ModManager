@@ -61,18 +61,13 @@ namespace DivinityModManager.ViewModels
 		protected ReadOnlyObservableCollection<ExportOrderFileEntry> _visibleEntries;
 		public ReadOnlyObservableCollection<ExportOrderFileEntry> Entries => _visibleEntries;
 
-		private readonly ObservableAsPropertyHelper<bool> _anySelected;
-		public bool AnySelected => _anySelected.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _allSelected;
-		public bool AllSelected => _allSelected.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _selectAllTooltip;
-		public string SelectAllTooltip => _selectAllTooltip.Value;
+		[ObservableAsProperty] public bool AnySelected { get; }
+		[ObservableAsProperty] public bool AllSelected { get; }
+		[ObservableAsProperty] public string SelectAllTooltip { get; }
 
 		public ReactiveCommand<Unit, Unit> SelectAllCommand { get; private set; }
 
-		public override async Task<bool> Run(CancellationToken token)
+		public override async Task<bool> Run(CancellationToken cts)
 		{
 			//Only visible + selected entries
 			var exportedMods = Entries.Where(x => x.IsSelected);
@@ -108,12 +103,11 @@ namespace DivinityModManager.ViewModels
 			changeSet.Filter(x => x.IsVisible).ObserveOn(RxApp.MainThreadScheduler).Bind(out _visibleEntries).Subscribe();
 
 			var filesChanged = changeSet.AutoRefresh(x => x.IsSelected).ToCollection().Throttle(TimeSpan.FromMilliseconds(50)).ObserveOn(RxApp.MainThreadScheduler);
-			_anySelected = filesChanged.Select(x => x.Any(y => y.IsSelected)).ToProperty(this, nameof(AnySelected));
+			filesChanged.Select(x => x.Any(y => y.IsSelected)).ToUIProperty(this, x => x.AnySelected);
+			filesChanged.Select(x => x.All(y => y.IsSelected)).ToUIProperty(this, x => x.AllSelected);
+			this.WhenAnyValue(x => x.AllSelected).Select(b => $"{(b ? "Deselect" : "Select")} All").ToUIProperty(this, x => x.SelectAllTooltip);
 
-			_allSelected = filesChanged.Select(x => x.All(y => y.IsSelected)).ToProperty(this, nameof(AllSelected), true, RxApp.MainThreadScheduler);
-			_selectAllTooltip = this.WhenAnyValue(x => x.AllSelected).Select(b => $"{(b ? "Deselect" : "Select")} All").ToProperty(this, nameof(SelectAllTooltip), true, RxApp.MainThreadScheduler);
-
-			SelectAllCommand = ReactiveCommand.Create(ToggleSelectAll, this.RunCommand.IsExecuting.Select(b => !b), RxApp.MainThreadScheduler);
+			SelectAllCommand = ReactiveCommand.Create(ToggleSelectAll, RunCommand.IsExecuting.Select(b => !b), RxApp.MainThreadScheduler);
 
 			this.WhenAnyValue(x => x.IncludeOverrides).Subscribe(b =>
 			{

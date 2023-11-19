@@ -19,11 +19,8 @@ namespace DivinityModManager.Models
 		[Reactive] public int Revision { get; set; }
 		[Reactive] public int Build { get; set; }
 
-		private readonly ObservableAsPropertyHelper<string> _version;
-		public string Version => _version.Value;
-
-		private readonly ObservableAsPropertyHelper<int> _versionInt;
-		public int VersionInt => _versionInt.Value;
+		[ObservableAsProperty] public string Version { get; }
+		[ObservableAsProperty] public int VersionInt { get; }
 
 		public int ToInt()
 		{
@@ -61,8 +58,8 @@ namespace DivinityModManager.Models
 		public DivinityModVersion()
 		{
 			var whenAnyNum = this.WhenAnyValue(x => x.Major, x => x.Minor, x => x.Revision, x => x.Build);
-			_version = whenAnyNum.Select(v => StringFromIndividual(v.Item1, v.Item2, v.Item3, v.Item4)).ToProperty(this, nameof(Version));
-			_versionInt = whenAnyNum.Select(v => IntFromIndividual(v.Item1, v.Item2, v.Item3, v.Item4)).ToProperty(this, nameof(VersionInt));
+			whenAnyNum.Select(v => StringFromIndividual(v.Item1, v.Item2, v.Item3, v.Item4)).ToPropertyEx(this, x => x.Version);
+			whenAnyNum.Select(v => IntFromIndividual(v.Item1, v.Item2, v.Item3, v.Item4)).ToPropertyEx(this, x => x.VersionInt);
 		}
 
 		public DivinityModVersion(int vInt) : this()

@@ -142,11 +142,8 @@ namespace DivinityModManager.ViewModels
 			}
 		}
 
-		private readonly ObservableAsPropertyHelper<DivinityModData> _selectedAdventureMod;
-		public DivinityModData SelectedAdventureMod => _selectedAdventureMod.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _adventureModBoxVisibility;
-		public Visibility AdventureModBoxVisibility => _adventureModBoxVisibility.Value;
+		[ObservableAsProperty] public DivinityModData SelectedAdventureMod { get; }
+		[ObservableAsProperty] public Visibility AdventureModBoxVisibility { get; }
 
 		protected ReadOnlyObservableCollection<DivinityModData> selectedPakMods;
 		public ReadOnlyObservableCollection<DivinityModData> SelectedPakMods => selectedPakMods;
@@ -187,48 +184,28 @@ namespace DivinityModManager.ViewModels
 		IEnumerable<DivinityModData> IDivinityAppViewModel.InactiveMods => this.InactiveMods;
 
 		public ObservableCollectionExtended<DivinityProfileData> Profiles { get; set; } = new ObservableCollectionExtended<DivinityProfileData>();
-
-		private readonly ObservableAsPropertyHelper<int> _activeSelected;
-		public int ActiveSelected => _activeSelected.Value;
-
-		private readonly ObservableAsPropertyHelper<int> _inactiveSelected;
-		public int InactiveSelected => _inactiveSelected.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _activeSelectedText;
-		public string ActiveSelectedText => _activeSelectedText.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _inactiveSelectedText;
-		public string InactiveSelectedText => _inactiveSelectedText.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _activeModsFilterResultText;
-		public string ActiveModsFilterResultText => _activeModsFilterResultText.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _inactiveModsFilterResultText;
-		public string InactiveModsFilterResultText => _inactiveModsFilterResultText.Value;
+		[ObservableAsProperty] public int ActiveSelected { get; }
+		[ObservableAsProperty] public int InactiveSelected { get; }
+		[ObservableAsProperty] public string ActiveSelectedText { get; }
+		[ObservableAsProperty] public string InactiveSelectedText { get; }
+		[ObservableAsProperty] public string ActiveModsFilterResultText { get; }
+		[ObservableAsProperty] public string InactiveModsFilterResultText { get; }
 
 		[Reactive] public string ActiveModFilterText { get; set; }
 		[Reactive] public string InactiveModFilterText { get; set; }
 
 		[Reactive] public int SelectedProfileIndex { get; set; }
 
-		private readonly ObservableAsPropertyHelper<DivinityProfileData> _selectedProfile;
-		public DivinityProfileData SelectedProfile => _selectedProfile.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _hasProfile;
-		public bool HasProfile => _hasProfile.Value;
+		[ObservableAsProperty] public DivinityProfileData SelectedProfile { get; }
+		[ObservableAsProperty] public bool HasProfile { get; }
 
 		public ObservableCollectionExtended<DivinityLoadOrder> ModOrderList { get; set; } = new ObservableCollectionExtended<DivinityLoadOrder>();
 
 		[Reactive] public int SelectedModOrderIndex { get; set; }
 
-		private readonly ObservableAsPropertyHelper<DivinityLoadOrder> _selectedModOrder;
-		public DivinityLoadOrder SelectedModOrder => _selectedModOrder.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _selectedModOrderName;
-		public string SelectedModOrderName => _selectedModOrderName.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _isBaseLoadOrder;
-		public bool IsBaseLoadOrder => _isBaseLoadOrder.Value;
+		[ObservableAsProperty] public DivinityLoadOrder SelectedModOrder { get; }
+		[ObservableAsProperty] public string SelectedModOrderName { get; }
+		[ObservableAsProperty] public bool IsBaseLoadOrder { get; }
 
 		public List<DivinityLoadOrder> SavedModOrderList { get; set; } = new List<DivinityLoadOrder>();
 
@@ -241,13 +218,9 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public bool IsRefreshing { get; private set; }
 		[Reactive] public bool IsRefreshingModUpdates { get; private set; }
 
-		private readonly ObservableAsPropertyHelper<bool> _isLocked;
-
 		/// <summary>Used to locked certain functionality when data is loading or the user is dragging an item.</summary>
-		public bool IsLocked => _isLocked.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _allowDrop;
-		public bool AllowDrop => _allowDrop.Value;
+		[ObservableAsProperty] public bool IsLocked { get; }
+		[ObservableAsProperty] public bool AllowDrop { get; }
 
 		[Reactive] public string StatusText { get; set; }
 		[Reactive] public string StatusBarRightText { get; set; }
@@ -260,15 +233,9 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public bool ModUpdatesViewVisible { get; set; }
 		[Reactive] public bool HighlightExtenderDownload { get; set; }
 		[Reactive] public bool GameDirectoryFound { get; set; }
-
-		private readonly ObservableAsPropertyHelper<bool> _hideModList;
-		public bool HideModList => _hideModList.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _hasForceLoadedMods;
-		public bool HasForceLoadedMods => _hasForceLoadedMods.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _isDeletingFiles;
-		public bool IsDeletingFiles => _isDeletingFiles.Value;
+		[ObservableAsProperty] public bool HideModList { get; }
+		[ObservableAsProperty] public bool HasForceLoadedMods { get; }
+		[ObservableAsProperty] public bool IsDeletingFiles { get; }
 
 		#region Progress
 		[Reactive] public string MainProgressTitle { get; set; }
@@ -305,21 +272,11 @@ namespace DivinityModManager.ViewModels
 		[ObservableAsProperty] public bool NexusModsSupportEnabled { get; }
 		[ObservableAsProperty] public bool SteamWorkshopSupportEnabled { get; }
 		[Reactive] public bool CanMoveSelectedMods { get; set; }
-
-		private readonly ObservableAsPropertyHelper<Visibility> _updatingBusyIndicatorVisibility;
-		public Visibility UpdatingBusyIndicatorVisibility => _updatingBusyIndicatorVisibility.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _updateCountVisibility;
-		public Visibility UpdateCountVisibility => _updateCountVisibility.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _updatesViewVisibility;
-		public Visibility UpdatesViewVisibility => _updatesViewVisibility.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _developerModeVisibility;
-		public Visibility DeveloperModeVisibility => _developerModeVisibility.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _logFolderShortcutButtonVisibility;
-		public Visibility LogFolderShortcutButtonVisibility => _logFolderShortcutButtonVisibility.Value;
+		[ObservableAsProperty] public Visibility UpdatingBusyIndicatorVisibility { get; }
+		[ObservableAsProperty] public Visibility UpdateCountVisibility { get; }
+		[ObservableAsProperty] public Visibility UpdatesViewVisibility { get; }
+		[ObservableAsProperty] public Visibility DeveloperModeVisibility { get; }
+		[ObservableAsProperty] public Visibility LogFolderShortcutButtonVisibility { get; }
 
 		public ICommand ToggleUpdatesViewCommand { get; private set; }
 		public ICommand CheckForAppUpdatesCommand { get; set; }
@@ -345,9 +302,7 @@ namespace DivinityModManager.ViewModels
 		#region DungeonMaster Support
 
 		//TODO - Waiting for DM mode to be released
-
-		private readonly ObservableAsPropertyHelper<Visibility> _gameMasterModeVisibility;
-		public Visibility GameMasterModeVisibility => _gameMasterModeVisibility.Value;
+		[ObservableAsProperty] public Visibility GameMasterModeVisibility { get; }
 
 		protected SourceList<DivinityGameMasterCampaign> gameMasterCampaigns = new SourceList<DivinityGameMasterCampaign>();
 
@@ -367,8 +322,7 @@ namespace DivinityModManager.ViewModels
 		}
 		public bool UserChangedSelectedGMCampaign { get; set; }
 
-		private readonly ObservableAsPropertyHelper<DivinityGameMasterCampaign> _selectedGameMasterCampaign;
-		public DivinityGameMasterCampaign SelectedGameMasterCampaign => _selectedGameMasterCampaign.Value;
+		[ObservableAsProperty] public DivinityGameMasterCampaign SelectedGameMasterCampaign { get; }
 		public ICommand OpenGameMasterCampaignInFileExplorerCommand { get; private set; }
 		public ICommand CopyGameMasterCampaignPathToClipboardCommand { get; private set; }
 
@@ -5034,27 +4988,24 @@ Directory the zip will be extracted to:
 			_updater.NexusMods.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.NexusModsSupportEnabled, true, RxApp.MainThreadScheduler);
 			_updater.Github.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.GithubModSupportEnabled, true, RxApp.MainThreadScheduler);
 
-			_isLocked = this.WhenAnyValue(x => x.IsDragging, x => x.IsRefreshing, x => x.IsLoadingOrder, (b1, b2, b3) => b1 || b2 || b3).StartWith(false).ToProperty(this, nameof(IsLocked));
-			_allowDrop = this.WhenAnyValue(x => x.IsLoadingOrder, x => x.IsRefreshing, x => x.IsInitialized, (b1, b2, b3) => !b1 && !b2 && b3).StartWith(true).ToProperty(this, nameof(AllowDrop));
+			this.WhenAnyValue(x => x.IsDragging, x => x.IsRefreshing, x => x.IsLoadingOrder, (b1, b2, b3) => b1 || b2 || b3).ToUIProperty(this, x => x.IsLocked);
+			this.WhenAnyValue(x => x.IsLoadingOrder, x => x.IsRefreshing, x => x.IsInitialized, (b1, b2, b3) => !b1 && !b2 && b3).ToUIProperty(this, x => x.AllowDrop, true);
 
 			var whenRefreshing = _updater.WhenAnyValue(x => x.IsRefreshing);
-			_updatingBusyIndicatorVisibility = whenRefreshing.Select(PropertyConverters.BoolToVisibility).StartWith(Visibility.Visible).ToProperty(this, nameof(UpdatingBusyIndicatorVisibility), true, RxApp.MainThreadScheduler);
-			_updateCountVisibility = whenRefreshing.Select(b => PropertyConverters.BoolToVisibility(!b)).StartWith(Visibility.Visible).ToProperty(this, nameof(UpdateCountVisibility), true, RxApp.MainThreadScheduler);
-			_updatesViewVisibility = this.WhenAnyValue(x => x.ModUpdatesViewVisible).Select(PropertyConverters.BoolToVisibility).StartWith(Visibility.Collapsed).ToProperty(this, nameof(UpdatesViewVisibility), true, RxApp.MainThreadScheduler);
+			whenRefreshing.Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.UpdatingBusyIndicatorVisibility);
+			whenRefreshing.Select(PropertyConverters.BoolToVisibilityReversed).ToUIProperty(this, x => x.UpdateCountVisibility);
+			this.WhenAnyValue(x => x.ModUpdatesViewVisible).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.UpdatesViewVisibility, Visibility.Collapsed);
 			
-			_developerModeVisibility = this.WhenAnyValue(x => x.Settings.DebugModeEnabled, x => x.Settings.ExtenderSettings.DeveloperMode)
-			.Select(x => PropertyConverters.BoolToVisibility(x.Item1 || x.Item2))
-			.ToProperty(this, nameof(DeveloperModeVisibility), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.Settings.DebugModeEnabled, x => x.Settings.ExtenderSettings.DeveloperMode)
+			.Select(x => PropertyConverters.BoolToVisibility(x.Item1 || x.Item2)).ToUIProperty(this, x => x.DeveloperModeVisibility);
 
-			bool anyBoolTuple (ValueTuple<bool, bool, bool, bool, bool> b) => b.Item1 || b.Item2 || b.Item3 || b.Item4 || b.Item5;
-			_logFolderShortcutButtonVisibility = this.WhenAnyValue(
+			this.WhenAnyValue(
 				x => x.Settings.ExtenderSettings.LogCompile,
 				x => x.Settings.ExtenderSettings.LogRuntime,
 				x => x.Settings.ExtenderSettings.EnableLogging,
 				x => x.Settings.ExtenderSettings.DeveloperMode,
 				x => x.Settings.DebugModeEnabled)
-			.Select(x => PropertyConverters.BoolToVisibility(anyBoolTuple(x)))
-			.ToProperty(this, nameof(LogFolderShortcutButtonVisibility), true, RxApp.MainThreadScheduler);
+			.Select(PropertyConverters.BoolTupleToVisibility).ToUIProperty(this, x => x.LogFolderShortcutButtonVisibility);
 
 			_keys = new AppKeys(this);
 
@@ -5252,9 +5203,9 @@ Directory the zip will be extracted to:
 			});
 
 			var profileChanged = this.WhenAnyValue(x => x.SelectedProfileIndex, x => x.Profiles.Count).Select(x => Profiles.ElementAtOrDefault(x.Item1));
-			_selectedProfile = profileChanged.ToProperty(this, nameof(SelectedProfile)).DisposeWith(this.Disposables);
+			profileChanged.ToUIProperty(this, x => x.SelectedProfile);
 			var hasNonNullProfile = this.WhenAnyValue(x => x.SelectedProfile).Select(x => x != null);
-			_hasProfile = hasNonNullProfile.ToProperty(this, nameof(HasProfile)).DisposeWith(this.Disposables);
+			hasNonNullProfile.ToUIProperty(this, x => x.HasProfile);
 
 			Keys.ExportOrderToGame.AddAction(ExportLoadOrder, hasNonNullProfile);
 
@@ -5284,10 +5235,10 @@ Directory the zip will be extracted to:
 				}
 			});
 
-			_selectedModOrder = this.WhenAnyValue(x => x.SelectedModOrderIndex, x => x.ModOrderList.Count).
-				Select(x => ModOrderList.ElementAtOrDefault(x.Item1)).ToProperty(this, nameof(SelectedModOrder));
-			_selectedModOrderName = this.WhenAnyValue(x => x.SelectedModOrder).WhereNotNull().Select(x => x.Name).ToProperty(this, nameof(SelectedModOrderName), true, RxApp.MainThreadScheduler);
-			_isBaseLoadOrder = this.WhenAnyValue(x => x.SelectedModOrder).Select(x => x != null && x.IsModSettings).ToProperty(this, nameof(IsBaseLoadOrder), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.SelectedModOrderIndex, x => x.ModOrderList.Count).
+				Select(x => ModOrderList.ElementAtOrDefault(x.Item1)).ToUIProperty(this, x => x.SelectedModOrder);
+			this.WhenAnyValue(x => x.SelectedModOrder).WhereNotNull().Select(x => x.Name).ToUIProperty(this, x => x.SelectedModOrderName);
+			this.WhenAnyValue(x => x.SelectedModOrder).Select(x => x != null && x.IsModSettings).ToUIProperty(this, x => x.IsBaseLoadOrder);
 
 			//Throttle in case the index changes quickly in a short timespan
 			this.WhenAnyValue(vm => vm.SelectedModOrderIndex).ObserveOn(RxApp.MainThreadScheduler).Subscribe((_) =>
@@ -5354,22 +5305,20 @@ Directory the zip will be extracted to:
 
 			var selectedModsConnection = modsConnection.AutoRefresh(x => x.IsSelected, TimeSpan.FromMilliseconds(25)).AutoRefresh(x => x.IsActive, TimeSpan.FromMilliseconds(25)).Filter(x => x.IsSelected);
 
-			_activeSelected = selectedModsConnection.Filter(x => x.IsActive).Count().ToProperty(this, nameof(ActiveSelected), true, RxApp.MainThreadScheduler);
-			_inactiveSelected = selectedModsConnection.Filter(x => !x.IsActive).Count().ToProperty(this, nameof(InactiveSelected), true, RxApp.MainThreadScheduler);
+			selectedModsConnection.Filter(x => x.IsActive).Count().ToUIProperty(this, x => x.ActiveSelected);
+			selectedModsConnection.Filter(x => !x.IsActive).Count().ToUIProperty(this, x => x.InactiveSelected);
 
-			_activeSelectedText = this.WhenAnyValue(x => x.ActiveSelected, x => x.TotalActiveModsHidden).Select(x => SelectedToLabel(x.Item1, x.Item2)).ToProperty(this, nameof(ActiveSelectedText), true, RxApp.MainThreadScheduler);
-			_inactiveSelectedText = this.WhenAnyValue(x => x.InactiveSelected, x => x.TotalInactiveModsHidden).Select(x => SelectedToLabel(x.Item1, x.Item2)).ToProperty(this, nameof(InactiveSelectedText), true, RxApp.MainThreadScheduler);
-
-			_activeModsFilterResultText = this.WhenAnyValue(x => x.TotalActiveModsHidden).Select(x => HiddenToLabel(x, ActiveMods.Count)).ToProperty(this, nameof(ActiveModsFilterResultText), true, RxApp.MainThreadScheduler);
-
-			_inactiveModsFilterResultText = this.WhenAnyValue(x => x.TotalInactiveModsHidden).Select(x => HiddenToLabel(x, InactiveMods.Count)).ToProperty(this, nameof(InactiveModsFilterResultText), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.ActiveSelected, x => x.TotalActiveModsHidden).Select(x => SelectedToLabel(x.Item1, x.Item2)).ToUIProperty(this, x => x.ActiveSelectedText);
+			this.WhenAnyValue(x => x.InactiveSelected, x => x.TotalInactiveModsHidden).Select(x => SelectedToLabel(x.Item1, x.Item2)).ToUIProperty(this, x => x.InactiveSelectedText);
+			//TODO Change .Count to CollectionChanged?
+			this.WhenAnyValue(x => x.TotalActiveModsHidden).Select(x => HiddenToLabel(x, ActiveMods.Count)).ToUIProperty(this, x => x.ActiveModsFilterResultText);
+			this.WhenAnyValue(x => x.TotalInactiveModsHidden).Select(x => HiddenToLabel(x, InactiveMods.Count)).ToUIProperty(this, x => x.InactiveModsFilterResultText);
 
 			DivinityApp.Events.OrderNameChanged += OnOrderNameChanged;
 
 			modsConnection.Filter(x => x.ModType == "Adventure" && (!x.IsHidden || x.UUID == DivinityApp.MAIN_CAMPAIGN_UUID)).Bind(out adventureMods).DisposeMany().Subscribe();
-			_selectedAdventureMod = this.WhenAnyValue(x => x.SelectedAdventureModIndex, x => x.AdventureMods.Count, (index, count) => index >= 0 && count > 0 && index < count).
-				Where(b => b == true).Select(x => AdventureMods[SelectedAdventureModIndex]).
-				ToProperty(this, x => x.SelectedAdventureMod).DisposeWith(this.Disposables);
+			this.WhenAnyValue(x => x.SelectedAdventureModIndex, x => x.AdventureMods.Count, (index, count) => index >= 0 && count > 0 && index < count).
+			Where(b => b == true).Select(x => AdventureMods[SelectedAdventureModIndex]).ToPropertyEx(this, x => x.SelectedAdventureMod);
 
 			var adventureModCanOpenObservable = this.WhenAnyValue(x => x.SelectedAdventureMod, (mod) => mod != null && !mod.IsLarianMod);
 			adventureModCanOpenObservable.Subscribe();
@@ -5490,14 +5439,13 @@ Directory the zip will be extracted to:
 			#region DungeonMaster Support
 
 			var gmModeChanged = Settings.WhenAnyValue(x => x.GameMasterModeEnabled);
-			_adventureModBoxVisibility = gmModeChanged.Select(x => !x ? Visibility.Visible : Visibility.Collapsed).StartWith(Visibility.Visible).ToProperty(this, nameof(AdventureModBoxVisibility), true, RxApp.MainThreadScheduler);
-
-			_gameMasterModeVisibility = gmModeChanged.Select(x => x ? Visibility.Visible : Visibility.Collapsed).StartWith(Visibility.Collapsed).ToProperty(this, nameof(GameMasterModeVisibility), true, RxApp.MainThreadScheduler);
+			gmModeChanged.Select(PropertyConverters.BoolToVisibilityReversed).ToUIProperty(this, x => x.AdventureModBoxVisibility, Visibility.Visible);
+			gmModeChanged.Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.GameMasterModeVisibility, Visibility.Collapsed);
 
 			gameMasterCampaigns.Connect().Bind(out gameMasterCampaignsData).Subscribe();
 
 			var justSelectedGameMasterCampaign = this.WhenAnyValue(x => x.SelectedGameMasterCampaignIndex, x => x.GameMasterCampaigns.Count);
-			_selectedGameMasterCampaign = justSelectedGameMasterCampaign.Select(x => GameMasterCampaigns.ElementAtOrDefault(x.Item1)).ToProperty(this, nameof(SelectedGameMasterCampaign));
+			justSelectedGameMasterCampaign.Select(x => GameMasterCampaigns.ElementAtOrDefault(x.Item1)).ToUIProperty(this, x => x.SelectedGameMasterCampaign);
 
 			Keys.ImportOrderFromSelectedGMCampaign.AddAction(() => LoadGameMasterCampaignModOrder(SelectedGameMasterCampaign), gmModeChanged);
 
@@ -5521,12 +5469,12 @@ Directory the zip will be extracted to:
 			});
 			#endregion
 
-			_isDeletingFiles = this.WhenAnyValue(x => x.View.DeleteFilesView.ViewModel.IsVisible).ToProperty(this, nameof(IsDeletingFiles), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.View.DeleteFilesView.ViewModel.IsVisible).ToUIProperty(this, x => x.IsDeletingFiles);
 
-			_hideModList = this.WhenAnyValue(x => x.MainProgressIsActive, x => x.IsDeletingFiles, (a, b) => a || b).StartWith(true).ToProperty(this, nameof(HideModList), false, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.MainProgressIsActive, x => x.IsDeletingFiles, (a, b) => a || b).ToUIProperty(this, x => x.HideModList, true);
 
 			var forceLoadedModsConnection = this.ForceLoadedMods.ToObservableChangeSet().ObserveOn(RxApp.MainThreadScheduler);
-			_hasForceLoadedMods = forceLoadedModsConnection.CountChanged().Select(x => x.Count > 0).ToProperty(this, nameof(HasForceLoadedMods), true, RxApp.MainThreadScheduler);
+			forceLoadedModsConnection.CountChanged().Select(x => x.Count > 0).ToUIProperty(this, x => x.HasForceLoadedMods);
 
 			DivinityInteractions.ConfirmModDeletion.RegisterHandler((Func<InteractionContext<DeleteFilesViewConfirmationData, bool>, Task>)(async interaction =>
 			{

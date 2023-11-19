@@ -38,8 +38,7 @@ namespace DivinityModManager.Models.App
 
 		[Reactive] public string DisplayName { get; set; }
 
-		private readonly ObservableAsPropertyHelper<string> _tooltip;
-		public string ToolTip => _tooltip.Value;
+		[ObservableAsProperty] public string ToolTip { get; }
 
 		[Reactive] public string DisplayBindingText { get; private set; }
 
@@ -60,12 +59,10 @@ namespace DivinityModManager.Models.App
 		[Reactive] public bool Enabled { get; set; }
 		[Reactive] public bool CanEdit { get; set; }
 
-		private readonly ObservableAsPropertyHelper<bool> _isDefault;
-		public bool IsDefault => _isDefault.Value;
+		[ObservableAsProperty] public bool IsDefault { get; }
 		[Reactive] public bool IsSelected { get; set; }
 
-		private readonly ObservableAsPropertyHelper<string> _modifiedText;
-		public string ModifiedText => _modifiedText.Value;
+		[ObservableAsProperty] public string ModifiedText { get; }
 
 		private readonly Key _defaultKey = Key.None;
 		private readonly ModifierKeys _defaultModifiers = ModifierKeys.None;
@@ -73,8 +70,7 @@ namespace DivinityModManager.Models.App
 		public Key DefaultKey => _defaultKey;
 		public ModifierKeys DefaultModifiers => _defaultModifiers;
 
-		private readonly ObservableAsPropertyHelper<bool> _canExecuteCommand;
-		public bool CanExecuteCommand => _canExecuteCommand.Value;
+		[ObservableAsProperty] public bool CanExecuteCommand { get; }
 
 		private IObservable<bool> _canExecuteConditions;
 
@@ -136,16 +132,16 @@ namespace DivinityModManager.Models.App
 			DisplayBindingText = ToString();
 
 			_canExecuteConditions = this.WhenAnyValue(x => x.Enabled);
-			_canExecuteCommand = this.WhenAnyObservable(x => x._canExecuteConditions).ToProperty(this, nameof(CanExecuteCommand), false, RxApp.MainThreadScheduler);
-			Command = ReactiveCommand.Create(Invoke, this.WhenAnyValue(x => x.CanExecuteCommand));
+			_canExecuteConditions.ToUIProperty(this, x => x.CanExecuteCommand);
+			Command = ReactiveCommand.Create(Invoke, _canExecuteConditions);
 
-			_isDefault = this.WhenAnyValue(x => x.Key, x => x.Modifiers).Select(x => x.Item1 == _defaultKey && x.Item2 == _defaultModifiers).StartWith(true).ToProperty(this, nameof(IsDefault));
+			this.WhenAnyValue(x => x.Key, x => x.Modifiers).Select(x => x.Item1 == _defaultKey && x.Item2 == _defaultModifiers).ToUIProperty(this, x => x.IsDefault, true);
 
 			var isDefaultObservable = this.WhenAnyValue(x => x.IsDefault);
 
-			_modifiedText = isDefaultObservable.Select(b => !b ? "*" : "").StartWith("").ToProperty(this, nameof(ModifiedText), scheduler:RxApp.MainThreadScheduler);
+			isDefaultObservable.Select(b => !b ? "*" : "").ToUIProperty(this, x => x.ModifiedText, "");
 
-			_tooltip = this.WhenAnyValue(x => x.DisplayName, x => x.IsDefault).Select(x => x.Item2 ? $"{x.Item1} (Modified)" : x.Item1).ToProperty(this, nameof(ToolTip), scheduler:RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.DisplayName, x => x.IsDefault).Select(x => x.Item2 ? $"{x.Item1} (Modified)" : x.Item1).ToUIProperty(this, x => x.ToolTip);
 
 			var canReset = isDefaultObservable.Select(b => !b).StartWith(false);
 			var canClear = this.WhenAnyValue(x => x.Key, x => x.Modifiers, (k, m) => k != Key.None).StartWith(false);

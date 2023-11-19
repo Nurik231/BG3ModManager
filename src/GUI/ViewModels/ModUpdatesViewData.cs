@@ -43,23 +43,12 @@ namespace DivinityModManager.ViewModels
 		private readonly ReadOnlyObservableCollection<DivinityModUpdateData> _updatedMods;
 		public ReadOnlyObservableCollection<DivinityModUpdateData> UpdatedMods => _updatedMods;
 
-		readonly ObservableAsPropertyHelper<bool> _anySelected;
-		public bool AnySelected => _anySelected.Value;
-
-		readonly ObservableAsPropertyHelper<bool> _allNewModsSelected;
-		public bool AllNewModsSelected => _allNewModsSelected.Value;
-
-		readonly ObservableAsPropertyHelper<bool> _allModUpdatesSelected;
-		public bool AllModUpdatesSelected => _allModUpdatesSelected.Value;
-
-		readonly ObservableAsPropertyHelper<bool> _newAvailable;
-		public bool NewAvailable => _newAvailable.Value;
-
-		readonly ObservableAsPropertyHelper<bool> _updatesAvailable;
-		public bool UpdatesAvailable => _updatesAvailable.Value;
-
-		readonly ObservableAsPropertyHelper<int> _totalUpdates;
-		public int TotalUpdates => _totalUpdates.Value;
+		[ObservableAsProperty] public bool AnySelected { get; }
+		[ObservableAsProperty] public bool AllNewModsSelected { get; }
+		[ObservableAsProperty] public bool AllModUpdatesSelected { get; }
+		[ObservableAsProperty] public bool NewAvailable { get; }
+		[ObservableAsProperty] public bool UpdatesAvailable { get; }
+		[ObservableAsProperty] public int TotalUpdates { get; }
 
 		public ICommand CopySelectedModsCommand { get; private set; }
 		public ICommand SelectAllNewModsCommand { get; private set; }
@@ -248,7 +237,7 @@ namespace DivinityModManager.ViewModels
 
 			var modsConnection = Mods.Connect();
 
-			_totalUpdates = modsConnection.CountChanged().Select(x => x.Count).ToProperty(this, nameof(TotalUpdates), true, RxApp.MainThreadScheduler);
+			modsConnection.CountChanged().Select(x => x.Count).ToUIProperty(this, x => x.TotalUpdates);
 
 			var splitList = modsConnection.AutoRefresh(x => x.IsNewMod);
 			var newModsConnection = splitList.Filter(x => x.IsNewMod);
@@ -259,17 +248,17 @@ namespace DivinityModManager.ViewModels
 
 			var hasNewMods = newModsConnection.CountChanged().Select(x => x.Count > 0);
 			var hasUpdatedMods = updatedModsConnection.CountChanged().Select(x => x.Count > 0);
-			_newAvailable = hasNewMods.ToProperty(this, nameof(NewAvailable));
-			_updatesAvailable = hasUpdatedMods.ToProperty(this, nameof(UpdatesAvailable));
+			hasNewMods.ToUIProperty(this, x => x.NewAvailable);
+			hasUpdatedMods.ToUIProperty(this, x => x.UpdatesAvailable);
 
 			var selectedMods = modsConnection.AutoRefresh(x => x.IsSelected).ToCollection();
-			_anySelected = selectedMods.Select(x => x.Any(y => y.IsSelected)).ToProperty(this, nameof(AnySelected), true, RxApp.MainThreadScheduler);
+			selectedMods.Select(x => x.Any(y => y.IsSelected)).ToUIProperty(this, x => x.AnySelected);
 
 			var newModsChangeSet = NewMods.ToObservableChangeSet().AutoRefresh(x => x.IsSelected).ToCollection();
 			var modUpdatesChangeSet = UpdatedMods.ToObservableChangeSet().AutoRefresh(x => x.IsSelected).ToCollection();
 
-			_allNewModsSelected = splitList.Filter(x => x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToProperty(this, nameof(AllNewModsSelected), true, RxApp.MainThreadScheduler);
-			_allModUpdatesSelected = splitList.Filter(x => !x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToProperty(this, nameof(AllModUpdatesSelected), true, RxApp.MainThreadScheduler);
+			splitList.Filter(x => x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToUIProperty(this, x => x.AllNewModsSelected);
+			splitList.Filter(x => !x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToUIProperty(this, x => x.AllModUpdatesSelected);
 
 			var anySelectedObservable = this.WhenAnyValue(x => x.AnySelected);
 

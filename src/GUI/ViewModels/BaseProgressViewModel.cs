@@ -22,11 +22,10 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public string ProgressWorkText { get; set; }
 		[Reactive] public double ProgressValue { get; set; }
 
-		private readonly ObservableAsPropertyHelper<bool> _isRunning;
 		/// <summary>
 		/// True when the RunCommand is executing.
 		/// </summary>
-		public bool IsRunning => _isRunning.Value;
+		[ObservableAsProperty] public bool IsRunning { get; }
 
 		public ReactiveCommand<Unit, bool> RunCommand { get; private set; }
 		public ReactiveCommand<Unit, Unit> CancelRunCommand { get; private set; }
@@ -69,8 +68,7 @@ namespace DivinityModManager.ViewModels
 			CanClose = true;
 			var canRun = this.WhenAnyValue(x => x.CanRun);
 			RunCommand = ReactiveCommand.CreateFromObservable(() => Observable.StartAsync(cts => Run(cts)).TakeUntil(this.CancelRunCommand), canRun);
-
-			_isRunning = this.RunCommand.IsExecuting.ToProperty(this, nameof(IsRunning), true, RxApp.MainThreadScheduler);
+			RunCommand.IsExecuting.ToUIProperty(this, x => x.IsRunning);
 
 			CancelRunCommand = ReactiveCommand.Create(() => { }, this.WhenAnyValue(x => x.IsRunning));
 

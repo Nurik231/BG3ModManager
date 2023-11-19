@@ -38,15 +38,9 @@ namespace DivinityModManager.Models
 	public class DivinityBaseModData : ReactiveObject, IDivinityModData
 	{
 		[Reactive] public string FilePath { get; set; }
-
-		readonly ObservableAsPropertyHelper<string> fileName;
-		public string FileName => fileName.Value;
 		[Reactive][DataMember] public string UUID { get; set; }
 		[Reactive][DataMember] public string Folder { get; set; }
 		[Reactive][DataMember] public string Name { get; set; }
-
-		readonly ObservableAsPropertyHelper<string> displayName;
-		public string DisplayName => displayName.Value;
 		[Reactive][DataMember] public string Description { get; set; }
 		[Reactive][DataMember] public string Author { get; set; }
 		[Reactive] public string MD5 { get; set; }
@@ -88,11 +82,10 @@ namespace DivinityModManager.Models
 
 		[Reactive] public Visibility Visibility { get; set; }
 
-		readonly ObservableAsPropertyHelper<Visibility> descriptionVisibility;
-		public Visibility DescriptionVisibility => descriptionVisibility.Value;
-
-		readonly ObservableAsPropertyHelper<Visibility> authorVisibility;
-		public Visibility AuthorVisibility => authorVisibility.Value;
+		[ObservableAsProperty] public string FileName { get; }
+		[ObservableAsProperty] public string DisplayName { get; }
+		[ObservableAsProperty] public Visibility DescriptionVisibility { get; }
+		[ObservableAsProperty] public Visibility AuthorVisibility { get; }
 
 		public virtual string GetDisplayName()
 		{
@@ -176,11 +169,11 @@ namespace DivinityModManager.Models
 			Name = "";
 
 			HelpText = "";
-			Visibility = Visibility.Visible;
-			fileName = this.WhenAnyValue(x => x.FilePath).Select(f => Path.GetFileName(f)).ToProperty(this, nameof(FileName));
-			displayName = this.WhenAnyValue(x => x.Name, x => x.FilePath, x => x.DisplayFileForName).Select(x => this.GetDisplayName()).ToProperty(this, nameof(DisplayName));
-			descriptionVisibility = this.WhenAnyValue(x => x.Description).Select(x => !String.IsNullOrWhiteSpace(x) ? Visibility.Visible : Visibility.Collapsed).StartWith(Visibility.Visible).ToProperty(this, nameof(DescriptionVisibility));
-			authorVisibility = this.WhenAnyValue(x => x.Author).Select(x => !String.IsNullOrWhiteSpace(x) ? Visibility.Visible : Visibility.Collapsed).StartWith(Visibility.Visible).ToProperty(this, nameof(AuthorVisibility));
+
+			this.WhenAnyValue(x => x.FilePath).Select(f => Path.GetFileName(f)).ToUIProperty(this, x => x.FileName);
+			this.WhenAnyValue(x => x.Name, x => x.FilePath, x => x.DisplayFileForName).Select(x => this.GetDisplayName()).ToUIProperty(this, x => x.DisplayName);
+			this.WhenAnyValue(x => x.Description).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.DescriptionVisibility);
+			this.WhenAnyValue(x => x.Author).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.AuthorVisibility);
 		}
 	}
 }

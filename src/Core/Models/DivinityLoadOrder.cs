@@ -46,9 +46,7 @@ namespace DivinityModManager.Models
 		/// </summary>
 		[Reactive] public bool IsDecipheredOrder { get; set; }
 
-		private readonly ObservableAsPropertyHelper<string> _lastModified;
-
-		public string LastModified => _lastModified.Value;
+		[ObservableAsProperty] public string LastModified { get; }
 
 		[DataMember]
 		public List<DivinityLoadOrderEntry> Order { get; set; } = new List<DivinityLoadOrderEntry>();
@@ -251,7 +249,7 @@ namespace DivinityModManager.Models
 				DivinityApp.Events.OnOrderNameChanged(_lastName, Name);
 				_lastName = Name;
 			});
-			_lastModified = this.WhenAnyValue(x => x.LastModifiedDate).Select(x => x.ToString("g")).ToProperty(this, nameof(LastModified));
+			this.WhenAnyValue(x => x.LastModifiedDate).Select(x => x.ToString("g")).ToUIProperty(this, x => x.LastModified, "");
 		}
 	}
 }

@@ -44,20 +44,11 @@ namespace DivinityModManager.ViewModels
 
 		public ObservableCollectionExtended<ModFileDeletionData> Files { get; set; } = new ObservableCollectionExtended<ModFileDeletionData>();
 
-		private readonly ObservableAsPropertyHelper<bool> _anySelected;
-		public bool AnySelected => _anySelected.Value;
-
-		private readonly ObservableAsPropertyHelper<bool> _allSelected;
-		public bool AllSelected => _allSelected.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _selectAllTooltip;
-		public string SelectAllTooltip => _selectAllTooltip.Value;
-
-		private readonly ObservableAsPropertyHelper<string> _title;
-		public string Title => _title.Value;
-
-		private readonly ObservableAsPropertyHelper<Visibility> _removeFromLoadOrderVisibility;
-		public Visibility RemoveFromLoadOrderVisibility => _removeFromLoadOrderVisibility.Value;
+		[ObservableAsProperty] public bool AnySelected { get; }
+		[ObservableAsProperty] public bool AllSelected { get; }
+		[ObservableAsProperty] public string SelectAllTooltip { get; }
+		[ObservableAsProperty] public string Title { get; }
+		[ObservableAsProperty] public Visibility RemoveFromLoadOrderVisibility { get; }
 
 		public ReactiveCommand<Unit, Unit> SelectAllCommand { get; private set; }
 
@@ -145,16 +136,15 @@ namespace DivinityModManager.ViewModels
 
 			//this.WhenAnyValue(x => x.IsDeletingDuplicates, x => x.Files.Count).Select(x => IsClosingAllowed(x.Item1, x.Item2)).BindTo(this, x => x.CanClose);
 
-			_removeFromLoadOrderVisibility = this.WhenAnyValue(x => x.IsDeletingDuplicates).Select(x => x ? Visibility.Collapsed : Visibility.Visible).ToProperty(this, nameof(RemoveFromLoadOrderVisibility), true, RxApp.MainThreadScheduler);
-			_title = this.WhenAnyValue(x => x.IsDeletingDuplicates).Select(b => !b ? "Files to Delete" : "Duplicate Mods to Delete").ToProperty(this, nameof(Title), true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.IsDeletingDuplicates).Select(PropertyConverters.BoolToVisibilityReversed).ToUIProperty(this, x => x.RemoveFromLoadOrderVisibility);
+			this.WhenAnyValue(x => x.IsDeletingDuplicates).Select(b => !b ? "Files to Delete" : "Duplicate Mods to Delete").ToUIProperty(this, x => x.Title);
 
-			var filesChanged = this.Files.ToObservableChangeSet().AutoRefresh(x => x.IsSelected).ToCollection().Throttle(TimeSpan.FromMilliseconds(50)).ObserveOn(RxApp.MainThreadScheduler);
-			_anySelected = filesChanged.Select(x => x.Any(y => y.IsSelected)).ToProperty(this, nameof(AnySelected));
+			var filesChanged = Files.ToObservableChangeSet().AutoRefresh(x => x.IsSelected).ToCollection().Throttle(TimeSpan.FromMilliseconds(50)).ObserveOn(RxApp.MainThreadScheduler);
+			filesChanged.Select(x => x.Any(y => y.IsSelected)).ToUIProperty(this, x => x.AnySelected);
+			filesChanged.Select(x => x.All(y => y.IsSelected)).ToUIProperty(this, x => x.AllSelected);
+			this.WhenAnyValue(x => x.AllSelected).Select(b => $"{(b ? "Deselect" : "Select")} All").ToUIProperty(this, x => x.SelectAllTooltip);
 
-			_allSelected = filesChanged.Select(x => x.All(y => y.IsSelected)).ToProperty(this, nameof(AllSelected), true, RxApp.MainThreadScheduler);
-			_selectAllTooltip = this.WhenAnyValue(x => x.AllSelected).Select(b => $"{(b ? "Deselect" : "Select")} All").ToProperty(this, nameof(SelectAllTooltip), true, RxApp.MainThreadScheduler);
-
-			SelectAllCommand = ReactiveCommand.Create(ToggleSelectAll, this.RunCommand.IsExecuting.Select(b => !b), RxApp.MainThreadScheduler);
+			SelectAllCommand = ReactiveCommand.Create(ToggleSelectAll, RunCommand.IsExecuting.Select(b => !b), RxApp.MainThreadScheduler);
 			
 			this.WhenAnyValue(x => x.AnySelected).BindTo(this, x => x.CanRun);
 		}
