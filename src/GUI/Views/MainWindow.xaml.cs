@@ -373,10 +373,11 @@ namespace DivinityModManager.Views
 			MainGrid.Children.Add(MainView);
 
 			SettingsWindow = new SettingsWindow();
-			SettingsWindow.OnWorkshopPathChanged += delegate
+			//TODO Replace with new updater service
+			/*SettingsWindow.OnWorkshopPathChanged += delegate
 			{
 				RxApp.TaskpoolScheduler.ScheduleAsync(TimeSpan.FromMilliseconds(50), async (sch, cts) => await ViewModel.LoadWorkshopModsAsync(cts));
-			};
+			};*/
 			SettingsWindow.Closed += delegate
 			{
 				if (ViewModel?.Settings != null)
