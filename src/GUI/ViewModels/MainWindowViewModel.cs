@@ -2249,25 +2249,6 @@ Directory the zip will be extracted to:
 			}, RxApp.MainThreadScheduler);
 		}
 
-		private readonly List<string> ignoredModProjectNames = new List<string> { "Test", "Debug" };
-		private bool CanFetchWorkshopData(DivinityModData mod)
-		{
-			if (_updater.SteamWorkshop.CacheData.NonWorkshopMods.Contains(mod.UUID))
-			{
-				return false;
-			}
-			if (mod.IsEditorMod && (ignoredModProjectNames.Any(x => mod.Folder.IndexOf(x, StringComparison.OrdinalIgnoreCase) > -1) ||
-				String.IsNullOrEmpty(mod.Author) || String.IsNullOrEmpty(mod.Description)))
-			{
-				return false;
-			}
-			else if (mod.IsLarianMod || String.IsNullOrEmpty(mod.DisplayName))
-			{
-				return false;
-			}
-			return mod.WorkshopData.ModId <= DivinityApp.WORKSHOP_MOD_ID_START || !_updater.SteamWorkshop.CacheData.Mods.ContainsKey(mod.UUID);
-		}
-
 		private IDisposable _refreshGithubModsUpdatesBackgroundTask;
 
 		private async Task<Unit> RefreshGithubModsUpdatesBackgroundAsync(IScheduler sch, CancellationToken token)

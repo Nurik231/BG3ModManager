@@ -31,11 +31,6 @@ namespace DivinityModManager.Models.Updates
 		[ObservableAsProperty] public string UpdateDateText { get; }
 		[ObservableAsProperty] public string UpdateToolTip { get; }
 
-		private DivinityModData GetNonNull(ValueTuple<DivinityModData, DivinityModData> items)
-		{
-			return items.Item1 ?? items.Item2;
-		}
-
 		private Uri SourceToLink(ValueTuple<DivinityModData, ModSourceType> data)
 		{
 			if(data.Item1 != null)
