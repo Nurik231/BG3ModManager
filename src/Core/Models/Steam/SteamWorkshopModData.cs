@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DivinityModManager.Models
+namespace DivinityModManager.Models.Steam
 {
-	public class DivinityModWorkshopData : ReactiveObject
+	public class SteamWorkshopModData : ReactiveObject
 	{
 		[Reactive] public long ModId { get; set; }
 		[Reactive] public DateTime CreatedDate { get; set; }
@@ -17,7 +17,7 @@ namespace DivinityModManager.Models
 
 		public List<string> Tags { get; set; }
 
-		public void Update(DivinityModWorkshopData otherData)
+		public void Update(SteamWorkshopModData otherData)
 		{
 			ModId = otherData.ModId;
 			CreatedDate = otherData.CreatedDate;

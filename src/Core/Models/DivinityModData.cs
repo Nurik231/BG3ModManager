@@ -3,6 +3,7 @@
 using DivinityModManager.Models.Github;
 using DivinityModManager.Models.Mod;
 using DivinityModManager.Models.NexusMods;
+using DivinityModManager.Models.Steam;
 using DivinityModManager.Util;
 
 using DynamicData;
@@ -222,7 +223,7 @@ namespace DivinityModManager.Models
 
 		public HashSet<string> Files { get; set; }
 
-		[Reactive] public DivinityModWorkshopData WorkshopData { get; set; }
+		[Reactive] public SteamWorkshopModData WorkshopData { get; set; }
 		[Reactive] public NexusModsModData NexusModsData { get; set; }
 		[Reactive] public GithubModData GithubData { get; set; }
 
@@ -367,7 +368,7 @@ namespace DivinityModManager.Models
 			Index = -1;
 			CanDrag = true;
 
-			WorkshopData = new DivinityModWorkshopData();
+			WorkshopData = new SteamWorkshopModData();
 			NexusModsData = new NexusModsModData();
 			GithubData = new GithubModData();
 
