@@ -1212,7 +1212,7 @@ Directory the zip will be extracted to:
 				}
 				if (TryGetMod(workshopMod.UUID, out var pakMod))
 				{
-					pakMod.WorkshopData.ID = workshopMod.WorkshopData.ID;
+					pakMod.WorkshopData.ModId = workshopMod.WorkshopData.ModId;
 					if (!pakMod.IsEditorMod)
 					{
 						if (!File.Exists(pakMod.FilePath) || workshopMod.Version > pakMod.Version || workshopMod.IsNewerThan(pakMod))
@@ -2265,7 +2265,7 @@ Directory the zip will be extracted to:
 			{
 				return false;
 			}
-			return String.IsNullOrEmpty(mod.WorkshopData.ID) || !_updater.SteamWorkshop.CacheData.Mods.ContainsKey(mod.UUID);
+			return mod.WorkshopData.ModId <= DivinityApp.WORKSHOP_MOD_ID_START || !_updater.SteamWorkshop.CacheData.Mods.ContainsKey(mod.UUID);
 		}
 
 		private IDisposable _refreshGithubModsUpdatesBackgroundTask;

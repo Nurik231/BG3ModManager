@@ -1,6 +1,7 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
 using DivinityModManager.Models.Github;
+using DivinityModManager.Models.Mod;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Util;
 
@@ -230,15 +231,15 @@ namespace DivinityModManager.Models
 			switch (modSourceType)
 			{
 				case ModSourceType.STEAM:
-					if (WorkshopData != null && WorkshopData.ID != "")
+					if (WorkshopData != null && WorkshopData.ModId > DivinityApp.WORKSHOP_MOD_ID_START)
 					{
 						if (!asProtocol)
 						{
-							return $"https://steamcommunity.com/sharedfiles/filedetails/?id={WorkshopData.ID}";
+							return $"https://steamcommunity.com/sharedfiles/filedetails/?id={WorkshopData.ModId}";
 						}
 						else
 						{
-							return $"steam://url/CommunityFilePage/{WorkshopData.ID}";
+							return $"steam://url/CommunityFilePage/{WorkshopData.ModId}";
 						}
 					}
 					break;
@@ -325,9 +326,9 @@ namespace DivinityModManager.Models
 			}
 		}
 
-		private bool CanOpenWorkshopBoolCheck(bool enabled, bool isHidden, bool isLarianMod, string workshopID)
+		private bool CanOpenWorkshopBoolCheck(bool enabled, bool isHidden, bool isLarianMod, long workshopID)
 		{
-			return enabled && !isHidden & !isLarianMod & !String.IsNullOrEmpty(workshopID);
+			return enabled && !isHidden & !isLarianMod & workshopID > DivinityApp.WORKSHOP_MOD_ID_START;
 		}
 
 		private string NexusModsInfoToTooltip(DateTime createdDate, DateTime updatedDate, long endorsements)
@@ -350,6 +351,14 @@ namespace DivinityModManager.Models
 			}
 
 			return String.Join("\n", lines);
+		}
+
+		public void ApplyModConfig(ModConfig config)
+		{
+			if (config?.NexusMods.ModId > DivinityApp.NEXUSMODS_MOD_ID_START) NexusModsData.ModId = config.NexusMods.ModId;
+			if (config.SteamWorkshop.ModId > DivinityApp.WORKSHOP_MOD_ID_START) WorkshopData.ModId = config.SteamWorkshop.ModId;
+			if (!String.IsNullOrWhiteSpace(config.Github.Author)) GithubData.Author = config.Github.Author;
+			if (!String.IsNullOrWhiteSpace(config.Github.Repository)) GithubData.Repository = config.Github.Repository;
 		}
 
 		public DivinityModData(bool isBaseGameMod = false) : base()
@@ -382,7 +391,7 @@ namespace DivinityModManager.Models
 				.Select(b => b.Item1 && b.Item2 && !b.Item3 ? Visibility.Visible : Visibility.Collapsed)
 				.ToUIProperty(this, x => x.ToggleForceAllowInLoadOrderVisibility, Visibility.Collapsed);
 
-			this.WhenAnyValue(x => x.WorkshopEnabled, x => x.IsHidden, x => x.IsLarianMod, x => x.WorkshopData.ID, CanOpenWorkshopBoolCheck)
+			this.WhenAnyValue(x => x.WorkshopEnabled, x => x.IsHidden, x => x.IsLarianMod, x => x.WorkshopData.ModId, CanOpenWorkshopBoolCheck)
 				.ToUIProperty(this, x => x.CanOpenWorkshopLink);
 			this.WhenAnyValue(x => x.CanOpenWorkshopLink)
 				.Select(PropertyConverters.BoolToVisibility)

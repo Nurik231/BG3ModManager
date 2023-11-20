@@ -3,6 +3,7 @@
 using DivinityModManager.Extensions;
 using DivinityModManager.Models;
 using DivinityModManager.Models.App;
+using DivinityModManager.Models.Mod;
 
 using DynamicData;
 
@@ -351,6 +352,16 @@ namespace DivinityModManager.Util
 								}
 							}
 
+							var modManagerConfigPath = Path.Combine(folder, ModConfig.FileName);
+							if (File.Exists(modManagerConfigPath))
+							{
+								var modManagerConfig = await DivinityJsonUtils.DeserializeFromPathAsync<ModConfig>(extenderConfigPath, token);
+								if (modManagerConfig != null)
+								{
+									modData.ApplyModConfig(modManagerConfig);
+								}
+							}
+
 							return modData;
 						}
 					}
@@ -438,7 +449,7 @@ namespace DivinityModManager.Util
 			"Localization",
 		};
 
-		private static async Task<DivinityModData> InternalLoadModDataFromPakAsync(LSLib.LS.Package pak, string pakPath, Dictionary<string, DivinityModData> builtinMods)
+		private static async Task<DivinityModData> InternalLoadModDataFromPakAsync(LSLib.LS.Package pak, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
 		{
 			DivinityModData modData = null;
 
@@ -454,11 +465,13 @@ namespace DivinityModManager.Util
 			var baseGameFiles = new HashSet<string>();
 
 			AbstractFileInfo extenderConfigPath = null;
+			AbstractFileInfo modManagerConfigPath = null;
 
 			if (pak != null && pak.Files != null)
 			{
 				for (int i = 0; i < pak.Files.Count; i++)
 				{
+					if (token.IsCancellationRequested) break;
 					var f = pak.Files[i];
 					files.Add(f.Name);
 
@@ -476,7 +489,11 @@ namespace DivinityModManager.Util
 						if (modFolderMatch.Success)
 						{
 							var modFolder = Path.GetFileName(modFolderMatch.Groups[2].Value.TrimEnd(Path.DirectorySeparatorChar));
-							if (f.Name.Contains($"Mods/{modFolder}/Story/RawFiles/Goals"))
+							if (f.Name.Contains($"Mods/{modFolder}/{ModConfig.FileName}"))
+							{
+								modManagerConfigPath = f;
+							}
+							else if (f.Name.Contains($"Mods/{modFolder}/Story/RawFiles/Goals"))
 							{
 								if (hasOsirisScripts == DivinityOsirisModStatus.NONE)
 								{
@@ -649,6 +666,15 @@ namespace DivinityModManager.Util
 					}
 				}
 
+				if (modManagerConfigPath != null)
+				{
+					var modManagerConfig = await DivinityJsonUtils.DeserializeFromAbstractAsync<ModConfig>(extenderConfigPath);
+					if (modManagerConfig != null)
+					{
+						modData.ApplyModConfig(modManagerConfig);
+					}
+				}
+
 				//DivinityApp.Log($"Loaded mod '{modData.Name}'.");
 				return modData;
 			}
@@ -667,22 +693,17 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		private static async Task<DivinityModData> LoadModDataFromPakAsync(string pakPath, Dictionary<string, DivinityModData> builtinMods)
-		{
-			using (var pr = new LSLib.LS.PackageReader(pakPath))
-			{
-				var pak = pr.Read();
-				return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods);
-			}
-		}
-
 		public static async Task<DivinityModData> LoadModDataFromPakAsync(string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
 		{
 			try
 			{
 				while (!token.IsCancellationRequested)
 				{
-					return await LoadModDataFromPakAsync(pakPath, builtinMods);
+					using (var pr = new LSLib.LS.PackageReader(pakPath))
+					{
+						var pak = pr.Read();
+						return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
+					}
 				}
 			}
 			catch (Exception ex)
@@ -702,7 +723,7 @@ namespace DivinityModManager.Util
 					using (var pr = new LSLib.LS.PackageReader())
 					{
 						var pak = pr.Read(stream);
-						return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods);
+						return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
 					}
 				}
 			}

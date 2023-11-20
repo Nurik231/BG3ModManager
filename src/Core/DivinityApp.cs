@@ -41,6 +41,8 @@ namespace DivinityModManager
 		public const string NEXUSMODS_MOD_URL = "https://www.nexusmods.com/baldursgate3/mods/{0}";
 		public const long NEXUSMODS_MOD_ID_START = 1;
 
+		public const long WORKSHOP_MOD_ID_START = 4; // id 5 and up seems to work, while 0-3 are disabled / hidden
+
 		public const string EXTENDER_REPO_URL = "Norbyte/bg3se";
 		public const string EXTENDER_LATEST_URL = "https://github.com/Norbyte/bg3se/releases/latest";
 		public const string EXTENDER_APPDATA_DIRECTORY = "BG3ScriptExtender";

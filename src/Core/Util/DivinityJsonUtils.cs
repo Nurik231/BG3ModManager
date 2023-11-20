@@ -1,4 +1,7 @@
 ﻿using Alphaleonis.Win32.Filesystem;
+
+using LSLib.LS;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -23,7 +26,7 @@ namespace DivinityModManager.Util
 			}
 		};
 
-		public static T GetValue<T>(this JToken jToken, string key, T defaultValue = default(T))
+		public static T GetValue<T>(this JToken jToken, string key, T defaultValue = default)
 		{
 			dynamic ret = jToken[key];
 			if (ret == null) return defaultValue;
@@ -59,7 +62,7 @@ namespace DivinityModManager.Util
 			{
 				DivinityApp.Log("Error deserializing json:\n" + ex.ToString());
 			}
-			return default(T);
+			return default;
 		}
 
 		public static bool TrySafeDeserialize<T>(string text, out T result)
@@ -82,16 +85,46 @@ namespace DivinityModManager.Util
 
 		public static async Task<T> DeserializeFromPathAsync<T>(string path, CancellationToken token)
 		{
-			var fileBytes = await DivinityFileUtils.LoadFileAsync(path, token);
-			if(fileBytes != null)
+			try
 			{
-				var contents = Encoding.UTF8.GetString(fileBytes);
-				if(!String.IsNullOrEmpty(contents))
+				var fileBytes = await DivinityFileUtils.LoadFileAsync(path, token);
+				if (fileBytes != null)
 				{
-					return JsonConvert.DeserializeObject<T>(contents, _errorHandleSettings);
+					var contents = Encoding.UTF8.GetString(fileBytes);
+					if (!String.IsNullOrEmpty(contents))
+					{
+						return JsonConvert.DeserializeObject<T>(contents, _errorHandleSettings);
+					}
 				}
 			}
-			return default(T);
+			catch(Exception ex)
+			{
+				DivinityApp.Log($"Error deserializing '{path}':\n{ex}");
+			}
+			return default;
+		}
+
+		public static async Task<T> DeserializeFromAbstractAsync<T>(AbstractFileInfo file)
+		{
+			try
+			{
+				using (var stream = file.MakeStream())
+				{
+					using (var sr = new System.IO.StreamReader(stream, Encoding.UTF8))
+					{
+						string text = await sr.ReadToEndAsync();
+						if (!String.IsNullOrWhiteSpace(text))
+						{
+							return JsonConvert.DeserializeObject<T>(text, _errorHandleSettings);
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error deserializing AbstractFileInfo:\n{ex}");
+			}
+			return default;
 		}
 	}
 }

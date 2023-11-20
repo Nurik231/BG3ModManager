@@ -1,4 +1,6 @@
 ﻿using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,44 +11,15 @@ namespace DivinityModManager.Models
 {
 	public class DivinityModWorkshopData : ReactiveObject
 	{
-		private string id = "";
+		[Reactive] public long ModId { get; set; }
+		[Reactive] public DateTime CreatedDate { get; set; }
+		[Reactive] public DateTime UpdatedDate { get; set; }
 
-		public string ID
-		{
-			get => id;
-			set { this.RaiseAndSetIfChanged(ref id, value); }
-		}
-
-		private DateTime createdDate;
-
-		public DateTime CreatedDate
-		{
-			get => createdDate;
-			set { this.RaiseAndSetIfChanged(ref createdDate, value); }
-		}
-
-		private DateTime updatedDate;
-
-		public DateTime UpdatedDate
-		{
-			get => updatedDate;
-			set { this.RaiseAndSetIfChanged(ref updatedDate, value); }
-		}
-
-		private List<string> tags;
-
-		public List<string> Tags
-		{
-			get => tags;
-			set 
-			{ 
-				this.RaiseAndSetIfChanged(ref tags, value);
-			}
-		}
+		public List<string> Tags { get; set; }
 
 		public void Update(DivinityModWorkshopData otherData)
 		{
-			ID = otherData.ID;
+			ModId = otherData.ModId;
 			CreatedDate = otherData.CreatedDate;
 			UpdatedDate = otherData.UpdatedDate;
 			Tags = otherData.Tags;

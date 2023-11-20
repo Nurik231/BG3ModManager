@@ -100,9 +100,9 @@ namespace DivinityModManager.AppServices
 					{
 						if (SteamWorkshop.CacheData.Mods.TryGetValue(mod.UUID, out var workshopData))
 						{
-							if (string.IsNullOrEmpty(mod.WorkshopData.ID) || mod.WorkshopData.ID == workshopData.WorkshopID)
+							if (mod.WorkshopData.ModId == 0 || mod.WorkshopData.ModId == workshopData.ModId)
 							{
-								mod.WorkshopData.ID = workshopData.WorkshopID;
+								mod.WorkshopData.ModId = workshopData.ModId;
 								mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(workshopData.Created);
 								mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(workshopData.LastUpdated);
 								mod.WorkshopData.Tags = workshopData.Tags;
@@ -258,9 +258,9 @@ namespace DivinityModManager.AppServices
 						{
 							if (SteamWorkshop.CacheData.Mods.TryGetValue(mod.UUID, out var workshopData))
 							{
-								if (string.IsNullOrEmpty(mod.WorkshopData.ID) || mod.WorkshopData.ID == workshopData.WorkshopID)
+								if (mod.WorkshopData.ModId == 0 || mod.WorkshopData.ModId == workshopData.ModId)
 								{
-									mod.WorkshopData.ID = workshopData.WorkshopID;
+									mod.WorkshopData.ModId = workshopData.ModId;
 									mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(workshopData.Created);
 									mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(workshopData.LastUpdated);
 									mod.WorkshopData.Tags = workshopData.Tags;
@@ -279,10 +279,10 @@ namespace DivinityModManager.AppServices
 				var workshopMods = await DivinityModDataLoader.LoadModPackageDataAsync(settings.WorkshopPath, token);
 				foreach (var workshopMod in workshopMods.Mods)
 				{
-					string workshopID = Directory.GetParent(workshopMod.FilePath)?.Name;
-					if (!String.IsNullOrEmpty(workshopID))
+					string idStr = Directory.GetParent(workshopMod.FilePath)?.Name;
+					if (!String.IsNullOrEmpty(idStr) && long.TryParse(idStr, out var id))
 					{
-						workshopMod.WorkshopData.ID = workshopID;
+						workshopMod.WorkshopData.ModId = id;
 					}
 				}
 

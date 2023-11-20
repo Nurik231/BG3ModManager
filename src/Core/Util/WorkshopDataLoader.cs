@@ -46,7 +46,7 @@ namespace DivinityModManager.Util
 			int i = 0;
 			foreach (var mod in workshopMods)
 			{
-				values.Add($"publishedfileids[{i}]", mod.WorkshopData.ID);
+				values.Add($"publishedfileids[{i}]", mod.WorkshopData.ModId);
 				i++;
 			}
 
@@ -76,7 +76,7 @@ namespace DivinityModManager.Util
 					{
 						try
 						{
-							var mod = workshopMods.FirstOrDefault(x => x.WorkshopData.ID == d.publishedfileid);
+							var mod = workshopMods.FirstOrDefault(x => x.WorkshopData.ModId == d.publishedfileid);
 							if (mod != null)
 							{
 								mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(d.time_created);
@@ -254,9 +254,9 @@ namespace DivinityModManager.Util
 
 									if (dUUID == mod.UUID)
 									{
-										if (String.IsNullOrEmpty(mod.WorkshopData.ID) || mod.WorkshopData.ID == d.publishedfileid)
+										if (String.IsNullOrEmpty(mod.WorkshopData.ModId) || mod.WorkshopData.ModId == d.publishedfileid)
 										{
-											mod.WorkshopData.ID = d.publishedfileid;
+											mod.WorkshopData.ModId = d.publishedfileid;
 											mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(d.time_created);
 											mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(d.time_updated);
 											if (d.tags != null && d.tags.Count > 0)
@@ -264,12 +264,12 @@ namespace DivinityModManager.Util
 												mod.WorkshopData.Tags = modTags;
 												mod.AddTags(mod.WorkshopData.Tags);
 											}
-											DivinityApp.Log($"Found workshop ID {mod.WorkshopData.ID} for mod {mod.DisplayName}.");
+											DivinityApp.Log($"Found workshop ID {mod.WorkshopData.ModId} for mod {mod.DisplayName}.");
 											totalFound++;
 										}
 										else
 										{
-											DivinityApp.Log($"Found workshop entry for mod {mod.DisplayName}, but it has a different workshop ID? Current({mod.WorkshopData.ID}) Found({d.publishedfileid})");
+											DivinityApp.Log($"Found workshop entry for mod {mod.DisplayName}, but it has a different workshop ID? Current({mod.WorkshopData.ModId}) Found({d.publishedfileid})");
 										}
 									}
 								}

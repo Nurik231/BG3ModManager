@@ -20,7 +20,7 @@ namespace DivinityModManager.Models.Cache
 		public void AddOrUpdate(string uuid, IWorkshopPublishFileDetails d, List<string> tags)
 		{
 			// Mods may have the same UUID, so use the WorkshopID instead.
-			var cachedData = Mods.Values.FirstOrDefault(x => x.WorkshopID == d.publishedfileid);
+			var cachedData = Mods.Values.FirstOrDefault(x => x.ModId == d.publishedfileid);
 			if (cachedData != null)
 			{
 				cachedData.LastUpdated = d.time_updated;
@@ -34,7 +34,7 @@ namespace DivinityModManager.Models.Cache
 					Created = d.time_created,
 					LastUpdated = d.time_updated,
 					UUID = uuid,
-					WorkshopID = d.publishedfileid,
+					ModId = d.publishedfileid,
 					Tags = tags
 				});
 			}
@@ -78,8 +78,8 @@ namespace DivinityModManager.Models.Cache
 						writer.WritePropertyName("UUID");
 						writer.WriteValue(data.UUID);
 
-						writer.WritePropertyName("WorkshopID");
-						writer.WriteValue(data.WorkshopID);
+						writer.WritePropertyName("ModId");
+						writer.WriteValue(data.ModId);
 
 						//writer.WritePropertyName("Created");
 						//writer.WriteValue(data.Created);
