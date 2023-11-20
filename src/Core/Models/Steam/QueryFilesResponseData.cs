@@ -23,7 +23,7 @@ namespace DivinityModManager.Models.Steam
 	public class QueryFilesPublishedFileDetails : IWorkshopPublishFileDetails
 	{
 		public int result { get; set; }
-		public string publishedfileid { get; set; }
+		public long PublishedFileId { get; set; }
 		public string creator { get; set; }
 		public string filename { get; set; }
 		public string file_size { get; set; }
@@ -32,11 +32,11 @@ namespace DivinityModManager.Models.Steam
 		public string url { get; set; }
 		public string title { get; set; }
 		public string description { get; set; }
-		public long time_created { get; set; }
-		public long time_updated { get; set; }
+		public long TimeCreated { get; set; }
+		public long TimeUpdated { get; set; }
 		public int visibility { get; set; }
 		public int flags { get; set; }
-		public List<WorkshopTag> tags { get; set; }
+		public List<WorkshopTag> Tags { get; set; }
 		public string metadata { get; set; }
 		[JsonIgnore] public QueryFilesPublishedFileDivinityMetadataMain MetaData { get; set; }
 		public int language { get; set; }

@@ -24,7 +24,7 @@ namespace DivinityModManager.Util
 		private static readonly List<string> ignoredTags = new List<string>{"Add-on", "Adventure", "GM", "Arena", "Story", "Definitive Edition"};
 		private static List<string> GetWorkshopTags(IWorkshopPublishFileDetails data)
 		{
-			var tags = data.tags.Where(t => !ignoredTags.Contains(t.tag)).Select(x => x.tag).ToList();
+			var tags = data.Tags.Where(t => !ignoredTags.Contains(t.tag)).Select(x => x.tag).ToList();
 			if (tags != null)
 			{
 				return tags;
@@ -69,19 +69,19 @@ namespace DivinityModManager.Util
 			if (!String.IsNullOrEmpty(responseData))
 			{
 				PublishedFileDetailsResponse pResponse = DivinityJsonUtils.SafeDeserialize<PublishedFileDetailsResponse>(responseData);
-				if(pResponse != null && pResponse.response != null && pResponse.response.publishedfiledetails != null && pResponse.response.publishedfiledetails.Count > 0)
+				if(pResponse != null && pResponse.Response != null && pResponse.Response.PublishedFileDetails != null && pResponse.Response.PublishedFileDetails.Count > 0)
 				{
-					var details = pResponse.response.publishedfiledetails;
+					var details = pResponse.Response.PublishedFileDetails;
 					foreach (var d in details)
 					{
 						try
 						{
-							var mod = workshopMods.FirstOrDefault(x => x.WorkshopData.ModId == d.publishedfileid);
+							var mod = workshopMods.FirstOrDefault(x => x.WorkshopData.ModId == d.PublishedFileId);
 							if (mod != null)
 							{
-								mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(d.time_created);
-								mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(d.time_updated);
-								if (d.tags != null && d.tags.Count > 0)
+								mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(d.TimeCreated);
+								mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(d.TimeUpdated);
+								if (d.Tags != null && d.Tags.Count > 0)
 								{
 									mod.WorkshopData.Tags = GetWorkshopTags(d);
 									mod.AddTags(mod.WorkshopData.Tags);
@@ -89,11 +89,11 @@ namespace DivinityModManager.Util
 								//DivinityApp.LogMessage($"Loaded workshop details for mod {mod.Name}:");
 								totalLoaded++;
 							}
-							cachedData.AddOrUpdate(d.publishedfileid, d, mod.WorkshopData.Tags);
+							cachedData.AddOrUpdate(d.PublishedFileId, d, mod.WorkshopData.Tags);
 						}
 						catch(Exception ex)
 						{
-							DivinityApp.Log($"Error parsing mod data for {d.title}({d.publishedfileid})\n{ex}");
+							DivinityApp.Log($"Error parsing mod data for {d.Title}({d.PublishedFileId})\n{ex}");
 						}
 					}
 
@@ -171,7 +171,7 @@ namespace DivinityModManager.Util
 							}
 							catch (Exception ex)
 							{
-								DivinityApp.Log($"Error parsing mod data for {d.title}({d.publishedfileid})\n{ex}");
+								DivinityApp.Log($"Error parsing mod data for {d.title}({d.PublishedFileId})\n{ex}");
 							}
 						}
 					}
@@ -254,12 +254,12 @@ namespace DivinityModManager.Util
 
 									if (dUUID == mod.UUID)
 									{
-										if (String.IsNullOrEmpty(mod.WorkshopData.ModId) || mod.WorkshopData.ModId == d.publishedfileid)
+										if (String.IsNullOrEmpty(mod.WorkshopData.ModId) || mod.WorkshopData.ModId == d.PublishedFileId)
 										{
-											mod.WorkshopData.ModId = d.publishedfileid;
-											mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(d.time_created);
-											mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(d.time_updated);
-											if (d.tags != null && d.tags.Count > 0)
+											mod.WorkshopData.ModId = d.PublishedFileId;
+											mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(d.TimeCreated);
+											mod.WorkshopData.UpdatedDate = DateUtils.UnixTimeStampToDateTime(d.TimeUpdated);
+											if (d.Tags != null && d.Tags.Count > 0)
 											{
 												mod.WorkshopData.Tags = modTags;
 												mod.AddTags(mod.WorkshopData.Tags);
@@ -269,14 +269,14 @@ namespace DivinityModManager.Util
 										}
 										else
 										{
-											DivinityApp.Log($"Found workshop entry for mod {mod.DisplayName}, but it has a different workshop ID? Current({mod.WorkshopData.ModId}) Found({d.publishedfileid})");
+											DivinityApp.Log($"Found workshop entry for mod {mod.DisplayName}, but it has a different workshop ID? Current({mod.WorkshopData.ModId}) Found({d.PublishedFileId})");
 										}
 									}
 								}
 							}
 							catch (Exception ex)
 							{
-								DivinityApp.Log($"Error parsing mod data for {d.title}({d.publishedfileid})\n{ex}");
+								DivinityApp.Log($"Error parsing mod data for {d.title}({d.PublishedFileId})\n{ex}");
 							}
 						}
 					}

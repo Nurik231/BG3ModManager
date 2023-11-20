@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Steam
 {
+	public enum EPublishedFileVisibility
+	{
+		Public,
+		FriendsOnly,
+		Private
+	}
+
 	public struct WorkshopTag
 	{
 		public string tag { get; set; }
@@ -13,43 +22,48 @@ namespace DivinityModManager.Models.Steam
 
 	public class PublishedFileDetailsResponse
 	{
-		public PublishedFileDetailsResponseData response { get; set; }
+		[JsonProperty("response")]
+		public PublishedFileDetailsResponseData Response { get; set; }
 	}
 	
 	public class PublishedFileDetailsResponseData
 	{
-		public int result { get; set; }
-		public int resultcount { get; set; }
+		[JsonProperty("result")]
+		public int Result { get; set; }
 
-		public List<PublishedFileDetails> publishedfiledetails { get; set;}
+		[JsonProperty("resultcount")]
+		public int ResultCount { get; set; }
+
+		[JsonProperty("publishedfiledetails")]
+		public List<PublishedFileDetails> PublishedFileDetails { get; set;}
 	}
 
 
 	public class PublishedFileDetails : IWorkshopPublishFileDetails
 	{
-		public string publishedfileid { get; set; }
-		public int result { get; set; }
-		public string creator { get; set; }
-		public int creator_app_id { get; set; }
-		public int consumer_app_id { get; set; }
-		public string filename { get; set; }
-		public string file_size { get; set; }
-		public string file_url { get; set; }
-		public string hcontent_file { get; set; }
-		public string preview_url { get; set; }
-		public string hcontent_preview { get; set; }
-		public string title { get; set; }
-		public string description { get; set; }
-		public long time_created { get; set; }
-		public long time_updated { get; set; }
-		public int visibility { get; set; }
-		public bool banned { get; set; }
-		public string ban_reason { get; set; }
-		public int subscriptions { get; set; }
-		public int favorited { get; set; }
-		public int lifetime_subscriptions { get; set; }
-		public int lifetime_favorited { get; set; }
-		public int views { get; set; }
-		public List<WorkshopTag> tags { get; set; }
+		[JsonProperty("publishedfileid")] public long PublishedFileId { get; set; }
+		[JsonProperty("result")] public int Result { get; set; }
+		[JsonProperty("creator")] public string Creator { get; set; }
+		[JsonProperty("creator_app_id")] public int CreatorAppId { get; set; }
+		[JsonProperty("consumer_app_id")] public int ConsumerAppId { get; set; }
+		[JsonProperty("filename")] public string FileName { get; set; }
+		[JsonProperty("file_size")] public string FileSize { get; set; }
+		[JsonProperty("file_url")] public string FileUrl { get; set; }
+		[JsonProperty("hcontent_file")] public string HContentFile { get; set; }
+		[JsonProperty("preview_url")] public string PreviewUrl { get; set; }
+		[JsonProperty("hcontent_preview")] public string HContentPreview { get; set; }
+		[JsonProperty("title")] public string Title { get; set; }
+		[JsonProperty("description")] public string Description { get; set; }
+		[JsonProperty("time_created")] public long TimeCreated { get; set; }
+		[JsonProperty("time_updated")] public long TimeUpdated { get; set; }
+		[JsonProperty("visibility")] public EPublishedFileVisibility Visibility { get; set; }
+		[JsonProperty("banned")] public bool Banned { get; set; }
+		[JsonProperty("ban_reason")] public string BanReason { get; set; }
+		[JsonProperty("subscriptions")] public int Subscriptions { get; set; }
+		[JsonProperty("favorited")] public int Favorited { get; set; }
+		[JsonProperty("lifetime_subscriptions")] public int LifetimeSubscriptions { get; set; }
+		[JsonProperty("lifetime_favorited")] public int LifetimeFavorited { get; set; }
+		[JsonProperty("views")] public int Views { get; set; }
+		[JsonProperty("tags")] public List<WorkshopTag> Tags { get; set; }
 	}
 }

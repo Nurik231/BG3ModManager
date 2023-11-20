@@ -20,21 +20,21 @@ namespace DivinityModManager.Models.Cache
 		public void AddOrUpdate(string uuid, IWorkshopPublishFileDetails d, List<string> tags)
 		{
 			// Mods may have the same UUID, so use the WorkshopID instead.
-			var cachedData = Mods.Values.FirstOrDefault(x => x.ModId == d.publishedfileid);
+			var cachedData = Mods.Values.FirstOrDefault(x => x.ModId == d.PublishedFileId);
 			if (cachedData != null)
 			{
-				cachedData.LastUpdated = d.time_updated;
-				cachedData.Created = d.time_created;
+				cachedData.LastUpdated = d.TimeUpdated;
+				cachedData.Created = d.TimeCreated;
 				cachedData.Tags = tags;
 			}
 			else
 			{
 				Mods.Add(uuid, new DivinityModWorkshopCachedData()
 				{
-					Created = d.time_created,
-					LastUpdated = d.time_updated,
+					Created = d.TimeCreated,
+					LastUpdated = d.TimeUpdated,
 					UUID = uuid,
-					ModId = d.publishedfileid,
+					ModId = d.PublishedFileId,
 					Tags = tags
 				});
 			}

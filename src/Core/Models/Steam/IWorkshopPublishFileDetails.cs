@@ -8,10 +8,10 @@ namespace DivinityModManager.Models.Steam
 {
 	public interface IWorkshopPublishFileDetails
 	{
-		long publishedfileid { get; set; }
-		long time_created { get; set; }
-		long time_updated { get; set; }
+		long PublishedFileId { get; set; }
+		long TimeCreated { get; set; }
+		long TimeUpdated { get; set; }
 
-		List<WorkshopTag> tags { get; set; }
+		List<WorkshopTag> Tags { get; set; }
 	}
 }
