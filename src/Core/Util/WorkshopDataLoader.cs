@@ -24,7 +24,7 @@ namespace DivinityModManager.Util
 		private static readonly List<string> ignoredTags = new List<string>{"Add-on", "Adventure", "GM", "Arena", "Story", "Definitive Edition"};
 		private static List<string> GetWorkshopTags(IWorkshopPublishFileDetails data)
 		{
-			var tags = data.Tags.Where(t => !ignoredTags.Contains(t.tag)).Select(x => x.tag).ToList();
+			var tags = data.Tags.Where(t => !ignoredTags.Contains(t.Tag)).Select(x => x.Tag).ToList();
 			if (tags != null)
 			{
 				return tags;
@@ -46,7 +46,7 @@ namespace DivinityModManager.Util
 			int i = 0;
 			foreach (var mod in workshopMods)
 			{
-				values.Add($"publishedfileids[{i}]", mod.WorkshopData.ModId);
+				values.Add($"publishedfileids[{i}]", mod.WorkshopData.ModId.ToString());
 				i++;
 			}
 
@@ -89,7 +89,7 @@ namespace DivinityModManager.Util
 								//DivinityApp.LogMessage($"Loaded workshop details for mod {mod.Name}:");
 								totalLoaded++;
 							}
-							cachedData.AddOrUpdate(d.PublishedFileId, d, mod.WorkshopData.Tags);
+							cachedData.AddOrUpdate(mod.UUID, d, mod.WorkshopData.Tags);
 						}
 						catch(Exception ex)
 						{
@@ -148,20 +148,19 @@ namespace DivinityModManager.Util
 						DivinityApp.Log(ex.ToString());
 					}
 
-					if (pResponse != null && pResponse.response != null && pResponse.response.publishedfiledetails != null && pResponse.response.publishedfiledetails.Count > 0)
+					if (pResponse != null && pResponse.Response != null && pResponse.Response.PublishedFileDetails != null && pResponse.Response.PublishedFileDetails.Count > 0)
 					{
-						if (pResponse.response.total > total)
+						if (pResponse.Response.Total > total)
 						{
-							total = pResponse.response.total;
+							total = pResponse.Response.Total;
 							maxPage = (total / 99)+1;
 						}
-						var details = pResponse.response.publishedfiledetails;
+						var details = pResponse.Response.PublishedFileDetails;
 
 						foreach (var d in details)
 						{
 							try
 							{
-								d.DeserializeMetadata();
 								string uuid = d.GetGuid();
 								if (!String.IsNullOrEmpty(uuid))
 								{
@@ -171,7 +170,7 @@ namespace DivinityModManager.Util
 							}
 							catch (Exception ex)
 							{
-								DivinityApp.Log($"Error parsing mod data for {d.title}({d.PublishedFileId})\n{ex}");
+								DivinityApp.Log($"Error parsing mod data for {d.Title}({d.PublishedFileId})\n{ex}");
 							}
 						}
 					}
@@ -237,15 +236,14 @@ namespace DivinityModManager.Util
 						DivinityApp.Log(ex.ToString());
 					}
 					
-					if (pResponse != null && pResponse.response != null && pResponse.response.publishedfiledetails != null && pResponse.response.publishedfiledetails.Count > 0)
+					if (pResponse != null && pResponse.Response != null && pResponse.Response.PublishedFileDetails != null && pResponse.Response.PublishedFileDetails.Count > 0)
 					{
-						var details = pResponse.response.publishedfiledetails;
+						var details = pResponse.Response.PublishedFileDetails;
 						
 						foreach (var d in details)
 						{
 							try
 							{
-								d.DeserializeMetadata();
 								string dUUID = d.GetGuid();
 								if(!String.IsNullOrEmpty(dUUID))
 								{
@@ -254,7 +252,7 @@ namespace DivinityModManager.Util
 
 									if (dUUID == mod.UUID)
 									{
-										if (String.IsNullOrEmpty(mod.WorkshopData.ModId) || mod.WorkshopData.ModId == d.PublishedFileId)
+										if (mod.WorkshopData.ModId <= DivinityApp.WORKSHOP_MOD_ID_START || mod.WorkshopData.ModId == d.PublishedFileId)
 										{
 											mod.WorkshopData.ModId = d.PublishedFileId;
 											mod.WorkshopData.CreatedDate = DateUtils.UnixTimeStampToDateTime(d.TimeCreated);
@@ -276,7 +274,7 @@ namespace DivinityModManager.Util
 							}
 							catch (Exception ex)
 							{
-								DivinityApp.Log($"Error parsing mod data for {d.title}({d.PublishedFileId})\n{ex}");
+								DivinityApp.Log($"Error parsing mod data for {d.Title}({d.PublishedFileId})\n{ex}");
 							}
 						}
 					}

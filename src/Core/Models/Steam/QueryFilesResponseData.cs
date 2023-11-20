@@ -10,46 +10,45 @@ namespace DivinityModManager.Models.Steam
 {
 	public class QueryFilesResponse
 	{
-		public QueryFilesResponseData response { get; set; }
+		[JsonProperty("response")] public QueryFilesResponseData Response { get; set; }
 	}
 
 	public class QueryFilesResponseData
 	{
-		public int total { get; set; }
+		[JsonProperty("total")] public int Total { get; set; }
 
-		public List<QueryFilesPublishedFileDetails> publishedfiledetails { get; set; }
+		[JsonProperty("publishedfiledetails")] public List<QueryFilesPublishedFileDetails> PublishedFileDetails { get; set; }
 	}
 
 	public class QueryFilesPublishedFileDetails : IWorkshopPublishFileDetails
 	{
-		public int result { get; set; }
-		public long PublishedFileId { get; set; }
-		public string creator { get; set; }
-		public string filename { get; set; }
-		public string file_size { get; set; }
-		public string file_url { get; set; }
-		public string preview_url { get; set; }
-		public string url { get; set; }
-		public string title { get; set; }
-		public string description { get; set; }
-		public long TimeCreated { get; set; }
-		public long TimeUpdated { get; set; }
-		public int visibility { get; set; }
-		public int flags { get; set; }
-		public List<WorkshopTag> Tags { get; set; }
-		public string metadata { get; set; }
-		[JsonIgnore] public QueryFilesPublishedFileDivinityMetadataMain MetaData { get; set; }
-		public int language { get; set; }
-		public string revision_change_number { get; set; }
-		public int revision { get; set; }
+		[JsonProperty("result")] public int Result { get; set; }
+		[JsonProperty("publishedfileid")] public long PublishedFileId { get; set; }
+		[JsonProperty("creator")] public string Creator { get; set; }
+		[JsonProperty("filename")] public string FileName { get; set; }
+		[JsonProperty("file_size")] public string FileSize { get; set; }
+		[JsonProperty("file_url")] public string FileUrl { get; set; }
+		[JsonProperty("preview_url")] public string PreviewUrl { get; set; }
+		[JsonProperty("url")] public string Url { get; set; }
+		[JsonProperty("title")] public string Title { get; set; }
+		[JsonProperty("description")] public string Description { get; set; }
+		[JsonProperty("timecreated")] public long TimeCreated { get; set; }
+		[JsonProperty("timeupdated")] public long TimeUpdated { get; set; }
+		[JsonProperty("visibility")] public EPublishedFileVisibility Visibility { get; set; }
+		[JsonProperty("flags")] public int Flags { get; set; }
+		[JsonProperty("tags")] public List<WorkshopTag> Tags { get; set; }
+		[JsonProperty("metadata")] public QueryFilesPublishedFileDivinityMetadataMain Metadata { get; set; }
+		[JsonProperty("language")] public int Language { get; set; }
+		[JsonProperty("revision_change_number")] public string RevisionChangeNumber { get; set; }
+		[JsonProperty("revision")] public int Revision { get; set; }
 
 		public string GetGuid()
 		{
-			if (this.MetaData != null)
+			if (this.Metadata != null)
 			{
 				try
 				{
-					return this.MetaData.root.regions.MetaData.Guid.Value;
+					return this.Metadata.Root.Regions.Metadata.Guid.Value;
 				}
 				catch
 				{
@@ -57,56 +56,39 @@ namespace DivinityModManager.Models.Steam
 			}
 			return null;
 		}
-
-		public void DeserializeMetadata()
-		{
-			if (!String.IsNullOrEmpty(metadata))
-			{
-				MetaData = DivinityJsonUtils.SafeDeserialize<QueryFilesPublishedFileDivinityMetadataMain>(metadata);
-			}
-		}
 	}
 
 	public class QueryFilesPublishedFileDivinityMetadataMain
 	{
-		public QueryFilesPublishedFileDivinityMetadataRoot root { get; set; }
+		[JsonProperty("root")] public QueryFilesPublishedFileDivinityMetadataRoot Root { get; set; }
 	}
 
 	public class QueryFilesPublishedFileDivinityMetadataRoot
 	{
-		public QueryFilesPublishedFileDivinityMetadataHeader header { get; set; }
-		public QueryFilesPublishedFileDivinityMetadataRegions regions { get; set; }
+		[JsonProperty("header")] public QueryFilesPublishedFileDivinityMetadataHeader Header { get; set; }
+		[JsonProperty("regions")] public QueryFilesPublishedFileDivinityMetadataRegions Regions { get; set; }
 	}
 
 	public class QueryFilesPublishedFileDivinityMetadataHeader
 	{
-		public int time { get; set; }
-		public string version { get; set; }
+		[JsonProperty("time")] public int Time { get; set; }
+		[JsonProperty("version")] public string Version { get; set; }
 	}
 
 	public class QueryFilesPublishedFileDivinityMetadataRegions
 	{
-		public QueryFilesPublishedFileDivinityMetadataEntry MetaData { get; set; }
+		[JsonProperty("metadata")] public QueryFilesPublishedFileDivinityMetadataEntry Metadata { get; set; }
 	}
 
 	public class QueryFilesPublishedFileDivinityMetadataEntry
 	{
-		public QueryFilesPublishedFileDivinityMetadataEntryAttribute<string> Guid { get; set; }
-		public QueryFilesPublishedFileDivinityMetadataEntryAttribute<int> Type { get; set; }
-		public QueryFilesPublishedFileDivinityMetadataEntryAttribute<int> Version { get; set; }
+		[JsonProperty("guid")] public QueryFilesPublishedFileDivinityMetadataEntryAttribute<string> Guid { get; set; }
+		[JsonProperty("type")] public QueryFilesPublishedFileDivinityMetadataEntryAttribute<int> Type { get; set; }
+		[JsonProperty("Version")] public QueryFilesPublishedFileDivinityMetadataEntryAttribute<int> Version { get; set; }
 	}
 	public class QueryFilesPublishedFileDivinityMetadataEntryAttribute<T>
 	{
-		public int type { get; set; }
-		public object value { get; set; }
-
-		[JsonIgnore]
-		public T Value
-		{
-			get
-			{
-				return (T)value;
-			}
-		}
+		[JsonProperty("type")] public int Type { get; set; }
+		[JsonProperty("value")] public T Value { get; set; }
 	}
 }

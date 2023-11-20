@@ -17,7 +17,8 @@ namespace DivinityModManager.Models.Steam
 
 	public struct WorkshopTag
 	{
-		public string tag { get; set; }
+		[JsonProperty("tag")]
+		public string Tag { get; set; }
 	}
 
 	public class PublishedFileDetailsResponse
