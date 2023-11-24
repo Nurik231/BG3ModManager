@@ -2240,13 +2240,30 @@ Directory the zip will be extracted to:
 			}
 		}
 
-		private async Task<Unit> SetMainProgressTextAsync(string text)
+		public async Task<Unit> SetMainProgressTextAsync(string text)
 		{
 			return await Observable.Start(() =>
 			{
 				MainProgressWorkText = text;
 				return Unit.Default;
 			}, RxApp.MainThreadScheduler);
+		}
+
+		public async Task<Unit> StartMainProgressAsync(string title)
+		{
+			if (!MainProgressIsActive)
+			{
+				return await Observable.Start(() =>
+				{
+					MainProgressTitle = title;
+					MainProgressWorkText = "";
+					MainProgressValue = 0d;
+					MainProgressIsActive = true;
+					IsRefreshing = true;
+					return Unit.Default;
+				}, RxApp.MainThreadScheduler);
+			}
+			return Unit.Default;
 		}
 
 		private IDisposable _refreshGithubModsUpdatesBackgroundTask;
@@ -2298,6 +2315,8 @@ Directory the zip will be extracted to:
 			await sch.Yield(token);
 			if (!token.IsCancellationRequested && updates.Count > 0)
 			{
+				var isPremium = Services.Get<INexusModsService>().IsPremium;
+				//$"https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id={DownloadPath}6&nmm=1&game_id={DivinityApp.NEXUSMODS_GAME_ID}";
 				await Observable.Start(() =>
 				{
 					foreach (var update in updates.Values)
@@ -2314,6 +2333,12 @@ Directory the zip will be extracted to:
 								Date = DateUtils.UnixTimeStampToDateTime(update.File.UploadedTimestamp)
 							},
 						};
+						if (!isPremium)
+						{
+							//Make this a link to the browser, where the user needs to download a .nxm file
+							updateData.DownloadData.IsIndirectDownload = true;
+							updateData.DownloadData.DownloadPath = $"https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id={update.File.FileId}6&nmm=1&game_id={DivinityApp.NEXUSMODS_GAME_ID}";
+						}
 						ModUpdatesViewData.Mods.Add(updateData);
 					}
 				}, RxApp.MainThreadScheduler);
@@ -2937,9 +2962,9 @@ Directory the zip will be extracted to:
 						{
 							string msg = $"Problem exporting load order to '{outputPath}'. Is the file locked?";
 							ShowAlert(msg, AlertType.Danger);
-							this.View.MainWindowMessageBox_OK.WindowBackground = new SolidColorBrush(Color.FromRgb(219, 40, 40));
-							this.View.MainWindowMessageBox_OK.Closed += this.MainWindowMessageBox_Closed_ResetColor;
-							this.View.MainWindowMessageBox_OK.ShowMessageBox(msg, "Mod Order Export Failed", MessageBoxButton.OK);
+							View.MainWindowMessageBox_OK.WindowBackground = new SolidColorBrush(Color.FromRgb(219, 40, 40));
+							View.MainWindowMessageBox_OK.Closed += this.MainWindowMessageBox_Closed_ResetColor;
+							View.MainWindowMessageBox_OK.ShowMessageBox(msg, "Mod Order Export Failed", MessageBoxButton.OK);
 							return Unit.Default;
 						}), RxApp.MainThreadScheduler);
 					}

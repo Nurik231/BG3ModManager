@@ -18,16 +18,21 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
+using System.Reactive.Concurrency;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Reactive;
+using System.Collections.Concurrent;
+using System.Windows;
 
 namespace DivinityModManager.ViewModels
 {
-	public struct CopyModUpdatesTask
+	public class CopyModUpdatesTask
 	{
-		public List<string> NewFilesToMove;
-		public List<string> UpdatesToMove;
-		public string DocumentsFolder;
-		public string ModPakFolder;
-		public int TotalMoved;
+		public List<DivinityModUpdateData> Updates { get; set; }
+		public string DocumentsFolder { get; set; }
+		public string ModPakFolder { get; set; }
+		public int TotalProcessed { get; set; }
 	}
 
 	public class ModUpdatesViewData : ReactiveObject
@@ -72,161 +77,75 @@ namespace DivinityModManager.ViewModels
 			}
 		}
 
-		private readonly DirectoryEnumerationFilters IsPakFilter = new DirectoryEnumerationFilters()
-		{
-			InclusionFilter = (f) =>
-			{
-				return f.Extension.Equals(".pak", StringComparison.OrdinalIgnoreCase);
-			}
-		};
-
-		private IEnumerable<string> GetUpdateFiles(string directoryPath)
-		{
-			var files = Directory.EnumerateFiles(directoryPath, DirectoryEnumerationOptions.Recursive, IsPakFilter);
-			return files;
-		}
-
-		private void CopySelectedMods_Run()
-		{
-			string documentsFolder = _mainWindowViewModel.PathwayData.AppDataGameFolder;
-			string modPakFolder = _mainWindowViewModel.PathwayData.AppDataModsPath;
-
-			if (Directory.Exists(modPakFolder))
-			{
-				Unlocked = false;
-				using (ProgressDialog dialog = new ProgressDialog()
-				{
-					WindowTitle = "Updating Mods",
-					Text = "Copying mods...",
-					CancellationText = "Update Cancelled",
-					MinimizeBox = false,
-					ProgressBarStyle = ProgressBarStyle.ProgressBar
-				})
-				{
-					dialog.DoWork += CopyFilesProgress_DoWork;
-					dialog.RunWorkerCompleted += CopyFilesProgress_RunWorkerCompleted;
-
-					var args = new CopyModUpdatesTask()
-					{
-						DocumentsFolder = documentsFolder,
-						ModPakFolder = modPakFolder,
-						NewFilesToMove = NewMods.Where(x => x.IsSelected).Select(x => GetUpdateFiles(Path.GetDirectoryName(x.UpdateFilePath))).SelectMany(x => x).ToList(),
-						UpdatesToMove = UpdatedMods.Where(x => x.IsSelected).Select(x => GetUpdateFiles(Path.GetDirectoryName(x.UpdateFilePath))).SelectMany(x => x).ToList(),
-						TotalMoved = 0
-					};
-
-					dialog.ShowDialog(MainWindow.Self, args);
-				}
-			}
-			else
-			{
-				CloseView?.Invoke(false);
-			}
-		}
-
 		public void CopySelectedMods()
 		{
+			var documentsFolder = _mainWindowViewModel.PathwayData.AppDataGameFolder;
+			var modPakFolder = _mainWindowViewModel.PathwayData.AppDataModsPath;
+
 			using (var dialog = new TaskDialog()
 			{
-				Buttons =
-					{
-						new TaskDialogButton(ButtonType.Yes),
-						new TaskDialogButton(ButtonType.No)
-					},
+				Buttons = {
+					new TaskDialogButton(ButtonType.Yes),
+					new TaskDialogButton(ButtonType.No)
+				},
 				WindowTitle = "Update Mods?",
-				Content = "Override local mods with the selected updates?",
+				Content = "Download / copy updates? Previous pak files will be moved to the Recycle Bin.",
 				MainIcon = TaskDialogIcon.Warning
 			})
 			{
 				var result = dialog.ShowDialog(MainWindow.Self);
 				if (result.ButtonType == ButtonType.Yes)
 				{
-					CopySelectedMods_Run();
+					var updates = Mods.Items.Where(x => x.IsSelected).ToList();
+
+					Unlocked = false;
+
+					StartUpdating(new CopyModUpdatesTask()
+					{
+						DocumentsFolder = documentsFolder,
+						ModPakFolder = modPakFolder,
+						Updates = Mods.Items.Where(x => x.IsSelected).ToList(),
+						TotalProcessed = 0
+					});
 				}
 			}
 		}
 
-		private void CopyFilesProgress_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+		private async Task AwaitDownloadPartition(IEnumerator<DivinityModUpdateData> partition, int progressIncrement, string outputFolder, CancellationToken token)
+		{
+			using (partition)
+			{
+				while (partition.MoveNext())
+				{
+					if (token.IsCancellationRequested) return;
+					await Task.Yield(); // prevents a sync/hot thread hangup
+					await partition.Current.DownloadData.DownloadAsync(partition.Current.LocalFilePath, outputFolder, token);
+					await _mainWindowViewModel.IncreaseMainProgressValueAsync(progressIncrement);
+				}
+			}
+		}
+
+		private async Task<Unit> ProcessUpdatesAsync(CopyModUpdatesTask taskData, IScheduler sch, CancellationToken token)
+		{
+			await _mainWindowViewModel.StartMainProgressAsync("Processing updates...");
+			var currentTime = DateTime.Now;
+			var partitionAmount = Environment.ProcessorCount;
+			var progressIncrement = (int)Math.Ceiling(100d/taskData.Updates.Count);
+			await Task.WhenAll(Partitioner.Create(taskData.Updates).GetPartitions(partitionAmount).AsParallel().Select(p => AwaitDownloadPartition(p, progressIncrement, taskData.ModPakFolder, token)));
+			await Observable.Start(FinishUpdating, RxApp.MainThreadScheduler);
+			return Unit.Default;
+		}
+
+		private void StartUpdating(CopyModUpdatesTask taskData)
+		{
+			RxApp.MainThreadScheduler.ScheduleAsync(async (sch,token) => await ProcessUpdatesAsync(taskData,sch,token));
+		}
+
+		private void FinishUpdating()
 		{
 			Unlocked = true;
-			DivinityApp.Log("Mod updating complete.");
-			try
-			{
-				if (e.Result is CopyModUpdatesTask args)
-				{
-					JustUpdated = args.TotalMoved > 0;
-				}
-			}
-			catch(Exception ex)
-			{
-				string message = $"Error copying mods: {ex}";
-				DivinityApp.Log(message);
-				MainWindow.Self.AlertBar.SetDangerAlert(message);
-			}
+			JustUpdated = true;
 			CloseView?.Invoke(true);
-		}
-
-		private void CopyFilesProgress_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
-		{
-			ProgressDialog dialog = (ProgressDialog)sender;
-			if(e.Argument is CopyModUpdatesTask args)
-			{
-				var totalWork = args.NewFilesToMove.Count + args.UpdatesToMove.Count;
-				if (args.NewFilesToMove.Count > 0)
-				{
-					DivinityApp.Log($"Copying '{args.NewFilesToMove.Count}' new mod(s) to the local mods folder.");
-
-					foreach (string file in args.NewFilesToMove)
-					{
-						if (e.Cancel) return;
-						var fileName = Path.GetFileName(file);
-						dialog.ReportProgress(args.TotalMoved / totalWork, $"Copying '{fileName}'...", null);
-						try
-						{
-							File.Copy(file, Path.Combine(args.ModPakFolder, fileName), true);
-						}
-						catch(Alphaleonis.Win32.Filesystem.FileReadOnlyException ex)
-						{
-							string message = $"Error copying '{fileName}' - File is read only!{Environment.NewLine}{ex}";
-							DivinityApp.Log(message);
-							MainWindow.Self.AlertBar.SetDangerAlert(message);
-							dialog.ReportProgress(args.TotalMoved / totalWork, message, null);
-						}
-						catch (Exception ex)
-						{
-							string message = $"Error copying '{fileName}':{Environment.NewLine}{ex}";
-							DivinityApp.Log(message);
-							MainWindow.Self.AlertBar.SetDangerAlert(message);
-							dialog.ReportProgress(args.TotalMoved / totalWork, message, null);
-						}
-						args.TotalMoved++;
-					}
-				}
-
-				if (args.UpdatesToMove.Count > 0)
-				{
-					string backupFolder = Path.Combine(_mainWindowViewModel.PathwayData.AppDataGameFolder, "Mods_Old_ModManager");
-					Directory.CreateDirectory(backupFolder);
-					DivinityApp.Log($"Copying '{args.UpdatesToMove.Count}' mod update(s) to the local mods folder.");
-					foreach (string file in args.UpdatesToMove)
-					{
-						if (e.Cancel) return;
-						string baseName = Path.GetFileName(file);
-						try
-						{
-							DivinityApp.Log($"Moving mod into mods folder: '{file}'.");
-							File.Copy(file, Path.Combine(args.ModPakFolder, Path.GetFileName(file)), true);
-						}
-						catch(Exception ex)
-						{
-							DivinityApp.Log($"Error copying mod:\n{ex}");
-						}
-						dialog.ReportProgress(args.TotalMoved / totalWork, $"Copying '{baseName}'...", null);
-						args.TotalMoved++;
-					}
-				}
-			}
-			
 		}
 
 		public ModUpdatesViewData(MainWindowViewModel mainWindowViewModel)
