@@ -75,24 +75,24 @@ namespace DivinityModManager.Models.Updates
 			CanDrag = true;
 			Visibility = Visibility.Visible;
 
-			this.WhenAnyValue(x => x.Mod.IsEditorMod).ToPropertyEx(this, x => x.IsEditorMod, true, RxApp.MainThreadScheduler);
-			this.WhenAnyValue(x => x.Mod.Author).ToPropertyEx(this, x => x.Author, true, RxApp.MainThreadScheduler);
-			this.WhenAnyValue(x => x.Mod.Version.Version).ToPropertyEx(this, x => x.CurrentVersion, true, RxApp.MainThreadScheduler);
-			this.WhenAnyValue(x => x.Mod.FilePath).ToPropertyEx(this, x => x.LocalFilePath, true, RxApp.MainThreadScheduler);
-			this.WhenAnyValue(x => x.Mod.LastModified).Select(DateToString).ToPropertyEx(this, x => x.LocalFileDateText, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.Mod.IsEditorMod).ToUIProperty(this, x => x.IsEditorMod);
+			this.WhenAnyValue(x => x.Mod.Author).ToUIProperty(this, x => x.Author);
+			this.WhenAnyValue(x => x.Mod.Version.Version).ToUIProperty(this, x => x.CurrentVersion);
+			this.WhenAnyValue(x => x.Mod.FilePath).ToUIProperty(this, x => x.LocalFilePath);
+			this.WhenAnyValue(x => x.Mod.LastModified).Select(DateToString).ToUIProperty(this, x => x.LocalFileDateText);
 
 			var whenSource = this.WhenAnyValue(x => x.DownloadData.DownloadSourceType);
-			whenSource.ToPropertyEx(this, x => x.Source, true, RxApp.MainThreadScheduler);
-			whenSource.Select(x => x.GetDescription()).ToPropertyEx(this, x => x.SourceText, true, RxApp.MainThreadScheduler);
+			whenSource.ToPropertyEx(this, x => x.Source);
+			whenSource.Select(x => x.GetDescription()).ToPropertyEx(this, x => x.SourceText);
 
-			this.WhenAnyValue(x => x.DownloadData.DownloadPath).ToPropertyEx(this, x => x.UpdateFilePath, true, RxApp.MainThreadScheduler);
-			this.WhenAnyValue(x => x.DownloadData.Date).Select(DateToString).ToPropertyEx(this, x => x.UpdateDateText, true, RxApp.MainThreadScheduler);
-			this.WhenAnyValue(x => x.DownloadData.Version).ToPropertyEx(this, x => x.UpdateVersion, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.DownloadData.DownloadPath).ToUIProperty(this, x => x.UpdateFilePath);
+			this.WhenAnyValue(x => x.DownloadData.Date).Select(DateToString).ToUIProperty(this, x => x.UpdateDateText);
+			this.WhenAnyValue(x => x.DownloadData.Version).ToUIProperty(this, x => x.UpdateVersion);
 
-			this.WhenAnyValue(x => x.Mod, x => x.Source).Select(SourceToLink).ToPropertyEx(this, x => x.UpdateLink, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.Mod, x => x.Source).Select(SourceToLink).ToPropertyEx(this, x => x.UpdateLink);
 
 
-			this.WhenAnyValue(x => x.DownloadData.Description, x => x.UpdateLink).Select(GetUpdateTooltip).ToPropertyEx(this, x => x.UpdateToolTip, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => x.DownloadData.Description, x => x.UpdateLink).Select(GetUpdateTooltip).ToPropertyEx(this, x => x.UpdateToolTip);
 		}
 	}
 }
