@@ -16,12 +16,12 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.ModUpdater.Cache
 {
-	public class GithubModsCacheHandler : ReactiveObject, IExternalModCacheHandler<GithubModsCachedData>
+	public class GitHubModsCacheHandler : ReactiveObject, IExternalModCacheHandler<GitHubModsCachedData>
 	{
 		public ModSourceType SourceType => ModSourceType.GITHUB;
 		public string FileName => "githubdata.json";
 
-		//Format Github data so people can more easily edit/add mods manually.
+		//Format GitHub data so people can more easily edit/add mods manually.
 		public JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()
 		{
 			NullValueHandling = NullValueHandling.Ignore,
@@ -29,45 +29,45 @@ namespace DivinityModManager.ModUpdater.Cache
 		};
 
 		[Reactive] public bool IsEnabled { get; set; }
-		public GithubModsCachedData CacheData { get; set; }
+		public GitHubModsCachedData CacheData { get; set; }
 
-		public GithubModsCacheHandler()
+		public GitHubModsCacheHandler()
 		{
-			CacheData = new GithubModsCachedData();
+			CacheData = new GitHubModsCachedData();
 			IsEnabled = false;
 		}
 
-		public void OnCacheUpdated(GithubModsCachedData cachedData)
+		public void OnCacheUpdated(GitHubModsCachedData cachedData)
 		{
 
 		}
 
 		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
-			DivinityApp.Log("Checking for Github mod updates.");
+			DivinityApp.Log("Checking for GitHub mod updates.");
 			var success = false;
 			try
 			{
-				var github = Services.Get<IGithubService>();
+				var github = Services.Get<IGitHubService>();
 
 				foreach (var mod in mods)
 				{
-					if (mod.GithubData != null && !String.IsNullOrEmpty(mod.GithubData.Author) && !String.IsNullOrEmpty(mod.GithubData.Repository))
+					if (mod.GitHubData != null && !String.IsNullOrEmpty(mod.GitHubData.Author) && !String.IsNullOrEmpty(mod.GitHubData.Repository))
 					{
-						var latestRelease = await github.GetLatestReleaseAsync(mod.GithubData.Author, mod.GithubData.Repository);
+						var latestRelease = await github.GetLatestReleaseAsync(mod.GitHubData.Author, mod.GitHubData.Repository);
 						if (latestRelease != null)
 						{
 							var releaseAsset = latestRelease.Assets.FirstOrDefault();
 							if(releaseAsset != null)
 							{
-								mod.GithubData.LatestRelease.Version = latestRelease.TagName;
-								mod.GithubData.LatestRelease.Date = latestRelease.CreatedAt.Ticks;
-								mod.GithubData.LatestRelease.Description = latestRelease.Body;
-								mod.GithubData.LatestRelease.BrowserDownloadLink = releaseAsset.BrowserDownloadUrl;
+								mod.GitHubData.LatestRelease.Version = latestRelease.TagName;
+								mod.GitHubData.LatestRelease.Date = latestRelease.CreatedAt.Ticks;
+								mod.GitHubData.LatestRelease.Description = latestRelease.Body;
+								mod.GitHubData.LatestRelease.BrowserDownloadLink = releaseAsset.BrowserDownloadUrl;
 								success = true;
 							}
 						}
-						CacheData.Mods[mod.UUID] = mod.GithubData;
+						CacheData.Mods[mod.UUID] = mod.GitHubData;
 					}
 				}
 			}

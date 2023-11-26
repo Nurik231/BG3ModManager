@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {
-	public static class GithubHelper
+	public static class GitHubHelper
 	{
 		private static readonly string GIT_URL_REPO_LATEST = "https://api.github.com/repos/{0}/releases/latest";
 		private static readonly string GIT_URL_REPO_RELEASES = "https://api.github.com/repos/{0}/releases";

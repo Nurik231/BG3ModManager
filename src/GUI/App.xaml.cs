@@ -35,7 +35,7 @@ namespace DivinityModManager
 
 			var productName = Regex.Replace(appName.Trim(), @"\s+", String.Empty);
 			Services.RegisterSingleton<IFileWatcherService>(new FileWatcherService());
-			Services.RegisterSingleton<IGithubService>(new GithubService(productName, version));
+			Services.RegisterSingleton<IGitHubService>(new GitHubService(productName, version));
 			Services.RegisterSingleton<INexusModsService>(new NexusModsService(productName, version));
 			Services.RegisterSingleton<IModUpdaterService>(new ModUpdaterService(version));
 

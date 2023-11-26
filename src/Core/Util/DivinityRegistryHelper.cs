@@ -232,5 +232,11 @@ namespace DivinityModManager.Util
 
 			return "";
 		}
+
+		public static bool IsAssociatedWithNXMProtocol()
+		{
+
+			return false;
+		}
 	}
 }

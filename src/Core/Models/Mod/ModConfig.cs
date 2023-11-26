@@ -15,7 +15,7 @@ namespace DivinityModManager.Models.Mod
 	{
 		[JsonIgnore] public static string FileName => "ModManagerConfig.json";
 
-		public GithubModConfig Github { get; set; }
+		public GitHubModConfig GitHub { get; set; }
 		public NexusModsModConfig NexusMods { get; set; }
 		public SteamWorkshopModConfig SteamWorkshop { get; set; }
 	}

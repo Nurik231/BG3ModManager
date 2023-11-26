@@ -296,7 +296,7 @@ namespace DivinityModManager.Views
 			this.OneWayBind(ViewModel, vm => vm.LogFolderShortcutButtonVisibility, view => view.OpenExtenderLogsFolderButton.Visibility);
 
 			this.BindCommand(ViewModel, vm => vm.RefreshModUpdatesCommand, view => view.UpdateAllSourcesMenuItem);
-			this.BindCommand(ViewModel, vm => vm.CheckForGithubModUpdatesCommand, view => view.UpdateGithubMenuItem);
+			this.BindCommand(ViewModel, vm => vm.CheckForGitHubModUpdatesCommand, view => view.UpdateGitHubMenuItem);
 			this.BindCommand(ViewModel, vm => vm.CheckForNexusModsUpdatesCommand, view => view.UpdateNexusModsMenuItem);
 			this.BindCommand(ViewModel, vm => vm.CheckForSteamWorkshopUpdatesCommand, view => view.UpdateSteamWorkshopMenuItem);
 

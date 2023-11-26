@@ -1,8 +1,9 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
 using DivinityModManager.Models;
-using DivinityModManager.Models.Github;
+using DivinityModManager.Models.GitHub;
 using DivinityModManager.Models.NexusMods;
+using DivinityModManager.Models.Settings;
 using DivinityModManager.ModUpdater;
 using DivinityModManager.ModUpdater.Cache;
 using DivinityModManager.Util;
@@ -27,13 +28,13 @@ namespace DivinityModManager
 		bool IsRefreshing { get; set; }
 		NexusModsCacheHandler NexusMods { get; }
 		SteamWorkshopCacheHandler SteamWorkshop { get; }
-		GithubModsCacheHandler Github { get; }
+		GitHubModsCacheHandler GitHub { get; }
 		Task<bool> UpdateInfoAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
 		Task<bool> LoadCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 		Task<bool> SaveCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 
 		Task<ModUpdaterResults> FetchUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, CancellationToken token);
-		Task<Dictionary<string, GithubLatestReleaseData>> GetGithubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
+		Task<Dictionary<string, GitHubLatestReleaseData>> GetGitHubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 		Task<Dictionary<string, NexusModsModDownloadLink>> GetNexusModsUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 		Task<Dictionary<string, DivinityModData>> GetSteamWorkshopUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 
@@ -51,8 +52,8 @@ namespace DivinityModManager.AppServices
 		private readonly SteamWorkshopCacheHandler _workshop;
 		public SteamWorkshopCacheHandler SteamWorkshop => _workshop;
 
-		private readonly GithubModsCacheHandler _github;
-		public GithubModsCacheHandler Github => _github;
+		private readonly GitHubModsCacheHandler _github;
+		public GitHubModsCacheHandler GitHub => _github;
 
 		[Reactive] public bool IsRefreshing { get; set; }
 
@@ -69,7 +70,7 @@ namespace DivinityModManager.AppServices
 			IsRefreshing = true;
 			if (SteamWorkshop.IsEnabled) await SteamWorkshop.Update(mods, token);
 			if (NexusMods.IsEnabled) await NexusMods.Update(mods, token);
-			if (Github.IsEnabled) await Github.Update(mods, token);
+			if (GitHub.IsEnabled) await GitHub.Update(mods, token);
 			IsRefreshing = false;
 			return false;
 		}
@@ -87,9 +88,9 @@ namespace DivinityModManager.AppServices
 			{
 				await NexusMods.LoadCacheAsync(currentAppVersion, token);
 			}
-			if (Github.IsEnabled)
+			if (GitHub.IsEnabled)
 			{
-				await Github.LoadCacheAsync(currentAppVersion, token);
+				await GitHub.LoadCacheAsync(currentAppVersion, token);
 			}
 
 			await Observable.Start(() =>
@@ -121,11 +122,11 @@ namespace DivinityModManager.AppServices
 							mod.NexusModsData.Update(nexusData);
 						}
 					}
-					if (Github.IsEnabled)
+					if (GitHub.IsEnabled)
 					{
-						if (Github.CacheData.Mods.TryGetValue(mod.UUID, out var githubData))
+						if (GitHub.CacheData.Mods.TryGetValue(mod.UUID, out var githubData))
 						{
-							mod.GithubData.Update(githubData);
+							mod.GitHubData.Update(githubData);
 						}
 					}
 				}
@@ -149,9 +150,9 @@ namespace DivinityModManager.AppServices
 				}
 				await NexusMods.SaveCacheAsync(true, currentAppVersion, token);
 			}
-			if (Github.IsEnabled)
+			if (GitHub.IsEnabled)
 			{
-				await Github.SaveCacheAsync(true, currentAppVersion, token);
+				await GitHub.SaveCacheAsync(true, currentAppVersion, token);
 			}
 			return false;
 		}
@@ -160,7 +161,7 @@ namespace DivinityModManager.AppServices
 		{
 			var b1 = NexusMods.DeleteCache();
 			var b2 = SteamWorkshop.DeleteCache();
-			var b3 = Github.DeleteCache();
+			var b3 = GitHub.DeleteCache();
 			return b1 || b2 || b3;
 		}
 
@@ -168,34 +169,34 @@ namespace DivinityModManager.AppServices
 		{
 			//TODO
 			IsRefreshing = true;
-			var githubResults = await GetGithubUpdatesAsync(mods, _appVersion, token);
+			var githubResults = await GetGitHubUpdatesAsync(mods, _appVersion, token);
 			var nexusResults = await GetNexusModsUpdatesAsync(mods, _appVersion, token);
 			var workshopResults = await GetSteamWorkshopUpdatesAsync(settings, mods, _appVersion, token);
 			IsRefreshing = false;
 			return new ModUpdaterResults(githubResults, nexusResults, workshopResults);
 		}
 
-		public async Task<Dictionary<string, GithubLatestReleaseData>> GetGithubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
+		public async Task<Dictionary<string, GitHubLatestReleaseData>> GetGitHubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
 		{
-			var results = new Dictionary<string, GithubLatestReleaseData>();
+			var results = new Dictionary<string, GitHubLatestReleaseData>();
 			try
 			{
-				if (!Github.IsEnabled) return results;
-				if (!Github.CacheData.CacheUpdated)
+				if (!GitHub.IsEnabled) return results;
+				if (!GitHub.CacheData.CacheUpdated)
 				{
 
-					await Github.LoadCacheAsync(currentAppVersion, token);
-					await Github.Update(mods, token);
-					await Github.SaveCacheAsync(true, currentAppVersion, token);
+					await GitHub.LoadCacheAsync(currentAppVersion, token);
+					await GitHub.Update(mods, token);
+					await GitHub.SaveCacheAsync(true, currentAppVersion, token);
 
 					await Observable.Start(() =>
 					{
 						foreach (var mod in mods)
 						{
-							if (Github.CacheData.Mods.TryGetValue(mod.UUID, out var githubData))
+							if (GitHub.CacheData.Mods.TryGetValue(mod.UUID, out var githubData))
 							{
 								results.Add(mod.UUID, githubData.LatestRelease);
-								mod.GithubData.Update(githubData);
+								mod.GitHubData.Update(githubData);
 							}
 						}
 						return Unit.Default;
@@ -204,7 +205,7 @@ namespace DivinityModManager.AppServices
 			}
 			catch (Exception ex)
 			{
-				DivinityApp.Log($"Error fetching Github updates:\n{ex}");
+				DivinityApp.Log($"Error fetching GitHub updates:\n{ex}");
 			}
 			return results;
 		}
@@ -304,7 +305,7 @@ namespace DivinityModManager.AppServices
 
 			_nexus = new NexusModsCacheHandler(DefaultSerializerSettings);
 			_workshop = new SteamWorkshopCacheHandler(DefaultSerializerSettings);
-			_github = new GithubModsCacheHandler();
+			_github = new GitHubModsCacheHandler();
 		}
 	}
 }

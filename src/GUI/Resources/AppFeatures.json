@@ -1,5 +1,6 @@
 {
   "ScriptExtender": true,
   "NexusMods": true,
-  "Workshop": false
+  "GitHub": true,
+  "SteamWorkshop": false
 }

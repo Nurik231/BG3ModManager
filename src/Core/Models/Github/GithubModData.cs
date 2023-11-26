@@ -4,19 +4,22 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DivinityModManager.Models.Github
+namespace DivinityModManager.Models.GitHub
 {
-	public class GithubModData : ReactiveObject
+	public class GitHubModData : ReactiveObject
 	{
 		[Reactive] public string Author { get; set; }
 		[Reactive] public string Repository { get; set; }
-		[Reactive] public GithubLatestReleaseData LatestRelease { get; set; }
+		[Reactive] public GitHubLatestReleaseData LatestRelease { get; set; }
 
-		public void Update(GithubModData data)
+		[Reactive] public bool IsEnabled { get; private set; }
+
+		public void Update(GitHubModData data)
 		{
 			Author = data.Author;
 			Repository = data.Repository;
@@ -29,9 +32,14 @@ namespace DivinityModManager.Models.Github
 			}
 		}
 
-		public GithubModData()
+		public GitHubModData()
 		{
-			LatestRelease = new GithubLatestReleaseData();
+			LatestRelease = new GitHubLatestReleaseData();
+
+			this.WhenAnyValue(x => x.Author, x => x.Repository)
+				.Select(x => !String.IsNullOrEmpty(x.Item1) && !String.IsNullOrEmpty(x.Item2))
+				.ObserveOn(RxApp.MainThreadScheduler)
+				.BindTo(this, x => x.IsEnabled);
 		}
 	}
 }

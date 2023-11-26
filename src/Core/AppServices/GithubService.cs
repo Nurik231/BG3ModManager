@@ -8,7 +8,7 @@ using Octokit;
 
 namespace DivinityModManager
 {
-	public interface IGithubService
+	public interface IGitHubService
 	{
 		Task<Release> GetLatestReleaseAsync(string owner, string repo);
 	}
@@ -16,7 +16,7 @@ namespace DivinityModManager
 
 namespace DivinityModManager.AppServices
 {
-	public class GithubService : IGithubService
+	public class GitHubService : IGitHubService
 	{
 		private readonly GitHubClient _client;
 
@@ -26,7 +26,7 @@ namespace DivinityModManager.AppServices
 			return result;
 		}
 
-		public GithubService(string appName, string appVersion)
+		public GitHubService(string appName, string appVersion)
 		{
 			_client = new GitHubClient(new ProductHeaderValue(appName, appVersion));
 		}

@@ -1,5 +1,6 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 using DivinityModManager.Extensions;
+using DivinityModManager.Models.Settings;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 

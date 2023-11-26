@@ -11,11 +11,11 @@ namespace DivinityModManager
 	{
 		[Description("None")]
 		NONE,
-		[Description("Steam Workshop")]
-		STEAM,
+		[Description("GitHub")]
+		GITHUB,
 		[Description("Nexus Mods")]
 		NEXUSMODS,
-		[Description("Github")]
-		GITHUB
+		[Description("Steam Workshop")]
+		STEAM
 	}
 }

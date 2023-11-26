@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Mod
 {
-	public struct GithubModConfig
+	public struct GitHubModConfig
 	{
 		public string Author { get; set; }
 		public string Repository { get; set; }

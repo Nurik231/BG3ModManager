@@ -207,6 +207,11 @@ namespace DivinityModManager.AppServices
 			return taskResult;
 		}
 
+		public async void GetNonPremiumDownloadLink(int modId)
+		{
+			
+		}
+
 		public NexusModsService(string appName, string appVersion)
 		{
 			_apiLimits = new NexusModsObservableApiLimits();

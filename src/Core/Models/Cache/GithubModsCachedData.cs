@@ -1,4 +1,4 @@
-﻿using DivinityModManager.Models.Github;
+﻿using DivinityModManager.Models.GitHub;
 
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Cache
 {
-	public class GithubModsCachedData : BaseModCacheData<GithubModData>
+	public class GitHubModsCachedData : BaseModCacheData<GitHubModData>
 	{
 
 	}

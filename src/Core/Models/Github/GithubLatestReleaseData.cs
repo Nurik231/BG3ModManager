@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DivinityModManager.Models.Github
+namespace DivinityModManager.Models.GitHub
 {
-	public class GithubLatestReleaseData : ReactiveObject
+	public class GitHubLatestReleaseData : ReactiveObject
 	{
 		[Reactive] public string Version { get; set; }
 		[Reactive] public string Description { get; set; }

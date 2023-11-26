@@ -22,8 +22,8 @@ namespace DivinityModManager.Util
 
         public static void SetupClient()
         {
-            // Required for Github permissions
-            Client.DefaultRequestHeaders.Add("User-Agent", "DivinityModManager");
+            // Required for GitHub permissions
+            Client.DefaultRequestHeaders.Add("User-Agent", "BG3ModManager");
         }
 
         public static async Task<Stream> DownloadFileAsStreamAsync(string downloadUrl, CancellationToken token)

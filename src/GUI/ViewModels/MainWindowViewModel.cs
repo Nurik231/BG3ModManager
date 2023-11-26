@@ -7,6 +7,7 @@ using DivinityModManager.Models;
 using DivinityModManager.Models.App;
 using DivinityModManager.Models.Extender;
 using DivinityModManager.Models.NexusMods;
+using DivinityModManager.Models.Settings;
 using DivinityModManager.Models.Updates;
 using DivinityModManager.ModUpdater.Cache;
 using DivinityModManager.Util;
@@ -262,7 +263,7 @@ namespace DivinityModManager.ViewModels
 		#endregion
 		[Reactive] public bool IsRenamingOrder { get; set; }
 		[Reactive] public Visibility StatusBarBusyIndicatorVisibility { get; set; }
-		[ObservableAsProperty] public bool GithubModSupportEnabled { get; }
+		[ObservableAsProperty] public bool GitHubModSupportEnabled { get; }
 		[ObservableAsProperty] public bool NexusModsSupportEnabled { get; }
 		[ObservableAsProperty] public bool SteamWorkshopSupportEnabled { get; }
 		[Reactive] public bool CanMoveSelectedMods { get; set; }
@@ -288,7 +289,7 @@ namespace DivinityModManager.ViewModels
 		public ReactiveCommand<object, Unit> ToggleOrderRenamingCommand { get; set; }
 		public ReactiveCommand<Unit, Unit> RefreshCommand { get; private set; }
 		public ReactiveCommand<Unit, Unit> RefreshModUpdatesCommand { get; private set; }
-		public ICommand CheckForGithubModUpdatesCommand { get; private set; }
+		public ICommand CheckForGitHubModUpdatesCommand { get; private set; }
 		public ICommand CheckForNexusModsUpdatesCommand { get; private set; }
 		public ICommand CheckForSteamWorkshopUpdatesCommand { get; private set; }
 		public EventHandler OnRefreshed { get; set; }
@@ -513,7 +514,7 @@ namespace DivinityModManager.ViewModels
 
 		public void UpdateExtender(bool updateMods = true, CancellationToken? t = null)
 		{
-			if (AppSettings.FeatureEnabled("ScriptExtender"))
+			if (AppSettings.Features.ScriptExtender && Settings.UpdateSettings.UpdateScriptExtender)
 			{
 				var exeDir = Path.GetDirectoryName(Settings.GameExecutablePath);
 				var extenderUpdaterPath = Path.Combine(exeDir, DivinityApp.EXTENDER_UPDATER_FILE);
@@ -715,7 +716,7 @@ Directory the zip will be extracted to:
 			{
 				string latestReleaseZipUrl = "";
 				DivinityApp.Log($"Checking for latest {DivinityApp.EXTENDER_UPDATER_FILE} release at 'https://github.com/{DivinityApp.EXTENDER_REPO_URL}'.");
-				var latestReleaseData = await GithubHelper.GetLatestReleaseJsonStringAsync(DivinityApp.EXTENDER_REPO_URL, token);
+				var latestReleaseData = await GitHubHelper.GetLatestReleaseJsonStringAsync(DivinityApp.EXTENDER_REPO_URL, token);
 				if (!String.IsNullOrEmpty(latestReleaseData))
 				{
 					var jsonData = DivinityJsonUtils.SafeDeserialize<Dictionary<string, object>>(latestReleaseData);
@@ -1092,8 +1093,9 @@ Directory the zip will be extracted to:
 
 			Settings.DefaultExtenderLogDirectory = Path.Combine(GetLarianStudiosAppDataFolder(), "Baldur's Gate 3", "Extender Logs");
 
-			var workshopSupportEnabled = AppSettings.FeatureEnabled("Workshop");
-			var nexusModsSupportEnabled = AppSettings.FeatureEnabled("NexusMods");
+			var githubSupportEnabled = AppSettings.Features.GitHub;
+			var nexusModsSupportEnabled = AppSettings.Features.NexusMods;
+			var workshopSupportEnabled = AppSettings.Features.SteamWorkshop;
 
 			if (workshopSupportEnabled)
 			{
@@ -1132,16 +1134,15 @@ Directory the zip will be extracted to:
 				Settings.WorkshopPath = "";
 			}
 
-			if (_updater.SteamWorkshop.IsEnabled != workshopSupportEnabled || _updater.NexusMods.IsEnabled != nexusModsSupportEnabled)
-			{
-				_updater.SteamWorkshop.IsEnabled = workshopSupportEnabled;
-				_updater.NexusMods.IsEnabled = nexusModsSupportEnabled;
+			_updater.GitHub.IsEnabled = githubSupportEnabled;
+			_updater.NexusMods.IsEnabled = nexusModsSupportEnabled;
+			_updater.SteamWorkshop.IsEnabled = workshopSupportEnabled;
 
-				foreach (var mod in mods.Items)
-				{
-					mod.WorkshopEnabled = workshopSupportEnabled;
-					mod.NexusModsEnabled = nexusModsSupportEnabled;
-				}
+			foreach (var mod in mods.Items)
+			{
+				mod.SteamWorkshopEnabled = workshopSupportEnabled;
+				mod.NexusModsEnabled = nexusModsSupportEnabled;
+				mod.GitHubEnabled = githubSupportEnabled;
 			}
 
 			if (Settings.LogEnabled)
@@ -1476,7 +1477,7 @@ Directory the zip will be extracted to:
 					}
 				}
 
-				if (AppSettings.FeatureEnabled("ScriptExtender") && IsInitialized && !IsRefreshing)
+				if (AppSettings.Features.ScriptExtender && IsInitialized && !IsRefreshing)
 				{
 					LoadExtenderSettingsBackground();
 				}
@@ -1492,7 +1493,7 @@ Directory the zip will be extracted to:
 			mods.Clear();
 			foreach (var mod in loadedMods)
 			{
-				mod.WorkshopEnabled = SteamWorkshopSupportEnabled;
+				mod.SteamWorkshopEnabled = SteamWorkshopSupportEnabled;
 				mod.NexusModsEnabled = NexusModsSupportEnabled;
 
 				if (mod.IsLarianMod)
@@ -2266,11 +2267,11 @@ Directory the zip will be extracted to:
 			return Unit.Default;
 		}
 
-		private IDisposable _refreshGithubModsUpdatesBackgroundTask;
+		private IDisposable _refreshGitHubModsUpdatesBackgroundTask;
 
-		private async Task<Unit> RefreshGithubModsUpdatesBackgroundAsync(IScheduler sch, CancellationToken token)
+		private async Task<Unit> RefreshGitHubModsUpdatesBackgroundAsync(IScheduler sch, CancellationToken token)
 		{
-			var results = await _updater.GetGithubUpdatesAsync(UserMods, Version, token);
+			var results = await _updater.GetGitHubUpdatesAsync(UserMods, Version, token);
 			await sch.Yield(token);
 			if (!token.IsCancellationRequested && results.Count > 0)
 			{
@@ -2301,10 +2302,10 @@ Directory the zip will be extracted to:
 			return Unit.Default;
 		}
 
-		private void RefreshGithubModsUpdatesBackground()
+		private void RefreshGitHubModsUpdatesBackground()
 		{
-			_refreshGithubModsUpdatesBackgroundTask?.Dispose();
-			_refreshGithubModsUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(RefreshGithubModsUpdatesBackgroundAsync);
+			_refreshGitHubModsUpdatesBackgroundTask?.Dispose();
+			_refreshGitHubModsUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(RefreshGitHubModsUpdatesBackgroundAsync);
 		}
 
 		private IDisposable _refreshNexusModsUpdatesBackgroundTask;
@@ -2335,9 +2336,14 @@ Directory the zip will be extracted to:
 						};
 						if (!isPremium)
 						{
-							//Make this a link to the browser, where the user needs to download a .nxm file
+							var nxmEnabled = "";
+							if(Settings.UpdateSettings.IsAssociatedWithNXM)
+							{
+								nxmEnabled = "&nmm=1";
+							}
+							//Make this a link to the browser, where the user needs to initiate a .nxm url
 							updateData.DownloadData.IsIndirectDownload = true;
-							updateData.DownloadData.DownloadPath = $"https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id={update.File.FileId}6&nmm=1&game_id={DivinityApp.NEXUSMODS_GAME_ID}";
+							updateData.DownloadData.DownloadPath = $"https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id={update.File.FileId}{nxmEnabled}&game_id={DivinityApp.NEXUSMODS_GAME_ID}";
 						}
 						ModUpdatesViewData.Mods.Add(updateData);
 					}
@@ -2393,7 +2399,7 @@ Directory the zip will be extracted to:
 			_refreshAllModUpdatesBackgroundTask?.Dispose();
 			_refreshAllModUpdatesBackgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, token) =>
 			{
-				await RefreshGithubModsUpdatesBackgroundAsync(sch, token);
+				await RefreshGitHubModsUpdatesBackgroundAsync(sch, token);
 				await RefreshNexusModsUpdatesBackgroundAsync(sch, token);
 				await RefreshSteamWorkshopUpdatesBackgroundAsync(sch, token);
 
@@ -2589,7 +2595,7 @@ Directory the zip will be extracted to:
 				IsLoadingOrder = false;
 				IsInitialized = true;
 
-				if (AppSettings.FeatureEnabled("ScriptExtender"))
+				if (AppSettings.Features.ScriptExtender)
 				{
 					LoadExtenderSettingsBackground();
 				}
@@ -2821,7 +2827,7 @@ Directory the zip will be extracted to:
 				displayExtenderModWarning = true;
 			}
 
-			if (Settings?.DisableMissingModWarnings != true && displayExtenderModWarning && AppSettings.FeatureEnabled("ScriptExtender"))
+			if (Settings?.DisableMissingModWarnings != true && displayExtenderModWarning && AppSettings.Features.ScriptExtender)
 			{
 				//DivinityApp.LogMessage($"Mod Order: {String.Join("\n", order.Order.Select(x => x.Name))}");
 				DivinityApp.Log("Checking mods for extender requirements.");
@@ -3196,7 +3202,7 @@ Directory the zip will be extracted to:
 
 		private void AddImportedMod(DivinityModData mod, bool toActiveList = false)
 		{
-			mod.WorkshopEnabled = SteamWorkshopSupportEnabled;
+			mod.SteamWorkshopEnabled = SteamWorkshopSupportEnabled;
 			mod.NexusModsEnabled = NexusModsSupportEnabled;
 
 			if (mod.IsForceLoaded && !mod.IsForceLoadedMergedMod)
@@ -4747,24 +4753,11 @@ Directory the zip will be extracted to:
 
 			if (File.Exists(appFeaturesPath))
 			{
-				var appFeaturesDict = DivinityJsonUtils.SafeDeserializeFromPath<Dictionary<string, bool>>(appFeaturesPath);
-				if (appFeaturesDict != null)
+				var savedFeatures = DivinityJsonUtils.SafeDeserializeFromPath<Dictionary<string, bool>>(appFeaturesPath);
+				if(savedFeatures != null)
 				{
-					foreach (var kvp in appFeaturesDict)
-					{
-						try
-						{
-							if (!String.IsNullOrEmpty(kvp.Key))
-							{
-								AppSettings.Features[kvp.Key.ToLower()] = kvp.Value;
-							}
-						}
-						catch (Exception ex)
-						{
-							DivinityApp.Log("Error setting feature key:");
-							DivinityApp.Log(ex.ToString());
-						}
-					}
+					var features = new Dictionary<string, bool>(savedFeatures, StringComparer.OrdinalIgnoreCase);
+					AppSettings.Features.ApplyDictionary(features);
 				}
 			}
 
@@ -4984,9 +4977,26 @@ Directory the zip will be extracted to:
 			whenNexusModsAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToPropertyEx(this, x => x.NexusModsProfileAvatarVisibility, true, RxApp.MainThreadScheduler);
 			whenNexusModsAvatar.Select(UriToImage).ToPropertyEx(this, x => x.NexusModsProfileBitmapImage, true, RxApp.MainThreadScheduler);
 
-			_updater.SteamWorkshop.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.SteamWorkshopSupportEnabled, true, RxApp.MainThreadScheduler);
-			_updater.NexusMods.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.NexusModsSupportEnabled, true, RxApp.MainThreadScheduler);
-			_updater.Github.WhenAnyValue(x => x.IsEnabled).ToPropertyEx(this, x => x.GithubModSupportEnabled, true, RxApp.MainThreadScheduler);
+			this.WhenAnyValue(x => AppSettings.Features.GitHub, x => x.Settings.UpdateSettings.UpdateGitHubMods).BindTo(_updater.GitHub, x => x.IsEnabled);
+			this.WhenAnyValue(x => AppSettings.Features.NexusMods, x => x.Settings.UpdateSettings.UpdateNexusMods).BindTo(_updater.NexusMods, x => x.IsEnabled);
+			this.WhenAnyValue(x => AppSettings.Features.SteamWorkshop, x => x.Settings.UpdateSettings.UpdateSteamWorkshopMods).BindTo(_updater.SteamWorkshop, x => x.IsEnabled);
+
+			_updater.SteamWorkshop.WhenAnyValue(x => x.IsEnabled).ToUIProperty(this, x => x.SteamWorkshopSupportEnabled);
+			_updater.NexusMods.WhenAnyValue(x => x.IsEnabled).ToUIProperty(this, x => x.NexusModsSupportEnabled);
+			_updater.GitHub.WhenAnyValue(x => x.IsEnabled).ToUIProperty(this, x => x.GitHubModSupportEnabled);
+
+			_updater.WhenAnyValue(x => x.GitHub.IsEnabled, x => x.NexusMods.IsEnabled, x => x.SteamWorkshop.IsEnabled)
+			.Throttle(TimeSpan.FromMilliseconds(250))
+			.ObserveOn(RxApp.MainThreadScheduler)
+			.Subscribe(x =>
+			{
+				foreach (var mod in mods.Items)
+				{
+					mod.GitHubEnabled = x.Item1;
+					mod.NexusModsEnabled = x.Item2;
+					mod.SteamWorkshopEnabled = x.Item3;
+				}
+			});
 
 			this.WhenAnyValue(x => x.IsDragging, x => x.IsRefreshing, x => x.IsLoadingOrder, (b1, b2, b3) => b1 || b2 || b3).ToUIProperty(this, x => x.IsLocked);
 			this.WhenAnyValue(x => x.IsLoadingOrder, x => x.IsRefreshing, x => x.IsInitialized, (b1, b2, b3) => !b1 && !b2 && b3).ToUIProperty(this, x => x.AllowDrop, true);
@@ -5054,7 +5064,7 @@ Directory the zip will be extracted to:
 
 			Keys.RefreshModUpdates.AddAction(() => RefreshModUpdatesCommand.Execute().Subscribe(), canRefreshModUpdates);
 
-			CheckForGithubModUpdatesCommand = ReactiveCommand.Create(RefreshGithubModsUpdatesBackground, this.WhenAnyValue(x => x.GithubModSupportEnabled), RxApp.MainThreadScheduler);
+			CheckForGitHubModUpdatesCommand = ReactiveCommand.Create(RefreshGitHubModsUpdatesBackground, this.WhenAnyValue(x => x.GitHubModSupportEnabled), RxApp.MainThreadScheduler);
 			CheckForNexusModsUpdatesCommand = ReactiveCommand.Create(RefreshNexusModsUpdatesBackground, this.WhenAnyValue(x => x.NexusModsSupportEnabled), RxApp.MainThreadScheduler);
 			CheckForSteamWorkshopUpdatesCommand = ReactiveCommand.Create(RefreshSteamWorkshopUpdatesBackground, this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled), RxApp.MainThreadScheduler);
 
@@ -5391,7 +5401,7 @@ Directory the zip will be extracted to:
 			modsConnection.AutoRefresh(x => x.IsSelected).Filter(x => x.IsSelected && !x.IsEditorMod && File.Exists(x.FilePath)).Bind(out selectedPakMods).Subscribe();
 
 			// Blinky animation on the tools/download buttons if the extender is required by mods and is missing
-			if (AppSettings.FeatureEnabled("ScriptExtender"))
+			if (AppSettings.Features.ScriptExtender)
 			{
 				modsConnection.ObserveOn(RxApp.MainThreadScheduler).AutoRefresh(x => x.ExtenderModStatus).
 					Filter(x => x.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_MISSING || x.ExtenderModStatus == DivinityExtenderModStatus.REQUIRED_DISABLED).

@@ -1,6 +1,4 @@
 ﻿using DivinityModManager.Controls;
-using DivinityModManager.Models;
-using DivinityModManager.Models.Extender;
 using DivinityModManager.Models.View;
 using DivinityModManager.Util;
 using DivinityModManager.ViewModels;
@@ -25,6 +23,7 @@ using System.Windows.Navigation;
 using WpfAutoGrid;
 
 using Xceed.Wpf.Toolkit;
+using DivinityModManager.Models.Settings;
 
 namespace DivinityModManager.Views
 {
@@ -192,6 +191,7 @@ namespace DivinityModManager.Views
 			var keybindingsFilePath = DivinityApp.GetAppDirectory("Data", "keybindings.json");
 
 			GeneralSettingsTabHeader.Tag = settingsFilePath;
+			UpdateSettingsTabHeader.Tag = settingsFilePath;
 			AdvancedSettingsTabHeader.Tag = settingsFilePath;
 			KeybindingsTabHeader.Tag = keybindingsFilePath;
 			this.OneWayBind(ViewModel, vm => vm.ExtenderSettingsFilePath, view => view.ScriptExtenderTabHeader.Tag);
@@ -212,6 +212,7 @@ namespace DivinityModManager.Views
 			};
 			KeybindingsListView.KeyUp += KeybindingsListView_KeyUp;
 
+			CreateSettingsElements(ViewModel.Settings, typeof(DivinityModManagerSettings), SettingsAutoGrid);
 			CreateSettingsElements(ViewModel.Settings, typeof(DivinityModManagerSettings), SettingsAutoGrid);
 			CreateSettingsElements(ViewModel.ExtenderSettings, typeof(ScriptExtenderSettings), ExtenderSettingsAutoGrid);
 			CreateSettingsElements(ViewModel.ExtenderUpdaterSettings, typeof(ScriptExtenderUpdateConfig), ExtenderUpdaterSettingsAutoGrid);

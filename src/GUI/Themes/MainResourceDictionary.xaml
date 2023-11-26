@@ -57,7 +57,7 @@
 	<BitmapImage x:Key="OpenInBrowserImage" UriSource="pack://application:,,,/Resources/Icons/BrowserLink_16x.png" />
 	<BitmapImage x:Key="LogImage" UriSource="pack://application:,,,/Resources/Icons/Log_Normal_32x.png" />
 	<BitmapImage x:Key="OpenDonationLinkImage" UriSource="pack://application:,,,/Resources/Icons/Kofi_16x.png" />
-	<BitmapImage x:Key="OpenRepoLinkImage" UriSource="pack://application:,,,/Resources/Icons/Github_16x.png" />
+	<BitmapImage x:Key="OpenRepoLinkImage" UriSource="pack://application:,,,/Resources/Icons/GitHub_16x.png" />
 	<BitmapImage x:Key="DefaultIcon" UriSource="pack://application:,,,/Resources/Icons/DefaultIcon_16x.png" />
 	<BitmapImage x:Key="ExportScriptImage" UriSource="pack://application:,,,/Resources/Icons/ExportScript_16x.png" />
 	<BitmapImage x:Key="ZipFileImage" UriSource="pack://application:,,,/Resources/Icons/ZipFile_16x.png" />
@@ -216,10 +216,27 @@
 						</MenuItem.Icon>
 					</MenuItem>
 					<MenuItem
+						Command="{Binding Path=OpenGitHubPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
+						CommandParameter="{Binding}"
+						Header="Open GitHub Page (Browser)..."
+						Visibility="{Binding OpenGitHubLinkVisibility}">
+						<MenuItem.Icon>
+							<Image Source="{StaticResource OpenInBrowserImage}" />
+						</MenuItem.Icon>
+					</MenuItem>
+					<MenuItem
+						Command="{Binding Path=OpenNexusModsPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
+						CommandParameter="{Binding}"
+						Header="Open NexusMods Page (Browser)..."
+						Visibility="{Binding OpenNexusModsLinkVisibility}">
+						<MenuItem.Icon>
+							<Image Source="{StaticResource OpenInBrowserImage}" />
+						</MenuItem.Icon>
+					</MenuItem>
+					<MenuItem
 						Command="{Binding Path=OpenSteamWorkshopPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
 						Header="Open Steam Workshop Page (Browser)..."
-						IsEnabled="{Binding CanOpenWorkshopLink}"
 						Visibility="{Binding OpenWorkshopLinkVisibility}">
 						<MenuItem.Icon>
 							<Image Source="{StaticResource OpenInBrowserImage}" />
@@ -229,20 +246,9 @@
 						Command="{Binding Path=OpenSteamWorkshopPageInSteamCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
 						Header="Open Steam Workshop Page (Steam)..."
-						IsEnabled="{Binding CanOpenWorkshopLink}"
 						Visibility="{Binding OpenWorkshopLinkVisibility}">
 						<MenuItem.Icon>
 							<Image Source="{StaticResource OpenSteamWorkshopFolderImage}" />
-						</MenuItem.Icon>
-					</MenuItem>
-					<MenuItem
-						Command="{Binding Path=OpenNexusModsPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-						CommandParameter="{Binding}"
-						Header="Open NexusMods Page (Browser)..."
-						IsEnabled="{Binding CanOpenNexusModsLink}"
-						Visibility="{Binding OpenNexusModsLinkVisibility}">
-						<MenuItem.Icon>
-							<Image Source="{StaticResource OpenInBrowserImage}" />
 						</MenuItem.Icon>
 					</MenuItem>
 					<MenuItem

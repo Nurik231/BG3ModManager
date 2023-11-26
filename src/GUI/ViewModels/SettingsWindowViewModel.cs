@@ -1,8 +1,8 @@
 ﻿using DivinityModManager.Enums.Extender;
 using DivinityModManager.Extensions;
-using DivinityModManager.Models;
 using DivinityModManager.Models.App;
 using DivinityModManager.Models.Extender;
+using DivinityModManager.Models.Settings;
 using DivinityModManager.Util;
 using DivinityModManager.Views;
 
@@ -92,6 +92,8 @@ namespace DivinityModManager.ViewModels
 		public ICommand ClearCacheCommand { get; private set; }
 		public ICommand AddLaunchParamCommand { get; private set; }
 		public ICommand ClearLaunchParamsCommand { get; private set; }
+		public ICommand AssociateWithNXMCommand { get; private set; }
+
 		public ReactiveCommand<DependencyPropertyChangedEventArgs, Unit> OnWindowShownCommand { get; private set; }
 
 		private readonly ScriptExtenderUpdateVersion _emptyVersion = new ScriptExtenderUpdateVersion();

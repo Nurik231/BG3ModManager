@@ -1,6 +1,6 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
-using DivinityModManager.Models.Github;
+using DivinityModManager.Models.GitHub;
 using DivinityModManager.Models.Mod;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.Steam;
@@ -189,22 +189,20 @@ namespace DivinityModManager.Models
 
 		[ObservableAsProperty] public bool CanDelete { get; }
 		[ObservableAsProperty] public bool CanAddToLoadOrder { get; }
-		[ObservableAsProperty] public bool CanOpenWorkshopLink { get; }
 		[ObservableAsProperty] public string ScriptExtenderSupportToolTipText { get; }
 		[ObservableAsProperty] public string OsirisStatusToolTipText { get; }
 		[ObservableAsProperty] public string LastModifiedDateText { get; }
 		[ObservableAsProperty] public string DisplayVersion { get; }
 		[ObservableAsProperty] public Visibility DependencyVisibility { get; }
-		[ObservableAsProperty] public Visibility OpenWorkshopLinkVisibility { get; }
+		[ObservableAsProperty] public Visibility OpenGitHubLinkVisibility { get; }
 		[ObservableAsProperty] public Visibility OpenNexusModsLinkVisibility { get; }
+		[ObservableAsProperty] public Visibility OpenWorkshopLinkVisibility { get; }
 		[ObservableAsProperty] public Visibility ToggleForceAllowInLoadOrderVisibility { get; }
 		[ObservableAsProperty] public Visibility ExtenderStatusVisibility { get; }
 		[ObservableAsProperty] public Visibility OsirisStatusVisibility { get; }
 		[ObservableAsProperty] public Visibility HasFilePathVisibility { get; }
 
 		#region NexusMods Properties
-
-		[ObservableAsProperty] public bool CanOpenNexusModsLink { get; }
 		[ObservableAsProperty] public Visibility NexusImageVisibility { get; }
 		[ObservableAsProperty] public Visibility NexusModsInformationVisibility { get; }
 		[ObservableAsProperty] public DateTime NexusModsCreatedDate { get; }
@@ -213,8 +211,9 @@ namespace DivinityModManager.Models
 
 		#endregion
 
-		[Reactive] public bool WorkshopEnabled { get; set; }
+		[Reactive] public bool GitHubEnabled { get; set; }
 		[Reactive] public bool NexusModsEnabled { get; set; }
+		[Reactive] public bool SteamWorkshopEnabled { get; set; }
 		[Reactive] public bool CanDrag { get; set; }
 		[Reactive] public bool DeveloperMode { get; set; }
 		[Reactive] public bool HasColorOverride { get; set; }
@@ -225,7 +224,7 @@ namespace DivinityModManager.Models
 
 		[Reactive] public SteamWorkshopModData WorkshopData { get; set; }
 		[Reactive] public NexusModsModData NexusModsData { get; set; }
-		[Reactive] public GithubModData GithubData { get; set; }
+		[Reactive] public GitHubModData GitHubData { get; set; }
 
 		public string GetURL(ModSourceType modSourceType, bool asProtocol = false)
 		{
@@ -251,9 +250,9 @@ namespace DivinityModManager.Models
 					}
 					break;
 				case ModSourceType.GITHUB:
-					if (GithubData != null)
+					if (GitHubData != null)
 					{
-						return $"https://github.com/{GithubData.Author}/{GithubData.Repository}";
+						return $"https://github.com/{GitHubData.Author}/{GitHubData.Repository}";
 					}
 					break;
 			}
@@ -358,8 +357,8 @@ namespace DivinityModManager.Models
 		{
 			if (config?.NexusMods.ModId > DivinityApp.NEXUSMODS_MOD_ID_START) NexusModsData.ModId = config.NexusMods.ModId;
 			if (config.SteamWorkshop.ModId > DivinityApp.WORKSHOP_MOD_ID_START) WorkshopData.ModId = config.SteamWorkshop.ModId;
-			if (!String.IsNullOrWhiteSpace(config.Github.Author)) GithubData.Author = config.Github.Author;
-			if (!String.IsNullOrWhiteSpace(config.Github.Repository)) GithubData.Repository = config.Github.Repository;
+			if (!String.IsNullOrWhiteSpace(config.GitHub.Author)) GitHubData.Author = config.GitHub.Author;
+			if (!String.IsNullOrWhiteSpace(config.GitHub.Repository)) GitHubData.Repository = config.GitHub.Repository;
 		}
 
 		public DivinityModData(bool isBaseGameMod = false) : base()
@@ -370,7 +369,7 @@ namespace DivinityModManager.Models
 
 			WorkshopData = new SteamWorkshopModData();
 			NexusModsData = new NexusModsModData();
-			GithubData = new GithubModData();
+			GitHubData = new GitHubModData();
 
 			this.WhenAnyValue(x => x.UUID).BindTo(NexusModsData, x => x.UUID);
 
@@ -392,17 +391,17 @@ namespace DivinityModManager.Models
 				.Select(b => b.Item1 && b.Item2 && !b.Item3 ? Visibility.Visible : Visibility.Collapsed)
 				.ToUIProperty(this, x => x.ToggleForceAllowInLoadOrderVisibility, Visibility.Collapsed);
 
-			this.WhenAnyValue(x => x.WorkshopEnabled, x => x.IsHidden, x => x.IsLarianMod, x => x.WorkshopData.ModId, CanOpenWorkshopBoolCheck)
-				.ToUIProperty(this, x => x.CanOpenWorkshopLink);
-			this.WhenAnyValue(x => x.CanOpenWorkshopLink)
+			this.WhenAnyValue(x => x.GitHubEnabled, x => x.GitHubData.IsEnabled, (b1, b2) => b1 && b2)
 				.Select(PropertyConverters.BoolToVisibility)
-				.ToUIProperty(this, x => x.OpenWorkshopLinkVisibility, Visibility.Collapsed);
+				.ToUIProperty(this, x => x.OpenGitHubLinkVisibility, Visibility.Collapsed);
 
 			this.WhenAnyValue(x => x.NexusModsEnabled, x => x.NexusModsData.ModId, (b, id) => b && id >= DivinityApp.NEXUSMODS_MOD_ID_START)
-				.ToUIProperty(this, x => x.CanOpenNexusModsLink);
-			this.WhenAnyValue(x => x.CanOpenNexusModsLink)
 				.Select(PropertyConverters.BoolToVisibility)
 				.ToUIProperty(this, x => x.OpenNexusModsLinkVisibility, Visibility.Collapsed);
+
+			this.WhenAnyValue(x => x.SteamWorkshopEnabled, x => x.IsHidden, x => x.IsLarianMod, x => x.WorkshopData.ModId, CanOpenWorkshopBoolCheck)
+				.Select(PropertyConverters.BoolToVisibility)
+				.ToUIProperty(this, x => x.OpenWorkshopLinkVisibility, Visibility.Collapsed);
 
 			var connection = this.Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler);
 			connection.Bind(out displayedDependencies).DisposeMany().Subscribe();
@@ -508,7 +507,7 @@ namespace DivinityModManager.Models
 			cloneMod.Dependencies.AddRange(mod.Dependencies.Items);
 			cloneMod.NexusModsData.Update(mod.NexusModsData);
 			cloneMod.WorkshopData.Update(mod.WorkshopData);
-			cloneMod.GithubData.Update(mod.GithubData);
+			cloneMod.GitHubData.Update(mod.GitHubData);
 			return cloneMod;
 		}
 	}

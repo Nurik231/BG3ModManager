@@ -19,6 +19,7 @@
 	xmlns:local="clr-namespace:DivinityModManager.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:reactiveui="http://reactiveui.net"
+	xmlns:settings="clr-namespace:DivinityModManager.Models.Settings;assembly=DivinityModManagerCore"
 	xmlns:vm="clr-namespace:DivinityModManager.ViewModels"
 	xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
 	Title="Preferences"
@@ -173,6 +174,27 @@
 					<autogrid:AutoGrid x:Name="SettingsAutoGrid" />
 				</ScrollViewer>
 			</TabItem>
+			<TabItem x:Name="UpdateSettingsTab" FocusManager.FocusedElement="{Binding ElementName=UpdateSettingsTabAutoGrid}">
+				<TabItem.Header>
+					<TextBlock
+						x:Name="UpdateSettingsTabHeader"
+						Style="{StaticResource TabItemWithContextMenu}"
+						Text="Update Settings"
+						ToolTip="Update Settings (Data/settings.json)" />
+				</TabItem.Header>
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+						<RowDefinition Height="auto" />
+					</Grid.RowDefinitions>
+					<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+						<autogrid:AutoGrid x:Name="UpdateSettingsTabAutoGrid" />
+					</ScrollViewer>
+					<StackPanel Grid.Row="1">
+						<Button Content="Associate with &quot;Download with manager&quot; links (nxm://)" />
+					</StackPanel>
+				</Grid>
+			</TabItem>
 			<TabItem x:Name="ScriptExtenderTab" FocusManager.FocusedElement="{Binding ElementName=ExtenderSettingsAutoGrid}">
 				<TabItem.Header>
 					<TextBlock
@@ -181,15 +203,9 @@
 						Text="Script Extender"
 						ToolTip="Script Extender Settings (ScriptExtenderSettings.json)" />
 				</TabItem.Header>
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="*" />
-						<RowDefinition Height="auto" />
-					</Grid.RowDefinitions>
-					<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-						<autogrid:AutoGrid x:Name="ExtenderSettingsAutoGrid" />
-					</ScrollViewer>
-				</Grid>
+				<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+					<autogrid:AutoGrid x:Name="ExtenderSettingsAutoGrid" />
+				</ScrollViewer>
 			</TabItem>
 			<TabItem x:Name="ScriptExtenderUpdaterTab" FocusManager.FocusedElement="{Binding ElementName=ExtenderUpdaterSettingsAutoGrid}">
 				<TabItem.Header>
@@ -210,7 +226,7 @@
 								x:Name="UpdateChannelTextBlock"
 								Grid.Column="0"
 								behavior:TextBlockSettingsEntryAttributeBehavior.Property="UpdateChannel"
-								behavior:TextBlockSettingsEntryAttributeBehavior.TargetType="{x:Type extdata:ScriptExtenderUpdateConfig}"
+								behavior:TextBlockSettingsEntryAttributeBehavior.TargetType="{x:Type settings:ScriptExtenderUpdateConfig}"
 								Text="Update Channel" />
 							<ComboBox
 								x:Name="UpdateChannelComboBox"
@@ -329,7 +345,7 @@
 					<TextBlock
 						x:Name="DebugModeTextBlock"
 						behavior:TextBlockSettingsEntryAttributeBehavior.Property="DebugModeEnabled"
-						behavior:TextBlockSettingsEntryAttributeBehavior.TargetType="{x:Type data:DivinityModManagerSettings}" />
+						behavior:TextBlockSettingsEntryAttributeBehavior.TargetType="{x:Type settings:DivinityModManagerSettings}" />
 					<CheckBox
 						x:Name="DebugModeCheckBox"
 						VerticalAlignment="Center"

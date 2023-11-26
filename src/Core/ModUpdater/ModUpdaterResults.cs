@@ -1,5 +1,5 @@
 ﻿using DivinityModManager.Models;
-using DivinityModManager.Models.Github;
+using DivinityModManager.Models.GitHub;
 using DivinityModManager.Models.NexusMods;
 
 using System;
@@ -12,13 +12,13 @@ namespace DivinityModManager.ModUpdater
 {
 	public class ModUpdaterResults
 	{
-		public Dictionary<string, GithubLatestReleaseData> Github { get; }
+		public Dictionary<string, GitHubLatestReleaseData> GitHub { get; }
 		public Dictionary<string, NexusModsModDownloadLink> NexusMods { get; }
 		public Dictionary<string, DivinityModData> SteamWorkshop { get; }
 
-		public ModUpdaterResults(Dictionary<string, GithubLatestReleaseData> github, Dictionary<string, NexusModsModDownloadLink> nexusMods, Dictionary<string, DivinityModData> steamWorkshop)
+		public ModUpdaterResults(Dictionary<string, GitHubLatestReleaseData> github, Dictionary<string, NexusModsModDownloadLink> nexusMods, Dictionary<string, DivinityModData> steamWorkshop)
 		{
-			Github = github;
+			GitHub = github;
 			NexusMods = nexusMods;
 			SteamWorkshop = steamWorkshop;
 		}
