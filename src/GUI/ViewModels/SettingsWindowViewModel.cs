@@ -210,7 +210,7 @@ namespace DivinityModManager.ViewModels
 			}
 		}
 
-		public DivinityModManagerSettings Settings { get; private set; }
+		public ModManagerSettings Settings { get; private set; }
 		public ScriptExtenderSettings ExtenderSettings { get; private set; }
 		public ScriptExtenderUpdateConfig ExtenderUpdaterSettings { get; private set; }
 

@@ -33,10 +33,10 @@ namespace DivinityModManager
 		Task<bool> LoadCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 		Task<bool> SaveCacheAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 
-		Task<ModUpdaterResults> FetchUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, CancellationToken token);
+		Task<ModUpdaterResults> FetchUpdatesAsync(ModManagerSettings settings, IEnumerable<DivinityModData> mods, CancellationToken token);
 		Task<Dictionary<string, GitHubLatestReleaseData>> GetGitHubUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 		Task<Dictionary<string, NexusModsModDownloadLink>> GetNexusModsUpdatesAsync(IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
-		Task<Dictionary<string, DivinityModData>> GetSteamWorkshopUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
+		Task<Dictionary<string, DivinityModData>> GetSteamWorkshopUpdatesAsync(ModManagerSettings settings, IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token);
 
 		bool DeleteCache();
 	}
@@ -165,7 +165,7 @@ namespace DivinityModManager.AppServices
 			return b1 || b2 || b3;
 		}
 
-		public async Task<ModUpdaterResults> FetchUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, CancellationToken token)
+		public async Task<ModUpdaterResults> FetchUpdatesAsync(ModManagerSettings settings, IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
 			//TODO
 			IsRefreshing = true;
@@ -242,7 +242,7 @@ namespace DivinityModManager.AppServices
 			return results;
 		}
 
-		public async Task<Dictionary<string, DivinityModData>> GetSteamWorkshopUpdatesAsync(DivinityModManagerSettings settings, IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
+		public async Task<Dictionary<string, DivinityModData>> GetSteamWorkshopUpdatesAsync(ModManagerSettings settings, IEnumerable<DivinityModData> mods, string currentAppVersion, CancellationToken token)
 		{
 			var results = new Dictionary<string, DivinityModData>();
 			try

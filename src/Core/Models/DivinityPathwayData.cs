@@ -55,7 +55,7 @@ namespace DivinityModManager.Models
 			ScriptExtenderLatestReleaseVersion = "";
 		}
 
-		public string ScriptExtenderSettingsFile(DivinityModManagerSettings settings)
+		public string ScriptExtenderSettingsFile(ModManagerSettings settings)
 		{
 			if(settings.GameExecutablePath.IsExistingFile())
 			{
@@ -64,7 +64,7 @@ namespace DivinityModManager.Models
 			return "";
 		}
 
-		public string ScriptExtenderUpdaterConfigFile(DivinityModManagerSettings settings)
+		public string ScriptExtenderUpdaterConfigFile(ModManagerSettings settings)
 		{
 			if(settings.GameExecutablePath.IsExistingFile())
 			{

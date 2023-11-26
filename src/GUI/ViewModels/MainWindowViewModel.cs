@@ -160,8 +160,8 @@ namespace DivinityModManager.ViewModels
 
 		public AppSettings AppSettings => appSettings;
 
-		private readonly DivinityModManagerSettings _settings = new DivinityModManagerSettings();
-		public DivinityModManagerSettings Settings => _settings;
+		private readonly ModManagerSettings _settings = new ModManagerSettings();
+		public ModManagerSettings Settings => _settings;
 
 		private readonly ObservableCollectionExtended<DivinityModData> _activeMods = new ObservableCollectionExtended<DivinityModData>();
 		public ObservableCollectionExtended<DivinityModData> ActiveMods => _activeMods;
@@ -1066,7 +1066,7 @@ Directory the zip will be extracted to:
 					using (var reader = File.OpenText(settingsFile))
 					{
 						var fileText = reader.ReadToEnd();
-						var settings = DivinityJsonUtils.SafeDeserialize<DivinityModManagerSettings>(fileText);
+						var settings = DivinityJsonUtils.SafeDeserialize<ModManagerSettings>(fileText);
 						if(settings != null)
 						{
 							loaded = true;

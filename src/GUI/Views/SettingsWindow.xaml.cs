@@ -212,8 +212,8 @@ namespace DivinityModManager.Views
 			};
 			KeybindingsListView.KeyUp += KeybindingsListView_KeyUp;
 
-			CreateSettingsElements(ViewModel.Settings, typeof(DivinityModManagerSettings), SettingsAutoGrid);
-			CreateSettingsElements(ViewModel.Settings, typeof(DivinityModManagerSettings), SettingsAutoGrid);
+			CreateSettingsElements(ViewModel.Settings, typeof(ModManagerSettings), SettingsAutoGrid);
+			CreateSettingsElements(ViewModel.Settings, typeof(ModManagerSettings), SettingsAutoGrid);
 			CreateSettingsElements(ViewModel.ExtenderSettings, typeof(ScriptExtenderSettings), ExtenderSettingsAutoGrid);
 			CreateSettingsElements(ViewModel.ExtenderUpdaterSettings, typeof(ScriptExtenderUpdateConfig), ExtenderUpdaterSettingsAutoGrid);
 

@@ -23,7 +23,7 @@ using DivinityModManager.Extensions;
 namespace DivinityModManager.Models.Settings
 {
 	[DataContract]
-	public class DivinityModManagerSettings : ReactiveObject
+	public class ModManagerSettings : ReactiveObject
 	{
 		[SettingsEntry("Game Data Path", "The path to the Data folder, for loading editor mods.\nExample: Baldur's Gate 3/Data")]
 		[DataMember, Reactive] public string GameDataPath { get; set; }
@@ -165,14 +165,14 @@ namespace DivinityModManager.Models.Settings
 
 		public bool SettingsWindowIsOpen { get; set; }
 
-		public DivinityModManagerSettings()
+		public ModManagerSettings()
 		{
 			UpdateSettings = new ModManagerUpdateSettings();
 			ExtenderSettings = new ScriptExtenderSettings();
 			ExtenderUpdaterSettings = new ScriptExtenderUpdateConfig();
 			Window = new WindowSettings();
 
-			var properties = typeof(DivinityModManagerSettings)
+			var properties = typeof(ModManagerSettings)
 			.GetRuntimeProperties()
 			.Where(prop => Attribute.IsDefined(prop, typeof(DataMemberAttribute)))
 			.Select(prop => prop.Name)

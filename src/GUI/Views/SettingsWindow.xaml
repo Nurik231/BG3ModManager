@@ -345,7 +345,7 @@
 					<TextBlock
 						x:Name="DebugModeTextBlock"
 						behavior:TextBlockSettingsEntryAttributeBehavior.Property="DebugModeEnabled"
-						behavior:TextBlockSettingsEntryAttributeBehavior.TargetType="{x:Type settings:DivinityModManagerSettings}" />
+						behavior:TextBlockSettingsEntryAttributeBehavior.TargetType="{x:Type settings:ModManagerSettings}" />
 					<CheckBox
 						x:Name="DebugModeCheckBox"
 						VerticalAlignment="Center"
