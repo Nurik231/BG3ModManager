@@ -105,7 +105,7 @@ namespace DivinityModManager.ViewModels
 			Formatting = Formatting.Indented
 		};
 
-		public void ShowAlert(string message, AlertType alertType = AlertType.Info, int timeout = 0)
+		public void ShowAlert(string message, AlertType alertType = AlertType.Info, int timeout = 30)
 		{
 			DivinityApp.Log(message);
 			RxApp.MainThreadScheduler.Schedule(() =>
@@ -211,6 +211,7 @@ namespace DivinityModManager.ViewModels
 		}
 
 		public ModManagerSettings Settings { get; private set; }
+		public ModManagerUpdateSettings UpdateSettings { get; private set; }
 		public ScriptExtenderSettings ExtenderSettings { get; private set; }
 		public ScriptExtenderUpdateConfig ExtenderUpdaterSettings { get; private set; }
 
@@ -337,6 +338,32 @@ namespace DivinityModManager.ViewModels
 			}
 		}
 
+		private static readonly string _associateNXMMessage = @"This will allow updating mods via the ""Mod Manager Download"" button on the Nexus Mods website.
+The following registry key will be added or updated:
+HKEY_CLASSES_ROOT\nxm\shell\open\command
+";
+
+		private void AssociateWithNXM()
+		{
+			var result = Xceed.Wpf.Toolkit.MessageBox.Show(View,
+			_associateNXMMessage,
+			"Associate BG3MM with nxm:// links?",
+			MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No, Main.View.MainWindowMessageBox_OK.Style);
+			if (result == MessageBoxResult.Yes)
+			{
+				if(DivinityRegistryHelper.AssociateWithNXMProtocol(DivinityApp.GetToolboxPath()))
+				{
+					UpdateSettings.IsAssociatedWithNXM = true;
+					ShowAlert("nxm:// protocol assocation successfully set");
+				}
+				else
+				{
+					UpdateSettings.IsAssociatedWithNXM = false;
+					ShowAlert("Failed to set nxm protocol in the registry. Check the log", AlertType.Danger);
+				}
+			}
+		}
+
 		public SettingsWindowViewModel(SettingsWindow view, MainWindowViewModel main)
 		{
 			_main = main;
@@ -346,6 +373,7 @@ namespace DivinityModManager.ViewModels
 			this.WhenAnyValue(x => x.View.IsVisible).ToUIProperty(this, x => x.IsVisible);
 
 			Main.WhenAnyValue(x => x.Settings).BindTo(this, x => x.Settings);
+			Main.WhenAnyValue(x => x.Settings.UpdateSettings).BindTo(this, x => x.UpdateSettings);
 			Main.WhenAnyValue(x => x.Settings.ExtenderSettings).BindTo(this, x => x.ExtenderSettings);
 			Main.WhenAnyValue(x => x.Settings.ExtenderUpdaterSettings).BindTo(this, x => x.ExtenderUpdaterSettings);
 
@@ -497,6 +525,8 @@ namespace DivinityModManager.ViewModels
 			});
 
 			OnWindowShownCommand = ReactiveCommand.Create<DependencyPropertyChangedEventArgs>(OnWindowVisibilityChanged);
+
+			AssociateWithNXMCommand = ReactiveCommand.Create(AssociateWithNXM);
 		}
 	}
 }

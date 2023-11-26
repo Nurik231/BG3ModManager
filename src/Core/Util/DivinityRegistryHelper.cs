@@ -19,6 +19,8 @@ namespace DivinityModManager.Util
 		const string REG_GOG_32 = @"SOFTWARE\GOG.com\Games";
 		const string REG_GOG_64 = @"SOFTWARE\Wow6432Node\GOG.com\Games";
 
+		const string REG_NXM_PROTOCOL_COMMAND = @"nxm\shell\open\command";
+
 		const string PATH_Steam_WorkshopFolder = @"steamapps/workshop";
 		const string PATH_Steam_LibraryFile = @"steamapps/libraryfolders.vdf";
 
@@ -233,9 +235,45 @@ namespace DivinityModManager.Util
 			return "";
 		}
 
-		public static bool IsAssociatedWithNXMProtocol()
+		public static bool IsAssociatedWithNXMProtocol(string appExePath)
 		{
+			//Get the "(Default)" key value
+			var shellCommand = GetKey(Registry.ClassesRoot, REG_NXM_PROTOCOL_COMMAND, String.Empty)?.ToString();
+			DivinityApp.Log($"{REG_NXM_PROTOCOL_COMMAND}: {shellCommand}");
+			if (!String.IsNullOrEmpty(shellCommand))
+			{
+				return shellCommand.IndexOf(appExePath, StringComparison.OrdinalIgnoreCase) > -1;
+			}
+			return false;
+		}
 
+		public static bool AssociateWithNXMProtocol(string appExePath)
+		{
+			try
+			{
+				var reg = Registry.ClassesRoot;
+				var shellCommand = GetKey(Registry.ClassesRoot, REG_NXM_PROTOCOL_COMMAND, String.Empty)?.ToString();
+				if (String.IsNullOrEmpty(shellCommand))
+				{
+					var baseKey = reg.CreateSubKey("nxm", true);
+					baseKey.SetValue(String.Empty, "URL:NXM Protocol", RegistryValueKind.String);
+					baseKey.SetValue("URL Protocol", "", RegistryValueKind.String);
+					var shellCommandKey = baseKey.CreateSubKey("shell").CreateSubKey("open").CreateSubKey("command");
+					shellCommandKey.SetValue(String.Empty, $"\"{appExePath}\" \"%1\"", RegistryValueKind.String);
+					reg.Close();
+				}
+				else if (shellCommand.IndexOf(appExePath, StringComparison.OrdinalIgnoreCase) == -1)
+				{
+					var key = reg.OpenSubKey(REG_NXM_PROTOCOL_COMMAND, true);
+					key.SetValue(String.Empty, $"\"{appExePath}\" \"%1\"", RegistryValueKind.String);
+				}
+				reg.Close();
+				return true;
+			}
+			catch(Exception ex)
+			{
+				DivinityApp.Log($"Error updating nxm protocol:\n{ex}");
+			}
 			return false;
 		}
 	}

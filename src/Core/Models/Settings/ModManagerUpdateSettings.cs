@@ -4,13 +4,8 @@ using DivinityModManager.Util;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Settings
 {
@@ -37,13 +32,11 @@ namespace DivinityModManager.Models.Settings
 		[SettingsEntry("NexusMods API Key", "Your personal NexusMods API key, which will allow the mod manager to fetch mod updates/information", HideFromUI = true)]
 		[DataMember, Reactive] public string NexusModsAPIKey { get; set; }
 
-		private readonly bool _isAssociatedWithNXM;
-		public bool IsAssociatedWithNXM => _isAssociatedWithNXM;
+		[Reactive] public bool IsAssociatedWithNXM { get; set; }
 
 		public ModManagerUpdateSettings()
 		{
-			_isAssociatedWithNXM = DivinityRegistryHelper.IsAssociatedWithNXMProtocol();
-			this.RaisePropertyChanged(nameof(IsAssociatedWithNXM));
+			IsAssociatedWithNXM = DivinityRegistryHelper.IsAssociatedWithNXMProtocol(DivinityApp.GetToolboxPath());
 			this.SetToDefault();
 		}
 	}

@@ -138,5 +138,7 @@ namespace DivinityModManager
 			var paths = joinPath.Prepend(exeDir).ToArray();
 			return Path.Combine(paths);
 		}
+
+		public static string GetToolboxPath() => GetAppDirectory("Tools", "Toolbox.exe");
 	}
 }

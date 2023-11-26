@@ -188,10 +188,10 @@
 						<RowDefinition Height="auto" />
 					</Grid.RowDefinitions>
 					<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-						<autogrid:AutoGrid x:Name="UpdateSettingsTabAutoGrid" />
+						<autogrid:AutoGrid x:Name="UpdateSettingsAutoGrid" />
 					</ScrollViewer>
 					<StackPanel Grid.Row="1">
-						<Button Content="Associate with &quot;Download with manager&quot; links (nxm://)" />
+						<Button x:Name="AssociateWithNXMButton" Content="Associate with &quot;Download with manager&quot; links (nxm://)" />
 					</StackPanel>
 				</Grid>
 			</TabItem>

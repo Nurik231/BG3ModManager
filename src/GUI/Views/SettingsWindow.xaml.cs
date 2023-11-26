@@ -213,7 +213,7 @@ namespace DivinityModManager.Views
 			KeybindingsListView.KeyUp += KeybindingsListView_KeyUp;
 
 			CreateSettingsElements(ViewModel.Settings, typeof(ModManagerSettings), SettingsAutoGrid);
-			CreateSettingsElements(ViewModel.Settings, typeof(ModManagerSettings), SettingsAutoGrid);
+			CreateSettingsElements(ViewModel.UpdateSettings, typeof(ModManagerUpdateSettings), UpdateSettingsAutoGrid);
 			CreateSettingsElements(ViewModel.ExtenderSettings, typeof(ScriptExtenderSettings), ExtenderSettingsAutoGrid);
 			CreateSettingsElements(ViewModel.ExtenderUpdaterSettings, typeof(ScriptExtenderUpdateConfig), ExtenderUpdaterSettingsAutoGrid);
 
@@ -248,6 +248,8 @@ namespace DivinityModManager.Views
 			this.BindCommand(ViewModel, vm => vm.ResetSettingsCommand, view => view.ResetSettingsButton);
 			this.BindCommand(ViewModel, vm => vm.ClearLaunchParamsCommand, view => view.ClearLaunchParamsMenuItem);
 			this.BindCommand(ViewModel, vm => vm.ClearCacheCommand, view => view.ClearCacheButton);
+
+			this.BindCommand(ViewModel, vm => vm.AssociateWithNXMCommand, view => view.AssociateWithNXMButton);
 
 			this.Events().IsVisibleChanged.InvokeCommand(ViewModel.OnWindowShownCommand);
 
