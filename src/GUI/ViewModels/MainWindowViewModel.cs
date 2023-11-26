@@ -1049,7 +1049,7 @@ Directory the zip will be extracted to:
 			});
 
 			var nexusModsService = Services.Get<INexusModsService>();
-			Settings.WhenAnyValue(x => x.NexusModsAPIKey).BindTo(nexusModsService, x => x.ApiKey);
+			Settings.UpdateSettings.WhenAnyValue(x => x.NexusModsAPIKey).BindTo(nexusModsService, x => x.ApiKey);
 
 			Settings.WhenAnyValue(x => x.SaveWindowLocation).Subscribe(Window.ToggleWindowPositionSaving);
 		}
@@ -2353,7 +2353,7 @@ Directory the zip will be extracted to:
 
 		private void RefreshNexusModsUpdatesBackground()
 		{
-			_updater.NexusMods.APIKey = Settings.NexusModsAPIKey;
+			_updater.NexusMods.APIKey = Settings.UpdateSettings.NexusModsAPIKey;
 			_updater.NexusMods.AppName = AutoUpdater.AppTitle;
 			_updater.NexusMods.AppVersion = Version;
 

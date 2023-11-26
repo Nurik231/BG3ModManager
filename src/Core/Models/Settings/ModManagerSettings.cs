@@ -31,10 +31,6 @@ namespace DivinityModManager.Models.Settings
 		[SettingsEntry("Game Executable Path", "The path to bg3.exe")]
 		[DataMember, Reactive] public string GameExecutablePath { get; set; }
 
-		[DefaultValue("")]
-		[SettingsEntry("NexusMods API Key", "Your personal NexusMods API key, which will allow the mod manager to fetch mod updates/information", HideFromUI = true)]
-		[DataMember, Reactive] public string NexusModsAPIKey { get; set; }
-
 		[DefaultValue(false)]
 		[SettingsEntry("Enable Story Log", "When launching the game, enable the Osiris story log (osiris.log)")]
 		[DataMember, Reactive] public bool GameStoryLogEnabled { get; set; }

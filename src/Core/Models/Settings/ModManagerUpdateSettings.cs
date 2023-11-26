@@ -33,6 +33,10 @@ namespace DivinityModManager.Models.Settings
 		[SettingsEntry("Update Steam Workshop Mods", "Automatically check for mod updates for mods configured with Steam Workshop releases", HideFromUI=true)]
 		[DataMember, Reactive] public bool UpdateSteamWorkshopMods { get; set; }
 
+		[DefaultValue("")]
+		[SettingsEntry("NexusMods API Key", "Your personal NexusMods API key, which will allow the mod manager to fetch mod updates/information", HideFromUI = true)]
+		[DataMember, Reactive] public string NexusModsAPIKey { get; set; }
+
 		private readonly bool _isAssociatedWithNXM;
 		public bool IsAssociatedWithNXM => _isAssociatedWithNXM;
 
