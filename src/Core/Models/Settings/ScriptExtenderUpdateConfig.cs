@@ -1,6 +1,5 @@
 ﻿using DivinityModManager.Enums.Extender;
 using DivinityModManager.Extensions;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -15,7 +14,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DivinityModManager.Models.Extender
+namespace DivinityModManager.Models.Settings
 {
 	[DataContract]
 	public class ScriptExtenderUpdateConfig : ReactiveObject
