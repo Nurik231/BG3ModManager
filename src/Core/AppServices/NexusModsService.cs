@@ -233,8 +233,11 @@ namespace DivinityModManager.AppServices
 							var user = await GetUserAsync(cts);
 							if (user != null)
 							{
-								IsPremium = user.IsPremium;
-								ProfileAvatarUrl = user.ProfileAvatarUrl;
+								RxApp.MainThreadScheduler.Schedule(() =>
+								{
+									IsPremium = user.IsPremium;
+									ProfileAvatarUrl = user.ProfileAvatarUrl;
+								});
 							}
 						});
 					}

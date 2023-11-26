@@ -16,7 +16,6 @@ namespace DivinityModManager.Models.Settings
 	public class AppSettings : ReactiveObject
 	{
 		[Reactive] public DefaultPathwayData DefaultPathways { get; set; }
-
 		[Reactive] public AppFeatures Features { get; set; }
 
 		public AppSettings()
