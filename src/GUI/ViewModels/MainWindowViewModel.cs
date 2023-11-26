@@ -190,8 +190,7 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public string InactiveModFilterText { get; set; }
 
 		[Reactive] public int SelectedProfileIndex { get; set; }
-
-		[ObservableAsProperty] public DivinityProfileData SelectedProfile { get; }
+		[Reactive] public DivinityProfileData SelectedProfile { get; private set; }
 		[ObservableAsProperty] public bool HasProfile { get; }
 
 		public ObservableCollectionExtended<DivinityLoadOrder> ModOrderList { get; set; } = new ObservableCollectionExtended<DivinityLoadOrder>();
@@ -4972,14 +4971,14 @@ Directory the zip will be extracted to:
 			});
 
 			var nexusModsService = Services.Get<INexusModsService>();
-			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(NexusModsLimitToText).ToPropertyEx(this, x => x.NexusModsLimitsText, true, RxApp.MainThreadScheduler);
+			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(NexusModsLimitToText).ToUIProperty(this, x => x.NexusModsLimitsText);
 			var whenNexusModsAvatar = nexusModsService.WhenAnyValue(x => x.ProfileAvatarUrl);
-			whenNexusModsAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToPropertyEx(this, x => x.NexusModsProfileAvatarVisibility, true, RxApp.MainThreadScheduler);
-			whenNexusModsAvatar.Select(UriToImage).ToPropertyEx(this, x => x.NexusModsProfileBitmapImage, true, RxApp.MainThreadScheduler);
+			whenNexusModsAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.NexusModsProfileAvatarVisibility);
+			whenNexusModsAvatar.Select(UriToImage).ToUIProperty(this, x => x.NexusModsProfileBitmapImage);
 
-			this.WhenAnyValue(x => AppSettings.Features.GitHub, x => x.Settings.UpdateSettings.UpdateGitHubMods).BindTo(_updater.GitHub, x => x.IsEnabled);
-			this.WhenAnyValue(x => AppSettings.Features.NexusMods, x => x.Settings.UpdateSettings.UpdateNexusMods).BindTo(_updater.NexusMods, x => x.IsEnabled);
-			this.WhenAnyValue(x => AppSettings.Features.SteamWorkshop, x => x.Settings.UpdateSettings.UpdateSteamWorkshopMods).BindTo(_updater.SteamWorkshop, x => x.IsEnabled);
+			this.WhenAnyValue(x => x.AppSettings.Features.GitHub, x => x.Settings.UpdateSettings.UpdateGitHubMods).Select(x => x.Item1 && x.Item2).BindTo(_updater.GitHub, x => x.IsEnabled);
+			this.WhenAnyValue(x => x.AppSettings.Features.NexusMods, x => x.Settings.UpdateSettings.UpdateNexusMods).Select(x => x.Item1 && x.Item2).BindTo(_updater.NexusMods, x => x.IsEnabled);
+			this.WhenAnyValue(x => x.AppSettings.Features.SteamWorkshop, x => x.Settings.UpdateSettings.UpdateSteamWorkshopMods).Select(x => x.Item1 && x.Item2).BindTo(_updater.SteamWorkshop, x => x.IsEnabled);
 
 			_updater.SteamWorkshop.WhenAnyValue(x => x.IsEnabled).ToUIProperty(this, x => x.SteamWorkshopSupportEnabled);
 			_updater.NexusMods.WhenAnyValue(x => x.IsEnabled).ToUIProperty(this, x => x.NexusModsSupportEnabled);
