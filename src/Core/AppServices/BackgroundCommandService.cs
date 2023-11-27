@@ -20,7 +20,7 @@ namespace DivinityModManager.AppServices
 		private NamedPipeServerStream _pipe;
 		private IDisposable _backgroundTask;
 
-		private async Task WaitForActivity(IScheduler sch, CancellationToken token)
+		private async Task WaitForCommandAsync(IScheduler sch, CancellationToken token)
 		{
 			try
 			{
@@ -56,7 +56,7 @@ namespace DivinityModManager.AppServices
 			_backgroundTask?.Dispose();
 			_pipe?.Dispose();
 			_pipe = new NamedPipeServerStream(DivinityApp.PIPE_ID, PipeDirection.In, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous);
-			_backgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(WaitForActivity);
+			_backgroundTask = RxApp.TaskpoolScheduler.ScheduleAsync(WaitForCommandAsync);
 		}
 
 		public BackgroundCommandService()
