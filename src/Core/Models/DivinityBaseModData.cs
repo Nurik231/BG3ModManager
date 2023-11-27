@@ -82,7 +82,7 @@ namespace DivinityModManager.Models
 
 		[Reactive] public Visibility Visibility { get; set; }
 
-		[ObservableAsProperty] public string FileName { get; }
+		[Reactive] public string FileName { get; private set; }
 		[ObservableAsProperty] public string DisplayName { get; }
 		[ObservableAsProperty] public Visibility DescriptionVisibility { get; }
 		[ObservableAsProperty] public Visibility AuthorVisibility { get; }
@@ -170,7 +170,7 @@ namespace DivinityModManager.Models
 
 			HelpText = "";
 
-			this.WhenAnyValue(x => x.FilePath).Select(f => Path.GetFileName(f)).ToUIProperty(this, x => x.FileName);
+			this.WhenAnyValue(x => x.FilePath).Select(f => Path.GetFileName(f)).BindTo(this, x => x.FileName);
 			this.WhenAnyValue(x => x.Name, x => x.FilePath, x => x.DisplayFileForName).Select(x => this.GetDisplayName()).ToUIProperty(this, x => x.DisplayName);
 			this.WhenAnyValue(x => x.Description).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.DescriptionVisibility);
 			this.WhenAnyValue(x => x.Author).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.AuthorVisibility);
