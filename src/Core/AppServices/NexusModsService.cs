@@ -1,7 +1,11 @@
-﻿using DivinityModManager.Models;
+﻿using Alphaleonis.Win32.Filesystem;
+
+using DivinityModManager.Models;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.Updates;
+using DivinityModManager.Util;
 
+using DynamicData;
 using DynamicData.Binding;
 
 using NexusModsNET;
@@ -13,8 +17,12 @@ using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,8 +42,11 @@ namespace DivinityModManager
 
 		IObservable<NexusModsObservableApiLimits> WhenLimitsChange { get; }
 
+		ObservableCollectionExtended<string> DownloadResults { get; }
+
 		Task<Dictionary<string, NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
 		Task<UpdateResult> FetchModInfoAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
+		void ProcessNXMLinkBackground(string url);
 	}
 }
 
@@ -52,6 +63,9 @@ namespace DivinityModManager.AppServices
 
 		private readonly NexusModsObservableApiLimits _apiLimits;
 		public NexusModsObservableApiLimits ApiLimits => _apiLimits;
+
+		protected ObservableCollectionExtended<string> _downloadResults = new ObservableCollectionExtended<string>();
+		public ObservableCollectionExtended<string> DownloadResults => _downloadResults;
 
 		public bool IsInitialized => _client != null;
 		public bool LimitExceeded => LimitExceededCheck();
@@ -207,9 +221,84 @@ namespace DivinityModManager.AppServices
 			return taskResult;
 		}
 
-		public async void GetNonPremiumDownloadLink(int modId)
+		private async Task<System.IO.Stream> DownloadUrlAsStreamAsync(Uri downloadUrl, CancellationToken token)
 		{
-			
+			try
+			{
+				using (var webClient = new WebClient())
+				{
+					webClient.Headers.Add("apikey", ApiKey);
+					int receivedBytes = 0;
+
+					var stream = await webClient.OpenReadTaskAsync(downloadUrl);
+					var ms = new System.IO.MemoryStream();
+					var buffer = new byte[4096];
+					int read = 0;
+					var totalBytes = int.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
+
+					while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+					{
+						ms.Write(buffer, 0, read);
+						receivedBytes += read;
+					}
+					stream.Close();
+					return ms;
+				}
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error downloading url ({downloadUrl}):\n{ex}");
+			}
+			return null;
+		}
+
+		public async Task<bool> ProcessNXMLinkAsync(string url, IScheduler sch, CancellationToken token)
+		{
+			if (!CanFetchData) return false;
+
+			try
+			{
+				var data = NexusModsProtocolData.FromUrl(url);
+				if (data.IsValid)
+				{
+					var files = await _dataLoader.ModFiles.GetModFileDownloadLinksAsync(data.GameId, data.ModId, data.FileId, data.Key, data.Expires, token);
+					if (files != null)
+					{
+						var file = files.FirstOrDefault();
+						if (file != null)
+						{
+							var outputFolder = DivinityApp.GetAppDirectory("Downloads");
+							Directory.CreateDirectory(outputFolder);
+							var filePath = Path.Combine(outputFolder, Path.GetFileName(WebUtility.UrlDecode(file.Uri.AbsolutePath)));
+							DivinityApp.Log($"Downloading {file.Uri} to {filePath}");
+							using (var stream = await DownloadUrlAsStreamAsync(file.Uri, token))
+							{
+								using (var outputStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+								{
+									stream.Position = 0;
+									await stream.CopyToAsync(outputStream, 4096, token);
+									DownloadResults.Add(filePath);
+									DivinityApp.Log("Download done.");
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					DivinityApp.Log($"nxm url ({url}) is not valid:\n{data}");
+				}
+			}
+			catch(Exception ex)
+			{
+				DivinityApp.Log($"Error processing nxm url ({url}):\n{ex}");
+			}
+			return false;
+		}
+
+		public void ProcessNXMLinkBackground(string url)
+		{
+			RxApp.TaskpoolScheduler.ScheduleAsync((sch,token) => ProcessNXMLinkAsync(url, sch, token));
 		}
 
 		public NexusModsService(string appName, string appVersion)

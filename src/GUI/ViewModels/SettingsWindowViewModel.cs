@@ -351,7 +351,7 @@ HKEY_CLASSES_ROOT\nxm\shell\open\command
 			MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No, Main.View.MainWindowMessageBox_OK.Style);
 			if (result == MessageBoxResult.Yes)
 			{
-				if(DivinityRegistryHelper.AssociateWithNXMProtocol(DivinityApp.GetToolboxPath()))
+				if(DivinityRegistryHelper.AssociateWithNXMProtocol(DivinityApp.GetExePath()))
 				{
 					UpdateSettings.IsAssociatedWithNXM = true;
 					ShowAlert("nxm:// protocol assocation successfully set");

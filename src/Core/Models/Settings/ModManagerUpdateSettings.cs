@@ -36,7 +36,7 @@ namespace DivinityModManager.Models.Settings
 
 		public ModManagerUpdateSettings()
 		{
-			IsAssociatedWithNXM = DivinityRegistryHelper.IsAssociatedWithNXMProtocol(DivinityApp.GetToolboxPath());
+			IsAssociatedWithNXM = DivinityRegistryHelper.IsAssociatedWithNXMProtocol(DivinityApp.GetExePath());
 			this.SetToDefault();
 		}
 	}

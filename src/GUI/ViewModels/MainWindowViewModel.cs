@@ -22,6 +22,8 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using Reactive.Bindings.Extensions;
+
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -448,8 +450,8 @@ namespace DivinityModManager.ViewModels
 					{
 						successes += 1;
 						await IncreaseMainProgressValueAsync(taskStepAmount, $"Extracting zip to {exeDir}...");
-						ZipArchive archive = new ZipArchive(webStream);
-						foreach (ZipArchiveEntry entry in archive.Entries)
+						var archive = new ZipArchive(webStream);
+						foreach (var entry in archive.Entries)
 						{
 							if (MainProgressToken.IsCancellationRequested) break;
 							if (entry.Name.Equals(DivinityApp.EXTENDER_UPDATER_FILE, StringComparison.OrdinalIgnoreCase))
@@ -1047,9 +1049,6 @@ Directory the zip will be extracted to:
 					ShowAlert($"Larian folder changed to '{x}' - Make sure to refresh", AlertType.Warning, 60);
 				}
 			});
-
-			var nexusModsService = Services.Get<INexusModsService>();
-			Settings.UpdateSettings.WhenAnyValue(x => x.NexusModsAPIKey).BindTo(nexusModsService, x => x.ApiKey);
 
 			Settings.WhenAnyValue(x => x.SaveWindowLocation).Subscribe(Window.ToggleWindowPositionSaving);
 		}
@@ -4975,6 +4974,67 @@ Directory the zip will be extracted to:
 			var whenNexusModsAvatar = nexusModsService.WhenAnyValue(x => x.ProfileAvatarUrl);
 			whenNexusModsAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.NexusModsProfileAvatarVisibility);
 			whenNexusModsAvatar.Select(UriToImage).ToUIProperty(this, x => x.NexusModsProfileBitmapImage);
+
+			this.WhenAnyValue(x => x.Settings.UpdateSettings.NexusModsAPIKey).BindTo(nexusModsService, x => x.ApiKey);
+
+			IDisposable importDownloadsTask = null;
+			nexusModsService.DownloadResults.ObserveAddChanged().Subscribe(f => {
+				importDownloadsTask?.Dispose();
+				importDownloadsTask = RxApp.TaskpoolScheduler.ScheduleAsync(TimeSpan.FromMilliseconds(250), async (sch, token) =>
+				{
+					var files = nexusModsService.DownloadResults.ToList();
+					nexusModsService.DownloadResults.Clear();
+
+					var result = new ImportOperationResults()
+					{
+						TotalFiles = files.Count
+					};
+					var builtinMods = DivinityApp.IgnoredMods.SafeToDictionary(x => x.Folder, x => x);
+					foreach(var filePath in files)
+					{
+						await AddModFromFile(builtinMods, result, filePath, token, false);
+					}
+
+					if (result.Mods.Count > 0 && result.Mods.Any(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START))
+					{
+						await _updater.NexusMods.Update(result.Mods, token);
+						await _updater.NexusMods.SaveCacheAsync(false, Version, token);
+
+						await Observable.Start(() =>
+						{
+							var total = result.Mods.Count;
+							if (result.Success)
+							{
+								if (result.Mods.Count > 1)
+								{
+									ShowAlert($"Successfully imported {total} downloaded mods", AlertType.Success, 20);
+								}
+								else if (total == 1)
+								{
+									var modFileName = result.Mods.First().FileName;
+									var fileNames = String.Join(", ", files.Select(x => Path.GetFileName(x)));
+									ShowAlert($"Successfully imported '{modFileName}' from '{fileNames}'", AlertType.Success, 20);
+								}
+								else
+								{
+									ShowAlert("Skipped importing mod - No .pak file found", AlertType.Success, 20);
+								}
+							}
+							else
+							{
+								if (total == 0)
+								{
+									ShowAlert("No mods imported. Does the file contain a .pak?", AlertType.Warning, 60);
+								}
+								else
+								{
+									ShowAlert($"Only imported {total}/{result.TotalPaks} mods - Check the log", AlertType.Danger, 60);
+								}
+							}
+						}, RxApp.MainThreadScheduler);
+					}
+				});
+			});
 
 			this.WhenAnyValue(x => x.AppSettings.Features.GitHub, x => x.Settings.UpdateSettings.UpdateGitHubMods).Select(x => x.Item1 && x.Item2).BindTo(_updater.GitHub, x => x.IsEnabled);
 			this.WhenAnyValue(x => x.AppSettings.Features.NexusMods, x => x.Settings.UpdateSettings.UpdateNexusMods).Select(x => x.Item1 && x.Item2).BindTo(_updater.NexusMods, x => x.IsEnabled);
