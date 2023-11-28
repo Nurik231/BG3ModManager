@@ -521,7 +521,9 @@ namespace DivinityModManager.ViewModels
 				var extenderUpdaterPath = Path.Combine(exeDir, DivinityApp.EXTENDER_UPDATER_FILE);
 				var toolboxPath = DivinityApp.GetToolboxPath();
 
-				if (File.Exists(toolboxPath) && File.Exists(extenderUpdaterPath) && Settings.ExtenderUpdaterSettings.UpdaterVersion >= 4)
+				if (File.Exists(toolboxPath) && File.Exists(extenderUpdaterPath)
+					&& Settings.ExtenderUpdaterSettings.UpdaterVersion >= 4
+					&& RuntimeHelper.NetCoreRuntimeGreaterThan(7))
 				{
 					try
 					{
