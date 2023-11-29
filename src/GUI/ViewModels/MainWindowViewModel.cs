@@ -60,10 +60,11 @@ using ZstdSharp;
 
 namespace DivinityModManager.ViewModels
 {
-	public class MainWindowViewModel : BaseHistoryViewModel, IActivatableViewModel, IDivinityAppViewModel
+	public class MainWindowViewModel : BaseHistoryViewModel, IDivinityAppViewModel
 	{
 		[Reactive] public MainWindow Window { get; private set; }
 		[Reactive] public MainViewControl View { get; private set; }
+		public DownloadActivityBarViewModel DownloadBar { get; private set; }
 
 		public IModViewLayout Layout { get; set; }
 
@@ -4226,7 +4227,6 @@ Directory the zip will be extracted to:
 		}
 
 		public bool AutoChangedOrder { get; set; }
-		public ViewModelActivator Activator { get; }
 
 		private readonly Regex filterPropertyPattern = new Regex("@([^\\s]+?)([\\s]+)([^@\\s]*)");
 		private readonly Regex filterPropertyPatternWithQuotes = new Regex("@([^\\s]+?)([\\s\"]+)([^@\"]*)");
@@ -4947,6 +4947,8 @@ Directory the zip will be extracted to:
 			MainProgressIsActive = true;
 			StatusBarBusyIndicatorVisibility = Visibility.Collapsed;
 
+			DownloadBar = new DownloadActivityBarViewModel();
+
 			_updater = Services.Get<IModUpdaterService>();
 
 			exceptionHandler = new MainWindowExceptionHandler(this);
@@ -4964,18 +4966,24 @@ Directory the zip will be extracted to:
 			this.DropHandler = new ModListDropHandler(this);
 			this.DragHandler = new ModListDragHandler(this);
 
-			Activator = new ViewModelActivator();
-
-			this.WhenActivated((CompositeDisposable disposables) =>
-			{
-				if (!disposables.Contains(this.Disposables)) disposables.Add(this.Disposables);
-			});
-
 			var nexusModsService = Services.Get<INexusModsService>();
 			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(NexusModsLimitToText).ToUIProperty(this, x => x.NexusModsLimitsText);
 			var whenNexusModsAvatar = nexusModsService.WhenAnyValue(x => x.ProfileAvatarUrl);
 			whenNexusModsAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.NexusModsProfileAvatarVisibility);
 			whenNexusModsAvatar.Select(UriToImage).ToUIProperty(this, x => x.NexusModsProfileBitmapImage);
+
+			nexusModsService.WhenAnyValue(x => x.DownloadProgressValue, x => x.DownloadProgressText, x => x.CanCancel).Subscribe(x =>
+			{
+				DownloadBar.UpdateProgress(x.Item1, x.Item2);
+				if(x.Item3)
+				{
+					DownloadBar.CancelAction = () => nexusModsService.CancelDownloads();
+				}
+				else
+				{
+					DownloadBar.CancelAction = null;
+				}
+			});
 
 			this.WhenAnyValue(x => x.Settings.UpdateSettings.NexusModsAPIKey).BindTo(nexusModsService, x => x.ApiKey);
 

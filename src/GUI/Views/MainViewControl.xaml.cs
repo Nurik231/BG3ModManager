@@ -334,6 +334,8 @@ namespace DivinityModManager.Views
 
 			main = window;
 			ViewModel = vm;
+
+			DownloadBar.ViewModel = vm.DownloadBar;
 		}
     }
 }

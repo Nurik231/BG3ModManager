@@ -632,43 +632,50 @@
 					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}" />
 			</Grid>
 		</xc:BusyIndicator>
-		<StatusBar Grid.Row="1" MinHeight="16">
-			<StatusBarItem HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-				<controls:BusyIndicator
-					x:Name="StatusBarBusyIndicator"
-					Grid.Column="0"
-					Width="16"
-					Height="16"
-					Margin="2"
-					Visibility="Collapsed" />
-			</StatusBarItem>
-			<StatusBarItem HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-				<controls:AlertBar x:Name="AlertBar" Theme="Standard" />
-			</StatusBarItem>
-			<StatusBarItem
-				Padding="8,0"
-				HorizontalAlignment="Right"
-				VerticalAlignment="Stretch">
-				<StackPanel
-					HorizontalAlignment="Center"
-					VerticalAlignment="Center"
-					Orientation="Horizontal">
-					<TextBlock x:Name="StatusBarLoadingOperationTextBlock" />
-					<Image
-						x:Name="NexusModsProfileImage"
-						MaxWidth="16"
-						MaxHeight="16"
-						Margin="4"
-						RenderOptions.BitmapScalingMode="HighQuality"
-						Stretch="UniformToFill"
+		<Grid Grid.Row="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<controls:DownloadActivityBar x:Name="DownloadBar" Margin="0" />
+			<StatusBar Grid.Row="1" MinHeight="16">
+				<StatusBarItem HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+					<controls:BusyIndicator
+						x:Name="StatusBarBusyIndicator"
+						Grid.Column="0"
+						Width="16"
+						Height="16"
+						Margin="2"
 						Visibility="Collapsed" />
-					<TextBlock
-						x:Name="StatusBarNexusLimitsTextBlock"
+				</StatusBarItem>
+				<StatusBarItem HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+					<controls:AlertBar x:Name="AlertBar" Theme="Standard" />
+				</StatusBarItem>
+				<StatusBarItem
+					Padding="8,0"
+					HorizontalAlignment="Right"
+					VerticalAlignment="Stretch">
+					<StackPanel
 						HorizontalAlignment="Center"
-						VerticalAlignment="Center" />
-				</StackPanel>
+						VerticalAlignment="Center"
+						Orientation="Horizontal">
+						<TextBlock x:Name="StatusBarLoadingOperationTextBlock" />
+						<Image
+							x:Name="NexusModsProfileImage"
+							MaxWidth="16"
+							MaxHeight="16"
+							Margin="4"
+							RenderOptions.BitmapScalingMode="HighQuality"
+							Stretch="UniformToFill"
+							Visibility="Collapsed" />
+						<TextBlock
+							x:Name="StatusBarNexusLimitsTextBlock"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center" />
+					</StackPanel>
+				</StatusBarItem>
+			</StatusBar>
+		</Grid>
 
-			</StatusBarItem>
-		</StatusBar>
 	</Grid>
 </local:MainViewControlViewBase>

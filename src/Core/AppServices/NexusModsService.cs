@@ -3,27 +3,24 @@
 using DivinityModManager.Models;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.Updates;
-using DivinityModManager.Util;
 
 using DynamicData;
 using DynamicData.Binding;
 
 using NexusModsNET;
 using NexusModsNET.DataModels;
-using NexusModsNET.Inquirers;
+
+using Reactive.Bindings.Disposables;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,6 +35,10 @@ namespace DivinityModManager
 		bool IsPremium { get; }
 		Uri ProfileAvatarUrl { get; }
 
+		double DownloadProgressValue { get; }
+		string DownloadProgressText { get; }
+		bool CanCancel { get; }
+
 		NexusModsObservableApiLimits ApiLimits { get; }
 
 		IObservable<NexusModsObservableApiLimits> WhenLimitsChange { get; }
@@ -47,6 +48,7 @@ namespace DivinityModManager
 		Task<Dictionary<string, NexusModsModDownloadLink>> GetLatestDownloadsForModsAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
 		Task<UpdateResult> FetchModInfoAsync(IEnumerable<DivinityModData> mods, CancellationToken token);
 		void ProcessNXMLinkBackground(string url);
+		void CancelDownloads();
 	}
 }
 
@@ -60,6 +62,11 @@ namespace DivinityModManager.AppServices
 		[Reactive] public string ApiKey { get; set; }
 		[Reactive] public bool IsPremium { get; private set; }
 		[Reactive] public Uri ProfileAvatarUrl { get; private set; }
+		[Reactive] public double DownloadProgressValue { get; private set; }
+		[Reactive] public string DownloadProgressText { get; private set; }
+		[Reactive] public bool CanCancel { get; private set; }
+
+		private CompositeDisposable _downloadTasksCompositeDisposable = new CompositeDisposable();
 
 		private readonly NexusModsObservableApiLimits _apiLimits;
 		public NexusModsObservableApiLimits ApiLimits => _apiLimits;
@@ -228,19 +235,21 @@ namespace DivinityModManager.AppServices
 				using (var webClient = new WebClient())
 				{
 					webClient.Headers.Add("apikey", ApiKey);
-					int receivedBytes = 0;
+					double receivedBytes = 0;
 
 					var stream = await webClient.OpenReadTaskAsync(downloadUrl);
 					var ms = new System.IO.MemoryStream();
 					var buffer = new byte[4096];
 					int read = 0;
-					var totalBytes = int.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
+					double totalBytes = double.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
 
 					while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
 					{
 						ms.Write(buffer, 0, read);
 						receivedBytes += read;
+						DownloadProgressValue = (receivedBytes / totalBytes) * 100d;
 					}
+					DownloadProgressValue = 100d;
 					stream.Close();
 					return ms;
 				}
@@ -269,16 +278,26 @@ namespace DivinityModManager.AppServices
 						{
 							var outputFolder = DivinityApp.GetAppDirectory("Downloads");
 							Directory.CreateDirectory(outputFolder);
-							var filePath = Path.Combine(outputFolder, Path.GetFileName(WebUtility.UrlDecode(file.Uri.AbsolutePath)));
+							var fileName = Path.GetFileName(WebUtility.UrlDecode(file.Uri.AbsolutePath));
+							var filePath = Path.Combine(outputFolder, fileName);
 							DivinityApp.Log($"Downloading {file.Uri} to {filePath}");
+							DownloadProgressText = $"Downloading {fileName}...";
+							DownloadProgressValue = 0;
 							using (var stream = await DownloadUrlAsStreamAsync(file.Uri, token))
 							{
+								if(token.IsCancellationRequested)
+								{
+									DownloadProgressText = $"Stopped downloading {fileName}";
+									DownloadProgressValue = 0;
+									return false;
+								}
 								using (var outputStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
 								{
 									stream.Position = 0;
 									await stream.CopyToAsync(outputStream, 4096, token);
 									DownloadResults.Add(filePath);
 									DivinityApp.Log("Download done.");
+									DownloadProgressText = $"Downloaded {fileName}";
 								}
 							}
 						}
@@ -296,9 +315,29 @@ namespace DivinityModManager.AppServices
 			return false;
 		}
 
+		private IDisposable _scheduledClearTasks;
+
 		public void ProcessNXMLinkBackground(string url)
 		{
-			RxApp.TaskpoolScheduler.ScheduleAsync((sch,token) => ProcessNXMLinkAsync(url, sch, token));
+			var task = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch,token) => {
+				_scheduledClearTasks?.Dispose();
+				await ProcessNXMLinkAsync(url, sch, token);
+				_scheduledClearTasks = sch.Schedule(TimeSpan.FromMilliseconds(250), ClearTasks);
+			});
+			_downloadTasksCompositeDisposable.Add(task);
+			CanCancel = true;
+		}
+
+		private void ClearTasks()
+		{
+			_downloadTasksCompositeDisposable.Clear();
+			_scheduledClearTasks?.Dispose();
+			CanCancel = false;
+		}
+
+		public void CancelDownloads()
+		{
+			ClearTasks();
 		}
 
 		public NexusModsService(string appName, string appVersion)
