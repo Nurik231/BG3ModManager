@@ -125,6 +125,26 @@
 	  "Targets": "Story",
 	  "Author": "Larian Studios",
 	  "Description": ""
+	},
+	{
+	  "Name": "DiceSet_06",
+	  "UUID": "ee4989eb-aab8-968f-8674-812ea2f4bfd7",
+	  "Folder": "DiceSet_06",
+	  "Version": 36028797018963968,
+	  "Type": "Add-on",
+	  "Targets": "Story",
+	  "Author": "Larian Studios",
+	  "Description": ""
+	},
+	{
+	  "Name": "Honour",
+	  "UUID": "b77b6210-ac50-4cb1-a3d5-5702fb9c744c",
+	  "Folder": "Honour",
+	  "Version": 36028797023014258,
+	  "Type": "Add-on",
+	  "Targets": "Story",
+	  "Author": "Larian Studios",
+	  "Description": "Honour difficulty mode."
 	}
   ]
 }
