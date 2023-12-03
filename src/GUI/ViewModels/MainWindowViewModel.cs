@@ -85,6 +85,7 @@ namespace DivinityModManager.ViewModels
 		}
 
 		private readonly IModUpdaterService _updater;
+		private readonly ISettingsService _settings;
 
 		[Reactive] public string Title { get; set; }
 		[Reactive] public string Version { get; set; }
@@ -155,16 +156,9 @@ namespace DivinityModManager.ViewModels
 
 		public ModUpdatesViewData ModUpdatesViewData { get; private set; }
 
-		private IgnoredModsData ignoredModsData;
-
-		public IgnoredModsData IgnoredMods => ignoredModsData;
-
-		private readonly AppSettings appSettings = new AppSettings();
-
-		public AppSettings AppSettings => appSettings;
-
-		private readonly ModManagerSettings _settings = new ModManagerSettings();
-		public ModManagerSettings Settings => _settings;
+		public AppSettings AppSettings { get; private set; }
+		public ModManagerSettings Settings { get; private set; }
+		public UserModConfig UserModConfig { get; private set; }
 
 		private readonly ObservableCollectionExtended<DivinityModData> _activeMods = new ObservableCollectionExtended<DivinityModData>();
 		public ObservableCollectionExtended<DivinityModData> ActiveMods => _activeMods;
@@ -1056,38 +1050,23 @@ Directory the zip will be extracted to:
 			Settings.WhenAnyValue(x => x.SaveWindowLocation).Subscribe(Window.ToggleWindowPositionSaving);
 		}
 
+		private void OnOrderNameChanged(object sender, OrderNameChangedArgs e)
+		{
+			if (Settings.LastOrder == e.LastName)
+			{
+				Settings.LastOrder = e.NewName;
+				QueueSave();
+			}
+		}
+
 		private bool LoadSettings()
 		{
-			var loaded = false;
-			var settingsFile = DivinityApp.GetAppDirectory("Data", "settings.json");
-			try
+			var success = true;
+			if (!_settings.TryLoadAll(out var errors))
 			{
-				if (File.Exists(settingsFile))
-				{
-					using (var reader = File.OpenText(settingsFile))
-					{
-						var fileText = reader.ReadToEnd();
-						var settings = DivinityJsonUtils.SafeDeserialize<ModManagerSettings>(fileText);
-						if(settings != null)
-						{
-							loaded = true;
-							Settings.SetFrom(settings);
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				ShowAlert($"Error loading settings at '{settingsFile}': {ex}", AlertType.Danger);
-			}
-
-			if (!loaded)
-			{
-				SaveSettings();
-			}
-			else
-			{
-				this.RaisePropertyChanged("Settings");
+				var errorMessage = String.Join("\n", errors.Select(x => x.ToString()));
+				ShowAlert($"Error saving settings: {errorMessage}", AlertType.Danger);
+				success = false;
 			}
 
 			LoadAppConfig();
@@ -1153,44 +1132,33 @@ Directory the zip will be extracted to:
 
 			SetGamePathways(Settings.GameDataPath, Settings.DocumentsFolderPathOverride);
 
-			if (loaded)
+			if (success)
 			{
 				Settings.CanSaveSettings = false;
 			}
 
-			return loaded;
-		}
-
-		private void OnOrderNameChanged(object sender, OrderNameChangedArgs e)
-		{
-			if (Settings.LastOrder == e.LastName)
-			{
-				Settings.LastOrder = e.NewName;
-				SaveSettings();
-			}
+			return success;
 		}
 
 		public bool SaveSettings()
 		{
-			string settingsFile = DivinityApp.GetAppDirectory("Data", "settings.json");
-
-			try
+			var success = true;
+			if (!_settings.TrySaveAll(out var errors))
 			{
-				Directory.CreateDirectory(Path.GetDirectoryName(settingsFile));
-				string contents = JsonConvert.SerializeObject(Settings, Formatting.Indented);
-				File.WriteAllText(settingsFile, contents);
+				var errorMessage = String.Join("\n", errors.Select(x => x.ToString()));
+				ShowAlert($"Error saving settings: {errorMessage}", AlertType.Danger);
+				success = false;
+			}
+			else
+			{
 				Settings.CanSaveSettings = false;
 				if (!Keys.SaveKeybindings(out var errorMsg))
 				{
 					ShowAlert(errorMsg, AlertType.Danger);
+					success = false;
 				}
-				return true;
 			}
-			catch (Exception ex)
-			{
-				ShowAlert($"Error saving settings at '{settingsFile}': {ex}", AlertType.Danger);
-			}
-			return false;
+			return success;
 		}
 
 		private IDisposable _deferSave;
@@ -4181,15 +4149,12 @@ Directory the zip will be extracted to:
 				});
 			}
 
-			var loaded = LoadSettings();
+			LoadSettings();
 			Keys.LoadKeybindings(this);
-			if (Settings.CheckForUpdates)
-			{
-				CheckForUpdates();
-			}
+			if (Settings.CheckForUpdates) CheckForUpdates();
 			SaveSettings();
 
-			if (loaded && Settings.SaveWindowLocation)
+			if (Settings.SaveWindowLocation)
 			{
 				var win = Settings.Window;
 				Window.WindowStartupLocation = WindowStartupLocation.Manual;
@@ -4212,8 +4177,6 @@ Directory the zip will be extracted to:
 					Window.WindowState = WindowState.Maximized;
 				}
 			}
-
-			Settings.Loaded = loaded;
 
 			ModUpdatesViewVisible = ModUpdatesAvailable = false;
 			MainProgressTitle = "Loading...";
@@ -4743,133 +4706,11 @@ Directory the zip will be extracted to:
 		private void LoadAppConfig()
 		{
 			AppSettingsLoaded = false;
-
-			var resourcesFolder = DivinityApp.GetAppDirectory(DivinityApp.PATH_RESOURCES);
-			var appFeaturesPath = Path.Combine(resourcesFolder, DivinityApp.PATH_APP_FEATURES);
-			var defaultPathwaysPath = Path.Combine(resourcesFolder, DivinityApp.PATH_DEFAULT_PATHWAYS);
-			var ignoredModsPath = Path.Combine(resourcesFolder, DivinityApp.PATH_IGNORED_MODS);
-
-			DivinityApp.Log($"Loading resources from '{resourcesFolder}'");
-
-			if (File.Exists(appFeaturesPath))
+			if(!_settings.TryLoadAppSettings(out var ex))
 			{
-				var savedFeatures = DivinityJsonUtils.SafeDeserializeFromPath<Dictionary<string, bool>>(appFeaturesPath);
-				if(savedFeatures != null)
-				{
-					var features = new Dictionary<string, bool>(savedFeatures, StringComparer.OrdinalIgnoreCase);
-					AppSettings.Features.ApplyDictionary(features);
-				}
+				ShowAlert($"Error loading app settings: {ex.Message}", AlertType.Danger);
+				return;
 			}
-
-			if (File.Exists(defaultPathwaysPath))
-			{
-				AppSettings.DefaultPathways = DivinityJsonUtils.SafeDeserializeFromPath<DefaultPathwayData>(defaultPathwaysPath);
-			}
-
-			if (File.Exists(ignoredModsPath))
-			{
-				ignoredModsData = DivinityJsonUtils.SafeDeserializeFromPath<IgnoredModsData>(ignoredModsPath);
-				if (ignoredModsData != null)
-				{
-					if (ignoredModsData.IgnoreBuiltinPath != null)
-					{
-						foreach (var path in ignoredModsData.IgnoreBuiltinPath)
-						{
-							if (!String.IsNullOrEmpty(path))
-							{
-								DivinityModDataLoader.IgnoreBuiltinPath.Add(path.Replace(Path.DirectorySeparator, "/"));
-							}
-						}
-					}
-					DivinityApp.IgnoredMods.Clear();
-					foreach (var dict in ignoredModsData.Mods)
-					{
-						var mod = new DivinityModData(true);
-						if (dict.TryGetValue("UUID", out var uuid))
-						{
-							mod.UUID = (string)uuid;
-
-							if (dict.TryGetValue("Name", out var name))
-							{
-								mod.Name = (string)name;
-							}
-							if (dict.TryGetValue("Description", out var desc))
-							{
-								mod.Description = (string)desc;
-							}
-							if (dict.TryGetValue("Folder", out var folder))
-							{
-								mod.Folder = (string)folder;
-							}
-							if (dict.TryGetValue("Type", out var modType))
-							{
-								mod.ModType = (string)modType;
-							}
-							if (dict.TryGetValue("Author", out var author))
-							{
-								mod.Author = (string)author;
-							}
-							if (dict.TryGetValue("Targets", out var targets))
-							{
-								string tstr = (string)targets;
-								if (!String.IsNullOrEmpty(tstr))
-								{
-									mod.Modes.Clear();
-									var strTargets = tstr.Split(';');
-									foreach (var t in strTargets)
-									{
-										mod.Modes.Add(t);
-									}
-								}
-							}
-							if (dict.TryGetValue("Version", out var vObj))
-							{
-								ulong version;
-								if (vObj is string vStr)
-								{
-									version = ulong.Parse(vStr);
-								}
-								else
-								{
-									version = Convert.ToUInt64(vObj);
-								}
-								mod.Version = new DivinityModVersion2(version);
-							}
-							if (dict.TryGetValue("Tags", out var tags))
-							{
-								if (tags is string tagsText && !String.IsNullOrWhiteSpace(tagsText))
-								{
-									mod.AddTags(tagsText.Split(';'));
-								}
-							}
-							var existingIgnoredMod = DivinityApp.IgnoredMods.FirstOrDefault(x => x.UUID == mod.UUID);
-							if (existingIgnoredMod == null)
-							{
-								DivinityApp.IgnoredMods.Add(mod);
-							}
-							else if (existingIgnoredMod.Version < mod.Version)
-							{
-								DivinityApp.IgnoredMods.Remove(existingIgnoredMod);
-								DivinityApp.IgnoredMods.Add(mod);
-							}
-
-							DivinityApp.Log($"Ignored mod added: Name({mod.Name}) UUID({mod.UUID})");
-						}
-					}
-
-					foreach (var uuid in ignoredModsData.IgnoreDependencies)
-					{
-						var mod = DivinityApp.IgnoredMods.FirstOrDefault(x => x.UUID.ToLower() == uuid.ToLower());
-						if (mod != null)
-						{
-							DivinityApp.IgnoredDependencyMods.Add(mod);
-						}
-					}
-
-					//DivinityApp.LogMessage("Ignored mods:\n" + String.Join("\n", DivinityApp.IgnoredMods.Select(x => x.Name)));
-				}
-			}
-
 			AppSettingsLoaded = true;
 		}
 		public void OnKeyDown(Key key)
@@ -4950,6 +4791,10 @@ Directory the zip will be extracted to:
 			DownloadBar = new DownloadActivityBarViewModel();
 
 			_updater = Services.Get<IModUpdaterService>();
+			_settings = Services.Get<ISettingsService>();
+
+			_settings.WhenAnyValue(x => x.AppSettings).BindTo(this, x => x.AppSettings);
+			_settings.WhenAnyValue(x => x.ManagerSettings).BindTo(this, x => x.Settings);
 
 			exceptionHandler = new MainWindowExceptionHandler(this);
 			RxApp.DefaultExceptionHandler = exceptionHandler;

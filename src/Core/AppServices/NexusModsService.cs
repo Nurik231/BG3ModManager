@@ -66,7 +66,7 @@ namespace DivinityModManager.AppServices
 		[Reactive] public string DownloadProgressText { get; private set; }
 		[Reactive] public bool CanCancel { get; private set; }
 
-		private CompositeDisposable _downloadTasksCompositeDisposable = new CompositeDisposable();
+		private readonly CompositeDisposable _downloadTasksCompositeDisposable = new CompositeDisposable();
 
 		private readonly NexusModsObservableApiLimits _apiLimits;
 		public NexusModsObservableApiLimits ApiLimits => _apiLimits;
