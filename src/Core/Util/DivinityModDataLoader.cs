@@ -610,12 +610,12 @@ namespace DivinityModManager.Util
 				//overridePaks.Add(pakData);
 				modData = new DivinityModData()
 				{
+					UUID = pakName,
 					FilePath = pakPath,
-					Name = Path.GetFileNameWithoutExtension(pakPath),
+					Name = pakName,
 					Folder = builtinModOverrides.FirstOrDefault().Key,
 					Description = "This file overrides base game data.",
 					ModType = "File Override",
-					UUID = pakPath,
 				};
 				DivinityApp.Log($"Adding a file override mod pak '{modData.Name}'.");
 			}

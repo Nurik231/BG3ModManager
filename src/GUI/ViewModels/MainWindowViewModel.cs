@@ -1123,6 +1123,10 @@ Directory the zip will be extracted to:
 				mod.SteamWorkshopEnabled = workshopSupportEnabled;
 				mod.NexusModsEnabled = nexusModsSupportEnabled;
 				mod.GitHubEnabled = githubSupportEnabled;
+				if(_settings.ModConfig.Mods.TryGetValue(mod.UUID, out var config))
+				{
+					mod.ApplyModConfig(config);
+				}
 			}
 
 			if (Settings.LogEnabled)
