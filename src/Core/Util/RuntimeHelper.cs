@@ -12,17 +12,33 @@ namespace DivinityModManager.Util
 	{
 		private static readonly string NET_CORE_DIR = @"C:\Program Files\dotnet\shared\Microsoft.NETCore.App";
 
-		public static bool NetCoreRuntimeGreaterThan(int majorVersion)
+		private static Version PathToVersion(string path)
+		{
+			if(Version.TryParse(Path.GetFileName(path), out var version))
+			{
+				return version;
+			}
+			return null;
+		}
+
+		public static bool NetCoreRuntimeGreaterThanOrEqualTo(int majorVersion)
 		{
 			if(Directory.Exists(NET_CORE_DIR))
 			{
-				var versions = Directory.EnumerateDirectories(NET_CORE_DIR, DirectoryEnumerationOptions.Folders).Select(x => Version.Parse(Path.GetFileName(x)));
-				foreach(var version in versions)
+				try
 				{
-					if(version != null && version.Major >= majorVersion)
+					var versions = Directory.EnumerateDirectories(NET_CORE_DIR, DirectoryEnumerationOptions.Folders).Select(PathToVersion);
+					foreach (var version in versions)
 					{
-						return true;
+						if (version != null && version.Major >= majorVersion)
+						{
+							return true;
+						}
 					}
+				}
+				catch(Exception ex)
+				{
+					DivinityApp.Log($"Error checking directories for .NET:\n{ex}");
 				}
 			}
 			return false;
