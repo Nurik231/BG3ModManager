@@ -161,7 +161,7 @@ namespace DivinityModManager.Models.Settings
 
 		public bool SettingsWindowIsOpen { get; set; }
 
-		public ModManagerSettings() : base("settings.json")
+		public ModManagerSettings() : base("Settings.json")
 		{
 			UpdateSettings = new ModManagerUpdateSettings();
 			ExtenderSettings = new ScriptExtenderSettings();

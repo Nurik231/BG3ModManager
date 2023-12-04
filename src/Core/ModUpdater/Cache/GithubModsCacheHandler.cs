@@ -19,7 +19,7 @@ namespace DivinityModManager.ModUpdater.Cache
 	public class GitHubModsCacheHandler : ReactiveObject, IExternalModCacheHandler<GitHubModsCachedData>
 	{
 		public ModSourceType SourceType => ModSourceType.GITHUB;
-		public string FileName => "githubdata.json";
+		public string FileName => "GithubData.json";
 
 		//Format GitHub data so people can more easily edit/add mods manually.
 		public JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()

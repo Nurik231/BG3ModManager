@@ -19,7 +19,7 @@ namespace DivinityModManager.ModUpdater.Cache
 	public class SteamWorkshopCacheHandler : ReactiveObject, IExternalModCacheHandler<SteamWorkshopCachedData>
 	{
 		public ModSourceType SourceType => ModSourceType.STEAM;
-		public string FileName => "workshopdata.json";
+		public string FileName => "SteamWorkshopData.json";
 		public JsonSerializerSettings SerializerSettings { get; }
 		public SteamWorkshopCachedData CacheData { get; set; }
 		[Reactive] public bool IsEnabled { get; set; }
