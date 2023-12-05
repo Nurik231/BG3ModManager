@@ -512,15 +512,15 @@ namespace DivinityModManager.ViewModels
 		{
 			if (AppSettings.Features.ScriptExtender && Settings.UpdateSettings.UpdateScriptExtender)
 			{
-				var exeDir = Path.GetDirectoryName(Settings.GameExecutablePath);
-				var extenderUpdaterPath = Path.Combine(exeDir, DivinityApp.EXTENDER_UPDATER_FILE);
-				var toolboxPath = DivinityApp.GetToolboxPath();
-
-				if (File.Exists(toolboxPath) && File.Exists(extenderUpdaterPath)
-					&& Settings.ExtenderUpdaterSettings.UpdaterVersion >= 4
-					&& RuntimeHelper.NetCoreRuntimeGreaterThan(7))
+				try
 				{
-					try
+					var exeDir = Path.GetDirectoryName(Settings.GameExecutablePath);
+					var extenderUpdaterPath = Path.Combine(exeDir, DivinityApp.EXTENDER_UPDATER_FILE);
+					var toolboxPath = DivinityApp.GetToolboxPath();
+
+					if (File.Exists(toolboxPath) && File.Exists(extenderUpdaterPath)
+						&& Settings.ExtenderUpdaterSettings.UpdaterVersion >= 4
+						&& RuntimeHelper.NetCoreRuntimeGreaterThanOrEqualTo(7))
 					{
 						DivinityApp.Log($"Running '{toolboxPath}' to update the script extender.");
 
@@ -548,16 +548,16 @@ namespace DivinityModManager.ViewModels
 							process.OutputDataReceived -= OnToolboxOutput;
 						}
 					}
-					catch (Exception ex)
-					{
-						DivinityApp.Log($"Error running Toolbox.exe:\n{ex}");
-					}
 				}
-				if (IsInitialized && !IsRefreshing)
+				catch (Exception ex)
 				{
-					CheckExtenderInstalledVersion(t);
-					if (updateMods) RxApp.MainThreadScheduler.Schedule(UpdateExtenderVersionForAllMods);
+					DivinityApp.Log($"Error updating script extender:\n{ex}");
 				}
+			}
+			if (IsInitialized && !IsRefreshing)
+			{
+				CheckExtenderInstalledVersion(t);
+				if (updateMods) RxApp.MainThreadScheduler.Schedule(UpdateExtenderVersionForAllMods);
 			}
 		}
 
@@ -807,7 +807,8 @@ Directory the zip will be extracted to:
 
 				CheckExtenderUpdaterVersion();
 				CheckExtenderInstalledVersion(token);
-				
+				//UpdateExtenderVersionForAllMods();
+
 				return Unit.Default;
 			}, RxApp.MainThreadScheduler);
 
@@ -1011,7 +1012,10 @@ Directory the zip will be extracted to:
 			// Updating extender requirement display
 			Settings.WhenAnyValue(x => x.ExtenderSettings.EnableExtensions).ObserveOn(RxApp.MainThreadScheduler).Subscribe((b) =>
 			{
-				UpdateExtenderVersionForAllMods();
+				if(Window.SettingsWindow.IsVisible)
+				{
+					UpdateExtenderVersionForAllMods();
+				}
 			});
 
 			var actionLaunchChanged = Settings.WhenAnyValue(x => x.ActionOnGameLaunch).Skip(1).ObserveOn(RxApp.MainThreadScheduler);
@@ -1123,9 +1127,10 @@ Directory the zip will be extracted to:
 				mod.SteamWorkshopEnabled = workshopSupportEnabled;
 				mod.NexusModsEnabled = nexusModsSupportEnabled;
 				mod.GitHubEnabled = githubSupportEnabled;
-				if(_settings.ModConfig.Mods.TryGetValue(mod.UUID, out var config))
+				var config = _settings.ModConfig.Mods.Lookup(mod.UUID);
+				if (config.HasValue)
 				{
-					mod.ApplyModConfig(config);
+					mod.ApplyModConfig(config.Value);
 				}
 			}
 
@@ -2205,9 +2210,9 @@ Directory the zip will be extracted to:
 
 		public void UpdateExtenderVersionForAllMods()
 		{
-			if (Mods.Count > 0)
+			if (mods.Count > 0)
 			{
-				foreach (var mod in Mods)
+				foreach (var mod in mods.Items)
 				{
 					UpdateModExtenderStatus(mod);
 				}

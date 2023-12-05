@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace DivinityModManager.Models.Mod
 {
-	public struct SteamWorkshopModConfig
+	public class SteamWorkshopModConfig : ReactiveObject
 	{
-		public long ModId { get; set; }
+		[Reactive] public long ModId { get; set; }
 	}
 }

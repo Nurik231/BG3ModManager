@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace DivinityModManager.Models.Mod
 {
-	public struct GitHubModConfig
+	public class GitHubModConfig : ReactiveObject
 	{
-		public string Author { get; set; }
-		public string Repository { get; set; }
+		[Reactive] public string Author { get; set; }
+		[Reactive] public string Repository { get; set; }
 	}
 }

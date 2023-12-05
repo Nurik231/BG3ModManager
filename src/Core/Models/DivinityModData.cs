@@ -193,6 +193,7 @@ namespace DivinityModManager.Models
 		[ObservableAsProperty] public string OsirisStatusToolTipText { get; }
 		[ObservableAsProperty] public string LastModifiedDateText { get; }
 		[ObservableAsProperty] public string DisplayVersion { get; }
+		[ObservableAsProperty] public string Notes { get; }
 		[ObservableAsProperty] public Visibility DependencyVisibility { get; }
 		[ObservableAsProperty] public Visibility OpenGitHubLinkVisibility { get; }
 		[ObservableAsProperty] public Visibility OpenNexusModsLinkVisibility { get; }
@@ -225,6 +226,7 @@ namespace DivinityModManager.Models
 		[Reactive] public SteamWorkshopModData WorkshopData { get; set; }
 		[Reactive] public NexusModsModData NexusModsData { get; set; }
 		[Reactive] public GitHubModData GitHubData { get; set; }
+		[Reactive] public ModConfig ModManagerConfig { get; set; }
 
 		public string GetURL(ModSourceType modSourceType, bool asProtocol = false)
 		{
@@ -355,10 +357,11 @@ namespace DivinityModManager.Models
 
 		public void ApplyModConfig(ModConfig config)
 		{
-			if (config?.NexusMods.ModId > DivinityApp.NEXUSMODS_MOD_ID_START) NexusModsData.ModId = config.NexusMods.ModId;
-			if (config.SteamWorkshop.ModId > DivinityApp.WORKSHOP_MOD_ID_START) WorkshopData.ModId = config.SteamWorkshop.ModId;
-			if (!String.IsNullOrWhiteSpace(config.GitHub.Author)) GitHubData.Author = config.GitHub.Author;
-			if (!String.IsNullOrWhiteSpace(config.GitHub.Repository)) GitHubData.Repository = config.GitHub.Repository;
+			ModManagerConfig = config;
+			//if (config.NexusMods.ModId > DivinityApp.NEXUSMODS_MOD_ID_START) ModManagerConfig.NexusMods.ModId = config.NexusMods.ModId;
+			//if (config.SteamWorkshop.ModId > DivinityApp.WORKSHOP_MOD_ID_START) ModManagerConfig.SteamWorkshop.ModId = config.SteamWorkshop.ModId;
+			//if (!String.IsNullOrWhiteSpace(config.GitHub.Author)) ModManagerConfig.GitHub.Author = config.GitHub.Author;
+			//if (!String.IsNullOrWhiteSpace(config.GitHub.Repository)) ModManagerConfig.GitHub.Repository = config.GitHub.Repository;
 		}
 
 		public DivinityModData(bool isBaseGameMod = false) : base()
@@ -470,13 +473,13 @@ namespace DivinityModManager.Models
 			var whenExtenderProp = this.WhenAnyValue(x => x.ExtenderModStatus, x => x.ScriptExtenderData.RequiredVersion, x => x.CurrentExtenderVersion);
 			whenExtenderProp.Select(x => ExtenderStatusToToolTipText(x.Item1, x.Item2, x.Item3)).ToUIProperty(this, x => x.ScriptExtenderSupportToolTipText);
 			this.WhenAnyValue(x => x.ExtenderModStatus).Select(x => x != DivinityExtenderModStatus.NONE ? Visibility.Visible : Visibility.Collapsed)
-				.ToUIProperty(this, x => x.ExtenderStatusVisibility);
+				.ToUIProperty(this, x => x.ExtenderStatusVisibility, Visibility.Collapsed);
+
+			this.WhenAnyValue(x => x.ExtenderModStatus).Subscribe(x => DivinityApp.Log($"[{this.DisplayName}] = {x}"));
 
 			var whenOsirisStatusChanges = this.WhenAnyValue(x => x.OsirisModStatus);
 			whenOsirisStatusChanges.Select(x => x != DivinityOsirisModStatus.NONE ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.OsirisStatusVisibility);
 			whenOsirisStatusChanges.Select(OsirisStatusToTooltipText).ToUIProperty(this, x => x.OsirisStatusToolTipText);
-			ExtenderModStatus = DivinityExtenderModStatus.NONE;
-			OsirisModStatus = DivinityOsirisModStatus.NONE;
 
 			this.WhenAnyValue(x => x.LastUpdated).SkipWhile(x => !x.HasValue)
 				.Select(x => $"Last Modified on {x.Value.ToString(DivinityApp.DateTimeColumnFormat, CultureInfo.InstalledUICulture)}")
@@ -484,6 +487,21 @@ namespace DivinityModManager.Models
 
 			this.WhenAnyValue(x => x.FilePath).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.HasFilePathVisibility, Visibility.Collapsed);
 			this.WhenAnyValue(x => x.Version.Version).ToUIProperty(this, x => x.DisplayVersion, "0.0.0.0");
+
+			if(!isBaseGameMod)
+			{
+				ModManagerConfig = new ModConfig
+				{
+					Id = this.UUID
+				};
+
+				this.WhenAnyValue(x => x.ModManagerConfig.Notes).ToUIProperty(this, x => x.Notes, "");
+
+				this.WhenAnyValue(x => x.NexusModsData.ModId).BindTo(this, x => x.ModManagerConfig.NexusMods.ModId);
+				this.WhenAnyValue(x => x.WorkshopData.ModId).BindTo(this, x => x.ModManagerConfig.SteamWorkshop.ModId);
+				this.WhenAnyValue(x => x.GitHubData.Author).BindTo(this, x => x.ModManagerConfig.GitHub.Author);
+				this.WhenAnyValue(x => x.GitHubData.Repository).BindTo(this, x => x.ModManagerConfig.GitHub.Repository);
+			}
 		}
 
 		public static DivinityModData Clone(DivinityModData mod)
@@ -508,6 +526,7 @@ namespace DivinityModManager.Models
 			cloneMod.NexusModsData.Update(mod.NexusModsData);
 			cloneMod.WorkshopData.Update(mod.WorkshopData);
 			cloneMod.GitHubData.Update(mod.GitHubData);
+			cloneMod.ApplyModConfig(mod.ModManagerConfig);
 			return cloneMod;
 		}
 	}
