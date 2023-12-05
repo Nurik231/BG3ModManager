@@ -1,43 +1,25 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+
 using System;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 using System.Text;
 
 namespace DivinityModManager.Models
 {
 	public class DivinityProfileData : ReactiveObject
 	{
-		public string Name { get; set; }
+		[Reactive] public string Name { get; set; }
 
 		/// <summary>
 		/// The stored name in the profile.lsb or profile5.lsb file.
 		/// </summary>
-		public string ProfileName { get; set; }
-		public string UUID { get; set; }
-
-		private string folder;
-
-		public string Folder
-		{
-			get => folder;
-			set 
-			{
-				if(value != folder)
-				{
-					ModSettingsFile = Path.Combine(value, "modsettings.lsx");
-				}
-				this.RaiseAndSetIfChanged(ref folder, value);
-			}
-		}
-
-		private string modSettingsFile;
-
-		public string ModSettingsFile
-		{
-			get => modSettingsFile;
-			set { this.RaiseAndSetIfChanged(ref modSettingsFile, value); }
-		}
+		[Reactive] public string ProfileName { get; set; }
+		[Reactive] public string UUID { get; set; }
+		[Reactive] public string FilePath { get; set; }
+		[Reactive] public string ModSettingsFile { get; private set; }
 
 		/// <summary>
 		/// The saved load order from modsettings.lsx
@@ -53,5 +35,10 @@ namespace DivinityModManager.Models
 		/// The ModOrder transformed into a DivinityLoadOrder. This is the "Current" order.
 		/// </summary>
 		public DivinityLoadOrder SavedLoadOrder { get; set; }
+
+		public DivinityProfileData()
+		{
+			this.WhenAnyValue(x => x.FilePath).Select(x => !String.IsNullOrEmpty(x) ? Path.Combine(x, "modsettings.lsx") : "").BindTo(this, x => x.ModSettingsFile);
+		}
 	}
 }

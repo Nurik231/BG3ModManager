@@ -63,17 +63,20 @@ namespace DivinityModManager.Util
 
 		public void OpenInFileExplorer(string path)
 		{
-			if (File.Exists(path))
+			if(!String.IsNullOrEmpty(path))
 			{
-				Process.Start("explorer.exe", $"/select, \"{Path.GetFullPath(path)}\"");
-			}
-			else if (Directory.Exists(path))
-			{
-				Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
-			}
-			else
-			{
-				_viewModel.ShowAlert($"Error opening '{path}': File does not exist!", AlertType.Danger, 10);
+				if (File.Exists(path))
+				{
+					Process.Start("explorer.exe", $"/select, \"{Path.GetFullPath(path)}\"");
+				}
+				else if (Directory.Exists(path))
+				{
+					Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
+				}
+				else
+				{
+					_viewModel.ShowAlert($"Error opening '{path}': File does not exist!", AlertType.Danger, 10);
+				}
 			}
 		}
 

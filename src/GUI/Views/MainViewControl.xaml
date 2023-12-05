@@ -371,9 +371,6 @@
 							<Style BasedOn="{StaticResource IconButtonStyle}" TargetType="{x:Type Button}">
 								<Setter Property="Tag" Value="{Binding}" />
 							</Style>
-							<Style BasedOn="{StaticResource {x:Type ContextMenu}}" TargetType="{x:Type ContextMenu}">
-								<Setter Property="DataContext" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}" />
-							</Style>
 						</Grid.Resources>
 						<Grid>
 							<Grid.ColumnDefinitions>
@@ -394,15 +391,12 @@
 								IsEditable="False"
 								IsTextSearchEnabled="False">
 								<ComboBox.ContextMenu>
-									<ContextMenu DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}">
+									<ContextMenu>
 										<MenuItem
+											x:Name="ProfilesContextMenuOpenMenuItem"
 											Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-											CommandParameter="{Binding SelectedProfile.Folder}"
 											Header="Open Profile Folder in File Explorer..." />
-										<MenuItem
-											Command="{Binding CopyPathToClipboardCommand}"
-											CommandParameter="{Binding SelectedProfile.Folder}"
-											Header="Copy Profile Path to Clipboard" />
+										<MenuItem x:Name="ProfilesContextMenuCopyMenuItem" Header="Copy Profile Path to Clipboard" />
 									</ContextMenu>
 								</ComboBox.ContextMenu>
 							</ComboBox>
@@ -433,23 +427,17 @@
 									</Style>
 								</ComboBox.ItemContainerStyle>
 								<ComboBox.ContextMenu>
-									<ContextMenu DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}">
+									<ContextMenu>
 										<MenuItem
-											Command="{Binding ToggleOrderRenamingCommand}"
+											x:Name="OrdersContextMenuRenameMenuItem"
 											CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}, Path=PlacementTarget}"
 											Header="Rename" />
 										<MenuItem
+											x:Name="OrdersContextMenuOpenMenuItem"
 											Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-											CommandParameter="{Binding SelectedModOrder.FilePath}"
 											Header="Open in File Explorer..." />
-										<MenuItem
-											Command="{Binding CopyPathToClipboardCommand}"
-											CommandParameter="{Binding SelectedModOrder.FilePath}"
-											Header="Copy Path to Clipboard" />
-										<MenuItem
-											Command="{Binding DeleteOrderCommand}"
-											CommandParameter="{Binding SelectedModOrder}"
-											Header="Delete Order" />
+										<MenuItem x:Name="OrdersContextMenuCopyMenuItem" Header="Copy Path to Clipboard" />
+										<MenuItem x:Name="OrdersContextMenuDeleteMenuItem" Header="Delete Order" />
 									</ContextMenu>
 								</ComboBox.ContextMenu>
 							</ComboBox>
@@ -495,19 +483,16 @@
 									<Button.ContextMenu>
 										<ContextMenu>
 											<MenuItem
+												x:Name="ExportContextMenuOpenDirectMenuItem"
 												Command="{Binding Path=OpenFileCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-												CommandParameter="{Binding SelectedProfile.ModSettingsFile}"
 												Header="Open Exported Mod Order File..." />
 											<MenuItem
+												x:Name="ExportContextMenuOpenExplorerMenuItem"
 												Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-												CommandParameter="{Binding SelectedProfile.ModSettingsFile}"
 												Header="Open in File Explorer..." />
-											<MenuItem
-												Command="{Binding CopyPathToClipboardCommand}"
-												CommandParameter="{Binding SelectedProfile.ModSettingsFile}"
-												Header="Copy Path to Clipboard" />
-											<MenuItem Command="{Binding CopyOrderToClipboardCommand}" Header="Copy Order to Clipboard" />
-											<MenuItem Command="{Binding ExportOrderAsListCommand}" Header="Export Order As List..." />
+											<MenuItem x:Name="ExportContextMenuCopyPathMenuItem" Header="Copy Path to Clipboard" />
+											<MenuItem x:Name="ExportContextMenuCopyOrderMenuItem" Header="Copy Order to Clipboard" />
+											<MenuItem x:Name="ExportContextMenuExportListMenuItem" Header="Export Order As List..." />
 										</ContextMenu>
 									</Button.ContextMenu>
 								</Button>
@@ -531,15 +516,12 @@
 										IsTextSearchEnabled="False"
 										ToolTip="{StaticResource AdventureModTooltip}">
 										<ComboBox.ContextMenu>
-											<ContextMenu DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}">
+											<ContextMenu>
 												<MenuItem
+													x:Name="AdventureContextMenuOpenMenuItem"
 													Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-													CommandParameter="{Binding FilePath}"
 													Header="Open Adventure Mod in File Explorer..." />
-												<MenuItem
-													Command="{Binding Path=CopyToClipboardCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-													CommandParameter="{Binding FilePath}"
-													Header="Copy Mod Path to Clipboard" />
+												<MenuItem x:Name="AdventureContextMenuCopyMenuItem" Header="Copy Mod Path to Clipboard" />
 											</ContextMenu>
 										</ComboBox.ContextMenu>
 									</ComboBox>

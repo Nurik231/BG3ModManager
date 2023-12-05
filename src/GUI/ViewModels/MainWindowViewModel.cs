@@ -276,6 +276,7 @@ namespace DivinityModManager.ViewModels
 		public ICommand CopyPathToClipboardCommand { get; set; }
 		public ICommand RenameSaveCommand { get; private set; }
 		public ICommand CopyOrderToClipboardCommand { get; private set; }
+		public ICommand ExportOrderAsListCommand { get; private set; }
 		public ICommand OpenAdventureModInFileExplorerCommand { get; private set; }
 		public ICommand CopyAdventureModPathToClipboardCommand { get; private set; }
 		public ICommand ConfirmCommand { get; set; }
@@ -1697,7 +1698,7 @@ Directory the zip will be extracted to:
 
 				List<DivinityMissingModData> missingMods = new List<DivinityMissingModData>();
 
-				DivinityLoadOrder currentOrder = new DivinityLoadOrder() { Name = "Current", FilePath = Path.Combine(SelectedProfile.Folder, "modsettings.lsx"), IsModSettings = true };
+				DivinityLoadOrder currentOrder = new DivinityLoadOrder() { Name = "Current", FilePath = Path.Combine(SelectedProfile.FilePath, "modsettings.lsx"), IsModSettings = true };
 
 				if (this.SelectedModOrder != null && this.SelectedModOrder.IsModSettings)
 				{
@@ -2653,7 +2654,7 @@ Directory the zip will be extracted to:
 					{
 						//When saving the "Current" order, write this to modsettings.lsx instead of a json file.
 						result = await ExportLoadOrderAsync();
-						outputPath = Path.Combine(SelectedProfile.Folder, "modsettings.lsx");
+						outputPath = Path.Combine(SelectedProfile.FilePath, "modsettings.lsx");
 						_modSettingsWatcher.PauseWatcher(true, 1000);
 					}
 					else
@@ -2888,9 +2889,9 @@ Directory the zip will be extracted to:
 			{
 				if (SelectedProfile != null && SelectedModOrder != null)
 				{
-					string outputPath = Path.Combine(SelectedProfile.Folder, "modsettings.lsx");
+					string outputPath = Path.Combine(SelectedProfile.FilePath, "modsettings.lsx");
 					var finalOrder = DivinityModDataLoader.BuildOutputList(SelectedModOrder.Order, mods.Items, Settings.AutoAddDependenciesWhenExporting, SelectedAdventureMod);
-					var result = await DivinityModDataLoader.ExportModSettingsToFileAsync(SelectedProfile.Folder, finalOrder);
+					var result = await DivinityModDataLoader.ExportModSettingsToFileAsync(SelectedProfile.FilePath, finalOrder);
 
 					var dir = GetLarianStudiosAppDataFolder();
 					if (SelectedModOrder.Order.Count > 0)
@@ -2973,7 +2974,7 @@ Directory the zip will be extracted to:
 						{
 							// Need to still write to modsettings.lsx
 							finalOrder.Insert(0, gmAdventureMod);
-							await DivinityModDataLoader.ExportModSettingsToFileAsync(SelectedProfile.Folder, finalOrder);
+							await DivinityModDataLoader.ExportModSettingsToFileAsync(SelectedProfile.FilePath, finalOrder);
 
 							await Observable.Start(() =>
 							{
@@ -3839,7 +3840,7 @@ Directory the zip will be extracted to:
 			var startPath = "";
 			if (SelectedProfile != null)
 			{
-				string profilePath = Path.GetFullPath(Path.Combine(SelectedProfile.Folder, "Savegames"));
+				string profilePath = Path.GetFullPath(Path.Combine(SelectedProfile.FilePath, "Savegames"));
 				string storyPath = Path.Combine(profilePath, "Story");
 				if (Directory.Exists(storyPath))
 				{
@@ -3967,7 +3968,7 @@ Directory the zip will be extracted to:
 			string profileSavesDirectory = "";
 			if (SelectedProfile != null)
 			{
-				profileSavesDirectory = Path.GetFullPath(Path.Combine(SelectedProfile.Folder, "Savegames"));
+				profileSavesDirectory = Path.GetFullPath(Path.Combine(SelectedProfile.FilePath, "Savegames"));
 			}
 			var dialog = new OpenFileDialog
 			{
@@ -3981,7 +3982,7 @@ Directory the zip will be extracted to:
 			var startPath = "";
 			if (SelectedProfile != null)
 			{
-				string profilePath = Path.GetFullPath(Path.Combine(SelectedProfile.Folder, "Savegames"));
+				string profilePath = Path.GetFullPath(Path.Combine(SelectedProfile.FilePath, "Savegames"));
 				string storyPath = Path.Combine(profilePath, "Story");
 				if (Directory.Exists(storyPath))
 				{
@@ -4995,8 +4996,10 @@ Directory the zip will be extracted to:
 			Keys.ExportOrderToZip.AddAction(ExportLoadOrderToArchive_Start, canStartExport);
 			Keys.ExportOrderToArchiveAs.AddAction(ExportLoadOrderToArchiveAs, canStartExport);
 
-			var anyActiveObservable = this.WhenAnyValue(x => x.ActiveMods.Count, (c) => c > 0);
+			var anyActiveObservable = ActiveMods.ToObservableChangeSet().CountChanged().Select(x => x.Count > 0);
+			//var anyActiveObservable = this.WhenAnyValue(x => x.ActiveMods.Count, (c) => c > 0);
 			Keys.ExportOrderToList.AddAction(ExportLoadOrderToTextFileAs, anyActiveObservable);
+			ExportOrderAsListCommand = ReactiveCommand.Create(ExportLoadOrderToTextFileAs, anyActiveObservable);
 
 			var canOpenDialogWindow = this.WhenAnyValue(x => x.MainProgressIsActive).Select(x => !x);
 			Keys.ImportOrderFromSave.AddAction(ImportOrderFromSaveToCurrent, canOpenDialogWindow);
@@ -5442,7 +5445,7 @@ Directory the zip will be extracted to:
 			var fwService = Services.Get<IFileWatcherService>();
 			_modSettingsWatcher = fwService.WatchDirectory("", "*modsettings.lsx");
 			//modSettingsWatcher.PauseWatcher(true);
-			this.WhenAnyValue(x => x.SelectedProfile).WhereNotNull().Select(x => x.Folder).Subscribe(path =>
+			this.WhenAnyValue(x => x.SelectedProfile).WhereNotNull().Select(x => x.FilePath).Subscribe(path =>
 			{
 				_modSettingsWatcher.SetDirectory(path);
 			});
