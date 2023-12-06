@@ -1,4 +1,5 @@
-﻿using DynamicData.Binding;
+﻿using DynamicData;
+using DynamicData.Binding;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -10,6 +11,7 @@ using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -70,11 +72,31 @@ namespace DivinityModManager.Models.App
 		public Key DefaultKey => _defaultKey;
 		public ModifierKeys DefaultModifiers => _defaultModifiers;
 
-		[ObservableAsProperty] public bool CanExecuteCommand { get; }
+		[Reactive] public bool CanExecuteCommand { get; private set; }
 
-		private IObservable<bool> _canExecuteConditions;
+		private readonly List<IObservable<bool>> _canExecuteConditions = new List<IObservable<bool>>();
+		private CompositeDisposable _disposables = new CompositeDisposable();
+		private IObservable<bool> _canExecute;
 
 		private readonly List<Action> _actions;
+
+		// Big thanks to https://sachabarbs.wordpress.com/2013/10/18/reactive-command-with-dynamic-predicates/
+
+		private void SetupSubscription()
+		{
+			_disposables?.Dispose();
+			_disposables = new CompositeDisposable
+			{
+				_canExecute.Subscribe(b => CanExecuteCommand = b)
+			};
+		}
+
+		public void AddCanExecuteCondition(IObservable<bool> canExecute)
+		{
+			_canExecuteConditions.Add(canExecute);
+			_canExecute = _canExecute.CombineLatest(_canExecuteConditions.Last(), (b1, b2) => b1 && b2).DistinctUntilChanged();
+			SetupSubscription();
+		}
 
 		public void AddAction(Action action, IObservable<bool> actionCanExecute = null)
 		{
@@ -84,12 +106,6 @@ namespace DivinityModManager.Models.App
 			{
 				AddCanExecuteCondition(actionCanExecute);
 			}
-		}
-
-		public void AddCanExecuteCondition(IObservable<bool> canExecute)
-		{
-			_canExecuteConditions = _canExecuteConditions.CombineLatest(canExecute, (b1, b2) => b1 && b2);
-			this.RaisePropertyChanged("_canExecuteConditions");
 		}
 
 		public void Invoke()
@@ -131,9 +147,10 @@ namespace DivinityModManager.Models.App
 
 			DisplayBindingText = ToString();
 
-			_canExecuteConditions = this.WhenAnyValue(x => x.Enabled);
-			_canExecuteConditions.ToUIProperty(this, x => x.CanExecuteCommand);
-			Command = ReactiveCommand.Create(Invoke, _canExecuteConditions);
+			_canExecute = this.WhenAnyValue(x => x.Enabled);
+			SetupSubscription();
+
+			Command = ReactiveCommand.Create(Invoke, this.WhenAnyValue(x => x.CanExecuteCommand).ObserveOn(RxApp.MainThreadScheduler), RxApp.MainThreadScheduler);
 
 			this.WhenAnyValue(x => x.Key, x => x.Modifiers).Select(x => x.Item1 == _defaultKey && x.Item2 == _defaultModifiers).ToUIProperty(this, x => x.IsDefault, true);
 
@@ -143,8 +160,8 @@ namespace DivinityModManager.Models.App
 
 			this.WhenAnyValue(x => x.DisplayName, x => x.IsDefault).Select(x => x.Item2 ? $"{x.Item1} (Modified)" : x.Item1).ToUIProperty(this, x => x.ToolTip);
 
-			var canReset = isDefaultObservable.Select(b => !b).StartWith(false);
-			var canClear = this.WhenAnyValue(x => x.Key, x => x.Modifiers, (k, m) => k != Key.None).StartWith(false);
+			var canReset = isDefaultObservable.Select(b => !b);
+			var canClear = this.WhenAnyValue(x => x.Key, x => x.Modifiers, (k, m) => k != Key.None);
 
 			ResetCommand = ReactiveCommand.Create(ResetToDefault, canReset);
 			ClearCommand = ReactiveCommand.Create(Clear, canClear);
