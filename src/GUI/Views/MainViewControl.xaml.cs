@@ -293,7 +293,9 @@ namespace DivinityModManager.Views
 			this.BindCommand(ViewModel, vm => vm.Keys.LaunchGame.Command, view => view.OpenGameButton);
 			this.BindCommand(ViewModel, vm => vm.Keys.OpenDonationLink.Command, view => view.OpenDonationPageButton);
 			this.BindCommand(ViewModel, vm => vm.Keys.OpenRepositoryPage.Command, view => view.OpenRepoPageButton);
+
 			this.OneWayBind(ViewModel, vm => vm.LogFolderShortcutButtonVisibility, view => view.OpenExtenderLogsFolderButton.Visibility);
+			this.OneWayBind(ViewModel, vm => vm.OpenGameButtonToolTip, view => view.OpenGameButtonToolTipTextBlock.Text);
 
 			this.OneWayBind(ViewModel, vm => vm.SelectedModOrder.FilePath, view => view.OrdersContextMenuOpenMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedModOrder.FilePath, view => view.OrdersContextMenuCopyMenuItem.CommandParameter);

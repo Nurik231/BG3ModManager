@@ -19,8 +19,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace DivinityModManager.Views
@@ -436,6 +438,14 @@ namespace DivinityModManager.Views
 				this.WhenAnyValue(x => x.ViewModel.MainProgressValue).BindTo(this, view => view.TaskbarItemInfo.ProgressValue);
 
 				MainView.OnActivated();
+
+				//Allow launching the game if single instance mode is enabled, but the shift key is held
+				Observable.Merge(
+					Observable.FromEventPattern<KeyEventArgs>(this, nameof(KeyDown)),
+					Observable.FromEventPattern<KeyEventArgs>(this, nameof(KeyUp))
+				)
+				.Select(e => (e.EventArgs.Key == Key.LeftShift || e.EventArgs.Key == Key.RightShift) && e.EventArgs.IsDown)
+				.BindTo(ViewModel, x => x.CanForceLaunchGame);
 			});
 		}
 	}

@@ -200,33 +200,36 @@ namespace DivinityModManager.ViewModels
 
 		public List<DivinityLoadOrder> SavedModOrderList { get; set; } = new List<DivinityLoadOrder>();
 
-		[Reactive] public int LayoutMode { get; set; }
-		[Reactive] public bool CanSaveOrder { get; set; }
-		[Reactive] public bool IsLoadingOrder { get; set; }
-		[Reactive] public bool OrderJustLoaded { get; set; }
-		[Reactive] public bool IsDragging { get; set; }
 		[Reactive] public bool AppSettingsLoaded { get; set; }
+		[Reactive] public bool CanMoveSelectedMods { get; set; }
+		[Reactive] public bool CanSaveOrder { get; set; }
+		[Reactive] public bool GameIsRunning { get; private set; }
+		[Reactive] public bool CanForceLaunchGame { get; set; }
+		[Reactive] public bool IsDragging { get; set; }
+		[Reactive] public bool IsLoadingOrder { get; set; }
 		[Reactive] public bool IsRefreshing { get; private set; }
 		[Reactive] public bool IsRefreshingModUpdates { get; private set; }
-
-		/// <summary>Used to locked certain functionality when data is loading or the user is dragging an item.</summary>
-		[ObservableAsProperty] public bool IsLocked { get; }
-		[ObservableAsProperty] public bool AllowDrop { get; }
+		[Reactive] public bool IsRenamingOrder { get; set; }
+		[Reactive] public bool OrderJustLoaded { get; set; }
+		[Reactive] public int LayoutMode { get; set; }
 
 		[Reactive] public string StatusText { get; set; }
 		[Reactive] public string StatusBarRightText { get; set; }
-
-		[ObservableAsProperty] public string NexusModsLimitsText { get; }
-		[ObservableAsProperty] public Visibility NexusModsProfileAvatarVisibility { get; }
-		[ObservableAsProperty] public BitmapImage NexusModsProfileBitmapImage { get; }
 
 		[Reactive] public bool ModUpdatesAvailable { get; set; }
 		[Reactive] public bool ModUpdatesViewVisible { get; set; }
 		[Reactive] public bool HighlightExtenderDownload { get; set; }
 		[Reactive] public bool GameDirectoryFound { get; set; }
+
+		/// <summary>Used to locked certain functionality when data is loading or the user is dragging an item.</summary>
+		[ObservableAsProperty] public bool IsLocked { get; }
+		[ObservableAsProperty] public bool AllowDrop { get; }
+		[ObservableAsProperty] public bool CanLaunchGame { get; }
 		[ObservableAsProperty] public bool HideModList { get; }
 		[ObservableAsProperty] public bool HasForceLoadedMods { get; }
 		[ObservableAsProperty] public bool IsDeletingFiles { get; }
+		
+		[ObservableAsProperty] public string OpenGameButtonToolTip { get; }
 
 		#region Progress
 		[Reactive] public string MainProgressTitle { get; set; }
@@ -257,12 +260,13 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public bool CanCancelProgress { get; set; }
 
 		#endregion
-		[Reactive] public bool IsRenamingOrder { get; set; }
 		[Reactive] public Visibility StatusBarBusyIndicatorVisibility { get; set; }
 		[ObservableAsProperty] public bool GitHubModSupportEnabled { get; }
 		[ObservableAsProperty] public bool NexusModsSupportEnabled { get; }
 		[ObservableAsProperty] public bool SteamWorkshopSupportEnabled { get; }
-		[Reactive] public bool CanMoveSelectedMods { get; set; }
+		[ObservableAsProperty] public string NexusModsLimitsText { get; }
+		[ObservableAsProperty] public BitmapImage NexusModsProfileBitmapImage { get; }
+		[ObservableAsProperty] public Visibility NexusModsProfileAvatarVisibility { get; }
 		[ObservableAsProperty] public Visibility UpdatingBusyIndicatorVisibility { get; }
 		[ObservableAsProperty] public Visibility UpdateCountVisibility { get; }
 		[ObservableAsProperty] public Visibility UpdatesViewVisibility { get; }
@@ -854,6 +858,12 @@ Directory the zip will be extracted to:
 				proc.StartInfo.Arguments = launchParams;
 				proc.StartInfo.WorkingDirectory = Directory.GetParent(exePath).FullName;
 				proc.Start();
+
+				//Update whether the game is running or not
+				RxApp.TaskpoolScheduler.Schedule(TimeSpan.FromSeconds(5), () =>
+				{
+					Services.Get<IGameUtilitiesService>().CheckForGameProcess();
+				});
 			}
 			catch (Exception ex)
 			{
@@ -864,6 +874,116 @@ Directory the zip will be extracted to:
 			if (!isLoggingEnabled) Window.ToggleLogging(false);
 		}
 
+		private void LaunchGame()
+		{
+			if (Settings.DisableLauncherTelemetry || Settings.DisableLauncherModWarnings)
+			{
+				RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, t) =>
+				{
+					await DivinityModDataLoader.UpdateLauncherPreferencesAsync(GetLarianStudiosAppDataFolder(), !Settings.DisableLauncherTelemetry, !Settings.DisableLauncherModWarnings);
+				});
+			}
+
+			if (!Settings.LaunchThroughSteam)
+			{
+				if (!File.Exists(Settings.GameExecutablePath))
+				{
+					if (String.IsNullOrWhiteSpace(Settings.GameExecutablePath))
+					{
+						ShowAlert("No game executable path set", AlertType.Danger, 30);
+					}
+					else
+					{
+						ShowAlert($"Failed to find game exe at, \"{Settings.GameExecutablePath}\"", AlertType.Danger, 90);
+					}
+					return;
+				}
+			}
+
+			var launchParams = !String.IsNullOrEmpty(Settings.GameLaunchParams) ? Settings.GameLaunchParams : "";
+
+			if (Settings.GameStoryLogEnabled && launchParams.IndexOf("storylog") < 0)
+			{
+				if (String.IsNullOrWhiteSpace(launchParams))
+				{
+					launchParams = "-storylog 1";
+				}
+				else
+				{
+					launchParams = launchParams + " " + "-storylog 1";
+				}
+			}
+
+			if (Settings.SkipLauncher && launchParams.IndexOf("skip-launcher") < 0)
+			{
+				if (String.IsNullOrWhiteSpace(launchParams))
+				{
+					launchParams = "--skip-launcher";
+				}
+				else
+				{
+					launchParams = "--skip-launcher " + launchParams;
+				}
+			}
+
+			if (!Settings.LaunchThroughSteam)
+			{
+				var exePath = Settings.GameExecutablePath;
+				var exeDir = Path.GetDirectoryName(exePath);
+
+				if (Settings.LaunchDX11)
+				{
+					var nextExe = Path.Combine(exeDir, "bg3_dx11.exe");
+					if (File.Exists(nextExe))
+					{
+						exePath = nextExe;
+					}
+				}
+
+				DivinityApp.Log($"Opening game exe at: {exePath} with args {launchParams}");
+				TryStartGameExe(exePath, launchParams);
+			}
+			else
+			{
+				var appid = AppSettings.DefaultPathways.Steam.AppID ?? "1086940";
+				var steamUrl = $"steam://run/{appid}//{launchParams}";
+				DivinityApp.Log($"Opening game through steam via '{steamUrl}'");
+				DivinityFileUtils.TryOpenPath(steamUrl);
+			}
+
+			if (Settings.ActionOnGameLaunch != DivinityGameLaunchWindowAction.None)
+			{
+				switch (Settings.ActionOnGameLaunch)
+				{
+					case DivinityGameLaunchWindowAction.Minimize:
+						Window.WindowState = WindowState.Minimized;
+						break;
+					case DivinityGameLaunchWindowAction.Close:
+						App.Current.Shutdown();
+						break;
+				}
+			}
+		}
+
+		private bool CanLaunchGameCheck(ValueTuple<string, bool, bool, bool> x) => x.Item1.IsExistingFile() && (!x.Item2 || !x.Item3 || x.Item4);
+		private string GetLaunchGameTooltip(ValueTuple<string, bool, bool, bool> x)
+		{
+			var exePath = x.Item1;
+			var limitToSingle = x.Item2;
+			var isRunning = x.Item3;
+			var canForce = x.Item4;
+			if(isRunning && limitToSingle)
+			{
+				if(canForce) return "Force Launch the Game";
+				return "[Locked] Launch Game\nThe game is currently running\nHold Shift to open another instance when clicking";
+			}
+			else if(!exePath.IsExistingFile())
+			{
+				return $"[Not Found] Launch Game\nThe exe path '{exePath}' does not exist - Update this path in the Preferences";
+			}
+			return "Launch Game";
+		}
+
 		private void InitSettingsBindings()
 		{
 			DivinityApp.DependencyFilter = Settings.WhenAnyValue(x => x.DebugModeEnabled).Select(MakeDependencyFilter);
@@ -871,7 +991,21 @@ Directory the zip will be extracted to:
 			var canOpenWorkshopFolder = this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled, x => x.Settings.WorkshopPath,
 				(b, p) => (b && !String.IsNullOrEmpty(p) && Directory.Exists(p))).StartWith(false);
 
-			var canOpenGameExe = Settings.WhenAnyValue(x => x.GameExecutablePath, p => !String.IsNullOrEmpty(p) && File.Exists(p)).StartWith(false);
+			var gameUtils = Services.Get<IGameUtilitiesService>();
+			gameUtils.WhenAnyValue(x => x.GameIsRunning).BindTo(this, x => x.GameIsRunning);
+
+			Settings.WhenAnyValue(x => x.GameExecutablePath).Subscribe(path =>
+			{
+				if (!String.IsNullOrEmpty(path)) gameUtils.AddGameProcessName(Path.GetFileNameWithoutExtension(path));
+			});
+
+			var whenGameExeProperties = this.WhenAnyValue(x => x.Settings.GameExecutablePath, x => x.Settings.LimitToSingleInstance, x => x.GameIsRunning, x => x.CanForceLaunchGame);
+			var canOpenGameExe = whenGameExeProperties.Select(CanLaunchGameCheck);
+			canOpenGameExe.ToUIProperty(this, x => x.CanLaunchGame);
+			whenGameExeProperties.Select(GetLaunchGameTooltip).ToUIProperty(this, x => x.OpenGameButtonToolTip, "Launch Game");
+
+			Keys.LaunchGame.AddAction(LaunchGame, canOpenGameExe);
+
 			var canOpenLogDirectory = Settings.WhenAnyValue(x => x.ExtenderLogDirectory, (f) => Directory.Exists(f)).StartWith(false);
 
 			var canDownloadScriptExtender = this.WhenAnyValue(x => x.PathwayData.ScriptExtenderLatestReleaseUrl, (p) => !String.IsNullOrEmpty(p));
@@ -906,98 +1040,6 @@ Directory the zip will be extracted to:
 					DivinityFileUtils.TryOpenPath(Settings.WorkshopPath);
 				}
 			}, canOpenWorkshopFolder);
-
-			Keys.LaunchGame.AddAction(() =>
-			{
-				if (Settings.DisableLauncherTelemetry || Settings.DisableLauncherModWarnings)
-				{
-					RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, t) =>
-					{
-						await DivinityModDataLoader.UpdateLauncherPreferencesAsync(GetLarianStudiosAppDataFolder(), !Settings.DisableLauncherTelemetry, !Settings.DisableLauncherModWarnings);
-					});
-				}
-
-				if (!Settings.LaunchThroughSteam)
-				{
-					if (!File.Exists(Settings.GameExecutablePath))
-					{
-						if (String.IsNullOrWhiteSpace(Settings.GameExecutablePath))
-						{
-							ShowAlert("No game executable path set", AlertType.Danger, 30);
-						}
-						else
-						{
-							ShowAlert($"Failed to find game exe at, \"{Settings.GameExecutablePath}\"", AlertType.Danger, 90);
-						}
-						return;
-					}
-				}
-
-				var launchParams = !String.IsNullOrEmpty(Settings.GameLaunchParams) ? Settings.GameLaunchParams : "";
-
-				if (Settings.GameStoryLogEnabled && launchParams.IndexOf("storylog") < 0)
-				{
-					if (String.IsNullOrWhiteSpace(launchParams))
-					{
-						launchParams = "-storylog 1";
-					}
-					else
-					{
-						launchParams = launchParams + " " + "-storylog 1";
-					}
-				}
-
-				if (Settings.SkipLauncher && launchParams.IndexOf("skip-launcher") < 0)
-				{
-					if (String.IsNullOrWhiteSpace(launchParams))
-					{
-						launchParams = "--skip-launcher";
-					}
-					else
-					{
-						launchParams = "--skip-launcher " + launchParams;
-					}
-				}
-
-				if (!Settings.LaunchThroughSteam)
-				{
-					var exePath = Settings.GameExecutablePath;
-					var exeDir = Path.GetDirectoryName(exePath);
-
-					if (Settings.LaunchDX11)
-					{
-						var nextExe = Path.Combine(exeDir, "bg3_dx11.exe");
-						if (File.Exists(nextExe))
-						{
-							exePath = nextExe;
-						}
-					}
-
-					DivinityApp.Log($"Opening game exe at: {exePath} with args {launchParams}");
-					TryStartGameExe(exePath, launchParams);
-				}
-				else
-				{
-					var appid = AppSettings.DefaultPathways.Steam.AppID ?? "1086940";
-					var steamUrl = $"steam://run/{appid}//{launchParams}";
-					DivinityApp.Log($"Opening game through steam via '{steamUrl}'");
-					DivinityFileUtils.TryOpenPath(steamUrl);
-				}
-
-				if (Settings.ActionOnGameLaunch != DivinityGameLaunchWindowAction.None)
-				{
-					switch (Settings.ActionOnGameLaunch)
-					{
-						case DivinityGameLaunchWindowAction.Minimize:
-							Window.WindowState = WindowState.Minimized;
-							break;
-						case DivinityGameLaunchWindowAction.Close:
-							App.Current.Shutdown();
-							break;
-					}
-				}
-
-			}, canOpenGameExe);
 
 			Settings.WhenAnyValue(x => x.LogEnabled).Subscribe((logEnabled) =>
 			{

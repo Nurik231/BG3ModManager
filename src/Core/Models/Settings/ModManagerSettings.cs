@@ -25,7 +25,7 @@ namespace DivinityModManager.Models.Settings
 	[DataContract]
 	public class ModManagerSettings : BaseSettings<ModManagerSettings>, ISerializableSettings
 	{
-		[SettingsEntry("Game Data Path", "The path to the Data folder, for loading editor mods.\nExample: Baldur's Gate 3/Data")]
+		[SettingsEntry("Game Data Path", "The path to the Data folder, for loading editor mods\nExample: Baldur's Gate 3/Data")]
 		[DataMember, Reactive] public string GameDataPath { get; set; }
 
 		[SettingsEntry("Game Executable Path", "The path to bg3.exe")]
@@ -54,6 +54,10 @@ namespace DivinityModManager.Models.Settings
 		[DefaultValue(false)]
 		[SettingsEntry("Launch Through Steam", "Launch the game through steam, instead of by the exe directly")]
 		[DataMember, Reactive] public bool LaunchThroughSteam { get; set; }
+
+		[DefaultValue(true)]
+		[SettingsEntry("Limit to Single Instance", "Prevent the mod manager from launching multiple instances of the game\nThis can be bypassed by holding Shift when clicking on the launch button")]
+		[DataMember, Reactive] public bool LimitToSingleInstance { get; set; }
 
 		//[SettingsEntry("Workshop Path", "The Steam Workshop folder for Baldur's Gate 3\nUsed for detecting mod updates and new mods to be copied into the local mods folder\nExample: Steam/steamapps/workshop/content/1086940")]
 		[DataMember, Reactive] public string WorkshopPath { get; set; }

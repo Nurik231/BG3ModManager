@@ -569,7 +569,10 @@
 										</ContextMenu>
 									</Button.ContextMenu>
 								</Button>
-								<Button x:Name="OpenGameButton" ToolTip="Launch Game">
+								<Button x:Name="OpenGameButton">
+									<Button.ToolTip>
+										<TextBlock x:Name="OpenGameButtonToolTipTextBlock" />
+									</Button.ToolTip>
 									<controls:AutoGrayableImage Source="{StaticResource OpenGameImage}" />
 									<Button.ContextMenu>
 										<ContextMenu>
