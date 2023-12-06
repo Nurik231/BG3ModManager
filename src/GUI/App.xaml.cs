@@ -39,6 +39,7 @@ namespace DivinityModManager
 			Services.RegisterSingleton<IGitHubService>(new GitHubService(productName, version));
 			Services.RegisterSingleton<INexusModsService>(new NexusModsService(productName, version));
 			Services.RegisterSingleton<IModUpdaterService>(new ModUpdaterService(version));
+			Services.RegisterSingleton<IGameUtilitiesService>(new GameUtilitiesService());
 			Services.RegisterSingleton(new BackgroundCommandService());
 
 			// POCO type warning suppression
