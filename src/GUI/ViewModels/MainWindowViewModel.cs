@@ -972,12 +972,15 @@ Directory the zip will be extracted to:
 			var limitToSingle = x.Item2;
 			var isRunning = x.Item3;
 			var canForce = x.Item4;
-			if(isRunning && limitToSingle)
+			if(exePath.IsExistingFile())
 			{
-				if(canForce) return "Force Launch the Game";
-				return "Launch Game [Locked]\nThe game is already running\nHold Shift to bypass this restriction";
+				if (isRunning && limitToSingle)
+				{
+					if (canForce) return "Force Launch the Game";
+					return "Launch Game [Locked]\nThe game is already running - Opening the game again will create debug profiles, which may be unintended\nHold Shift to bypass this restriction";
+				}
 			}
-			else if(!exePath.IsExistingFile())
+			else
 			{
 				return $"Launch Game [Not Found]\nThe exe path '{exePath}' does not exist\nConfigure the 'Game Executable Path' in the Preferences window";
 			}
