@@ -475,8 +475,6 @@ namespace DivinityModManager.Models
 			this.WhenAnyValue(x => x.ExtenderModStatus).Select(x => x != DivinityExtenderModStatus.NONE ? Visibility.Visible : Visibility.Collapsed)
 				.ToUIProperty(this, x => x.ExtenderStatusVisibility, Visibility.Collapsed);
 
-			this.WhenAnyValue(x => x.ExtenderModStatus).Subscribe(x => DivinityApp.Log($"[{this.DisplayName}] = {x}"));
-
 			var whenOsirisStatusChanges = this.WhenAnyValue(x => x.OsirisModStatus);
 			whenOsirisStatusChanges.Select(x => x != DivinityOsirisModStatus.NONE ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.OsirisStatusVisibility);
 			whenOsirisStatusChanges.Select(OsirisStatusToTooltipText).ToUIProperty(this, x => x.OsirisStatusToolTipText);
