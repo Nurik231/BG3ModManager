@@ -975,11 +975,11 @@ Directory the zip will be extracted to:
 			if(isRunning && limitToSingle)
 			{
 				if(canForce) return "Force Launch the Game";
-				return "[Locked] Launch Game\nThe game is currently running\nHold Shift to open another instance when clicking";
+				return "Launch Game [Locked]\nThe game is already running\nHold Shift to bypass this restriction";
 			}
 			else if(!exePath.IsExistingFile())
 			{
-				return $"[Not Found] Launch Game\nThe exe path '{exePath}' does not exist - Update this path in the Preferences";
+				return $"Launch Game [Not Found]\nThe exe path '{exePath}' does not exist\nConfigure the 'Game Executable Path' in the Preferences window";
 			}
 			return "Launch Game";
 		}
