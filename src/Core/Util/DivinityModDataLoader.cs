@@ -1993,13 +1993,22 @@ namespace DivinityModManager.Util
 					{
 						if (token.IsCancellationRequested) return null;
 						string text = await sr.ReadToEndAsync();
-						var modData = ParseMetaFile(text, true);
+						var modData = ParseMetaFile(text);
 						if (modData != null)
 						{
 							if (!String.IsNullOrEmpty(modInfo.PackagePath)) modData.FilePath = modInfo.PackagePath;
-							DivinityApp.Log($"Added base mod: Name({modData.Name}) UUID({modData.UUID}) Author({modData.Author}) Version({modData.Version.VersionInt})");
-							modData.IsLarianMod = DivinityApp.IgnoredMods.Any(x => x.UUID == modData.UUID) || modData.Author.Contains("Larian");
-							modData.IsHidden = modData.IsLarianMod;
+							var isBaseMod = DivinityApp.IgnoredMods.Any(x => x.UUID == modData.UUID) || modData.Author.Contains("Larian") || String.IsNullOrEmpty(modData.Author);
+							if(isBaseMod)
+							{
+								DivinityApp.Log($"Added base mod: Name({modData.Name}) UUID({modData.UUID}) Author({modData.Author}) Version({modData.Version.VersionInt})");
+								modData.IsLarianMod = true;
+								modData.IsHidden = true;
+							}
+							else
+							{
+								DivinityApp.Log($"Added mod from data folder: Name({modData.Name}) UUID({modData.UUID}) Author({modData.Author}) Version({modData.Version.VersionInt})");
+							}
+							
 							return modData;
 						}
 					}
