@@ -158,7 +158,7 @@ namespace DivinityModManager.Util
 			return str;
 		}
 
-		private static DivinityModData ParseMetaFile(string metaContents, bool isBaseGameMod = false)
+		private static DivinityModData ParseMetaFile(string metaContents)
 		{
 			try
 			{
@@ -211,7 +211,7 @@ namespace DivinityModManager.Util
 						author = "Larian Studios";
 					}
 					*/
-					DivinityModData modData = new DivinityModData(isBaseGameMod)
+					DivinityModData modData = new DivinityModData()
 					{
 						HasMetadata = true,
 						UUID = uuid,
@@ -1997,12 +1997,13 @@ namespace DivinityModManager.Util
 						if (modData != null)
 						{
 							if (!String.IsNullOrEmpty(modInfo.PackagePath)) modData.FilePath = modInfo.PackagePath;
-							var isBaseMod = DivinityApp.IgnoredMods.Any(x => x.UUID == modData.UUID) || modData.Author.Contains("Larian") || String.IsNullOrEmpty(modData.Author);
+							modData.IsLarianMod = modData.Author.Contains("Larian") || String.IsNullOrEmpty(modData.Author);
+							var isBaseMod = DivinityApp.IgnoredMods.Any(x => x.UUID == modData.UUID) || modData.IsLarianMod;
 							if(isBaseMod)
 							{
 								DivinityApp.Log($"Added base mod: Name({modData.Name}) UUID({modData.UUID}) Author({modData.Author}) Version({modData.Version.VersionInt})");
-								modData.IsLarianMod = true;
-								modData.IsHidden = true;
+								modData.SetIsBaseGameMod(true);
+								DivinityApp.Log($"CanAddToLoadOrder({modData.CanAddToLoadOrder}) IsHidden({modData.IsHidden})");
 							}
 							else
 							{

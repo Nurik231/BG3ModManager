@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Windows;
@@ -364,7 +365,18 @@ namespace DivinityModManager.Models
 			//if (!String.IsNullOrWhiteSpace(config.GitHub.Repository)) ModManagerConfig.GitHub.Repository = config.GitHub.Repository;
 		}
 
-		public DivinityModData(bool isBaseGameMod = false) : base()
+		private static bool CanAddToLoadOrderCheck(ValueTuple<string,bool,bool,bool,bool> x)
+		{
+			//x => x.ModType, x => x.IsHidden, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod, x => x.ForceAllowInLoadOrder
+			var modType = x.Item1;
+			var isHidden = x.Item2;
+			var isForceLoaded = x.Item3;
+			var isForceLoadedMergedMod = x.Item4;
+			var forceAllowInLoadOrder = x.Item5;
+			return modType != "Adventure" && !isHidden && ((!isForceLoaded || isForceLoadedMergedMod) || forceAllowInLoadOrder);
+		}
+
+		public DivinityModData()
 		{
 			Targets = "";
 			Index = -1;
@@ -452,28 +464,21 @@ namespace DivinityModManager.Models
 				}
 			});
 
-			if (isBaseGameMod)
-			{
-				this.IsHidden = true;
-				this.IsLarianMod = true;
-			}
-
 			// If a screen reader is active, don't bother making tooltips for the mod item entry
 			this.WhenAnyValue(x => x.Description, x => x.HasDependencies, x => x.UUID).
 				Select(x => !DivinityApp.IsScreenReaderActive() && (!String.IsNullOrEmpty(x.Item1) || x.Item2 || !String.IsNullOrEmpty(x.Item3)))
 				.ToUIProperty(this, x => x.HasToolTip, true);
 
-			this.WhenAnyValue(x => x.IsEditorMod, x => x.IsLarianMod, x => x.FilePath,
-				(isEditorMod, isLarianMod, path) => !isEditorMod && !isLarianMod && File.Exists(path)).ToUIProperty(this, x => x.CanDelete);
-			this.WhenAnyValue(x => x.ModType, x => x.IsLarianMod, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod, x => x.ForceAllowInLoadOrder,
-				(modType, isLarianMod, isForceLoaded, isMergedMod, forceAllowInLoadOrder) => 
-				modType != "Adventure" && !isLarianMod && (!isForceLoaded || isMergedMod) || forceAllowInLoadOrder)
-				.ToUIProperty(this, x => x.CanAddToLoadOrder, true);
+			this.WhenAnyValue(x => x.ModType, x => x.IsHidden, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod, x => x.ForceAllowInLoadOrder)
+				.Select(CanAddToLoadOrderCheck).ToUIPropertyImmediate(this, x => x.CanAddToLoadOrder, true);
+
+			this.WhenAnyValue(x => x.IsEditorMod, x => x.CanAddToLoadOrder, x => x.FilePath,
+				(isEditorMod, canAdd, path) => !isEditorMod && canAdd && !String.IsNullOrEmpty(path)).ToUIPropertyImmediate(this, x => x.CanDelete);
 
 			var whenExtenderProp = this.WhenAnyValue(x => x.ExtenderModStatus, x => x.ScriptExtenderData.RequiredVersion, x => x.CurrentExtenderVersion);
 			whenExtenderProp.Select(x => ExtenderStatusToToolTipText(x.Item1, x.Item2, x.Item3)).ToUIProperty(this, x => x.ScriptExtenderSupportToolTipText);
 			this.WhenAnyValue(x => x.ExtenderModStatus).Select(x => x != DivinityExtenderModStatus.NONE ? Visibility.Visible : Visibility.Collapsed)
-				.ToUIProperty(this, x => x.ExtenderStatusVisibility, Visibility.Collapsed);
+				.ToUIPropertyImmediate(this, x => x.ExtenderStatusVisibility, Visibility.Collapsed);
 
 			var whenOsirisStatusChanges = this.WhenAnyValue(x => x.OsirisModStatus);
 			whenOsirisStatusChanges.Select(x => x != DivinityOsirisModStatus.NONE ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.OsirisStatusVisibility);
@@ -485,20 +490,40 @@ namespace DivinityModManager.Models
 
 			this.WhenAnyValue(x => x.FilePath).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.HasFilePathVisibility, Visibility.Collapsed);
 			this.WhenAnyValue(x => x.Version.Version).ToUIProperty(this, x => x.DisplayVersion, "0.0.0.0");
+		}
 
-			if(!isBaseGameMod)
+		private CompositeDisposable _modConfigDisposables;
+
+		public void SetIsBaseGameMod(bool isBaseGameMod)
+		{
+			if (!isBaseGameMod)
 			{
-				ModManagerConfig = new ModConfig
+				IsHidden = false;
+				if(ModManagerConfig == null)
 				{
-					Id = this.UUID
-				};
+					_modConfigDisposables = new CompositeDisposable();
+					ModManagerConfig = new ModConfig
+					{
+						Id = UUID
+					};
 
-				this.WhenAnyValue(x => x.ModManagerConfig.Notes).ToUIProperty(this, x => x.Notes, "");
+					this.WhenAnyValue(x => x.ModManagerConfig.Notes).ToUIProperty(this, x => x.Notes, "").DisposeWith(_modConfigDisposables);
 
-				this.WhenAnyValue(x => x.NexusModsData.ModId).BindTo(this, x => x.ModManagerConfig.NexusMods.ModId);
-				this.WhenAnyValue(x => x.WorkshopData.ModId).BindTo(this, x => x.ModManagerConfig.SteamWorkshop.ModId);
-				this.WhenAnyValue(x => x.GitHubData.Author).BindTo(this, x => x.ModManagerConfig.GitHub.Author);
-				this.WhenAnyValue(x => x.GitHubData.Repository).BindTo(this, x => x.ModManagerConfig.GitHub.Repository);
+					this.WhenAnyValue(x => x.NexusModsData.ModId).BindTo(this, x => x.ModManagerConfig.NexusMods.ModId).DisposeWith(_modConfigDisposables);
+					this.WhenAnyValue(x => x.WorkshopData.ModId).BindTo(this, x => x.ModManagerConfig.SteamWorkshop.ModId).DisposeWith(_modConfigDisposables);
+					this.WhenAnyValue(x => x.GitHubData.Author).BindTo(this, x => x.ModManagerConfig.GitHub.Author).DisposeWith(_modConfigDisposables);
+					this.WhenAnyValue(x => x.GitHubData.Repository).BindTo(this, x => x.ModManagerConfig.GitHub.Repository).DisposeWith(_modConfigDisposables);
+				}
+			}
+			else
+			{
+				IsHidden = true;
+				if(_modConfigDisposables != null)
+				{
+					_modConfigDisposables.Dispose();
+					_modConfigDisposables = null;
+					ModManagerConfig = null;
+				}
 			}
 		}
 
