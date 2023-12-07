@@ -392,11 +392,8 @@
 								IsTextSearchEnabled="False">
 								<ComboBox.ContextMenu>
 									<ContextMenu>
-										<MenuItem
-											x:Name="ProfilesContextMenuOpenMenuItem"
-											Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-											Header="Open Profile Folder in File Explorer..." />
-										<MenuItem x:Name="ProfilesContextMenuCopyMenuItem" Header="Copy Profile Path to Clipboard" />
+										<MenuItem x:Name="ProfilesContextMenuOpenMenuItem" Style="{StaticResource MenuItemOpenInExplorerStyle}" />
+										<MenuItem x:Name="ProfilesContextMenuCopyMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 									</ContextMenu>
 								</ComboBox.ContextMenu>
 							</ComboBox>
@@ -432,11 +429,8 @@
 											x:Name="OrdersContextMenuRenameMenuItem"
 											CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}, Path=PlacementTarget}"
 											Header="Rename" />
-										<MenuItem
-											x:Name="OrdersContextMenuOpenMenuItem"
-											Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-											Header="Open in File Explorer..." />
-										<MenuItem x:Name="OrdersContextMenuCopyMenuItem" Header="Copy Path to Clipboard" />
+										<MenuItem x:Name="OrdersContextMenuOpenMenuItem" Style="{StaticResource MenuItemOpenInExplorerStyle}" />
+										<MenuItem x:Name="OrdersContextMenuCopyMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 										<MenuItem x:Name="OrdersContextMenuDeleteMenuItem" Header="Delete Order" />
 									</ContextMenu>
 								</ComboBox.ContextMenu>
@@ -482,17 +476,18 @@
 									<controls:AutoGrayableImage Source="{StaticResource ExportScriptImage}" />
 									<Button.ContextMenu>
 										<ContextMenu>
+											<MenuItem x:Name="ExportContextMenuOpenDirectMenuItem" Style="{StaticResource MenuItemOpenFileStyle}" />
+											<MenuItem x:Name="ExportContextMenuOpenExplorerMenuItem" Style="{StaticResource MenuItemOpenInExplorerStyle}" />
+											<MenuItem x:Name="ExportContextMenuCopyPathMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 											<MenuItem
-												x:Name="ExportContextMenuOpenDirectMenuItem"
-												Command="{Binding Path=OpenFileCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-												Header="Open Exported Mod Order File..." />
-											<MenuItem
-												x:Name="ExportContextMenuOpenExplorerMenuItem"
-												Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-												Header="Open in File Explorer..." />
-											<MenuItem x:Name="ExportContextMenuCopyPathMenuItem" Header="Copy Path to Clipboard" />
-											<MenuItem x:Name="ExportContextMenuCopyOrderMenuItem" Header="Copy Order to Clipboard" />
-											<MenuItem x:Name="ExportContextMenuExportListMenuItem" Header="Export Order As List..." />
+												x:Name="ExportContextMenuCopyOrderMenuItem"
+												Header="Copy Order to Clipboard"
+												Style="{StaticResource MenuItemCopyToClipboardStyle}" />
+											<MenuItem x:Name="ExportContextMenuExportListMenuItem" Header="Export Order As List...">
+												<MenuItem.Icon>
+													<Image Source="{StaticResource ExportDataImage}" />
+												</MenuItem.Icon>
+											</MenuItem>
 										</ContextMenu>
 									</Button.ContextMenu>
 								</Button>
@@ -517,11 +512,8 @@
 										ToolTip="{StaticResource AdventureModTooltip}">
 										<ComboBox.ContextMenu>
 											<ContextMenu>
-												<MenuItem
-													x:Name="AdventureContextMenuOpenMenuItem"
-													Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-													Header="Open Adventure Mod in File Explorer..." />
-												<MenuItem x:Name="AdventureContextMenuCopyMenuItem" Header="Copy Mod Path to Clipboard" />
+												<MenuItem x:Name="AdventureContextMenuOpenMenuItem" Style="{StaticResource MenuItemOpenInExplorerStyle}" />
+												<MenuItem x:Name="AdventureContextMenuCopyMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 											</ContextMenu>
 										</ComboBox.ContextMenu>
 									</ComboBox>
@@ -537,10 +529,7 @@
 									<controls:AutoGrayableImage Source="{StaticResource OpenFolderImage}" />
 									<Button.ContextMenu>
 										<ContextMenu>
-											<MenuItem
-												Command="{Binding CopyPathToClipboardCommand}"
-												CommandParameter="{Binding PathwayData.AppDataModsPath}"
-												Header="Copy Path to Clipboard" />
+											<MenuItem x:Name="OpenModsFolderButtonCopyMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 										</ContextMenu>
 									</Button.ContextMenu>
 								</Button>
@@ -548,10 +537,7 @@
 									<controls:AutoGrayableImage Source="{StaticResource OpenSteamWorkshopFolderImage}" />
 									<Button.ContextMenu>
 										<ContextMenu>
-											<MenuItem
-												Command="{Binding CopyPathToClipboardCommand}"
-												CommandParameter="{Binding Settings.WorkshopPath}"
-												Header="Copy Path to Clipboard" />
+											<MenuItem x:Name="OpenWorkshopFolderButtonCopyMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 										</ContextMenu>
 									</Button.ContextMenu>
 								</Button>
@@ -562,10 +548,7 @@
 										Source="{StaticResource LogImage}" />
 									<Button.ContextMenu>
 										<ContextMenu>
-											<MenuItem
-												Command="{Binding CopyPathToClipboardCommand}"
-												CommandParameter="{Binding Settings.ExtenderLogDirectory}"
-												Header="Copy Path to Clipboard" />
+											<MenuItem x:Name="OpenExtenderLogsFolderButtonExplorerMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 										</ContextMenu>
 									</Button.ContextMenu>
 								</Button>
@@ -577,13 +560,10 @@
 									<Button.ContextMenu>
 										<ContextMenu>
 											<MenuItem
-												Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-												CommandParameter="{Binding Settings.GameExecutablePath}"
-												Header="Open Game Folder..." />
-											<MenuItem
-												Command="{Binding CopyPathToClipboardCommand}"
-												CommandParameter="{Binding Settings.GameExecutablePath}"
-												Header="Copy Path to Clipboard" />
+												x:Name="OpenGameButtonExplorerMenuItem"
+												Header="Open Game Folder..."
+												Style="{StaticResource MenuItemOpenInExplorerStyle}" />
+											<MenuItem x:Name="OpenGameButtonCopyMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 										</ContextMenu>
 									</Button.ContextMenu>
 								</Button>

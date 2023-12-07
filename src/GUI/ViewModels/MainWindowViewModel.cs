@@ -277,7 +277,6 @@ namespace DivinityModManager.ViewModels
 		public ICommand CheckForAppUpdatesCommand { get; set; }
 		public ReactiveCommand<UpdateInfoEventArgs, Unit> OnAppUpdateCheckedCommand { get; set; }
 		public ICommand CancelMainProgressCommand { get; set; }
-		public ICommand CopyPathToClipboardCommand { get; set; }
 		public ICommand RenameSaveCommand { get; private set; }
 		public ICommand CopyOrderToClipboardCommand { get; private set; }
 		public ICommand ExportOrderAsListCommand { get; private set; }
@@ -5137,20 +5136,6 @@ Directory the zip will be extracted to:
 					MainProgressToken.Cancel();
 				}
 			}, canCancelProgress);
-
-
-			CopyPathToClipboardCommand = ReactiveCommand.Create((string path) =>
-			{
-				if (!String.IsNullOrWhiteSpace(path))
-				{
-					Clipboard.SetText(path);
-					ShowAlert($"Copied '{path}' to clipboard", 0, 10);
-				}
-				else
-				{
-					ShowAlert($"Path '{path}' not found", AlertType.Danger, 30);
-				}
-			});
 
 			RenameSaveCommand = ReactiveCommand.Create(RenameSave_Start, canOpenDialogWindow);
 

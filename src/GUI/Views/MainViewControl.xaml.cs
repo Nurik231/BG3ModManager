@@ -300,7 +300,7 @@ namespace DivinityModManager.Views
 			this.OneWayBind(ViewModel, vm => vm.SelectedModOrder.FilePath, view => view.OrdersContextMenuOpenMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedModOrder.FilePath, view => view.OrdersContextMenuCopyMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedModOrder, view => view.OrdersContextMenuDeleteMenuItem.CommandParameter);
-			this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.OrdersContextMenuCopyMenuItem);
+			//this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.OrdersContextMenuCopyMenuItem);
 			this.BindCommand(ViewModel, vm => vm.ToggleOrderRenamingCommand, view => view.OrdersContextMenuRenameMenuItem);
 			this.BindCommand(ViewModel, vm => vm.DeleteOrderCommand, view => view.OrdersContextMenuDeleteMenuItem);
 			var canOpenOrderPath = ViewModel.WhenAnyValue(x => x.SelectedModOrder.FilePath).Select(PathExists);
@@ -310,7 +310,7 @@ namespace DivinityModManager.Views
 			this.OneWayBind(ViewModel, vm => vm.SelectedProfile.ModSettingsFile, view => view.ExportContextMenuOpenDirectMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedProfile.ModSettingsFile, view => view.ExportContextMenuOpenExplorerMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedProfile.ModSettingsFile, view => view.ExportContextMenuCopyPathMenuItem.CommandParameter);
-			this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.ExportContextMenuCopyPathMenuItem);
+			//this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.ExportContextMenuCopyPathMenuItem);
 			this.BindCommand(ViewModel, vm => vm.CopyOrderToClipboardCommand, view => view.ExportContextMenuCopyOrderMenuItem);
 			this.BindCommand(ViewModel, vm => vm.ExportOrderAsListCommand, view => view.ExportContextMenuExportListMenuItem);
 			var canOpenModSettingsPath = ViewModel.WhenAnyValue(x => x.SelectedProfile.ModSettingsFile).Select(PathExists);
@@ -320,17 +320,23 @@ namespace DivinityModManager.Views
 
 			this.OneWayBind(ViewModel, vm => vm.SelectedAdventureMod.FilePath, view => view.AdventureContextMenuOpenMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedAdventureMod.FilePath, view => view.AdventureContextMenuCopyMenuItem.CommandParameter);
-			this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.AdventureContextMenuCopyMenuItem);
+			//this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.AdventureContextMenuCopyMenuItem);
 			var canOpenAdventurePath = ViewModel.WhenAnyValue(x => x.SelectedAdventureMod.FilePath).Select(PathExists);
 			canOpenAdventurePath.BindTo(this, x => x.AdventureContextMenuOpenMenuItem.IsEnabled);
 			canOpenAdventurePath.BindTo(this, x => x.AdventureContextMenuCopyMenuItem.IsEnabled);
 
 			this.OneWayBind(ViewModel, vm => vm.SelectedProfile.FilePath, view => view.ProfilesContextMenuOpenMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedProfile.FilePath, view => view.ProfilesContextMenuCopyMenuItem.CommandParameter);
-			this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.ProfilesContextMenuCopyMenuItem);
+			//this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.ProfilesContextMenuCopyMenuItem);
 			var canOpenProfilePath = ViewModel.WhenAnyValue(x => x.SelectedProfile.FilePath).Select(PathExists);
 			canOpenProfilePath.BindTo(this, x => x.ProfilesContextMenuOpenMenuItem.IsEnabled);
 			canOpenProfilePath.BindTo(this, x => x.ProfilesContextMenuCopyMenuItem.IsEnabled);
+
+			this.OneWayBind(ViewModel, vm => vm.Settings.ExtenderLogDirectory, view => view.OpenExtenderLogsFolderButtonExplorerMenuItem.CommandParameter);
+			this.OneWayBind(ViewModel, vm => vm.Settings.GameExecutablePath, view => view.OpenGameButtonExplorerMenuItem.CommandParameter);
+			this.OneWayBind(ViewModel, vm => vm.Settings.GameExecutablePath, view => view.OpenGameButtonCopyMenuItem.CommandParameter);
+			this.OneWayBind(ViewModel, vm => vm.Settings.WorkshopPath, view => view.OpenWorkshopFolderButtonCopyMenuItem.CommandParameter);
+			this.OneWayBind(ViewModel, vm => vm.PathwayData.AppDataModsPath, view => view.OpenModsFolderButtonCopyMenuItem.CommandParameter);
 
 			this.BindCommand(ViewModel, vm => vm.RefreshModUpdatesCommand, view => view.UpdateAllSourcesMenuItem);
 			this.BindCommand(ViewModel, vm => vm.CheckForGitHubModUpdatesCommand, view => view.UpdateGitHubMenuItem);

@@ -109,14 +109,8 @@
 				<Setter Property="ContextMenu">
 					<Setter.Value>
 						<ContextMenu DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}">
-							<MenuItem
-								Command="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}"
-								CommandParameter="{Binding}"
-								Header="Open in File Explorer..." />
-							<MenuItem
-								Command="{Binding CopyPathToClipboardCommand}"
-								CommandParameter="{Binding}"
-								Header="Copy Path to Clipboard" />
+							<MenuItem CommandParameter="{Binding}" Style="{StaticResource MenuItemOpenInExplorerStyle}" />
+							<MenuItem CommandParameter="{Binding}" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
 						</ContextMenu>
 					</Setter.Value>
 				</Setter>
