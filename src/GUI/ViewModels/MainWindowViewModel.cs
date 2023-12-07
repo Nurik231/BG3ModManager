@@ -281,8 +281,6 @@ namespace DivinityModManager.ViewModels
 		public ICommand RenameSaveCommand { get; private set; }
 		public ICommand CopyOrderToClipboardCommand { get; private set; }
 		public ICommand ExportOrderAsListCommand { get; private set; }
-		public ICommand OpenAdventureModInFileExplorerCommand { get; private set; }
-		public ICommand CopyAdventureModPathToClipboardCommand { get; private set; }
 		public ICommand ConfirmCommand { get; set; }
 		public ICommand FocusFilterCommand { get; set; }
 		public ICommand SaveSettingsSilentlyCommand { get; private set; }
@@ -5310,9 +5308,6 @@ Directory the zip will be extracted to:
 			this.WhenAnyValue(x => x.SelectedAdventureModIndex, x => x.AdventureMods.Count, (index, count) => index >= 0 && count > 0 && index < count).
 			Where(b => b == true).Select(x => AdventureMods[SelectedAdventureModIndex]).ToPropertyEx(this, x => x.SelectedAdventureMod);
 
-			var adventureModCanOpenObservable = this.WhenAnyValue(x => x.SelectedAdventureMod, (mod) => mod != null && !mod.IsLarianMod);
-			adventureModCanOpenObservable.Subscribe();
-
 			this.WhenAnyValue(x => x.SelectedAdventureModIndex).Throttle(TimeSpan.FromMilliseconds(50)).Subscribe((i) =>
 			{
 				if (AdventureMods != null && SelectedAdventureMod != null && SelectedProfile != null && SelectedProfile.ActiveMods != null)
@@ -5324,24 +5319,6 @@ Directory the zip will be extracted to:
 					}
 				}
 			});
-
-			OpenAdventureModInFileExplorerCommand = ReactiveCommand.Create<string>((path) =>
-			{
-				DivinityApp.Commands.OpenInFileExplorer(path);
-			}, adventureModCanOpenObservable);
-
-			CopyAdventureModPathToClipboardCommand = ReactiveCommand.Create<string>((path) =>
-			{
-				if (!String.IsNullOrWhiteSpace(path))
-				{
-					Clipboard.SetText(path);
-					ShowAlert($"Copied '{path}' to clipboard", 0, 10);
-				}
-				else
-				{
-					ShowAlert($"Path '{path}' not found", AlertType.Danger, 30);
-				}
-			}, adventureModCanOpenObservable);
 
 			var canCheckForUpdates = this.WhenAnyValue(x => x.MainProgressIsActive, b => b == false);
 			void checkForUpdatesAction()
