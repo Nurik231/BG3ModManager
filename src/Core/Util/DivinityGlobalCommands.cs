@@ -84,8 +84,11 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				Clipboard.SetText(text);
-				_viewModel.ShowAlert("Copied text to clipboard.", 0, 10);
+				if(!String.IsNullOrEmpty(text))
+				{
+					Clipboard.SetText(text);
+					_viewModel.ShowAlert($"Copied to clipboard: {text}", 0, 10);
+				}
 			}
 			catch (Exception ex)
 			{
