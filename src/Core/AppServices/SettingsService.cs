@@ -92,10 +92,12 @@ namespace DivinityModManager.AppServices
 							}
 						}
 					}
-					DivinityApp.IgnoredMods.Clear();
+	
 					foreach (var dict in ignoredModsData.Mods)
 					{
-						var mod = new DivinityModData(true);
+						var mod = new DivinityModData();
+						mod.SetIsBaseGameMod(true);
+						mod.IsLarianMod = true;
 						if (dict.TryGetValue("UUID", out var uuid))
 						{
 							mod.UUID = (string)uuid;
@@ -157,14 +159,13 @@ namespace DivinityModManager.AppServices
 							if (existingIgnoredMod == null)
 							{
 								DivinityApp.IgnoredMods.Add(mod);
+								DivinityApp.Log($"Ignored mod added: Name({mod.Name}) UUID({mod.UUID})");
 							}
 							else if (existingIgnoredMod.Version < mod.Version)
 							{
 								DivinityApp.IgnoredMods.Remove(existingIgnoredMod);
 								DivinityApp.IgnoredMods.Add(mod);
 							}
-
-							DivinityApp.Log($"Ignored mod added: Name({mod.Name}) UUID({mod.UUID})");
 						}
 					}
 
