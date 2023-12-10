@@ -237,7 +237,17 @@
 								x:Name="UpdaterTargetVersionComboBox"
 								Grid.Column="1"
 								DisplayMemberPath="DisplayName"
-								ToolTip="{StaticResource ExtenderUpdateEntryToolTip}" />
+								ToolTip="{StaticResource ExtenderUpdateEntryToolTip}">
+								<ComboBox.ContextMenu>
+									<ContextMenu>
+										<MenuItem x:Name="TargetVersionContextOpenMenuItem" Style="{StaticResource MenuItemOpenURLStyle}" />
+										<MenuItem
+											x:Name="TargetVersionContextCopyMenuItem"
+											Header="Copy URL to Clipboard"
+											Style="{StaticResource MenuItemCopyToClipboardStyle}" />
+									</ContextMenu>
+								</ComboBox.ContextMenu>
+							</ComboBox>
 						</autogrid:AutoGrid>
 					</ScrollViewer>
 				</Grid>

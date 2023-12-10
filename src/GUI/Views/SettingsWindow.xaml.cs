@@ -261,6 +261,9 @@ namespace DivinityModManager.Views
 			this.OneWayBind(ViewModel, vm => vm.ExtenderUpdaterVisibility, view => view.ScriptExtenderUpdaterTab.Visibility);
 			this.OneWayBind(ViewModel, vm => vm.ResetSettingsCommandToolTip, view => view.ResetSettingsButton.ToolTip);
 
+			this.OneWayBind(ViewModel, vm => vm.TargetVersion.URL, view => view.TargetVersionContextCopyMenuItem.CommandParameter);
+			this.OneWayBind(ViewModel, vm => vm.TargetVersion.URL, view => view.TargetVersionContextOpenMenuItem.CommandParameter);
+
 			this.BindCommand(ViewModel, vm => vm.SaveSettingsCommand, view => view.SaveSettingsButton);
 			this.BindCommand(ViewModel, vm => vm.OpenSettingsFolderCommand, view => view.OpenSettingsFolderButton);
 			this.BindCommand(ViewModel, vm => vm.ResetSettingsCommand, view => view.ResetSettingsButton);

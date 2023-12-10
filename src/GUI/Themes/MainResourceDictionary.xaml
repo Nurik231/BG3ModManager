@@ -100,6 +100,12 @@
 		Height="16"
 		x:Shared="false"
 		Source="{StaticResource OpenFileImage}" />
+	<Image
+		x:Key="OpenInBrowserIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource OpenInBrowserImage}" />
 	<Style
 		x:Key="MenuItemCopyToClipboardStyle"
 		BasedOn="{StaticResource {x:Type MenuItem}}"
@@ -128,6 +134,16 @@
 			<Setter Property="Icon" Value="{StaticResource OpenFileIcon}" />
 			<Setter Property="Command" Value="{Binding Path=OpenInFileExplorerCommand, Source={x:Static dapp:DivinityApp.Commands}}" />
 			<Setter Property="Header" Value="Open File..." />
+		</Style.Setters>
+	</Style>
+	<Style
+		x:Key="MenuItemOpenURLStyle"
+		BasedOn="{StaticResource {x:Type MenuItem}}"
+		TargetType="{x:Type MenuItem}">
+		<Style.Setters>
+			<Setter Property="Icon" Value="{StaticResource OpenInBrowserIcon}" />
+			<Setter Property="Command" Value="{Binding Path=OpenURLCommand, Source={x:Static dapp:DivinityApp.Commands}}" />
+			<Setter Property="Header" Value="Open URL in Browser..." />
 		</Style.Setters>
 	</Style>
 	<Style
