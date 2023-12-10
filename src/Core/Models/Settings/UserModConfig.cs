@@ -23,6 +23,7 @@ namespace DivinityModManager.Models.Settings
 	{
 		[JsonConverter(typeof(DictionaryToSourceCacheConverter<ModConfig>))]
 		public SourceCache<ModConfig, string> Mods { get; set; }
+		public Dictionary<string, long> LastUpdated { get; set; }
 
 		private ICommand AutosaveCommand { get; set; }
 
@@ -34,6 +35,7 @@ namespace DivinityModManager.Models.Settings
 		public UserModConfig() : base("UserModConfig.json")
 		{
 			Mods = new SourceCache<ModConfig, string>(x => x.Id);
+			LastUpdated = new Dictionary<string, long>();
 
 			var props = typeof(ModConfig)
 			.GetRuntimeProperties()

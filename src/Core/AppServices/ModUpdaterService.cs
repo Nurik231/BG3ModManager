@@ -184,7 +184,6 @@ namespace DivinityModManager.AppServices
 				if (!GitHub.IsEnabled) return results;
 				if (!GitHub.CacheData.CacheUpdated)
 				{
-
 					await GitHub.LoadCacheAsync(currentAppVersion, token);
 					await GitHub.Update(mods, token);
 					await GitHub.SaveCacheAsync(true, currentAppVersion, token);
@@ -278,17 +277,13 @@ namespace DivinityModManager.AppServices
 				}
 
 				var workshopMods = await DivinityModDataLoader.LoadModPackageDataAsync(settings.WorkshopPath, token);
-				foreach (var workshopMod in workshopMods.Mods)
-				{
-					string idStr = Directory.GetParent(workshopMod.FilePath)?.Name;
-					if (!String.IsNullOrEmpty(idStr) && long.TryParse(idStr, out var id))
-					{
-						workshopMod.WorkshopData.ModId = id;
-					}
-				}
-
 				foreach (var mod in workshopMods.Mods)
 				{
+					string idStr = Directory.GetParent(mod.FilePath)?.Name;
+					if (!String.IsNullOrEmpty(idStr) && long.TryParse(idStr, out var id))
+					{
+						mod.WorkshopData.ModId = id;
+					}
 					results.Add(mod.UUID, mod);
 				}
 			}

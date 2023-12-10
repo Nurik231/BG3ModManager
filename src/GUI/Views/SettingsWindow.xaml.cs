@@ -96,6 +96,23 @@ namespace DivinityModManager.Views
 					continue;
 				}
 
+				if(prop.Property.PropertyType == typeof(TimeSpan))
+				{
+					var element = new TimeSpanUpDown()
+					{
+						ToolTip = !isBlankTooltip ? prop.Attribute.Tooltip : null,
+					};
+					element.SetBinding(DateTimeUpDown.ValueProperty, new Binding(prop.Property.Name)
+					{
+						Source = source,
+						Mode = BindingMode.TwoWay,
+						UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+					});
+					targetGrid.Children.Add(element);
+					Grid.SetRow(element, targetRow);
+					Grid.SetColumn(element, 1);
+				}
+
 				var propType = Type.GetTypeCode(prop.Property.PropertyType);
 
 				switch (propType)

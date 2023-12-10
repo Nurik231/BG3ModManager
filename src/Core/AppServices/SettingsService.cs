@@ -24,6 +24,8 @@ namespace DivinityModManager
 		bool TrySaveAll(out List<Exception> errors);
 		bool TryLoadAll(out List<Exception> errors);
 		bool TryLoadAppSettings(out Exception error);
+		void UpdateLastUpdated(IList<string> updatedModIds);
+		void UpdateLastUpdated(IList<DivinityModData> updatedMods);
 	}
 }
 
@@ -209,6 +211,32 @@ namespace DivinityModManager.AppServices
 			});
 			errors = capturedErrors;
 			return errors.Count == 0;
+		}
+
+		public void UpdateLastUpdated(IList<string> updatedModIds)
+		{
+			if(updatedModIds.Count > 0)
+			{
+				var time = DateTime.Now.Ticks;
+				foreach (var id in updatedModIds)
+				{
+					ModConfig.LastUpdated[id] = time;
+				}
+				ModConfig.Save(out _);
+			}
+		}
+
+		public void UpdateLastUpdated(IList<DivinityModData> updatedMods)
+		{
+			if(updatedMods.Count > 0)
+			{
+				var time = DateTime.Now.Ticks;
+				foreach (var mod in updatedMods)
+				{
+					ModConfig.LastUpdated[mod.UUID] = time;
+				}
+				ModConfig.Save(out _);
+			}
 		}
 
 		public SettingsService()

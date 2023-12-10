@@ -40,6 +40,12 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public bool Unlocked { get; set; }
 		[Reactive] public bool JustUpdated { get; set; }
 
+		public class UpdateTaskResult
+		{
+			public string ModId { get; set; }
+			public bool Success { get; set; }
+		}
+
 		public SourceList<DivinityModUpdateData> Mods { get; private set; } = new SourceList<DivinityModUpdateData>();
 
 		private readonly ReadOnlyObservableCollection<DivinityModUpdateData> _newMods;
@@ -111,18 +117,21 @@ namespace DivinityModManager.ViewModels
 			}
 		}
 
-		private async Task AwaitDownloadPartition(IEnumerator<DivinityModUpdateData> partition, int progressIncrement, string outputFolder, CancellationToken token)
+		private async Task<UpdateTaskResult> AwaitDownloadPartition(IEnumerator<DivinityModUpdateData> partition, int progressIncrement, string outputFolder, CancellationToken token)
 		{
+			var result = new UpdateTaskResult();
 			using (partition)
 			{
 				while (partition.MoveNext())
 				{
-					if (token.IsCancellationRequested) return;
+					result.ModId = partition.Current.Mod.UUID;
+					if (token.IsCancellationRequested) return result;
 					await Task.Yield(); // prevents a sync/hot thread hangup
-					await partition.Current.DownloadData.DownloadAsync(partition.Current.LocalFilePath, outputFolder, token);
+					result.Success = await partition.Current.DownloadData.DownloadAsync(partition.Current.LocalFilePath, outputFolder, token);
 					await _mainWindowViewModel.IncreaseMainProgressValueAsync(progressIncrement);
 				}
 			}
+			return result;
 		}
 
 		private async Task<Unit> ProcessUpdatesAsync(CopyModUpdatesTask taskData, IScheduler sch, CancellationToken token)
@@ -131,7 +140,8 @@ namespace DivinityModManager.ViewModels
 			var currentTime = DateTime.Now;
 			var partitionAmount = Environment.ProcessorCount;
 			var progressIncrement = (int)Math.Ceiling(100d/taskData.Updates.Count);
-			await Task.WhenAll(Partitioner.Create(taskData.Updates).GetPartitions(partitionAmount).AsParallel().Select(p => AwaitDownloadPartition(p, progressIncrement, taskData.ModPakFolder, token)));
+			var results = await Task.WhenAll(Partitioner.Create(taskData.Updates).GetPartitions(partitionAmount).AsParallel().Select(p => AwaitDownloadPartition(p, progressIncrement, taskData.ModPakFolder, token)));
+			UpdateLastUpdated(results);
 			await Observable.Start(FinishUpdating, RxApp.MainThreadScheduler);
 			return Unit.Default;
 		}
@@ -139,6 +149,12 @@ namespace DivinityModManager.ViewModels
 		private void StartUpdating(CopyModUpdatesTask taskData)
 		{
 			RxApp.MainThreadScheduler.ScheduleAsync(async (sch,token) => await ProcessUpdatesAsync(taskData,sch,token));
+		}
+
+		private void UpdateLastUpdated(UpdateTaskResult[] results)
+		{
+			var settings = Services.Get<ISettingsService>();
+			settings.UpdateLastUpdated(results.Where(x => x.Success == true).Select(x => x.ModId).ToList());
 		}
 
 		private void FinishUpdating()

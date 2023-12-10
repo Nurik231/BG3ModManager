@@ -2288,11 +2288,29 @@ Directory the zip will be extracted to:
 			return Unit.Default;
 		}
 
+		private bool CanUpdateMod(DivinityModData mod, DateTime now, TimeSpan minWaitPeriod, ISettingsService settingsService)
+		{
+			if(settingsService.ModConfig.LastUpdated.TryGetValue(mod.UUID, out var last))
+			{
+				var time = new DateTime(last);
+				return now - time >= minWaitPeriod;
+			}
+			return true;
+		}
+
+		private List<DivinityModData> GetUpdateableMods()
+		{
+			var settingsService = Services.Get<ISettingsService>();
+			var minUpdateTime = Settings.UpdateSettings.MinimumUpdateTimePeriod;
+			var now = DateTime.Now;
+			return UserMods.Where(x => CanUpdateMod(x, now, minUpdateTime, settingsService)).ToList();
+		}
+
 		private IDisposable _refreshGitHubModsUpdatesBackgroundTask;
 
 		private async Task<Unit> RefreshGitHubModsUpdatesBackgroundAsync(IScheduler sch, CancellationToken token)
 		{
-			var results = await _updater.GetGitHubUpdatesAsync(UserMods, Version, token);
+			var results = await _updater.GetGitHubUpdatesAsync(GetUpdateableMods(), Version, token);
 			await sch.Yield(token);
 			if (!token.IsCancellationRequested && results.Count > 0)
 			{
@@ -2333,7 +2351,7 @@ Directory the zip will be extracted to:
 
 		private async Task<Unit> RefreshNexusModsUpdatesBackgroundAsync(IScheduler sch, CancellationToken token)
 		{
-			var updates = await _updater.GetNexusModsUpdatesAsync(UserMods, Version, token);
+			var updates = await _updater.GetNexusModsUpdatesAsync(GetUpdateableMods(), Version, token);
 			await sch.Yield(token);
 			if (!token.IsCancellationRequested && updates.Count > 0)
 			{
@@ -2387,7 +2405,7 @@ Directory the zip will be extracted to:
 
 		private async Task<Unit> RefreshSteamWorkshopUpdatesBackgroundAsync(IScheduler sch, CancellationToken token)
 		{
-			var results = await _updater.GetSteamWorkshopUpdatesAsync(Settings, UserMods, Version, token);
+			var results = await _updater.GetSteamWorkshopUpdatesAsync(Settings, GetUpdateableMods(), Version, token);
 			await sch.Yield(token);
 			if (!token.IsCancellationRequested && results.Count > 0)
 			{
