@@ -509,10 +509,10 @@ namespace DivinityModManager.Models
 
 					this.WhenAnyValue(x => x.ModManagerConfig.Notes).ToUIProperty(this, x => x.Notes, "").DisposeWith(_modConfigDisposables);
 
-					this.WhenAnyValue(x => x.NexusModsData.ModId).BindTo(this, x => x.ModManagerConfig.NexusMods.ModId).DisposeWith(_modConfigDisposables);
-					this.WhenAnyValue(x => x.WorkshopData.ModId).BindTo(this, x => x.ModManagerConfig.SteamWorkshop.ModId).DisposeWith(_modConfigDisposables);
-					this.WhenAnyValue(x => x.GitHubData.Author).BindTo(this, x => x.ModManagerConfig.GitHub.Author).DisposeWith(_modConfigDisposables);
-					this.WhenAnyValue(x => x.GitHubData.Repository).BindTo(this, x => x.ModManagerConfig.GitHub.Repository).DisposeWith(_modConfigDisposables);
+					this.WhenAnyValue(x => x.NexusModsData.ModId).BindTo(this, x => x.ModManagerConfig.NexusModsId).DisposeWith(_modConfigDisposables);
+					this.WhenAnyValue(x => x.WorkshopData.ModId).BindTo(this, x => x.ModManagerConfig.SteamWorkshopId).DisposeWith(_modConfigDisposables);
+					this.WhenAnyValue(x => x.GitHubData.Author).BindTo(this, x => x.ModManagerConfig.GitHubAuthor).DisposeWith(_modConfigDisposables);
+					this.WhenAnyValue(x => x.GitHubData.Repository).BindTo(this, x => x.ModManagerConfig.GitHubRepository).DisposeWith(_modConfigDisposables);
 				}
 			}
 			else
