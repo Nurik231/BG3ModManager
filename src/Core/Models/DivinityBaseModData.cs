@@ -84,6 +84,7 @@ namespace DivinityModManager.Models
 
 		[Reactive] public string FileName { get; private set; }
 		[ObservableAsProperty] public string DisplayName { get; }
+		[ObservableAsProperty] public bool CanAddToLoadOrder { get; }
 		[ObservableAsProperty] public Visibility DescriptionVisibility { get; }
 		[ObservableAsProperty] public Visibility AuthorVisibility { get; }
 
@@ -157,6 +158,13 @@ namespace DivinityModManager.Models
 			return false;
 		}
 
+		private static bool ToCanAddToLoadOrderValue(ValueTuple<bool, bool> x)
+		{
+			var isForceLoaded = x.Item1;
+			var isForceLoadedMergedMod = x.Item2;
+			return !isForceLoaded || isForceLoadedMergedMod;
+		}
+
 		public DivinityBaseModData()
 		{
 			Version = DivinityModVersion2.Empty;
@@ -174,6 +182,7 @@ namespace DivinityModManager.Models
 			this.WhenAnyValue(x => x.Name, x => x.FilePath, x => x.DisplayFileForName).Select(x => this.GetDisplayName()).ToUIProperty(this, x => x.DisplayName);
 			this.WhenAnyValue(x => x.Description).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.DescriptionVisibility);
 			this.WhenAnyValue(x => x.Author).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.AuthorVisibility);
+			this.WhenAnyValue(x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod).Select(ToCanAddToLoadOrderValue).ToPropertyEx(this, x => x.CanAddToLoadOrder, true, false, RxApp.MainThreadScheduler);
 		}
 	}
 }

@@ -1639,7 +1639,7 @@ namespace DivinityModManager.Util
 			return true;
 		}
 
-		public static List<DivinityModData> GetDependencyMods(DivinityModData mod, IEnumerable<DivinityModData> allMods, HashSet<string> addedMods)
+		public static List<DivinityModData> GetDependencyMods(DivinityModData mod, IEnumerable<DivinityModData> allMods, HashSet<string> addedMods, bool forExport = true)
 		{
 			List<DivinityModData> mods = new List<DivinityModData>();
 			var dependencies = mod.Dependencies.Items.Where(x => !IgnoreModDependency(x.UUID));
@@ -1653,14 +1653,14 @@ namespace DivinityModManager.Util
 					{
 						foreach(var m in dependencyMods)
 						{
-							if(!addedMods.Contains(m.UUID))
+							if((!forExport || m.CanAddToLoadOrder) && !addedMods.Contains(m.UUID))
 							{
 								addedMods.Add(m.UUID);
 								mods.Add(m);
 							}
 						}
 					}
-					if (!addedMods.Contains(dependencyModData.UUID))
+					if ((!forExport || dependencyModData.CanAddToLoadOrder) && !addedMods.Contains(dependencyModData.UUID))
 					{
 						mods.Add(dependencyModData);
 						addedMods.Add(dependencyModData.UUID);
