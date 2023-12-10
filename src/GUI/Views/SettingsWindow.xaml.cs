@@ -98,19 +98,20 @@ namespace DivinityModManager.Views
 
 				if(prop.Property.PropertyType == typeof(TimeSpan))
 				{
-					var element = new TimeSpanUpDown()
+					if(TryFindResource("TimePeriodPicker") is DataTemplate template)
 					{
-						ToolTip = !isBlankTooltip ? prop.Attribute.Tooltip : null,
-					};
-					element.SetBinding(DateTimeUpDown.ValueProperty, new Binding(prop.Property.Name)
-					{
-						Source = source,
-						Mode = BindingMode.TwoWay,
-						UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
-					});
-					targetGrid.Children.Add(element);
-					Grid.SetRow(element, targetRow);
-					Grid.SetColumn(element, 1);
+						var element = template.LoadContent() as FrameworkElement;
+						element.SetBinding(DataContextProperty, new Binding(prop.Property.Name)
+						{
+							Source = source,
+							Mode = BindingMode.TwoWay,
+							UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+						});
+
+						targetGrid.Children.Add(element);
+						Grid.SetRow(element, targetRow);
+						Grid.SetColumn(element, 1);
+					}
 				}
 
 				var propType = Type.GetTypeCode(prop.Property.PropertyType);

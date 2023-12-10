@@ -39,6 +39,7 @@
 	<conv:StringToSolidBrushConverter x:Key="StringToSolidBrushConverter" />
 	<conv:StringToLinearBrushConverter x:Key="StringToLinearBrushConverter" />
 	<conv:UriToBitmapImageConverter x:Key="UriToBitmapImageConverter" />
+	<conv:TimeSpanToReadableStringConverter x:Key="TimeSpanToReadableStringConverter" />
 	<xconv:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter" />
 	<templateSelectors:TagTemplateSelector x:Key="TagTemplateSelector" />
 	<BitmapImage x:Key="AddItemImage" UriSource="pack://application:,,,/Resources/Icons/AddItem_16x.png" />
@@ -1684,6 +1685,22 @@
 		<Setter Property="WatermarkTemplate" Value="{StaticResource DefaultXCWatermarkTemplate}" />
 		<Setter Property="BorderThickness" Value="0" />
 	</Style>
+	<DataTemplate x:Key="TimePeriodPicker">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="2*" />
+			</Grid.ColumnDefinitions>
+			<TextBlock Text="{Binding ElementName=TimeSpanPicker, Path=Value, Converter={StaticResource TimeSpanToReadableStringConverter}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Left" />
+			<xc:TimeSpanUpDown
+				x:Name="TimeSpanPicker"
+				Grid.Column="1"
+				CurrentDateTimePart="Minute"
+				Minimum="0"
+				ShowSeconds="False"
+				Value="{Binding Path=.}" />
+		</Grid>
+	</DataTemplate>
 	<Style x:Key="{ComponentResourceKey TypeInTargetAssembly={x:Type xcthemes:ResourceKeys}, ResourceId=SpinnerButtonStyleKey}" TargetType="RepeatButton">
 		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer1BackgroundBrush}}" />
 		<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}" />

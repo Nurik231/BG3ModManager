@@ -2298,12 +2298,16 @@ Directory the zip will be extracted to:
 			return true;
 		}
 
-		private List<DivinityModData> GetUpdateableMods()
+		private IList<DivinityModData> GetUpdateableMods()
 		{
 			var settingsService = Services.Get<ISettingsService>();
 			var minUpdateTime = Settings.UpdateSettings.MinimumUpdateTimePeriod;
-			var now = DateTime.Now;
-			return UserMods.Where(x => CanUpdateMod(x, now, minUpdateTime, settingsService)).ToList();
+			if(minUpdateTime > TimeSpan.Zero)
+			{
+				var now = DateTime.Now;
+				return UserMods.Where(x => CanUpdateMod(x, now, minUpdateTime, settingsService)).ToList();
+			}
+			return UserMods;
 		}
 
 		private IDisposable _refreshGitHubModsUpdatesBackgroundTask;

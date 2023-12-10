@@ -33,8 +33,8 @@ namespace DivinityModManager.Models.Settings
 		[SettingsEntry("NexusMods API Key", "Your personal NexusMods API key, which will allow the mod manager to fetch mod updates/information", HideFromUI = true)]
 		[DataMember, Reactive] public string NexusModsAPIKey { get; set; }
 
-		[DefaultValue(typeof(TimeSpan), "30mm")] // 30 minutes, or 2hh for 2 hours etc
-		[SettingsEntry("Minimum Update Time Period", "Prevent checking for updates for mods until this amount of time has passed\nThis is to prevent hitting API limits too quickly")]
+		[DefaultValue(typeof(TimeSpan), "00:30:00")] // 30 minutes
+		[SettingsEntry("Minimum Update Time Period", "Prevent checking for updates for individual mods until this amount of time has passed since the last check\nThis is to prevent hitting API limits too quickly")]
 		[DataMember, Reactive] public TimeSpan MinimumUpdateTimePeriod { get; set; }
 
 		[Reactive] public bool IsAssociatedWithNXM { get; set; }
