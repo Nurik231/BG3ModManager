@@ -168,7 +168,7 @@
 					<autogrid:AutoGrid x:Name="SettingsAutoGrid" />
 				</ScrollViewer>
 			</TabItem>
-			<TabItem x:Name="UpdateSettingsTab" FocusManager.FocusedElement="{Binding ElementName=UpdateSettingsTabAutoGrid}">
+			<TabItem x:Name="UpdateSettingsTab" FocusManager.FocusedElement="{Binding ElementName=UpdateSettingsAutoGrid}">
 				<TabItem.Header>
 					<TextBlock
 						x:Name="UpdateSettingsTabHeader"

@@ -602,7 +602,10 @@
 				<RowDefinition Height="*" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<controls:DownloadActivityBar x:Name="DownloadBar" Margin="0" />
+			<controls:DownloadActivityBar
+				x:Name="DownloadBar"
+				Margin="0"
+				DataContext="{x:Null}" />
 			<StatusBar Grid.Row="1" MinHeight="16">
 				<StatusBarItem HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 					<controls:BusyIndicator
