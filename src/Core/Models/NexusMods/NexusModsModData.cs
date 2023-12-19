@@ -105,7 +105,7 @@ namespace DivinityModManager.Models.NexusMods
 				RaisePropertyChanged(nameof(ModId));
 			}
 
-			if (fileId > -1 && LastFileId != fileId)
+			if (fileId > LastFileId)
 			{
 				LastFileId = fileId;
 			}

@@ -23,8 +23,11 @@ namespace DivinityModManager.ViewModels
 {
 	public class AppKeys : ReactiveObject
 	{
-		[MenuSettings("File", "Import Mod...", true)]
+		[MenuSettings("File", "Import Mods...", true)]
 		public Hotkey ImportMod { get; private set; } = new Hotkey(Key.O, ModifierKeys.Control);
+
+		[MenuSettings("File", "Import Nexus Mods Data from Archives...", true)]
+		public Hotkey ImportNexusModsIds { get; private set; } = new Hotkey();
 
 		[MenuSettings("File", "Add New Order", true)]
 		public Hotkey NewOrder { get; private set; } = new Hotkey(Key.N, ModifierKeys.Control);

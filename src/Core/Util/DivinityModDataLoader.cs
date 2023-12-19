@@ -2058,5 +2058,38 @@ namespace DivinityModManager.Util
 
 			return baseMods;
 		}
+
+		public static ModuleInfo TryGetMetaFromPakFileStream(System.IO.Stream stream, CancellationToken token)
+		{
+			using (var pr = new LSLib.LS.PackageReader())
+			{
+				var pak = pr.Read(stream);
+				if (pak != null && pak.Files != null)
+				{
+					for (int i = 0; i < pak.Files.Count; i++)
+					{
+						if (token.IsCancellationRequested) return null;
+						var f = pak.Files[i];
+
+						if (IsModMetaFile(f))
+						{
+							using (var metaStream = f.MakeStream())
+							{
+								using (var lsxReader = new LSXReader(metaStream))
+								{
+									_loadParams.ToSerializationSettings(lsxReader.SerializationSettings);
+									var resource = lsxReader.Read();
+									if (resource != null)
+									{
+										return ModuleInfo.FromResource(resource);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			return null;
+		}
 	}
 }

@@ -6,6 +6,7 @@ using DivinityModManager.Extensions;
 using DivinityModManager.Models;
 using DivinityModManager.Models.App;
 using DivinityModManager.Models.Extender;
+using DivinityModManager.Models.Mod;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.Settings;
 using DivinityModManager.Models.Updates;
@@ -290,6 +291,7 @@ namespace DivinityModManager.ViewModels
 		public ICommand CheckForGitHubModUpdatesCommand { get; private set; }
 		public ICommand CheckForNexusModsUpdatesCommand { get; private set; }
 		public ICommand CheckForSteamWorkshopUpdatesCommand { get; private set; }
+		public ICommand FetchNexusModsInfoFromFilesCommand { get; private set; }
 		public EventHandler OnRefreshed { get; set; }
 
 		#region DungeonMaster Support
@@ -1833,6 +1835,291 @@ Directory the zip will be extracted to:
 			}
 		}
 
+		private async Task<ModuleInfo> TryGetMetaFromZipAsync(string filePath, CancellationToken token)
+		{
+			using (var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
+			{
+				await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
+				fileStream.Position = 0;
+
+				using (var archive = ArchiveFactory.Open(fileStream, _importReaderOptions))
+				{
+					foreach (var file in archive.Entries)
+					{
+						if (token.IsCancellationRequested) return null;
+						if (!file.IsDirectory)
+						{
+							if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
+							{
+								using (var entryStream = file.OpenEntryStream())
+								{
+									using(var ms = new System.IO.MemoryStream())
+									{
+										await entryStream.CopyToAsync(ms, 4096, token);
+										ms.Position = 0;
+										var meta = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
+										if(meta == null)
+										{
+											var pakName = Path.GetFileNameWithoutExtension(file.Key);
+											var overrideMod = mods.Lookup(pakName);
+											if(overrideMod.HasValue)
+											{
+												return new ModuleInfo
+												{
+													UUID = pakName,
+												};
+											}
+										}
+										else
+										{
+											return meta;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			return null;
+		}
+
+		private async Task<ModuleInfo> TryGetMetaFromCompressedFileAsync(string filePath, string extension, CancellationToken token)
+		{
+			ModuleInfo result = null;
+			using (var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
+			{
+				await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
+				fileStream.Position = 0;
+
+				System.IO.Stream decompressionStream = null;
+				try
+				{
+					switch (extension)
+					{
+						case ".bz2":
+							decompressionStream = new BZip2Stream(fileStream, SharpCompress.Compressors.CompressionMode.Decompress, true);
+							break;
+						case ".xz":
+							decompressionStream = new XZStream(fileStream);
+							break;
+						case ".zst":
+							decompressionStream = new DecompressionStream(fileStream);
+							break;
+					}
+
+					if (decompressionStream != null)
+					{
+						using (var ms = new System.IO.MemoryStream())
+						{
+							await decompressionStream.CopyToAsync(ms, 4096, token);
+							ms.Position = 0;
+							result = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
+							if (result == null)
+							{
+								var pakName = Path.GetFileNameWithoutExtension(filePath);
+								var overrideMod = mods.Lookup(pakName);
+								if (overrideMod.HasValue)
+								{
+									result = new ModuleInfo
+									{
+										UUID = pakName,
+									};
+								}
+							}
+						}
+					}
+				}
+				finally
+				{
+					decompressionStream?.Dispose();
+				}
+			}
+			return result;
+		}
+
+		private async Task<bool> FetchNexusModsIdFromFilesAsync(List<string> files, ImportOperationResults results, CancellationToken token)
+		{
+			foreach (var filePath in files)
+			{
+				try
+				{
+					if (token.IsCancellationRequested) break;
+
+					var ext = Path.GetExtension(filePath).ToLower();
+
+					var isArchive = _archiveFormats.Contains(ext, StringComparer.OrdinalIgnoreCase);
+					var isCompressedFile = !isArchive && _compressedFormats.Contains(ext, StringComparer.OrdinalIgnoreCase);
+
+					if (isArchive || isCompressedFile)
+					{
+						var info = NexusModFileVersionData.FromFilePath(filePath);
+						if (info.Success)
+						{
+							ModuleInfo meta = null;
+							if (isArchive)
+							{
+								meta = await TryGetMetaFromZipAsync(filePath, token);
+							}
+							else if (isCompressedFile)
+							{
+								meta = await TryGetMetaFromCompressedFileAsync(filePath, ext, token);
+							}
+
+							if (meta != null)
+							{
+								var mod = mods.Lookup(meta.UUID);
+								if (mod.HasValue)
+								{
+									mod.Value.NexusModsData.SetModVersion(info);
+									results.Mods.Add(mod.Value);
+								}
+							}
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					DivinityApp.Log($"Error fetching info:\n{ex}");
+					results.AddError(filePath, ex);
+				}
+			}
+			
+			if(results.Success)
+			{
+				DivinityApp.Log($"Updated NexusMods mod ids for ({results.Mods.Count}) mod(s).");
+				await _updater.NexusMods.Update(results.Mods, token);
+				await _updater.NexusMods.SaveCacheAsync(false, Version, token);
+			}
+			return results.Success;
+		}
+
+		private void OpenModIdsImportDialog()
+		{
+			//Filter = $"All formats (*.pak;{_archiveFormatsStr};{_compressedFormatsStr})|*.pak;{_archiveFormatsStr};{_compressedFormatsStr}|Mod package (*.pak)|*.pak|Archive file ({_archiveFormatsStr})|{_archiveFormatsStr}|Compressed file ({_compressedFormatsStr})|{_compressedFormatsStr}|All files (*.*)|*.*",
+			var dialog = new OpenFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				DefaultExt = ".zip",
+				Filter = $"All formats ({_archiveFormatsStr};{_compressedFormatsStr})|{_archiveFormatsStr};{_compressedFormatsStr}|Archive file ({_archiveFormatsStr})|{_archiveFormatsStr}|Compressed file ({_compressedFormatsStr})|{_compressedFormatsStr}|All files (*.*)|*.*",
+				Title = "Import NexusMods ModId(s) from Archive(s)...",
+				ValidateNames = true,
+				ReadOnlyChecked = true,
+				Multiselect = true,
+				InitialDirectory = GetInitialStartingDirectory(Settings.LastImportDirectoryPath)
+			};
+
+			if (dialog.ShowDialog(Window) == true)
+			{
+				var savedDirectory = Path.GetDirectoryName(dialog.FileName);
+				if (Settings.LastImportDirectoryPath != savedDirectory)
+				{
+					Settings.LastImportDirectoryPath = savedDirectory;
+					PathwayData.LastSaveFilePath = savedDirectory;
+					SaveSettings();
+				}
+
+				var files = dialog.FileNames.ToList();
+
+				if (!MainProgressIsActive)
+				{
+					MainProgressTitle = "Parsing files for NexusMods ModIds...";
+					MainProgressWorkText = "";
+					MainProgressValue = 0d;
+					MainProgressIsActive = true;
+					IsRefreshing = true;
+					var result = new ImportOperationResults()
+					{
+						TotalFiles = files.Count()
+					};
+
+					RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, t) =>
+					{
+						MainProgressToken = new CancellationTokenSource();
+
+						await FetchNexusModsIdFromFilesAsync(files, result, MainProgressToken.Token);
+
+						RxApp.MainThreadScheduler.Schedule(_ =>
+						{
+							IsRefreshing = false;
+							OnMainProgressComplete();
+
+							if (result.Errors.Count > 0)
+							{
+								var sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.Replace("/", "-");
+								var errorOutputPath = DivinityApp.GetAppDirectory("_Logs", $"ImportNexusModsModIds_{DateTime.Now.ToString(sysFormat + "_HH-mm-ss")}_Errors.log");
+								var logsDir = Path.GetDirectoryName(errorOutputPath);
+								if (!Directory.Exists(logsDir))
+								{
+									Directory.CreateDirectory(logsDir);
+								}
+								File.WriteAllText(errorOutputPath, String.Join("\n", result.Errors.Select(x => $"File: {x.File}\nError:\n{x.Exception}")));
+							}
+
+							var total = result.Mods.Count;
+							if (result.Success)
+							{
+								if (result.Mods.Count > 1)
+								{
+									ShowAlert($"Successfully imported NexusMods ids for {total} mods", AlertType.Success, 20);
+								}
+								else if (total == 1)
+								{
+									ShowAlert($"Successfully imported the NexusMods id for '{result.Mods.First().Name}'", AlertType.Success, 20);
+								}
+								else
+								{
+									ShowAlert("No NexusMods ids found", AlertType.Success, 20);
+								}
+							}
+							else
+							{
+								if (total == 0)
+								{
+									ShowAlert("No NexusMods ids found. Does the .zip name contain an id, with a .pak file inside?", AlertType.Warning, 60);
+								}
+								else if(result.Errors.Count > 0)
+								{
+									ShowAlert($"Encountered some errors fetching ids - Check the log", AlertType.Danger, 60);
+								}
+							}
+						});
+						return Disposable.Empty;
+					});
+				}
+			}
+		}
+
+		private void OpenModImportDialog()
+		{
+			var dialog = new OpenFileDialog
+			{
+				CheckFileExists = true,
+				CheckPathExists = true,
+				DefaultExt = ".zip",
+				Filter = $"All formats (*.pak;{_archiveFormatsStr};{_compressedFormatsStr})|*.pak;{_archiveFormatsStr};{_compressedFormatsStr}|Mod package (*.pak)|*.pak|Archive file ({_archiveFormatsStr})|{_archiveFormatsStr}|Compressed file ({_compressedFormatsStr})|{_compressedFormatsStr}|All files (*.*)|*.*",
+				Title = "Import Mods from Archive...",
+				ValidateNames = true,
+				ReadOnlyChecked = true,
+				Multiselect = true,
+				InitialDirectory = GetInitialStartingDirectory(Settings.LastImportDirectoryPath)
+			};
+
+			if (dialog.ShowDialog(Window) == true)
+			{
+				var savedDirectory = Path.GetDirectoryName(dialog.FileName);
+				if (Settings.LastImportDirectoryPath != savedDirectory)
+				{
+					Settings.LastImportDirectoryPath = savedDirectory;
+					PathwayData.LastSaveFilePath = savedDirectory;
+					SaveSettings();
+				}
+
+				ImportMods(dialog.FileNames);
+			}
+		}
+
 		private async Task<ImportOperationResults> AddModFromFile(Dictionary<string, DivinityModData> builtinMods, ImportOperationResults taskResult, string filePath, CancellationToken token, bool toActiveList = false)
 		{
 			var ext = Path.GetExtension(filePath).ToLower();
@@ -2004,35 +2291,6 @@ Directory the zip will be extracted to:
 		public static bool IsImportableFile(string ext)
 		{
 			return ext == ".pak" || _archiveFormats.Contains(ext) || _compressedFormats.Contains(ext);
-		}
-
-		private void OpenModImportDialog()
-		{
-			var dialog = new OpenFileDialog
-			{
-				CheckFileExists = true,
-				CheckPathExists = true,
-				DefaultExt = ".zip",
-				Filter = $"All formats (*.pak;{_archiveFormatsStr};{_compressedFormatsStr})|*.pak;{_archiveFormatsStr};{_compressedFormatsStr}|Mod package (*.pak)|*.pak|Archive file ({_archiveFormatsStr})|{_archiveFormatsStr}|Compressed file ({_compressedFormatsStr})|{_compressedFormatsStr}|All files (*.*)|*.*",
-				Title = "Import Mods from Archive...",
-				ValidateNames = true,
-				ReadOnlyChecked = true,
-				Multiselect = true,
-				InitialDirectory = GetInitialStartingDirectory(Settings.LastImportDirectoryPath)
-			};
-
-			if (dialog.ShowDialog(Window) == true)
-			{
-				var savedDirectory = Path.GetDirectoryName(dialog.FileName);
-				if(Settings.LastImportDirectoryPath != savedDirectory)
-				{
-					Settings.LastImportDirectoryPath = savedDirectory;
-					PathwayData.LastSaveFilePath = savedDirectory;
-					SaveSettings();
-				}
-
-				ImportMods(dialog.FileNames);
-			}
 		}
 
 		private void AddNewModOrder(DivinityLoadOrder newOrder = null)
@@ -5002,6 +5260,7 @@ Directory the zip will be extracted to:
 			var canExecuteSaveAsCommand = this.WhenAnyValue(x => x.CanSaveOrder, x => x.MainProgressIsActive, (canSave, p) => canSave && !p);
 			Keys.SaveAs.AddAction(SaveLoadOrderAs, canExecuteSaveAsCommand);
 			Keys.ImportMod.AddAction(OpenModImportDialog);
+			Keys.ImportNexusModsIds.AddAction(OpenModIdsImportDialog);
 			Keys.NewOrder.AddAction(() => AddNewModOrder());
 
 			var canRefreshObservable = this.WhenAnyValue(x => x.IsRefreshing, b => !b).StartWith(true);
@@ -5041,6 +5300,7 @@ Directory the zip will be extracted to:
 			CheckForGitHubModUpdatesCommand = ReactiveCommand.Create(RefreshGitHubModsUpdatesBackground, this.WhenAnyValue(x => x.GitHubModSupportEnabled), RxApp.MainThreadScheduler);
 			CheckForNexusModsUpdatesCommand = ReactiveCommand.Create(RefreshNexusModsUpdatesBackground, this.WhenAnyValue(x => x.NexusModsSupportEnabled), RxApp.MainThreadScheduler);
 			CheckForSteamWorkshopUpdatesCommand = ReactiveCommand.Create(RefreshSteamWorkshopUpdatesBackground, this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled), RxApp.MainThreadScheduler);
+			FetchNexusModsInfoFromFilesCommand = ReactiveCommand.Create(OpenModIdsImportDialog, outputScheduler: RxApp.MainThreadScheduler);
 
 			IObservable<bool> canStartExport = this.WhenAny(x => x.MainProgressToken, (t) => t != null).StartWith(false);
 			Keys.ExportOrderToZip.AddAction(ExportLoadOrderToArchive_Start, canStartExport);
