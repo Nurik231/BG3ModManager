@@ -102,9 +102,9 @@ namespace DivinityModManager.Models.Settings
 		[SettingsEntry("Shift Focus on Swap", "When moving selected mods to the opposite list with Enter, move focus to that list as well")]
 		[DataMember, Reactive] public bool ShiftListFocusOnSwap { get; set; }
 
-		[DataMember] public ScriptExtenderSettings ExtenderSettings { get; set; }
-		[DataMember] public ScriptExtenderUpdateConfig ExtenderUpdaterSettings { get; set; }
-		[DataMember] public ModManagerUpdateSettings UpdateSettings { get; set; }
+		[DataMember, Reactive] public ScriptExtenderSettings ExtenderSettings { get; set; }
+		[DataMember, Reactive] public ScriptExtenderUpdateConfig ExtenderUpdaterSettings { get; set; }
+		[DataMember, Reactive] public ModManagerUpdateSettings UpdateSettings { get; set; }
 
 		public string DefaultExtenderLogDirectory { get; set; }
 
