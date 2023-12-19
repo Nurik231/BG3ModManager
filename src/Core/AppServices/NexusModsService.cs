@@ -354,8 +354,9 @@ namespace DivinityModManager.AppServices
 					_client = NexusModsClient.Create(key, appName, appVersion, _apiLimits);
 					_dataLoader = new InfosInquirer(_client);
 
-					if (ProfileAvatarUrl == null)
+					if(ProfileAvatarUrl == null)
 					{
+						DivinityApp.Log("Fetching NexusMods user profile info...");
 						RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
 						{
 							var user = await GetUserAsync(cts);
@@ -366,6 +367,10 @@ namespace DivinityModManager.AppServices
 									IsPremium = user.IsPremium;
 									ProfileAvatarUrl = user.ProfileAvatarUrl;
 								});
+							}
+							else
+							{
+								DivinityApp.Log("Failed to fetch NexusMods user profile info.");
 							}
 						});
 					}
