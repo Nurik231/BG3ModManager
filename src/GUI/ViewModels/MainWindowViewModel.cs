@@ -1668,7 +1668,6 @@ Directory the zip will be extracted to:
 					{
 						ShowAlert($"{dupeCount} duplicate mod(s) found", AlertType.Danger, 30);
 						DeleteMods(modLoadingResults.Duplicates, true, modLoadingResults.Mods);
-						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
 			}
@@ -1861,7 +1860,6 @@ Directory the zip will be extracted to:
 							await Observable.Start(() =>
 							{
 								AddImportedMod(mod, toActiveList);
-								return Unit.Default;
 							}, RxApp.MainThreadScheduler);
 						}
 					}
@@ -2275,14 +2273,13 @@ Directory the zip will be extracted to:
 		{
 			if (!MainProgressIsActive)
 			{
-				return await Observable.Start(() =>
+				await Observable.Start(() =>
 				{
 					MainProgressTitle = title;
 					MainProgressWorkText = "";
 					MainProgressValue = 0d;
 					MainProgressIsActive = true;
 					IsRefreshing = true;
-					return Unit.Default;
 				}, RxApp.MainThreadScheduler);
 			}
 			return Unit.Default;
@@ -2575,7 +2572,6 @@ Directory the zip will be extracted to:
 						ShowAlert("Game Data folder is not valid. Please set it in the preferences window and refresh", AlertType.Danger);
 						Window.OpenPreferences(false, true);
 					}
-					return Unit.Default;
 				}, RxApp.MainThreadScheduler);
 
 				await IncreaseMainProgressValueAsync(taskStepAmount);
@@ -2644,8 +2640,6 @@ Directory the zip will be extracted to:
 				}
 
 				RefreshModUpdatesCommand.Execute().Subscribe();
-
-				return Unit.Default;
 			}, RxApp.MainThreadScheduler);
 			return Unit.Default;
 		}
@@ -3000,22 +2994,19 @@ Directory the zip will be extracted to:
 							SelectedProfile.ActiveMods.Clear();
 							SelectedProfile.ActiveMods.AddRange(orderList.Select(x => ProfileActiveModDataFromUUID(x)));
 							DisplayMissingMods(SelectedModOrder);
-
-							return Unit.Default;
 						}, RxApp.MainThreadScheduler);
 						return true;
 					}
 					else
 					{
-						await Observable.Start((Func<Unit>)(() =>
+						await Observable.Start(() =>
 						{
 							string msg = $"Problem exporting load order to '{outputPath}'. Is the file locked?";
 							ShowAlert(msg, AlertType.Danger);
 							View.MainWindowMessageBox_OK.WindowBackground = new SolidColorBrush(Color.FromRgb(219, 40, 40));
 							View.MainWindowMessageBox_OK.Closed += this.MainWindowMessageBox_Closed_ResetColor;
 							View.MainWindowMessageBox_OK.ShowMessageBox(msg, "Mod Order Export Failed", MessageBoxButton.OK);
-							return Unit.Default;
-						}), RxApp.MainThreadScheduler);
+						}, RxApp.MainThreadScheduler);
 					}
 				}
 				else
@@ -3023,7 +3014,6 @@ Directory the zip will be extracted to:
 					await Observable.Start(() =>
 					{
 						ShowAlert("SelectedProfile or SelectedModOrder is null! Failed to export mod order", AlertType.Danger);
-						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
 			}
@@ -3067,21 +3057,20 @@ Directory the zip will be extracted to:
 								SelectedProfile.ActiveMods.AddRange(orderList.Select(x => ProfileActiveModDataFromUUID(x)));
 								DisplayMissingMods(SelectedModOrder);
 
-								return Unit.Default;
 							}, RxApp.MainThreadScheduler);
 							return true;
 						}
 						else
 						{
-							await Observable.Start((Func<Unit>)(() =>
+							await Observable.Start(() =>
 							{
 								string msg = $"Problem exporting load order to '{SelectedGameMasterCampaign.FilePath}'";
 								ShowAlert(msg, AlertType.Danger);
 								this.View.MainWindowMessageBox_OK.WindowBackground = new SolidColorBrush(Color.FromRgb(219, 40, 40));
 								this.View.MainWindowMessageBox_OK.Closed += this.MainWindowMessageBox_Closed_ResetColor;
 								this.View.MainWindowMessageBox_OK.ShowMessageBox(msg, "Mod Order Export Failed", MessageBoxButton.OK);
-								return Unit.Default;
-							}), RxApp.MainThreadScheduler);
+
+							}, RxApp.MainThreadScheduler);
 						}
 					}
 				}
@@ -3090,7 +3079,6 @@ Directory the zip will be extracted to:
 					await Observable.Start(() =>
 					{
 						ShowAlert("SelectedGameMasterCampaign is null! Failed to export mod order", AlertType.Danger);
-						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
 			}
@@ -3381,7 +3369,6 @@ Directory the zip will be extracted to:
 										await Observable.Start(() =>
 										{
 											AddImportedMod(mod, toActiveList);
-											return Unit.Default;
 										}, RxApp.MainThreadScheduler);
 									}
 								}
@@ -3499,7 +3486,6 @@ Directory the zip will be extracted to:
 											await Observable.Start(() =>
 											{
 												AddImportedMod(mod, toActiveList);
-												return Unit.Default;
 											}, RxApp.MainThreadScheduler);
 										}
 									}
