@@ -497,15 +497,18 @@ namespace DivinityModManager.Models
 			//if (!String.IsNullOrWhiteSpace(config.GitHub.Repository)) ModManagerConfig.GitHub.Repository = config.GitHub.Repository;
 		}
 
-		private static string GetAuthor(ValueTuple<string, string, string> x)
+		private static string GetAuthor(ValueTuple<string, string, string, bool> x)
 		{
 			var metaAuthor = x.Item1;
 			var nexusAuthor = x.Item2;
 			var githubAuthor = x.Item3;
+			var isLarianMod = x.Item4;
 
 			if (!String.IsNullOrEmpty(metaAuthor)) return metaAuthor;
 			if (!String.IsNullOrEmpty(nexusAuthor)) return nexusAuthor;
 			if (!String.IsNullOrEmpty(githubAuthor)) return githubAuthor;
+
+			if (isLarianMod) return "Larian Studios";
 
 			return String.Empty;
 		}
@@ -542,7 +545,7 @@ namespace DivinityModManager.Models
 			GitHubData = new GitHubModData();
 
 			this.WhenAnyValue(x => x.FilePath).Select(f => Path.GetFileName(f)).BindTo(this, x => x.FileName);
-			this.WhenAnyValue(x => x.Author, x => x.NexusModsData.Author, x => x.GitHubData.Author).Select(GetAuthor).BindTo(this, x => x.AuthorDisplayName);
+			this.WhenAnyValue(x => x.Author, x => x.NexusModsData.Author, x => x.GitHubData.Author, x => x.IsLarianMod).Select(GetAuthor).BindTo(this, x => x.AuthorDisplayName);
 
 			this.WhenAnyValue(x => x.Name, x => x.FilePath, x => x.DisplayFileForName).Select(x => GetDisplayName()).ToUIProperty(this, x => x.DisplayName);
 			this.WhenAnyValue(x => x.Description).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.DescriptionVisibility);
