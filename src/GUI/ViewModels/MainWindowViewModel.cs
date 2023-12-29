@@ -5539,7 +5539,6 @@ Directory the zip will be extracted to:
 				.ObserveOn(RxApp.MainThreadScheduler);
 			forceLoadedObs.Bind(out _forceLoadedMods).Subscribe();
 			forceLoadedObs.CountChanged().Select(_ => _forceLoadedMods.Count > 0).ToUIProperty(this, x => x.HasForceLoadedMods);
-			this.WhenAnyValue(x => x.HasForceLoadedMods);
 
 			//Throttle filters so they only happen when typing stops for 500ms
 
