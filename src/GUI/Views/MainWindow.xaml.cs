@@ -240,10 +240,7 @@ namespace DivinityModManager.Views
 
 		private void ToggleAboutWindow()
 		{
-			if (AboutWindow == null)
-			{
-				AboutWindow = new AboutWindow();
-			}
+			AboutWindow ??= new AboutWindow();
 
 			if (!AboutWindow.IsVisible)
 			{
@@ -259,10 +256,7 @@ namespace DivinityModManager.Views
 
 		public void ToggleUpdateWindow(bool visible, UpdateInfoEventArgs e = null)
 		{
-			if (UpdateWindow == null)
-			{
-				UpdateWindow = new AppUpdateWindow();
-			}
+			UpdateWindow ??= new AppUpdateWindow();
 
 			if (visible)
 			{
@@ -281,10 +275,7 @@ namespace DivinityModManager.Views
 
 		public void ShowHelpWindow(string title, string helpText)
 		{
-			if (HelpWindow == null)
-			{
-				HelpWindow = new HelpWindow();
-			}
+			HelpWindow ??= new HelpWindow();
 
 			HelpWindow.ViewModel.HelpTitle = title;
 			HelpWindow.ViewModel.HelpText = helpText;
@@ -419,10 +410,7 @@ namespace DivinityModManager.Views
 
 				ViewModel.Keys.ToggleVersionGeneratorWindow.AddAction(() =>
 				{
-					if (VersionGeneratorWindow == null)
-					{
-						VersionGeneratorWindow = new VersionGeneratorWindow();
-					}
+					VersionGeneratorWindow ??= new VersionGeneratorWindow();
 
 					if (!VersionGeneratorWindow.IsVisible)
 					{

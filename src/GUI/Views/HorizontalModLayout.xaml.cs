@@ -235,15 +235,13 @@ namespace DivinityModManager.Views
 		{
 			if (ActiveModsListView.ItemContainerGenerator.Status == System.Windows.Controls.Primitives.GeneratorStatus.ContainersGenerated)
 			{
-				if (updatingActiveViewSelection == null)
+				updatingActiveViewSelection?.Dispose();
+				updatingActiveViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
 				{
-					updatingActiveViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
-					{
-						UpdateViewSelection(ViewModel.ActiveMods, ActiveModsListView);
-						updatingActiveViewSelection.Dispose();
-						updatingActiveViewSelection = null;
-					});
-				}
+					UpdateViewSelection(ViewModel.ActiveMods, ActiveModsListView);
+					updatingActiveViewSelection.Dispose();
+					updatingActiveViewSelection = null;
+				});
 			}
 		}
 
@@ -251,16 +249,13 @@ namespace DivinityModManager.Views
 		{
 			if (InactiveModsListView.ItemContainerGenerator.Status == System.Windows.Controls.Primitives.GeneratorStatus.ContainersGenerated)
 			{
-				if (updatingInactiveViewSelection == null)
+				updatingInactiveViewSelection?.Dispose();
+				updatingInactiveViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
 				{
-					updatingInactiveViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
-					{
-						UpdateViewSelection(ViewModel.InactiveMods, InactiveModsListView);
-						updatingInactiveViewSelection.Dispose();
-						updatingInactiveViewSelection = null;
-					});
-				}
-
+					UpdateViewSelection(ViewModel.InactiveMods, InactiveModsListView);
+					updatingInactiveViewSelection.Dispose();
+					updatingInactiveViewSelection = null;
+				});
 			}
 		}
 
@@ -268,16 +263,13 @@ namespace DivinityModManager.Views
 		{
 			if (ForceLoadedModsListView.ItemContainerGenerator.Status == System.Windows.Controls.Primitives.GeneratorStatus.ContainersGenerated)
 			{
-				if (updatingForcedViewSelection == null)
+				updatingForcedViewSelection?.Dispose();
+				updatingForcedViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
 				{
-					updatingForcedViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
-					{
-						UpdateViewSelection(ViewModel.ForceLoadedMods, ForceLoadedModsListView);
-						updatingForcedViewSelection.Dispose();
-						updatingForcedViewSelection = null;
-					});
-				}
-
+					UpdateViewSelection(ViewModel.ForceLoadedMods, ForceLoadedModsListView);
+					updatingForcedViewSelection.Dispose();
+					updatingForcedViewSelection = null;
+				});
 			}
 		}
 
@@ -640,11 +632,7 @@ namespace DivinityModManager.Views
 					{
 						if (c > 1 && DivinityApp.IsScreenReaderActive())
 						{
-							var peer = UIElementAutomationPeer.FromElement(this.ActiveSelectedText);
-							if (peer == null)
-							{
-								peer = UIElementAutomationPeer.CreatePeerForElement(this.ActiveSelectedText);
-							}
+							var peer = UIElementAutomationPeer.FromElement(this.ActiveSelectedText) ?? UIElementAutomationPeer.CreatePeerForElement(this.ActiveSelectedText);
 							peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
 						}
 					}));
@@ -653,11 +641,7 @@ namespace DivinityModManager.Views
 					{
 						if (c > 1 && DivinityApp.IsScreenReaderActive())
 						{
-							var peer = UIElementAutomationPeer.FromElement(this.InactiveSelectedText);
-							if (peer == null)
-							{
-								peer = UIElementAutomationPeer.CreatePeerForElement(this.InactiveSelectedText);
-							}
+							var peer = UIElementAutomationPeer.FromElement(this.InactiveSelectedText) ?? UIElementAutomationPeer.CreatePeerForElement(this.InactiveSelectedText);
 							peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
 						}
 					}));
@@ -695,10 +679,9 @@ namespace DivinityModManager.Views
 
 		private void ListView_Click(object sender, RoutedEventArgs e)
 		{
-			GridViewColumnHeader headerClicked = e.OriginalSource as GridViewColumnHeader;
 			ListSortDirection direction;
 
-			if (headerClicked != null)
+			if (e.OriginalSource is GridViewColumnHeader headerClicked)
 			{
 				if (headerClicked.Role != GridViewColumnHeaderRole.Padding)
 				{

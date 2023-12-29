@@ -1638,10 +1638,8 @@ Directory the zip will be extracted to:
 					await IncreaseMainProgressValueAsync(taskStepAmount);
 				}
 			}
-			if (baseMods == null)
-			{
-				baseMods = new List<DivinityModData>();
-			}
+
+			baseMods ??= new List<DivinityModData>();
 
 			if (!GameDirectoryFound || baseMods.Count < DivinityApp.IgnoredMods.Count)
 			{
@@ -3072,7 +3070,7 @@ Directory the zip will be extracted to:
 		{
 			bool displayExtenderModWarning = false;
 
-			if (order == null) order = SelectedModOrder;
+			order ??= SelectedModOrder;
 			if (order != null && Settings?.DisableMissingModWarnings != true)
 			{
 				List<DivinityMissingModData> missingMods = new();

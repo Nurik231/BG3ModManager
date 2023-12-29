@@ -172,7 +172,7 @@ namespace DivinityModManager.ViewModels
 							{
 								nextVersion = ScriptExtenderUpdates.FirstOrDefault(x => x.Version == lastVersion);
 							}
-							if (nextVersion == null) nextVersion = _emptyVersion;
+							nextVersion ??= _emptyVersion;
 							TargetVersion = nextVersion;
 
 							HasFetchedManifest = true;

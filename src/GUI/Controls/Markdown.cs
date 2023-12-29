@@ -310,8 +310,7 @@ namespace DivinityModManager.Controls
         {
             // in other words [this] and [this[also]] and [this[also[too]]]
             // up to _nestDepth
-            if (_nestedBracketsPattern is null)
-                _nestedBracketsPattern =
+            _nestedBracketsPattern ??=
                     RepeatString(@"
                     (?>              # Atomic matching
                        [^\[\]]+      # Anything other than brackets
@@ -334,8 +333,7 @@ namespace DivinityModManager.Controls
         {
             // in other words (this) and (this(also)) and (this(also(too)))
             // up to _nestDepth
-            if (_nestedParensPattern is null)
-                _nestedParensPattern =
+            _nestedParensPattern ??=
                     RepeatString(@"
                     (?>              # Atomic matching
                        [^()\s]+      # Anything other than parens or whitespace
@@ -358,8 +356,7 @@ namespace DivinityModManager.Controls
         {
             // in other words (this) and (this(also)) and (this(also(too)))
             // up to _nestDepth
-            if (_nestedParensPatternWithWhiteSpace is null)
-                _nestedParensPatternWithWhiteSpace =
+            _nestedParensPatternWithWhiteSpace ??=
                     RepeatString(@"
                     (?>              # Atomic matching
                        [^()]+      # Anything other than parens
