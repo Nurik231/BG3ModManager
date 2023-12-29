@@ -102,10 +102,9 @@ namespace DivinityModManager.Views
 
 		private void SortGrid(object sender, RoutedEventArgs e, bool modUpdatesGrid = false)
 		{
-			GridViewColumnHeader headerClicked = e.OriginalSource as GridViewColumnHeader;
 			ListSortDirection direction;
 
-			if (headerClicked != null)
+			if (e.OriginalSource is GridViewColumnHeader headerClicked)
 			{
 				if (headerClicked.Role != GridViewColumnHeaderRole.Padding)
 				{
@@ -135,7 +134,7 @@ namespace DivinityModManager.Views
 					{
 						header = gridHeader;
 					}
-					else if (headerClicked.Column.Header is CheckBox selectionHeader)
+					else if (headerClicked.Column.Header is CheckBox)
 					{
 						header = "IsSelected";
 					}
