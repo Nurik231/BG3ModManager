@@ -418,13 +418,13 @@ namespace DivinityModManager.Models
 				.Select(PropertyConverters.BoolToVisibility)
 				.ToUIProperty(this, x => x.OpenWorkshopLinkVisibility, Visibility.Collapsed);
 
-			var connection = this.Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler);
-			connection.Bind(out displayedDependencies).DisposeMany().Subscribe();
-			connection.CountChanged().Select(x => x.Count).ToUIProperty(this, x => x.TotalDependencies);
-			this.WhenAnyValue(x => x.TotalDependencies, c => c > 0).ToUIProperty(this, x => x.HasDependencies);
+			var dependenciesChanged = Dependencies.CountChanged;
+			dependenciesChanged.Select(x => x > 0).ToUIProperty(this, x => x.HasDependencies);
 			this.WhenAnyValue(x => x.HasDependencies).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.DependencyVisibility, Visibility.Collapsed);
-			this.WhenAnyValue(x => x.IsActive, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod,
-				x => x.ForceAllowInLoadOrder).Subscribe((b) =>
+			dependenciesChanged.ToUIProperty(this, x => x.TotalDependencies);
+			Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler).Bind(out displayedDependencies);
+
+			this.WhenAnyValue(x => x.IsActive, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod, x => x.ForceAllowInLoadOrder).Subscribe((b) =>
 			{
 				var isActive = b.Item1;
 				var isForceLoaded = b.Item2;

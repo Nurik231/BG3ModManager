@@ -19,19 +19,18 @@ namespace DivinityModManager.Models
 		[DataMember] [Reactive] public int RequiredVersion { get; set; }
 		[DataMember] [Reactive] public string ModTable { get; set; }
 
-		[DataMember] public ObservableCollectionExtended<string> FeatureFlags { get; set; }
+		[DataMember] public SourceList<string> FeatureFlags { get; set; }
 
 		[ObservableAsProperty] public int TotalFeatureFlags { get; }
 		[ObservableAsProperty] public bool HasAnySettings { get; }
 
-		public bool Lua => FeatureFlags.Contains("Lua");
+		public bool Lua => FeatureFlags.Items.Contains("Lua");
 
 		public DivinityModScriptExtenderConfig()
 		{
 			RequiredVersion = -1;
-			FeatureFlags = new ObservableCollectionExtended<string>();
-			var featureFlagsConnection = FeatureFlags.ToObservableChangeSet();
-			featureFlagsConnection.CountChanged().Select(x => x.Count).ToPropertyEx(this, x => x.TotalFeatureFlags);
+			FeatureFlags = new();
+			FeatureFlags.CountChanged.ToPropertyEx(this, x => x.TotalFeatureFlags);
 			this.WhenAnyValue(x => x.RequiredVersion, x => x.TotalFeatureFlags, x => x.ModTable)
 			.Select(x => x.Item1 > -1 || x.Item2 > 0 || !String.IsNullOrEmpty(x.Item3)).ToPropertyEx(this, x => x.HasAnySettings);
 		}

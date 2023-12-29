@@ -5313,7 +5313,7 @@ Directory the zip will be extracted to:
 			Keys.ExportOrderToZip.AddAction(ExportLoadOrderToArchive_Start, canStartExport);
 			Keys.ExportOrderToArchiveAs.AddAction(ExportLoadOrderToArchiveAs, canStartExport);
 
-			var anyActiveObservable = ActiveMods.ToObservableChangeSet().CountChanged().Select(x => x.Count > 0);
+			var anyActiveObservable = ActiveMods.WhenAnyValue(x => x.Count).Select(x => x > 0);
 			//var anyActiveObservable = this.WhenAnyValue(x => x.ActiveMods.Count, (c) => c > 0);
 			Keys.ExportOrderToList.AddAction(ExportLoadOrderToTextFileAs, anyActiveObservable);
 			ExportOrderAsListCommand = ReactiveCommand.Create(ExportLoadOrderToTextFileAs, anyActiveObservable);
@@ -5534,9 +5534,12 @@ Directory the zip will be extracted to:
 
 			modsConnection.Filter(x => x.IsUserMod).Bind(out _userMods).Subscribe();
 			modsConnection.AutoRefresh(x => x.CanAddToLoadOrder).Filter(x => x.CanAddToLoadOrder).Bind(out addonMods).Subscribe();
-			modsConnection.AutoRefresh(x => x.ForceAllowInLoadOrder)
+			var forceLoadedObs = modsConnection.AutoRefresh(x => x.ForceAllowInLoadOrder)
 				.Filter(x => x.IsForceLoaded && !x.IsForceLoadedMergedMod && !x.ForceAllowInLoadOrder)
-				.ObserveOn(RxApp.MainThreadScheduler).Bind(out _forceLoadedMods).Subscribe();
+				.ObserveOn(RxApp.MainThreadScheduler);
+			forceLoadedObs.Bind(out _forceLoadedMods).Subscribe();
+			forceLoadedObs.CountChanged().Select(_ => _forceLoadedMods.Count > 0).ToUIProperty(this, x => x.HasForceLoadedMods);
+			this.WhenAnyValue(x => x.HasForceLoadedMods);
 
 			//Throttle filters so they only happen when typing stops for 500ms
 
@@ -5699,9 +5702,6 @@ Directory the zip will be extracted to:
 			this.WhenAnyValue(x => x.View.DeleteFilesView.ViewModel.IsVisible).ToUIProperty(this, x => x.IsDeletingFiles);
 
 			this.WhenAnyValue(x => x.MainProgressIsActive, x => x.IsDeletingFiles, (a, b) => a || b).ToUIProperty(this, x => x.HideModList, true);
-
-			var forceLoadedModsConnection = this.ForceLoadedMods.ToObservableChangeSet().ObserveOn(RxApp.MainThreadScheduler);
-			forceLoadedModsConnection.CountChanged().Select(x => x.Count > 0).ToUIProperty(this, x => x.HasForceLoadedMods);
 
 			DivinityInteractions.ConfirmModDeletion.RegisterHandler((Func<InteractionContext<DeleteFilesViewConfirmationData, bool>, Task>)(async interaction =>
 			{

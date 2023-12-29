@@ -170,19 +170,18 @@ namespace DivinityModManager.ViewModels
 
 			_mainWindowViewModel = mainWindowViewModel;
 
+			Mods.CountChanged.ToUIProperty(this, x => x.TotalUpdates);
+
 			var modsConnection = Mods.Connect();
-
-			modsConnection.CountChanged().Select(x => x.Count).ToUIProperty(this, x => x.TotalUpdates);
-
 			var splitList = modsConnection.AutoRefresh(x => x.IsNewMod);
 			var newModsConnection = splitList.Filter(x => x.IsNewMod);
-			var updatedModsConnection = splitList.Filter(x => !x.IsNewMod);
+			var updatedModsConnection = modsConnection.Filter(x => !x.IsNewMod);
 
 			newModsConnection.Bind(out _newMods).Subscribe();
 			updatedModsConnection.Bind(out _updatedMods).Subscribe();
 
-			var hasNewMods = newModsConnection.CountChanged().Select(x => x.Count > 0);
-			var hasUpdatedMods = updatedModsConnection.CountChanged().Select(x => x.Count > 0);
+			var hasNewMods = newModsConnection.CountChanged().Select(_ => _newMods.Count > 0);
+			var hasUpdatedMods = updatedModsConnection.CountChanged().Select(_ => _updatedMods.Count > 0);
 			hasNewMods.ToUIProperty(this, x => x.NewAvailable);
 			hasUpdatedMods.ToUIProperty(this, x => x.UpdatesAvailable);
 
