@@ -12,14 +12,14 @@ namespace DivinityModManager.Util
 	{
 		public static void CreateCommandBinding(Button button, string vmProperty, object source)
 		{
-			Binding binding = new Binding(vmProperty);
+			Binding binding = new(vmProperty);
 			binding.Source = source;
 			binding.Mode = BindingMode.OneWay;
 			button.SetBinding(Button.CommandProperty, binding);
 		}
 		public static void CreateCommandBinding(MenuItem button, string vmProperty, object source)
 		{
-			Binding binding = new Binding(vmProperty);
+			Binding binding = new(vmProperty);
 			binding.Source = source;
 			binding.Mode = BindingMode.OneWay;
 			button.SetBinding(MenuItem.CommandProperty, binding);

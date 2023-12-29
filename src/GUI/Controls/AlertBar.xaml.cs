@@ -46,13 +46,13 @@ namespace DivinityModManager.Controls
 
 		private void RaiseShowEvent()
 		{
-			RoutedEventArgs newEventArgs = new RoutedEventArgs(AlertBar.ShowEvent);
+			RoutedEventArgs newEventArgs = new(AlertBar.ShowEvent);
 			RaiseEvent(newEventArgs);
 		}
 
 		private void TransformStage(string msg, int secs, string colorhex, BitmapImage iconsrc)
 		{
-			SolidColorBrush bg = new SolidColorBrush();
+			SolidColorBrush bg = new();
 			bg = (SolidColorBrush)(new BrushConverter().ConvertFrom(colorhex));
 
 			Grid grdParent;

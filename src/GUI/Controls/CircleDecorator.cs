@@ -17,9 +17,9 @@ namespace DivinityModManager.Controls
 			Double height = this.ActualHeight;
 			Double a = width / 2;
 			Double b = height / 2;
-			Point centerPoint = new Point(a, b);
+			Point centerPoint = new(a, b);
 			Double thickness = this.BorderThickness.Left;
-			EllipseGeometry ellipse = new EllipseGeometry(centerPoint, a, b);
+			EllipseGeometry ellipse = new(centerPoint, a, b);
 			drawingContext.PushClip(ellipse);
 			drawingContext.DrawGeometry(
 				this.Background,
@@ -39,7 +39,7 @@ namespace DivinityModManager.Controls
 			Double PI = 3.1415926;
 			Double x = a * Math.Cos(45 * PI / 180);
 			Double y = b * Math.Sin(45 * PI / 180);
-			Rect rect = new Rect(new Point(a - x, b - y), new Point(a + x, b + y));
+			Rect rect = new(new Point(a - x, b - y), new Point(a + x, b + y));
 			if (base.Child != null)
 			{
 				base.Child.Arrange(rect);

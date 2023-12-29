@@ -31,7 +31,7 @@ namespace DivinityModManager.Util.ScreenReader
 
 		internal static List<AutomationPeer> GetChildrenRecursively(UIElement uiElement)
 		{
-			List<AutomationPeer> children = new List<AutomationPeer>();
+			List<AutomationPeer> children = new();
 			int childrenCount = VisualTreeHelper.GetChildrenCount(uiElement);
 
 			for (int child = 0; child < childrenCount; child++)

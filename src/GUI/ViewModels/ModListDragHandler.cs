@@ -37,7 +37,7 @@ namespace DivinityModManager.ViewModels
 
 	public class ModListDragHandler : DefaultDragHandler
 	{
-		private MainWindowViewModel _viewModel;
+		private readonly MainWindowViewModel _viewModel;
 
 		public ModListDragHandler(MainWindowViewModel vm) : base()
 		{

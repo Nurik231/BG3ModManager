@@ -18,8 +18,8 @@ namespace DivinityModManager.Views
 
 	public partial class ModUpdatesLayout : ModUpdatesLayoutBase
 	{
-		private static readonly GridLength CollapsedLength = new GridLength(0, GridUnitType.Pixel);
-		private static readonly GridLength StarLength = new GridLength(1, GridUnitType.Star);
+		private static readonly GridLength CollapsedLength = new(0, GridUnitType.Pixel);
+		private static readonly GridLength StarLength = new(1, GridUnitType.Star);
 
 		public ModUpdatesLayout()
 		{
@@ -51,7 +51,7 @@ namespace DivinityModManager.Views
 			});
 		}
 
-		private static readonly List<string> _ignoreColors = new List<string>{"#FFEDEDED", "#00FFFFFF", "#FFFFFFFF", "#FFF4F4F4", "#FFE8E8E8", "#FF000000" };
+		private static readonly List<string> _ignoreColors = new() { "#FFEDEDED", "#00FFFFFF", "#FFFFFFFF", "#FFF4F4F4", "#FFE8E8E8", "#FF000000" };
 
 		public void UpdateBackgroundColors()
 		{
@@ -89,7 +89,7 @@ namespace DivinityModManager.Views
 						CollectionViewSource.GetDefaultView(lv.ItemsSource);
 
 					dataView.SortDescriptions.Clear();
-					SortDescription sd = new SortDescription(sortBy, direction);
+					SortDescription sd = new(sortBy, direction);
 					dataView.SortDescriptions.Add(sd);
 					dataView.Refresh();
 				}

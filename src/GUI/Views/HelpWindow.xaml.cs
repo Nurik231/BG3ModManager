@@ -37,7 +37,7 @@ namespace DivinityModManager.Views
 
 	public partial class HelpWindow : HelpWindowBase
 	{
-		private readonly Lazy<Markdown> _fallbackMarkdown = new Lazy<Markdown>(() => new Markdown());
+		private readonly Lazy<Markdown> _fallbackMarkdown = new(() => new Markdown());
 		private Markdown _defaultMarkdown;
 
 		private FlowDocument StringToMarkdown(string text)

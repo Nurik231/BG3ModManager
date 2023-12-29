@@ -113,7 +113,7 @@ namespace DivinityModManager.Controls.Behavior
 			FontWeight fontWeight,
 			FontStretch fontStretch, double fontSize)
 		{
-			Typeface typeface = new Typeface(fontFamily, fontStyle, fontWeight, fontStretch);
+			Typeface typeface = new(fontFamily, fontStyle, fontWeight, fontStretch);
 			GlyphTypeface glyphTypeface;
 
 			if (!typeface.TryGetGlyphTypeface(out glyphTypeface))

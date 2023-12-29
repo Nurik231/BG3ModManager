@@ -275,9 +275,9 @@ namespace DivinityModManager.Controls
             //return text;
         }
 
-        private static readonly Regex _newlinesLeadingTrailing = new Regex(@"^\n+|\n+\z", RegexOptions.Compiled);
-        private static readonly Regex _newlinesMultiple = new Regex(@"\n{2,}", RegexOptions.Compiled);
-        private static readonly Regex _leadingWhitespace = new Regex(@"^[ ]*", RegexOptions.Compiled);
+        private static readonly Regex _newlinesLeadingTrailing = new(@"^\n+|\n+\z", RegexOptions.Compiled);
+        private static readonly Regex _newlinesMultiple = new(@"\n{2,}", RegexOptions.Compiled);
+        private static readonly Regex _leadingWhitespace = new(@"^[ ]*", RegexOptions.Compiled);
 
         /// <summary>
         /// splits on two or more newlines, to form "paragraphs";    
@@ -372,7 +372,7 @@ namespace DivinityModManager.Controls
             return _nestedParensPatternWithWhiteSpace;
         }
 
-        private static readonly Regex _imageInline = new Regex(
+        private static readonly Regex _imageInline = new(
             string.Format(CultureInfo.InvariantCulture, @"
                 (                           # wrap whole match in $1
                     !\[
@@ -394,7 +394,7 @@ namespace DivinityModManager.Controls
             GetNestedParensPatternWithWhiteSpace()),
                   RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        private static readonly Regex _anchorInline = new Regex(
+        private static readonly Regex _anchorInline = new(
             string.Format(CultureInfo.InvariantCulture, @"
                 (                           # wrap whole match in $1
                     \[
@@ -461,7 +461,7 @@ namespace DivinityModManager.Controls
                 return new Run("!" + url) { Foreground = Brushes.Red };
             }
 
-            Image image = new Image { Source = imgSource, Tag = linkText };
+            Image image = new() { Source = imgSource, Tag = linkText };
             if (ImageStyle is null)
             {
                 image.Margin = new Thickness(0);
@@ -474,7 +474,7 @@ namespace DivinityModManager.Controls
             // Bind size so document is updated when image is downloaded
             if (imgSource.IsDownloading)
             {
-                Binding binding = new Binding(nameof(BitmapImage.Width));
+                Binding binding = new(nameof(BitmapImage.Width));
                 binding.Source = imgSource;
                 binding.Mode = BindingMode.OneWay;
 
@@ -539,7 +539,7 @@ namespace DivinityModManager.Controls
             return result;
         }
 
-        private static readonly Regex _headerSetext = new Regex(@"
+        private static readonly Regex _headerSetext = new(@"
                 ^(.+?)
                 [ ]*
                 \n
@@ -548,7 +548,7 @@ namespace DivinityModManager.Controls
                 \n+",
     RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        private static readonly Regex _headerAtx = new Regex(@"
+        private static readonly Regex _headerAtx = new(@"
                 ^(\#{1,6})  # $1 = string of #'s
                 [ ]*
                 (.+?)       # $2 = Header text
@@ -653,7 +653,7 @@ namespace DivinityModManager.Controls
             return block;
         }
 
-        private static readonly Regex _horizontalRules = new Regex(@"
+        private static readonly Regex _horizontalRules = new(@"
             ^[ ]{0,3}         # Leading space
                 ([-*_])       # $1: First marker
                 (?>           # Repeated marker group
@@ -721,10 +721,10 @@ namespace DivinityModManager.Controls
               )
             )", string.Format(CultureInfo.InvariantCulture, "(?:{0}|{1})", _markerUL, _markerOL), _tabWidth - 1);
 
-        private static readonly Regex _listNested = new Regex(@"^" + _wholeList,
+        private static readonly Regex _listNested = new(@"^" + _wholeList,
             RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        private static readonly Regex _listTopLevel = new Regex(@"(?:(?<=\n\n)|\A\n?)" + _wholeList,
+        private static readonly Regex _listTopLevel = new(@"(?:(?<=\n\n)|\A\n?)" + _wholeList,
             RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
         /// <summary>
@@ -840,7 +840,7 @@ namespace DivinityModManager.Controls
             }
         }
 
-        private static readonly Regex _table = new Regex(@"
+        private static readonly Regex _table = new(@"
             (                               # $1 = whole table
                 [ \r\n]*
                 (                           # $2 = table header
@@ -996,7 +996,7 @@ namespace DivinityModManager.Controls
             return tableRow;
         }
 
-        private static readonly Regex _codeSpan = new Regex(@"
+        private static readonly Regex _codeSpan = new(@"
                     (?<!\\)   # Character before opening ` can't be a backslash
                     (`+)      # $1 = Opening run of `
                     (.+?)     # $2 = The code block
@@ -1059,14 +1059,14 @@ namespace DivinityModManager.Controls
             return result;
         }
 
-        private static readonly Regex _bold = new Regex(@"(\*\*|__) (?=\S) (.+?[*_]*) (?<=\S) \1",
+        private static readonly Regex _bold = new(@"(\*\*|__) (?=\S) (.+?[*_]*) (?<=\S) \1",
             RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline | RegexOptions.Compiled);
-        private static readonly Regex _strictBold = new Regex(@"([\W_]|^) (\*\*|__) (?=\S) ([^\r]*?\S[\*_]*) \2 ([\W_]|$)",
+        private static readonly Regex _strictBold = new(@"([\W_]|^) (\*\*|__) (?=\S) ([^\r]*?\S[\*_]*) \2 ([\W_]|$)",
             RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline | RegexOptions.Compiled);
 
-        private static readonly Regex _italic = new Regex(@"(\*|_) (?=\S) (.+?) (?<=\S) \1",
+        private static readonly Regex _italic = new(@"(\*|_) (?=\S) (.+?) (?<=\S) \1",
             RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline | RegexOptions.Compiled);
-        private static readonly Regex _strictItalic = new Regex(@"([\W_]|^) (\*|_) (?=\S) ([^\r\*_]*?\S) \2 ([\W_]|$)",
+        private static readonly Regex _strictItalic = new(@"([\W_]|^) (\*|_) (?=\S) ([^\r\*_]*?\S) \2 ([\W_]|$)",
             RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline | RegexOptions.Compiled);
 
         /// <summary>
@@ -1116,7 +1116,7 @@ namespace DivinityModManager.Controls
             return Create<Bold, Inline>(RunSpanGamut(content));
         }
 
-        private static readonly Regex _outDent = new Regex(@"^[ ]{1," + _tabWidth + @"}", RegexOptions.Multiline | RegexOptions.Compiled);
+        private static readonly Regex _outDent = new(@"^[ ]{1," + _tabWidth + @"}", RegexOptions.Multiline | RegexOptions.Compiled);
 
         /// <summary>
         /// Remove one level of line-leading spaces
@@ -1250,8 +1250,8 @@ namespace DivinityModManager.Controls
             }
         }
 
-        private static readonly Regex _eoln = new Regex("\\s+");
-        private static readonly Regex _lbrk = new Regex(@"\ {2,}\n");
+        private static readonly Regex _eoln = new("\\s+");
+        private static readonly Regex _lbrk = new(@"\ {2,}\n");
 
         public IEnumerable<Inline> DoText(string text)
         {

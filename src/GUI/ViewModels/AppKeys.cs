@@ -152,7 +152,7 @@ namespace DivinityModManager.ViewModels
 		[MenuSettings("Help", "Open Repository Page...")]
 		public Hotkey OpenRepositoryPage { get; private set; } = new Hotkey(Key.F11);
 
-		private readonly SourceCache<Hotkey, string> keyMap = new SourceCache<Hotkey, string>((hk) => hk.ID);
+		private readonly SourceCache<Hotkey, string> keyMap = new((hk) => hk.ID);
 
 		protected readonly ReadOnlyObservableCollection<Hotkey> allKeys;
 		public ReadOnlyObservableCollection<Hotkey> All => allKeys;

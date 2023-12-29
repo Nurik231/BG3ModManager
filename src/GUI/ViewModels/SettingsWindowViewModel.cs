@@ -96,9 +96,9 @@ namespace DivinityModManager.ViewModels
 
 		public ReactiveCommand<DependencyPropertyChangedEventArgs, Unit> OnWindowShownCommand { get; private set; }
 
-		private readonly ScriptExtenderUpdateVersion _emptyVersion = new ScriptExtenderUpdateVersion();
+		private readonly ScriptExtenderUpdateVersion _emptyVersion = new();
 
-		private readonly JsonSerializerSettings _jsonConfigExportSettings = new JsonSerializerSettings
+		private readonly JsonSerializerSettings _jsonConfigExportSettings = new()
 		{
 			DefaultValueHandling = DefaultValueHandling.Ignore,
 			NullValueHandling = NullValueHandling.Ignore,
@@ -380,19 +380,19 @@ HKEY_CLASSES_ROOT\nxm\shell\open\command
 			ScriptExtenderUpdates = new ObservableCollectionExtended<ScriptExtenderUpdateVersion>() { _emptyVersion };
 			LaunchParams = new ObservableCollectionExtended<GameLaunchParamEntry>()
 			{
-				new GameLaunchParamEntry("-continueGame", "Automatically load the last save when loading into the main menu"),
-				new GameLaunchParamEntry("-storylog 1", "Enables the story log"),
-				new GameLaunchParamEntry(@"--logPath """, "A directory to write story logs to"),
-				new GameLaunchParamEntry("--cpuLimit x", "Limit the cpu to x amount of threads (unknown if this works)"),
-				new GameLaunchParamEntry("-asserts 1", "", true),
-				new GameLaunchParamEntry("-stats 1", "", true),
-				new GameLaunchParamEntry("-dynamicStory 1", "", true),
-				new GameLaunchParamEntry("-externalcrashhandler", "", true),
-				new GameLaunchParamEntry(@"-nametag """, "", true),
-				new GameLaunchParamEntry(@"-module """, "", true),
-				new GameLaunchParamEntry(@"+connect_lobby """, "", true),
-				new GameLaunchParamEntry("-locaupdater 1", "", true),
-				new GameLaunchParamEntry(@"-mediaPath """, "", true),
+				new("-continueGame", "Automatically load the last save when loading into the main menu"),
+				new("-storylog 1", "Enables the story log"),
+				new(@"--logPath """, "A directory to write story logs to"),
+				new("--cpuLimit x", "Limit the cpu to x amount of threads (unknown if this works)"),
+				new("-asserts 1", "", true),
+				new("-stats 1", "", true),
+				new("-dynamicStory 1", "", true),
+				new("-externalcrashhandler", "", true),
+				new(@"-nametag """, "", true),
+				new(@"-module """, "", true),
+				new(@"+connect_lobby """, "", true),
+				new("-locaupdater 1", "", true),
+				new(@"-mediaPath """, "", true),
 			};
 
 			var whenTab = this.WhenAnyValue(x => x.SelectedTabIndex);

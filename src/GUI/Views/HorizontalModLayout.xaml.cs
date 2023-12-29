@@ -752,7 +752,7 @@ namespace DivinityModManager.Views
 				  CollectionViewSource.GetDefaultView(lv.ItemsSource);
 
 				dataView.SortDescriptions.Clear();
-				SortDescription sd = new SortDescription(sortBy, direction);
+				SortDescription sd = new(sortBy, direction);
 				dataView.SortDescriptions.Add(sd);
 				dataView.Refresh();
 			}
@@ -763,7 +763,7 @@ namespace DivinityModManager.Views
 			}
 		}
 
-		private int _FontSizeMeasurePadding = 48;
+		private const int _FontSizeMeasurePadding = 48;
 
 		public void AutoSizeNameColumn_ActiveMods()
 		{

@@ -30,7 +30,7 @@ namespace DivinityModManager.Util.ScreenReader
 
 		protected override List<AutomationPeer> GetChildrenCore()
 		{
-			List<AutomationPeer> peers = new List<AutomationPeer>();
+			List<AutomationPeer> peers = new();
 			var textElements = alertBar.GetTextElements();
 			if(textElements.Count > 0)
 			{

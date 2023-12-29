@@ -84,7 +84,7 @@ namespace DivinityModManager.Views
 	/// </summary>
 	public partial class VersionGeneratorWindow : VersionGeneratorWindowBase
 	{
-		private static readonly Regex _numberOnlyRegex = new Regex("[^0-9]+");
+		private static readonly Regex _numberOnlyRegex = new("[^0-9]+");
 
 		public VersionGeneratorWindow()
 		{

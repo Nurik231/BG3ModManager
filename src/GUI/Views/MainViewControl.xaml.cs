@@ -30,7 +30,7 @@ namespace DivinityModManager.Views
 	{
 		private readonly MainWindow main;
 
-		private readonly Dictionary<string, MenuItem> menuItems = new Dictionary<string, MenuItem>();
+		private readonly Dictionary<string, MenuItem> menuItems = new();
 		public Dictionary<string, MenuItem> MenuItems => menuItems;
 
 		private void RegisterKeyBindings()
@@ -92,7 +92,7 @@ namespace DivinityModManager.Views
 					menuItems.Add(menuSettings.Parent, parentMenuItem);
 				}
 
-				MenuItem newEntry = new MenuItem
+				MenuItem newEntry = new()
 				{
 					Header = menuSettings.DisplayName,
 					InputGestureText = key.ToString(),
@@ -207,7 +207,7 @@ namespace DivinityModManager.Views
 			}
 		}
 
-		private readonly Dictionary<string, string> _shortcutButtonBindings = new Dictionary<string, string>()
+		private readonly Dictionary<string, string> _shortcutButtonBindings = new()
 		{
 			["OpenWorkshopFolderButton"] = "Keys.OpenWorkshopFolder.Command",
 			["OpenModsFolderButton"] = "Keys.OpenModsFolder.Command",

@@ -34,10 +34,10 @@ namespace DivinityModManager.Controls
             Point mouseUpPoint = e.GetPosition(this);
             EndSelectPosition = this.GetPositionFromPoint(mouseUpPoint, true);
 
-            TextRange otr = new TextRange(this.ContentStart, this.ContentEnd);
+            TextRange otr = new(this.ContentStart, this.ContentEnd);
             otr.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.GreenYellow));
 
-            TextRange ntr = new TextRange(StartSelectPosition, EndSelectPosition);
+            TextRange ntr = new(StartSelectPosition, EndSelectPosition);
             ntr.ApplyPropertyValue(TextElement.ForegroundProperty, new SolidColorBrush(Colors.White));
 
             SelectedText = ntr.Text;

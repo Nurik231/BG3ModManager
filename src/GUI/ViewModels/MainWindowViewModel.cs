@@ -96,7 +96,7 @@ namespace DivinityModManager.ViewModels
 
 		[Reactive] public bool IsInitialized { get; private set; }
 
-		protected readonly SourceCache<DivinityModData, string> mods = new SourceCache<DivinityModData, string>(mod => mod.UUID);
+		protected readonly SourceCache<DivinityModData, string> mods = new(mod => mod.UUID);
 
 		public bool ModExists(string uuid)
 		{
@@ -148,7 +148,7 @@ namespace DivinityModManager.ViewModels
 		protected ReadOnlyObservableCollection<DivinityModData> selectedPakMods;
 		public ReadOnlyObservableCollection<DivinityModData> SelectedPakMods => selectedPakMods;
 
-		protected readonly SourceCache<DivinityModData, string> workshopMods = new SourceCache<DivinityModData, string>(mod => mod.UUID);
+		protected readonly SourceCache<DivinityModData, string> workshopMods = new(mod => mod.UUID);
 
 		protected ReadOnlyObservableCollection<DivinityModData> workshopModsCollection;
 		public ReadOnlyObservableCollection<DivinityModData> WorkshopMods => workshopModsCollection;
@@ -161,10 +161,10 @@ namespace DivinityModManager.ViewModels
 		public ModManagerSettings Settings { get; private set; }
 		public UserModConfig UserModConfig { get; private set; }
 
-		private readonly ObservableCollectionExtended<DivinityModData> _activeMods = new ObservableCollectionExtended<DivinityModData>();
+		private readonly ObservableCollectionExtended<DivinityModData> _activeMods = new();
 		public ObservableCollectionExtended<DivinityModData> ActiveMods => _activeMods;
 
-		private readonly ObservableCollectionExtended<DivinityModData> _inactiveMods = new ObservableCollectionExtended<DivinityModData>();
+		private readonly ObservableCollectionExtended<DivinityModData> _inactiveMods = new();
 		public ObservableCollectionExtended<DivinityModData> InactiveMods => _inactiveMods;
 
 		private readonly ReadOnlyObservableCollection<DivinityModData> _forceLoadedMods;
@@ -299,7 +299,7 @@ namespace DivinityModManager.ViewModels
 		//TODO - Waiting for DM mode to be released
 		[ObservableAsProperty] public Visibility GameMasterModeVisibility { get; }
 
-		protected SourceList<DivinityGameMasterCampaign> gameMasterCampaigns = new SourceList<DivinityGameMasterCampaign>();
+		protected SourceList<DivinityGameMasterCampaign> gameMasterCampaigns = new();
 
 		private readonly ReadOnlyObservableCollection<DivinityGameMasterCampaign> gameMasterCampaignsData;
 		public ReadOnlyObservableCollection<DivinityGameMasterCampaign> GameMasterCampaigns => gameMasterCampaignsData;
@@ -366,7 +366,7 @@ namespace DivinityModManager.ViewModels
 			var currentOrder = ModOrderList.First();
 			currentOrder.Order.Clear();
 
-			List<DivinityMissingModData> missingMods = new List<DivinityMissingModData>();
+			List<DivinityMissingModData> missingMods = new();
 			if (campaign.Dependencies.Count > 0)
 			{
 				int index = 0;
@@ -852,7 +852,7 @@ Directory the zip will be extracted to:
 
 			try
 			{
-				Process proc = new Process();
+				Process proc = new();
 				proc.StartInfo.FileName = exePath;
 				proc.StartInfo.Arguments = launchParams;
 				proc.StartInfo.WorkingDirectory = Directory.GetParent(exePath).FullName;
@@ -1575,7 +1575,7 @@ Directory the zip will be extracted to:
 
 		private CancellationTokenSource GetCancellationToken(int delay, CancellationTokenSource last = null)
 		{
-			CancellationTokenSource token = new CancellationTokenSource();
+			CancellationTokenSource token = new();
 			if (last != null && last.IsCancellationRequested)
 			{
 				last.Dispose();
@@ -1607,7 +1607,7 @@ Directory the zip will be extracted to:
 
 		public async Task<List<DivinityModData>> LoadModsAsync(double taskStepAmount = 0.1d)
 		{
-			List<DivinityModData> finalMods = new List<DivinityModData>();
+			List<DivinityModData> finalMods = new();
 			ModLoadingResults modLoadingResults = null;
 			List<DivinityModData> projects = null;
 			List<DivinityModData> baseMods = null;
@@ -1748,9 +1748,9 @@ Directory the zip will be extracted to:
 			{
 				IsLoadingOrder = true;
 
-				List<DivinityMissingModData> missingMods = new List<DivinityMissingModData>();
+				List<DivinityMissingModData> missingMods = new();
 
-				DivinityLoadOrder currentOrder = new DivinityLoadOrder() { Name = "Current", FilePath = Path.Combine(SelectedProfile.FilePath, "modsettings.lsx"), IsModSettings = true };
+				DivinityLoadOrder currentOrder = new() { Name = "Current", FilePath = Path.Combine(SelectedProfile.FilePath, "modsettings.lsx"), IsModSettings = true };
 
 				if (this.SelectedModOrder != null && this.SelectedModOrder.IsModSettings)
 				{
@@ -2292,8 +2292,8 @@ Directory the zip will be extracted to:
 			return directory;
 		}
 
-		private static readonly List<string> _archiveFormats = new List<string>() { ".7z", ".7zip", ".gzip", ".rar", ".tar", ".tar.gz", ".zip" };
-		private static readonly List<string> _compressedFormats = new List<string>() { ".bz2", ".xz", ".zst" };
+		private static readonly List<string> _archiveFormats = new() { ".7z", ".7zip", ".gzip", ".rar", ".tar", ".tar.gz", ".zip" };
+		private static readonly List<string> _compressedFormats = new() { ".bz2", ".xz", ".zst" };
 		private static readonly string _archiveFormatsStr = String.Join(";", _archiveFormats.Select(x => "*" + x));
 		private static readonly string _compressedFormatsStr = String.Join(";", _compressedFormats.Select(x => "*" + x));
 
@@ -2365,7 +2365,7 @@ Directory the zip will be extracted to:
 			DeselectAllMods();
 
 			DivinityApp.Log($"Loading mod order '{order.Name}'.");
-			Dictionary<string, DivinityMissingModData> missingMods = new Dictionary<string, DivinityMissingModData>();
+			Dictionary<string, DivinityMissingModData> missingMods = new();
 			if (missingModsFromProfileOrder != null && missingModsFromProfileOrder.Count > 0)
 			{
 				missingModsFromProfileOrder.ForEach(x => missingMods[x.UUID] = x);
@@ -3075,7 +3075,7 @@ Directory the zip will be extracted to:
 			if (order == null) order = SelectedModOrder;
 			if (order != null && Settings?.DisableMissingModWarnings != true)
 			{
-				List<DivinityMissingModData> missingMods = new List<DivinityMissingModData>();
+				List<DivinityMissingModData> missingMods = new();
 
 				for (int i = 0; i < order.Order.Count; i++)
 				{
@@ -3135,7 +3135,7 @@ Directory the zip will be extracted to:
 			{
 				//DivinityApp.LogMessage($"Mod Order: {String.Join("\n", order.Order.Select(x => x.Name))}");
 				DivinityApp.Log("Checking mods for extender requirements.");
-				List<DivinityMissingModData> extenderRequiredMods = new List<DivinityMissingModData>();
+				List<DivinityMissingModData> extenderRequiredMods = new();
 				for (int i = 0; i < order.Order.Count; i++)
 				{
 					var entry = order.Order[i];
@@ -3252,7 +3252,7 @@ Directory the zip will be extracted to:
 								this.ModOrderList.First(x => x.IsModSettings)?.SetOrder(SelectedModOrder.Order);
 							}
 
-							List<string> orderList = new List<string>();
+							List<string> orderList = new();
 							if (SelectedAdventureMod != null) orderList.Add(SelectedAdventureMod.UUID);
 							orderList.AddRange(SelectedModOrder.Order.Select(x => x.UUID));
 
@@ -3314,7 +3314,7 @@ Directory the zip will be extracted to:
 								SelectedGameMasterCampaign.Dependencies.Clear();
 								SelectedGameMasterCampaign.Dependencies.AddRange(finalOrder.Select(x => DivinityModDependencyData.FromModData(x)));
 
-								List<string> orderList = new List<string>();
+								List<string> orderList = new();
 								if (SelectedAdventureMod != null) orderList.Add(SelectedAdventureMod.UUID);
 								orderList.AddRange(SelectedModOrder.Order.Select(x => x.UUID));
 
@@ -3381,9 +3381,9 @@ Directory the zip will be extracted to:
 			}
 		}
 
-		private static readonly ArchiveEncoding _archiveEncoding = new ArchiveEncoding(Encoding.UTF8, Encoding.UTF8);
-		private static readonly ReaderOptions _importReaderOptions = new ReaderOptions { ArchiveEncoding = _archiveEncoding };
-		private static readonly WriterOptions _exportWriterOptions = new WriterOptions(CompressionType.Deflate) { ArchiveEncoding = _archiveEncoding };
+		private static readonly ArchiveEncoding _archiveEncoding = new(Encoding.UTF8, Encoding.UTF8);
+		private static readonly ReaderOptions _importReaderOptions = new() { ArchiveEncoding = _archiveEncoding };
+		private static readonly WriterOptions _exportWriterOptions = new(CompressionType.Deflate) { ArchiveEncoding = _archiveEncoding };
 
 		private void ImportOrderFromArchive()
 		{
@@ -4518,8 +4518,8 @@ Directory the zip will be extracted to:
 
 		public bool AutoChangedOrder { get; set; }
 
-		private readonly Regex filterPropertyPattern = new Regex("@([^\\s]+?)([\\s]+)([^@\\s]*)");
-		private readonly Regex filterPropertyPatternWithQuotes = new Regex("@([^\\s]+?)([\\s\"]+)([^@\"]*)");
+		private readonly Regex filterPropertyPattern = new("@([^\\s]+?)([\\s]+)([^@\\s]*)");
+		private readonly Regex filterPropertyPatternWithQuotes = new("@([^\\s]+?)([\\s\"]+)([^@\"]*)");
 
 		[Reactive] public int TotalActiveModsHidden { get; set; }
 		[Reactive] public int TotalInactiveModsHidden { get; set; }
@@ -4561,7 +4561,7 @@ Directory the zip will be extracted to:
 				if (searchText.IndexOf("@") > -1)
 				{
 					string remainingSearch = searchText;
-					List<DivinityModFilterData> searchProps = new ();
+					List<DivinityModFilterData> searchProps = new();
 
 					MatchCollection matches;
 

@@ -108,7 +108,7 @@ namespace DivinityModManager.Views
 
 	public partial class AppUpdateWindow : AppUpdateWindowBase
 	{
-		private readonly Lazy<Markdown> _fallbackMarkdown = new Lazy<Markdown>(() => new Markdown());
+		private readonly Lazy<Markdown> _fallbackMarkdown = new(() => new Markdown());
 		private readonly Markdown _defaultMarkdown;
 
 		private FlowDocument StringToMarkdown(string text)
