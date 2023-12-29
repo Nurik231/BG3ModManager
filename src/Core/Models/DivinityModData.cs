@@ -586,9 +586,10 @@ namespace DivinityModManager.Models
 				.Select(PropertyConverters.BoolToVisibility)
 				.ToUIProperty(this, x => x.OpenWorkshopLinkVisibility, Visibility.Collapsed);
 
-			Dependencies.CountChanged.ToUIProperty(this, x => x.TotalDependencies);
-			this.WhenAnyValue(x => x.TotalDependencies).Select(x => x > 0).ToUIProperty(this, x => x.HasDependencies);
-			this.WhenAnyValue(x => x.HasDependencies).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.DependencyVisibility, Visibility.Collapsed);
+			var dependenciesChanged = Dependencies.CountChanged;
+			dependenciesChanged.ToUIProperty(this, x => x.TotalDependencies);
+			dependenciesChanged.Select(x => x > 0).ToUIProperty(this, x => x.HasDependencies);
+			dependenciesChanged.Select(x => PropertyConverters.BoolToVisibility(x > 0)).ToUIProperty(this, x => x.DependencyVisibility, Visibility.Collapsed);
 			Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler).Bind(out _displayedDependencies).Subscribe();
 
 			this.WhenAnyValue(x => x.IsActive, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod, x => x.ForceAllowInLoadOrder).Subscribe((b) =>
