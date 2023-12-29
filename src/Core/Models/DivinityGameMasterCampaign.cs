@@ -26,11 +26,9 @@ using System.Windows.Input;
 namespace DivinityModManager.Models
 {
 	[ScreenReaderHelper(Name = "DisplayName", HelpText = "HelpText")]
-	public class DivinityGameMasterCampaign : DivinityBaseModData
+	public class DivinityGameMasterCampaign : DivinityModData
 	{
 		public Resource MetaResource { get; set; }
-
-		public List<DivinityModDependencyData> Dependencies = new List<DivinityModDependencyData>();
 
 		public bool Export(IEnumerable<DivinityModData> order)
 		{
@@ -85,11 +83,6 @@ namespace DivinityModManager.Models
 				DivinityApp.Log($"Error saving GM Campaign meta.lsf:\n{ex}");
 			}
 			return false;
-		}
-
-		public DivinityGameMasterCampaign() : base()
-		{
-			
 		}
 	}
 }

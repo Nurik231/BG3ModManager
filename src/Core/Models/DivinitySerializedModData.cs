@@ -34,11 +34,13 @@ namespace DivinityModManager.Models
 
 		[DataMember] public string MD5 { get; set; }
 
+		public DateTime? LastModified { get; set; }
+
 		public static DivinitySerializedModData FromMod(DivinityModData mod)
 		{
 			return new DivinitySerializedModData
 			{
-				Author = mod.Author,
+				Author = mod.AuthorDisplayName,
 				Dependencies = mod.Dependencies.Items.ToList(),
 				Description = mod.Description,
 				FileName = mod.FileName,
@@ -51,7 +53,8 @@ namespace DivinityModManager.Models
 				Index = mod.Index,
 				ScriptExtenderData = mod.ScriptExtenderData,
 				UUID = mod.UUID,
-				MD5 = mod.MD5
+				MD5 = mod.MD5,
+				LastModified = mod.LastModified
 			};
 		}
 	}

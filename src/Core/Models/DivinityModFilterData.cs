@@ -41,7 +41,7 @@ namespace DivinityModManager.Models
 
 			if(PropertyContains("Author"))
 			{
-				if (ValueContains(mod.Author)) return true;
+				if (ValueContains(mod.AuthorDisplayName)) return true;
 			}
 
 			if (PropertyContains("Version"))

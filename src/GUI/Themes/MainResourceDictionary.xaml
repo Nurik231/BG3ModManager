@@ -158,6 +158,12 @@
 		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer0BackgroundBrush}}" />
 		<Setter Property="BorderThickness" Value="0" />
 	</Style>
+	<Style
+		x:Key="TextBlockAutoToolTip"
+		BasedOn="{StaticResource {x:Type TextBlock}}"
+		TargetType="TextBlock">
+		<Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
+	</Style>
 	<Style TargetType="{x:Type controls:AutoGrayableImage}">
 		<Setter Property="Width" Value="16" />
 		<Setter Property="Height" Value="16" />
@@ -688,7 +694,7 @@
 			<TextBlock TextWrapping="Wrap" Visibility="{Binding AuthorVisibility}"><Run Text="Created by " /><Run
 					FontWeight="Bold"
 					Foreground="#3da2fa"
-					Text="{Binding Author}" />
+					Text="{Binding AuthorDisplayName, Mode=OneWay}" />
 				<TextBlock.Effect>
 					<DropShadowEffect
 						BlurRadius="4"
@@ -828,10 +834,10 @@
 			<TextBlock
 				Margin="2"
 				TextWrapping="Wrap"
-				Visibility="{Binding AuthorVisibility, FallbackValue=Collapsed}"><Run Text="Created by " /><Run
+				Visibility="{Binding AuthorVisibility}"><Run Text="Created by " /><Run
 					FontWeight="Bold"
 					Foreground="#3da2fa"
-					Text="{Binding Author}" />
+					Text="{Binding AuthorDisplayName, Mode=OneWay}" />
 				<TextBlock.Effect>
 					<DropShadowEffect
 						BlurRadius="4"
@@ -922,7 +928,7 @@
 				Visibility="{Binding AuthorVisibility}"><Run Text="Created by " /><Run
 					FontWeight="Bold"
 					Foreground="#3da2fa"
-					Text="{Binding Author}" />
+					Text="{Binding AuthorDisplayName, Mode=OneWay}" />
 				<TextBlock.Effect>
 					<DropShadowEffect
 						BlurRadius="4"
@@ -1112,7 +1118,7 @@
 				HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding DisplayVersion}" ToolTip="{Binding DisplayVersion}" />
+						<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding DisplayVersion, Mode=OneWay}" />
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
@@ -1122,7 +1128,7 @@
 				HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding Author}" ToolTip="{Binding Author}" />
+						<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding AuthorDisplayName, Mode=OneWay}" />
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
@@ -1178,7 +1184,7 @@
 				HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding DisplayVersion}" ToolTip="{Binding DisplayVersion}" />
+						<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding DisplayVersion, Mode=OneWay}" />
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
@@ -1188,7 +1194,7 @@
 				HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding Author}" ToolTip="{Binding Author}" />
+						<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding AuthorDisplayName, Mode=OneWay}" />
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
@@ -1221,7 +1227,7 @@
 				HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding DisplayVersion}" ToolTip="{Binding DisplayVersion}" />
+						<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding DisplayVersion, Mode=OneWay}" />
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
@@ -1231,7 +1237,7 @@
 				HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding Author}" ToolTip="{Binding Author}" />
+						<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding AuthorDisplayName, Mode=OneWay}" />
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
@@ -1241,7 +1247,7 @@
 				HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding LastUpdated, StringFormat={x:Static dapp:DivinityApp.DateTimeColumnFormat}}" ToolTip="{Binding RelativeSource={RelativeSource Self}, Path=Text}" />
+						<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding LastUpdated, StringFormat={x:Static dapp:DivinityApp.DateTimeColumnFormat}}" />
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>

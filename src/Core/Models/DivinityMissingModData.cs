@@ -37,7 +37,7 @@ namespace DivinityModManager.Models
 				Name = modData.Name,
 				UUID = modData.UUID,
 				Index = modData.Index,
-				Author = modData.Author
+				Author = modData.AuthorDisplayName
 			};
 		}
 

@@ -370,7 +370,7 @@ namespace DivinityModManager.ViewModels
 			if (campaign.Dependencies.Count > 0)
 			{
 				int index = 0;
-				foreach (var entry in campaign.Dependencies)
+				foreach (var entry in campaign.Dependencies.Items)
 				{
 					if (TryGetMod(entry.UUID, out var mod))
 					{
@@ -4058,7 +4058,7 @@ Directory the zip will be extracted to:
 				index = "Override";
 			}
 			var urls = String.Join(";", mod.GetAllURLs());
-			return $"{index}\t{mod.Name}\t{mod.Author}\t{mod.OutputPakName}\t{String.Join(", ", mod.Tags)}\t{String.Join(", ", mod.Dependencies.Items.Select(y => y.Name))}\t{urls}";
+			return $"{index}\t{mod.Name}\t{mod.AuthorDisplayName}\t{mod.OutputPakName}\t{String.Join(", ", mod.Tags)}\t{String.Join(", ", mod.Dependencies.Items.Select(y => y.Name))}\t{urls}";
 		}
 
 		private string ModToTextLine(DivinityModData mod)

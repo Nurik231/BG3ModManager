@@ -111,7 +111,7 @@
 									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding Author}" ToolTip="{Binding Author}" />
+											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Author, Mode=OneWay}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
@@ -121,7 +121,7 @@
 									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding DisplayVersion}" ToolTip="{Binding DisplayVersion}" />
+											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding DisplayVersion, Mode=OneWay}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
@@ -131,7 +131,7 @@
 									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding ModType}" ToolTip="{Binding ModType}" />
+											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding ModType, Mode=OneWay}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
@@ -199,7 +199,7 @@
 									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding Author}" ToolTip="{Binding Author}" />
+											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Author, Mode=OneWay}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
@@ -214,7 +214,7 @@
 									</GridViewColumn.HeaderContainerStyle>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding CurrentVersion}" ToolTip="{Binding CurrentVersion}" />
+											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding CurrentVersion}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
@@ -229,7 +229,7 @@
 									</GridViewColumn.HeaderContainerStyle>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Text="{Binding UpdateVersion}" ToolTip="{Binding UpdateVersion}" />
+											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding UpdateVersion}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>

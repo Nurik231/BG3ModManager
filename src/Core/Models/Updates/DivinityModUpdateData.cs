@@ -76,7 +76,7 @@ namespace DivinityModManager.Models.Updates
 			Visibility = Visibility.Visible;
 
 			this.WhenAnyValue(x => x.Mod.IsEditorMod).ToUIProperty(this, x => x.IsEditorMod);
-			this.WhenAnyValue(x => x.Mod.Author).ToUIProperty(this, x => x.Author);
+			this.WhenAnyValue(x => x.Mod.AuthorDisplayName).ToUIProperty(this, x => x.Author);
 			this.WhenAnyValue(x => x.Mod.Version.Version).ToUIProperty(this, x => x.CurrentVersion);
 			this.WhenAnyValue(x => x.Mod.FilePath).ToUIProperty(this, x => x.LocalFilePath);
 			this.WhenAnyValue(x => x.Mod.LastModified).Select(DateToString).ToUIProperty(this, x => x.LocalFileDateText);
