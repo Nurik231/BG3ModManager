@@ -120,8 +120,8 @@ namespace DivinityModManager.Models
 		[Reactive] public DivinityModScriptExtenderConfig ScriptExtenderData { get; set; }
 		
 
-		protected ReadOnlyObservableCollection<DivinityModDependencyData> displayedDependencies;
-		public ReadOnlyObservableCollection<DivinityModDependencyData> DisplayedDependencies => displayedDependencies;
+		protected ReadOnlyObservableCollection<DivinityModDependencyData> _displayedDependencies;
+		public ReadOnlyObservableCollection<DivinityModDependencyData> DisplayedDependencies => _displayedDependencies;
 
 		[ObservableAsProperty] public bool HasToolTip { get; }
 		[ObservableAsProperty] public int TotalDependencies { get; }
@@ -586,11 +586,10 @@ namespace DivinityModManager.Models
 				.Select(PropertyConverters.BoolToVisibility)
 				.ToUIProperty(this, x => x.OpenWorkshopLinkVisibility, Visibility.Collapsed);
 
-			var dependenciesChanged = Dependencies.CountChanged;
-			dependenciesChanged.Select(x => x > 0).ToUIProperty(this, x => x.HasDependencies);
+			Dependencies.CountChanged.ToUIProperty(this, x => x.TotalDependencies);
+			this.WhenAnyValue(x => x.TotalDependencies).Select(x => x > 0).ToUIProperty(this, x => x.HasDependencies);
 			this.WhenAnyValue(x => x.HasDependencies).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.DependencyVisibility, Visibility.Collapsed);
-			dependenciesChanged.ToUIProperty(this, x => x.TotalDependencies);
-			Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler).Bind(out displayedDependencies);
+			Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler).Bind(out _displayedDependencies).Subscribe();
 
 			this.WhenAnyValue(x => x.IsActive, x => x.IsForceLoaded, x => x.IsForceLoadedMergedMod, x => x.ForceAllowInLoadOrder).Subscribe((b) =>
 			{
