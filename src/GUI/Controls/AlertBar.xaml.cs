@@ -50,11 +50,25 @@ namespace DivinityModManager.Controls
 			RaiseEvent(newEventArgs);
 		}
 
-		private void TransformStage(string msg, int secs, string colorhex, BitmapImage iconsrc)
-		{
-			SolidColorBrush bg = new();
-			bg = (SolidColorBrush)(new BrushConverter().ConvertFrom(colorhex));
+		private static readonly Dictionary<string, SolidColorBrush> _colors = new();
 
+		private static SolidColorBrush GetBrushFromColor(string color)
+		{
+			if(_colors.TryGetValue(color, out var brush))
+			{
+				return brush;
+			}
+			if(new BrushConverter().ConvertFrom(color) is SolidColorBrush newBrush)
+			{
+				_colors[color] = newBrush;
+				return newBrush;
+			}
+			return Brushes.White;
+		}
+
+		private void TransformStage(string msg, int secs, string colorHex, BitmapImage iconSource)
+		{
+			var bg = GetBrushFromColor(colorHex);
 			Grid grdParent;
 			switch (_Theme)
 			{
@@ -91,7 +105,7 @@ namespace DivinityModManager.Controls
 			}
 			else
 			{
-				imgStatusIcon.Source = iconsrc;
+				imgStatusIcon.Source = iconSource;
 			}
 
 			lblMessage.Text = msg;
@@ -106,10 +120,8 @@ namespace DivinityModManager.Controls
 				{
 					barText = msg;
 					AutomationProperties.SetHelpText(this, barText);
-					var peer = UIElementAutomationPeer.FromElement(this);
-					if (peer == null)
-						peer = UIElementAutomationPeer.CreatePeerForElement(this);
-					peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+					var peer = UIElementAutomationPeer.FromElement(this) ?? UIElementAutomationPeer.CreatePeerForElement(this);
+					peer?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
 					//peer.RaiseAutomationEvent(AutomationEvents.TextPatternOnTextChanged);
 				}
 			}
@@ -122,9 +134,9 @@ namespace DivinityModManager.Controls
 				for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
 				{
 					DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
-					if (child != null && child is T)
+					if (child is T t)
 					{
-						yield return (T)child;
+						yield return t;
 					}
 
 					foreach (T childOfChild in FindVisualChildren<T>(child))
