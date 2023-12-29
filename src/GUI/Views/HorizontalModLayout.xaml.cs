@@ -239,8 +239,6 @@ namespace DivinityModManager.Views
 				updatingActiveViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
 				{
 					UpdateViewSelection(ViewModel.ActiveMods, ActiveModsListView);
-					updatingActiveViewSelection.Dispose();
-					updatingActiveViewSelection = null;
 				});
 			}
 		}
@@ -253,8 +251,6 @@ namespace DivinityModManager.Views
 				updatingInactiveViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
 				{
 					UpdateViewSelection(ViewModel.InactiveMods, InactiveModsListView);
-					updatingInactiveViewSelection.Dispose();
-					updatingInactiveViewSelection = null;
 				});
 			}
 		}
@@ -267,8 +263,6 @@ namespace DivinityModManager.Views
 				updatingForcedViewSelection = RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(25), () =>
 				{
 					UpdateViewSelection(ViewModel.ForceLoadedMods, ForceLoadedModsListView);
-					updatingForcedViewSelection.Dispose();
-					updatingForcedViewSelection = null;
 				});
 			}
 		}
