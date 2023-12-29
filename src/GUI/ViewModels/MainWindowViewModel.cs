@@ -899,31 +899,40 @@ Directory the zip will be extracted to:
 				}
 			}
 
-			var launchParams = !String.IsNullOrEmpty(Settings.GameLaunchParams) ? Settings.GameLaunchParams : "";
+			var exeArgs = new List<string>();
+			var userLaunchParams = !String.IsNullOrEmpty(Settings.GameLaunchParams) ? Settings.GameLaunchParams : "";
 
-			if (Settings.GameStoryLogEnabled && launchParams.IndexOf("storylog") < 0)
+			if (Settings.GameStoryLogEnabled && !Settings.ExtenderSettings.EnableLogging)
 			{
-				if (String.IsNullOrWhiteSpace(launchParams))
+				exeArgs.Add("-storylog 1");
+			}
+
+			if (Settings.SkipLauncher)
+			{
+				exeArgs.Add("--skip-launcher");
+			}
+
+			if(!Settings.LaunchThroughSteam)
+			{
+				//Args always set by the launcher
+				exeArgs.Add("-externalcrashhandler");
+				var sendStats = !Settings.DisableLauncherTelemetry ? 1 : 0;
+				exeArgs.Add($"-stats {sendStats}");
+				var isModded = ActiveMods.Count > 0 ? 1 : 0;
+				exeArgs.Add($"-modded {isModded}");
+			}
+
+			if (!String.IsNullOrEmpty(userLaunchParams))
+			{
+				foreach (var entry in exeArgs)
 				{
-					launchParams = "-storylog 1";
-				}
-				else
-				{
-					launchParams = launchParams + " " + "-storylog 1";
+					userLaunchParams.Replace(entry, "");
 				}
 			}
 
-			if (Settings.SkipLauncher && launchParams.IndexOf("skip-launcher") < 0)
-			{
-				if (String.IsNullOrWhiteSpace(launchParams))
-				{
-					launchParams = "--skip-launcher";
-				}
-				else
-				{
-					launchParams = "--skip-launcher " + launchParams;
-				}
-			}
+			exeArgs.Add(userLaunchParams);
+
+			var launchParams = String.Join(" ", exeArgs);
 
 			if (!Settings.LaunchThroughSteam)
 			{
@@ -4552,7 +4561,7 @@ Directory the zip will be extracted to:
 				if (searchText.IndexOf("@") > -1)
 				{
 					string remainingSearch = searchText;
-					List<DivinityModFilterData> searchProps = new List<DivinityModFilterData>();
+					List<DivinityModFilterData> searchProps = new ();
 
 					MatchCollection matches;
 
