@@ -447,7 +447,7 @@ namespace DivinityModManager.Models
 			IsActive = b && IsForceLoaded;
 		}
 
-		private string OsirisStatusToTooltipText(DivinityOsirisModStatus status)
+		private static string OsirisStatusToTooltipText(DivinityOsirisModStatus status)
 		{
 			switch(status)
 			{
@@ -461,12 +461,12 @@ namespace DivinityModManager.Models
 			}
 		}
 
-		private bool CanOpenWorkshopBoolCheck(bool enabled, bool isHidden, bool isLarianMod, long workshopID)
+		private static bool CanOpenWorkshopBoolCheck(bool enabled, bool isHidden, bool isLarianMod, long workshopID)
 		{
 			return enabled && !isHidden & !isLarianMod & workshopID > DivinityApp.WORKSHOP_MOD_ID_START;
 		}
 
-		private string NexusModsInfoToTooltip(DateTime createdDate, DateTime updatedDate, long endorsements)
+		private static string NexusModsInfoToTooltip(DateTime createdDate, DateTime updatedDate, long endorsements)
 		{
 			var lines = new List<string>();
 
