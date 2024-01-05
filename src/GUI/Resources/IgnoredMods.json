@@ -13,7 +13,8 @@
 	"b77b6210-ac50-4cb1-a3d5-5702fb9c744c"
   ],
   "IgnoreBuiltinPath": [
-	"Game/GUI/Assets"
+	"Game/GUI/Assets",
+	"Game/GUI/AssetsLowRes"
   ],
   "Mods": [
 	{
