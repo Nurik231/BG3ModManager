@@ -13,7 +13,7 @@ namespace DivinityModManager.Converters
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			if (value is string str)
+			if (value is string str && !String.IsNullOrEmpty(str))
 			{
 				var startColor = (Color)ColorConverter.ConvertFromString(str);
 				var endColor = Color.FromArgb(startColor.A, (byte)(startColor.R * 0.7), (byte)(startColor.G * 0.7), (byte)(startColor.B * 0.7));
@@ -22,13 +22,6 @@ namespace DivinityModManager.Converters
 			return null;
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			if (value is Uri uri)
-			{
-				return uri.OriginalString;
-			}
-			return "";
-		}
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
 	}
 }

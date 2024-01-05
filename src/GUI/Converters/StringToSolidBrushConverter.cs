@@ -13,7 +13,7 @@ namespace DivinityModManager.Converters
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			if (value is string str)
+			if (value is string str && !String.IsNullOrEmpty(str))
 			{
 				var color = (Color)ColorConverter.ConvertFromString(str);
 				return new SolidColorBrush(color);
@@ -21,9 +21,6 @@ namespace DivinityModManager.Converters
 			return null;
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			return null;
-		}
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
 	}
 }
