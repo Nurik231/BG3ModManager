@@ -145,12 +145,12 @@
 					<TextBlock
 						HorizontalAlignment="Center"
 						FontSize="16"
-						Text="Overrides" />
+						Text="Active Override Mods" />
 					<c:ModListView
 						x:Name="ForceLoadedModsListView"
 						Grid.Row="1"
 						MaxHeight="99999"
-						behavior:ScreenReaderHelperBehavior.Name="Force-Loaded Mods"
+						behavior:ScreenReaderHelperBehavior.Name="Active Override Mods"
 						HideHeader="True"
 						ItemContainerStyle="{StaticResource DivinityModDataListItem}"
 						LinkedHeaderListView="{Binding ElementName=ActiveModsListView}"
