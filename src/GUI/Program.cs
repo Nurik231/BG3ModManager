@@ -49,12 +49,13 @@ namespace DivinityModManager
 		[STAThread]
 		static void Main(string[] args)
 		{
-			if(EnsureSingleInstance(args))
+			if (EnsureSingleInstance(args))
 			{
+#if !DEBUG
 				System.Environment.Exit(0);
 				return;
+#endif
 			}
-
 			_splash = new SplashScreen("Resources/BG3MMSplashScreen.png");
 			_splash.Show(false, false);
 
