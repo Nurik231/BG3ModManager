@@ -154,14 +154,15 @@ namespace DivinityModManager.Models
 
 		[ObservableAsProperty] public string DisplayName { get; }
 		[ObservableAsProperty] public bool CanAddToLoadOrder { get; }
-		[ObservableAsProperty] public Visibility DescriptionVisibility { get; }
-		[ObservableAsProperty] public Visibility AuthorVisibility { get; }
 		[ObservableAsProperty] public bool CanDelete { get; }
+		[ObservableAsProperty] public bool HasColorOverride { get; }
 		[ObservableAsProperty] public string ScriptExtenderSupportToolTipText { get; }
 		[ObservableAsProperty] public string OsirisStatusToolTipText { get; }
 		[ObservableAsProperty] public string LastModifiedDateText { get; }
 		[ObservableAsProperty] public string DisplayVersion { get; }
 		[ObservableAsProperty] public string Notes { get; }
+		[ObservableAsProperty] public Visibility DescriptionVisibility { get; }
+		[ObservableAsProperty] public Visibility AuthorVisibility { get; }
 		[ObservableAsProperty] public Visibility DependencyVisibility { get; }
 		[ObservableAsProperty] public Visibility OpenGitHubLinkVisibility { get; }
 		[ObservableAsProperty] public Visibility OpenNexusModsLinkVisibility { get; }
@@ -185,7 +186,6 @@ namespace DivinityModManager.Models
 		[Reactive] public bool SteamWorkshopEnabled { get; set; }
 		[Reactive] public bool CanDrag { get; set; }
 		[Reactive] public bool DeveloperMode { get; set; }
-		[Reactive] public bool HasColorOverride { get; set; }
 		[Reactive] public string SelectedColor { get; set; }
 		[Reactive] public string ListColor { get; set; }
 
@@ -524,6 +524,36 @@ namespace DivinityModManager.Models
 			return modType != "Adventure" && !isHidden && ((!isForceLoaded || isForceLoadedMergedMod) || forceAllowInLoadOrder);
 		}
 
+		//Green
+		private static readonly string EditorProjectBackgroundColor = "#0C00FF4D";
+		private static readonly string EditorProjectBackgroundSelectedColor = "#6400ED48";
+		//Brownish
+		private static readonly string ForceLoadedBackgroundColor = "#32C17200";
+		private static readonly string ForceLoadedBackgroundSelectedColor = "#64F38F00";
+
+		private void UpdateColors(ValueTuple<bool, bool, bool, bool, bool> x)
+		{
+			var isForceLoadedMergedMod = x.Item1;
+			var isEditorMod = x.Item2;
+			var isForceLoadedMod = x.Item3;
+			var isActive = x.Item4 || x.Item5;
+
+			if (isEditorMod)
+			{
+				SelectedColor = EditorProjectBackgroundSelectedColor;
+				ListColor = EditorProjectBackgroundColor;
+			}
+			else if(isForceLoadedMergedMod || (isForceLoadedMod && isActive))
+			{
+				SelectedColor = ForceLoadedBackgroundSelectedColor;
+				ListColor = ForceLoadedBackgroundColor;
+			}
+			else
+			{
+				ListColor = SelectedColor = String.Empty;
+			}
+		}
+
 		public DivinityModData()
 		{
 			Version = DivinityModVersion2.Empty;
@@ -609,28 +639,9 @@ namespace DivinityModManager.Models
 				}
 			});
 
-			this.WhenAnyValue(x => x.IsForceLoaded, x => x.IsEditorMod).Subscribe((b) =>
-			{
-				var isForceLoaded = b.Item1;
-				var isEditorMod = b.Item2;
-
-				if (isForceLoaded)
-				{
-					this.SelectedColor = "#64F38F00";
-					this.ListColor = "#32C17200";
-					HasColorOverride = true;
-				}
-				else if (isEditorMod)
-				{
-					this.SelectedColor = "#6400ED48";
-					this.ListColor = "#0C00FF4D";
-					HasColorOverride = true;
-				}
-				else
-				{
-					HasColorOverride = false;
-				}
-			});
+			this.WhenAnyValue(x => x.ListColor).Select(PropertyConverters.StringToBool).ToUIPropertyImmediate(this, x => x.HasColorOverride);
+			this.WhenAnyValue(x => x.IsForceLoadedMergedMod, x => x.IsEditorMod, x => x.IsForceLoaded, x => x.ForceAllowInLoadOrder, x => x.IsActive)
+				.ObserveOn(RxApp.MainThreadScheduler).Subscribe(UpdateColors);
 
 			// If a screen reader is active, don't bother making tooltips for the mod item entry
 			this.WhenAnyValue(x => x.Description, x => x.HasDependencies, x => x.UUID).
