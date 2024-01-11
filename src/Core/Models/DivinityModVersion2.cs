@@ -72,10 +72,10 @@ namespace DivinityModManager.Models
 			var values = nextVersion.Split('.');
 			if (values.Length > 0)
 			{
-				Major = ulong.Parse(values[0]);
-				if(values.Length > 1) Minor = ulong.Parse(values[1]);
-				if(values.Length > 2) Revision = ulong.Parse(values[2]);
-				if(values.Length > 3) Build = ulong.Parse(values[3]);
+				if(ulong.TryParse(values[0], out var major)) Major = major;
+				if(values.Length > 1 && ulong.TryParse(values[1], out var minor)) Minor = minor;
+				if(values.Length > 2 && ulong.TryParse(values[2], out var revision)) Revision = revision;
+				if(values.Length > 3 && ulong.TryParse(values[3], out var build)) Build = build;
 				versionInt = ToInt();
 				this.RaisePropertyChanged("VersionInt");
 			}
@@ -111,6 +111,26 @@ namespace DivinityModManager.Models
 			return a.VersionInt <= b.VersionInt;
 		}
 
+		public static bool operator >(DivinityModVersion2 a, string b)
+		{
+			return a.VersionInt > new DivinityModVersion2(b).VersionInt;
+		}
+
+		public static bool operator <(DivinityModVersion2 a, string b)
+		{
+			return a.VersionInt < new DivinityModVersion2(b).VersionInt;
+		}
+
+		public static bool operator >=(DivinityModVersion2 a, string b)
+		{
+			return a.VersionInt >= new DivinityModVersion2(b).VersionInt;
+		}
+
+		public static bool operator <=(DivinityModVersion2 a, string b)
+		{
+			return a.VersionInt <= new DivinityModVersion2(b).VersionInt;
+		}
+
 		public DivinityModVersion2()
 		{
 			this.WhenAnyValue(x => x.VersionInt).Subscribe((x) =>
@@ -122,6 +142,11 @@ namespace DivinityModManager.Models
 		public DivinityModVersion2(ulong vInt) : this()
 		{
 			ParseInt(vInt);
+		}
+
+		public DivinityModVersion2(string versionStr) : this()
+		{
+			ParseString(versionStr);
 		}
 
 		public DivinityModVersion2(ulong headerMajor, ulong headerMinor, ulong headerRevision, ulong headerBuild) : this()
