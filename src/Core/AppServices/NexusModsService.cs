@@ -143,7 +143,7 @@ namespace DivinityModManager.AppServices
 						if (result != null)
 						{
 							var file = result.ModFiles.FirstOrDefault(x => x.IsPrimary || x.Category == NexusModFileCategory.Main);
-							if (file != null && (mod.Version < file.ModVersion || mod.LastModified?.Ticks < file.UploadedTimestamp))
+							if (file != null && (mod.Version < file.ModVersion || mod.LastModified?.ToUnixTime() < file.UploadedTimestamp))
 							{
 								var fileId = file.FileId;
 								var linkResult = await _dataLoader.ModFiles.GetModFileDownloadLinksAsync(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, fileId, token);
