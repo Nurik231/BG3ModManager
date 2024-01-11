@@ -34,7 +34,7 @@ namespace DivinityModManager.Models
 
 		[DataMember] public string MD5 { get; set; }
 
-		public DateTime? LastModified { get; set; }
+		public DateTimeOffset? LastModified { get; set; }
 
 		public static DivinitySerializedModData FromMod(DivinityModData mod)
 		{

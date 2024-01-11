@@ -73,7 +73,7 @@ namespace DivinityModManager.Models
 				{
 					File.SetLastWriteTime(FilePath, DateTime.Now);
 					File.SetLastAccessTime(FilePath, DateTime.Now);
-					LastModified = DateTime.Now;
+					LastModified = DateTimeOffset.Now;
 					DivinityApp.Log($"Wrote GM campaign metadata to {FilePath}");
 				}
 				return true;

@@ -32,7 +32,7 @@ namespace DivinityModManager.Models
 		string Folder { get; set; }
 		string MD5 { get; set; }
 		DivinityModVersion2 Version { get; set; }
-		public DateTime? LastModified { get; }
+		public DateTimeOffset? LastModified { get; }
 	}
 
 	[DataContract]
@@ -60,7 +60,7 @@ namespace DivinityModManager.Models
 		public SourceList<DivinityModDependencyData> Dependencies { get; set; } = new SourceList<DivinityModDependencyData>();
 		#endregion
 
-		[Reactive] public DateTime? LastModified { get; set; }
+		[Reactive] public DateTimeOffset? LastModified { get; set; }
 
 		[Reactive] public bool DisplayFileForName { get; set; }
 		[Reactive] public bool IsHidden { get; set; }
@@ -110,7 +110,7 @@ namespace DivinityModManager.Models
 			}
 		}
 
-		[Reactive] public DateTime? LastUpdated { get; set; }
+		[Reactive] public DateTimeOffset? LastUpdated { get; set; }
 
 		[Reactive] public DivinityExtenderModStatus ExtenderModStatus { get; set; }
 		[Reactive] public DivinityOsirisModStatus OsirisModStatus { get; set; }
@@ -343,7 +343,7 @@ namespace DivinityModManager.Models
 			return outputPackage.Equals(fileName, comparison);
 		}
 
-		public bool IsNewerThan(DateTime date)
+		public bool IsNewerThan(DateTimeOffset date)
 		{
 			if (LastModified.HasValue)
 			{

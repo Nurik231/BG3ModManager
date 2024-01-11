@@ -341,7 +341,7 @@ namespace DivinityModManager.ViewModels
 
 			if (String.IsNullOrEmpty(lastSelectedCampaignUUID) || !IsInitialized)
 			{
-				nextSelected = gameMasterCampaigns.Items.OrderByDescending(x => x.LastModified ?? DateTime.MinValue).FirstOrDefault();
+				nextSelected = gameMasterCampaigns.Items.OrderByDescending(x => x.LastModified ?? DateTimeOffset.MinValue).FirstOrDefault();
 
 			}
 			else
@@ -5702,12 +5702,12 @@ Directory the zip will be extracted to:
 
 			this.WhenAnyValue(x => x.MainProgressIsActive, x => x.IsDeletingFiles, (a, b) => a || b).ToUIProperty(this, x => x.HideModList, true);
 
-			DivinityInteractions.ConfirmModDeletion.RegisterHandler((Func<InteractionContext<DeleteFilesViewConfirmationData, bool>, Task>)(async interaction =>
+			DivinityInteractions.ConfirmModDeletion.RegisterHandler(async interaction =>
 			{
 				var sentenceStart = interaction.Input.PermanentlyDelete ? "Permanently delete" : "Delete";
 				var msg = $"{sentenceStart} {interaction.Input.Total} mod file(s)?";
 
-				var confirmed = await Observable.Start((Func<bool>)(() =>
+				var confirmed = await Observable.Start(() =>
 				{
 					MessageBoxResult result = Xceed.Wpf.Toolkit.MessageBox.Show(Window, msg, "Confirm Mod Deletion",
 					MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No, Window.MessageBoxStyle);
@@ -5716,9 +5716,9 @@ Directory the zip will be extracted to:
 						return true;
 					}
 					return false;
-				}), RxApp.MainThreadScheduler);
+				}, RxApp.MainThreadScheduler);
 				interaction.SetOutput(confirmed);
-			}));
+			});
 
 			CanSaveOrder = true;
 			LayoutMode = 0;

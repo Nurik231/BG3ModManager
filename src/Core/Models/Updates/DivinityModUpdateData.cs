@@ -44,7 +44,7 @@ namespace DivinityModManager.Models.Updates
 			return null;
 		}
 
-		private string DateToString(DateTime? date)
+		private string DateToString(DateTimeOffset? date)
 		{
 			if(date.HasValue)
 			{

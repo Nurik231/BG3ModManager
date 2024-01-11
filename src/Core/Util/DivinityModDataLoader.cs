@@ -330,7 +330,7 @@ namespace DivinityModManager.Util
 							try
 							{
 								modData.LastModified = File.GetChangeTime(metaFile);
-								modData.LastUpdated = modData.LastModified.Value;
+								modData.LastUpdated = modData.LastModified;
 							}
 							catch (PlatformNotSupportedException ex)
 							{
