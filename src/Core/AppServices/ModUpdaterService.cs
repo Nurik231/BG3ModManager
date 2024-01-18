@@ -201,6 +201,8 @@ namespace DivinityModManager.AppServices
 						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
+
+				return await Services.Get<IGitHubService>().GetLatestDownloadsForModsAsync(mods, token);
 			}
 			catch (Exception ex)
 			{
@@ -232,7 +234,7 @@ namespace DivinityModManager.AppServices
 						return Unit.Default;
 					}, RxApp.MainThreadScheduler);
 				}
-				results = await Services.Get<INexusModsService>().GetLatestDownloadsForModsAsync(mods, token);
+				return await Services.Get<INexusModsService>().GetLatestDownloadsForModsAsync(mods, token);
 			}
 			catch (Exception ex)
 			{

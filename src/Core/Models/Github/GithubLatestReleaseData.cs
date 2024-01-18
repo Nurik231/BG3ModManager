@@ -13,7 +13,7 @@ namespace DivinityModManager.Models.GitHub
 	{
 		[Reactive] public string Version { get; set; }
 		[Reactive] public string Description { get; set; }
-		[Reactive] public long Date { get; set; }
+		[Reactive] public DateTimeOffset Date { get; set; }
 		[Reactive] public string BrowserDownloadLink { get; set; }
 	}
 }
