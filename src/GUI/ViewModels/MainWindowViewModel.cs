@@ -456,11 +456,9 @@ namespace DivinityModManager.ViewModels
 							if (entry.Name.Equals(DivinityApp.EXTENDER_UPDATER_FILE, StringComparison.OrdinalIgnoreCase))
 							{
 								unzippedEntryStream = entry.Open(); // .Open will return a stream
-								using (var fs = File.Create(dllDestination, 4096, System.IO.FileOptions.Asynchronous))
-								{
-									await unzippedEntryStream.CopyToAsync(fs, 4096, MainProgressToken.Token);
-									successes += 1;
-								}
+								using var fs = File.Create(dllDestination, 4096, System.IO.FileOptions.Asynchronous);
+								await unzippedEntryStream.CopyToAsync(fs, 4096, MainProgressToken.Token);
+								successes += 1;
 								break;
 							}
 						}
@@ -528,29 +526,27 @@ namespace DivinityModManager.ViewModels
 					{
 						DivinityApp.Log($"Running '{toolboxPath}' to update the script extender.");
 
-						using (var process = new Process())
-						{
-							var info = process.StartInfo;
-							info.FileName = toolboxPath;
-							info.WorkingDirectory = Path.GetDirectoryName(toolboxPath);
-							info.Arguments = $"UpdateScriptExtender -u \"{extenderUpdaterPath}\" -b \"{exeDir}\"";
-							info.UseShellExecute = false;
-							info.CreateNoWindow = true;
-							info.RedirectStandardOutput = true;
-							info.RedirectStandardError = true;
-							process.ErrorDataReceived += OnToolboxOutput;
-							process.OutputDataReceived += OnToolboxOutput;
+						using var process = new Process();
+						var info = process.StartInfo;
+						info.FileName = toolboxPath;
+						info.WorkingDirectory = Path.GetDirectoryName(toolboxPath);
+						info.Arguments = $"UpdateScriptExtender -u \"{extenderUpdaterPath}\" -b \"{exeDir}\"";
+						info.UseShellExecute = false;
+						info.CreateNoWindow = true;
+						info.RedirectStandardOutput = true;
+						info.RedirectStandardError = true;
+						process.ErrorDataReceived += OnToolboxOutput;
+						process.OutputDataReceived += OnToolboxOutput;
 
-							process.Start();
-							process.BeginOutputReadLine();
-							process.BeginErrorReadLine();
-							if (!process.WaitForExit(120000))
-							{
-								process.Kill();
-							}
-							process.ErrorDataReceived -= OnToolboxOutput;
-							process.OutputDataReceived -= OnToolboxOutput;
+						process.Start();
+						process.BeginOutputReadLine();
+						process.BeginErrorReadLine();
+						if (!process.WaitForExit(120000))
+						{
+							process.Kill();
 						}
+						process.ErrorDataReceived -= OnToolboxOutput;
+						process.OutputDataReceived -= OnToolboxOutput;
 					}
 				}
 				catch (Exception ex)
@@ -1844,46 +1840,38 @@ Directory the zip will be extracted to:
 
 		private async Task<ModuleInfo> TryGetMetaFromZipAsync(string filePath, CancellationToken token)
 		{
-			using (var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
-			{
-				await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
-				fileStream.Position = 0;
+			using var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+			await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
+			fileStream.Position = 0;
 
-				using (var archive = ArchiveFactory.Open(fileStream, _importReaderOptions))
+			using var archive = ArchiveFactory.Open(fileStream, _importReaderOptions);
+			foreach (var file in archive.Entries)
+			{
+				if (token.IsCancellationRequested) return null;
+				if (!file.IsDirectory)
 				{
-					foreach (var file in archive.Entries)
+					if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 					{
-						if (token.IsCancellationRequested) return null;
-						if (!file.IsDirectory)
+						using var entryStream = file.OpenEntryStream();
+						using var ms = new System.IO.MemoryStream();
+						await entryStream.CopyToAsync(ms, 4096, token);
+						ms.Position = 0;
+						var meta = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
+						if (meta == null)
 						{
-							if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
+							var pakName = Path.GetFileNameWithoutExtension(file.Key);
+							var overrideMod = mods.Lookup(pakName);
+							if (overrideMod.HasValue)
 							{
-								using (var entryStream = file.OpenEntryStream())
+								return new ModuleInfo
 								{
-									using(var ms = new System.IO.MemoryStream())
-									{
-										await entryStream.CopyToAsync(ms, 4096, token);
-										ms.Position = 0;
-										var meta = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
-										if(meta == null)
-										{
-											var pakName = Path.GetFileNameWithoutExtension(file.Key);
-											var overrideMod = mods.Lookup(pakName);
-											if(overrideMod.HasValue)
-											{
-												return new ModuleInfo
-												{
-													UUID = pakName,
-												};
-											}
-										}
-										else
-										{
-											return meta;
-										}
-									}
-								}
+									UUID = pakName,
+								};
 							}
+						}
+						else
+						{
+							return meta;
 						}
 					}
 				}
@@ -1917,22 +1905,20 @@ Directory the zip will be extracted to:
 
 					if (decompressionStream != null)
 					{
-						using (var ms = new System.IO.MemoryStream())
+						using var ms = new System.IO.MemoryStream();
+						await decompressionStream.CopyToAsync(ms, 4096, token);
+						ms.Position = 0;
+						result = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
+						if (result == null)
 						{
-							await decompressionStream.CopyToAsync(ms, 4096, token);
-							ms.Position = 0;
-							result = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
-							if (result == null)
+							var pakName = Path.GetFileNameWithoutExtension(filePath);
+							var overrideMod = mods.Lookup(pakName);
+							if (overrideMod.HasValue)
 							{
-								var pakName = Path.GetFileNameWithoutExtension(filePath);
-								var overrideMod = mods.Lookup(pakName);
-								if (overrideMod.HasValue)
+								result = new ModuleInfo
 								{
-									result = new ModuleInfo
-									{
-										UUID = pakName,
-									};
-								}
+									UUID = pakName,
+								};
 							}
 						}
 					}
@@ -2137,13 +2123,9 @@ Directory the zip will be extracted to:
 				{
 					taskResult.TotalPaks++;
 
-					using (System.IO.FileStream sourceStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 8192, true))
-					{
-						using (System.IO.FileStream destinationStream = File.Create(outputFilePath))
-						{
-							await sourceStream.CopyToAsync(destinationStream, 8192, token);
-						}
-					}
+					using var sourceStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 8192, true);
+					using var destinationStream = File.Create(outputFilePath);
+					await sourceStream.CopyToAsync(destinationStream, 8192, token);
 
 					if (File.Exists(outputFilePath))
 					{
@@ -2596,7 +2578,7 @@ Directory the zip will be extracted to:
 									DownloadPathType = ModDownloadPathType.URL,
 									DownloadSourceType = ModSourceType.GITHUB,
 									Version = kvp.Value.Version,
-									Date = DateUtils.UnixTimeStampToDateTime(kvp.Value.Date)
+									Date = kvp.Value.Date
 								},
 							};
 							ModUpdatesViewData.Mods.Add(updateData);
@@ -3712,70 +3694,62 @@ Directory the zip will be extracted to:
 					await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
 					fileStream.Position = 0;
 					IncreaseMainProgressValue(taskStepAmount);
-					using (var archive = ArchiveFactory.Open(fileStream, _importReaderOptions))
+					using var archive = ArchiveFactory.Open(fileStream, _importReaderOptions);
+					foreach (var file in archive.Entries)
 					{
-						foreach (var file in archive.Entries)
+						if (token.IsCancellationRequested) return false;
+						if (!file.IsDirectory)
 						{
-							if (token.IsCancellationRequested) return false;
-							if (!file.IsDirectory)
+							if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 							{
-								if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
+								var outputName = Path.GetFileName(file.Key);
+								var outputFilePath = Path.Combine(outputDirectory, outputName);
+								taskResult.TotalPaks++;
+								using var entryStream = file.OpenEntryStream();
+								using var fs = File.Create(outputFilePath, 4096, System.IO.FileOptions.Asynchronous);
+								try
 								{
-									var outputName = Path.GetFileName(file.Key);
-									var outputFilePath = Path.Combine(outputDirectory, outputName);
-									taskResult.TotalPaks++;
-									using (var entryStream = file.OpenEntryStream())
-									{
-										using (var fs = File.Create(outputFilePath, 4096, System.IO.FileOptions.Asynchronous))
-										{
-											try
-											{
-												await entryStream.CopyToAsync(fs, 4096, token);
-												success = true;
-											}
-											catch (Exception ex)
-											{
-												taskResult.AddError(outputFilePath, ex);
-												DivinityApp.Log($"Error copying file '{file.Key}' from archive to '{outputFilePath}':\n{ex}");
-											}
-										}
-									}
+									await entryStream.CopyToAsync(fs, 4096, token);
+									success = true;
+								}
+								catch (Exception ex)
+								{
+									taskResult.AddError(outputFilePath, ex);
+									DivinityApp.Log($"Error copying file '{file.Key}' from archive to '{outputFilePath}':\n{ex}");
+								}
 
-									if (success)
+								if (success)
+								{
+									var mod = await DivinityModDataLoader.LoadModDataFromPakAsync(outputFilePath, builtinMods, token);
+									if (mod != null)
 									{
-										var mod = await DivinityModDataLoader.LoadModDataFromPakAsync(outputFilePath, builtinMods, token);
-										if (mod != null)
+										taskResult.Mods.Add(mod);
+										mod.NexusModsData.SetModVersion(info);
+										await Observable.Start(() =>
 										{
-											taskResult.Mods.Add(mod);
-											mod.NexusModsData.SetModVersion(info);
-											await Observable.Start(() =>
-											{
-												AddImportedMod(mod, toActiveList);
-											}, RxApp.MainThreadScheduler);
-										}
+											AddImportedMod(mod, toActiveList);
+										}, RxApp.MainThreadScheduler);
 									}
 								}
-								else if (file.Key.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+							}
+							else if (file.Key.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+							{
+								using var entryStream = file.OpenEntryStream();
+								try
 								{
-									using (var entryStream = file.OpenEntryStream())
+									int length = (int)file.Size;
+									var result = new byte[length];
+									await entryStream.ReadAsync(result, 0, length);
+									string text = Encoding.UTF8.GetString(result);
+									if (!String.IsNullOrWhiteSpace(text))
 									{
-										try
-										{
-											int length = (int)file.Size;
-											var result = new byte[length];
-											await entryStream.ReadAsync(result, 0, length);
-											string text = Encoding.UTF8.GetString(result);
-											if (!String.IsNullOrWhiteSpace(text))
-											{
-												jsonFiles.Add(Path.GetFileNameWithoutExtension(file.Key), text);
-											}
-										}
-										catch (Exception ex)
-										{
-											taskResult.AddError(file.Key, ex);
-											DivinityApp.Log($"Error reading json file '{file.Key}' from archive:\n{ex}");
-										}
+										jsonFiles.Add(Path.GetFileNameWithoutExtension(file.Key), text);
 									}
+								}
+								catch (Exception ex)
+								{
+									taskResult.AddError(file.Key, ex);
+									DivinityApp.Log($"Error reading json file '{file.Key}' from archive:\n{ex}");
 								}
 							}
 						}
@@ -3876,59 +3850,56 @@ Directory the zip will be extracted to:
 
 				try
 				{
-					using (var stream = File.OpenWrite(outputPath))
-					using (var zipWriter = WriterFactory.Open(stream, ArchiveType.Zip, _exportWriterOptions))
+					using var stream = File.OpenWrite(outputPath);
+					using var zipWriter = WriterFactory.Open(stream, ArchiveType.Zip, _exportWriterOptions);
+
+					var orderFileName = DivinityModDataLoader.MakeSafeFilename(Path.Combine(SelectedModOrder.Name + ".json"), '_');
+					var contents = JsonConvert.SerializeObject(SelectedModOrder, Newtonsoft.Json.Formatting.Indented);
+
+					using var ms = new System.IO.MemoryStream();
+					using var swriter = new System.IO.StreamWriter(ms);
+
+					await swriter.WriteAsync(contents);
+					swriter.Flush();
+					ms.Position = 0;
+					zipWriter.Write(orderFileName, ms);
+
+					foreach (var mod in modPaks)
 					{
-						var orderFileName = DivinityModDataLoader.MakeSafeFilename(Path.Combine(SelectedModOrder.Name + ".json"), '_');
-						var contents = JsonConvert.SerializeObject(SelectedModOrder, Newtonsoft.Json.Formatting.Indented);
-						using (var ms = new System.IO.MemoryStream())
+						if (token.IsCancellationRequested) return false;
+						if (!mod.IsEditorMod)
 						{
-							using (var swriter = new System.IO.StreamWriter(ms))
+							var fileName = Path.GetFileName(mod.FilePath);
+							await WriteZipAsync(zipWriter, fileName, mod.FilePath, token);
+						}
+						else
+						{
+							var outputPackage = Path.ChangeExtension(Path.Combine(tempDir, mod.Folder), "pak");
+							//Imported Classic Projects
+							if (!mod.Folder.Contains(mod.UUID))
 							{
-								await swriter.WriteAsync(contents);
-								swriter.Flush();
-								ms.Position = 0;
-								zipWriter.Write(orderFileName, ms);
+								outputPackage = Path.ChangeExtension(Path.Combine(tempDir, mod.Folder + "_" + mod.UUID), "pak");
+							}
+
+							var sourceFolders = new List<string>();
+
+							var modsFolder = Path.Combine(gameDataFolder, $"Mods/{mod.Folder}");
+							var publicFolder = Path.Combine(gameDataFolder, $"Public/{mod.Folder}");
+
+							if (Directory.Exists(modsFolder)) sourceFolders.Add(modsFolder);
+							if (Directory.Exists(publicFolder)) sourceFolders.Add(publicFolder);
+
+							DivinityApp.Log($"Creating package for editor mod '{mod.Name}' - '{outputPackage}'.");
+
+							if (await DivinityFileUtils.CreatePackageAsync(gameDataFolder, sourceFolders, outputPackage, DivinityFileUtils.IgnoredPackageFiles, token))
+							{
+								var fileName = Path.GetFileName(outputPackage);
+								await WriteZipAsync(zipWriter, fileName, outputPackage, token);
+								File.Delete(outputPackage);
 							}
 						}
 
-						foreach (var mod in modPaks)
-						{
-							if (token.IsCancellationRequested) return false;
-							if (!mod.IsEditorMod)
-							{
-								var fileName = Path.GetFileName(mod.FilePath);
-								await WriteZipAsync(zipWriter, fileName, mod.FilePath, token);
-							}
-							else
-							{
-								var outputPackage = Path.ChangeExtension(Path.Combine(tempDir, mod.Folder), "pak");
-								//Imported Classic Projects
-								if (!mod.Folder.Contains(mod.UUID))
-								{
-									outputPackage = Path.ChangeExtension(Path.Combine(tempDir, mod.Folder + "_" + mod.UUID), "pak");
-								}
-
-								var sourceFolders = new List<string>();
-
-								var modsFolder = Path.Combine(gameDataFolder, $"Mods/{mod.Folder}");
-								var publicFolder = Path.Combine(gameDataFolder, $"Public/{mod.Folder}");
-
-								if (Directory.Exists(modsFolder)) sourceFolders.Add(modsFolder);
-								if (Directory.Exists(publicFolder)) sourceFolders.Add(publicFolder);
-
-								DivinityApp.Log($"Creating package for editor mod '{mod.Name}' - '{outputPackage}'.");
-
-								if (await DivinityFileUtils.CreatePackageAsync(gameDataFolder, sourceFolders, outputPackage, DivinityFileUtils.IgnoredPackageFiles, token))
-								{
-									var fileName = Path.GetFileName(outputPackage);
-									await WriteZipAsync(zipWriter, fileName, outputPackage, token);
-									File.Delete(outputPackage);
-								}
-							}
-
-							RxApp.MainThreadScheduler.Schedule(_ => MainProgressValue += incrementProgress);
-						}
+						RxApp.MainThreadScheduler.Schedule(_ => MainProgressValue += incrementProgress);
 					}
 
 					RxApp.MainThreadScheduler.Schedule(() =>

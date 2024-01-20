@@ -59,7 +59,7 @@ namespace DivinityModManager.AppServices
 
 		private readonly string _appVersion;
 
-		private static readonly JsonSerializerSettings DefaultSerializerSettings = new JsonSerializerSettings
+		private static readonly JsonSerializerSettings DefaultSerializerSettings = new()
 		{
 			NullValueHandling = NullValueHandling.Ignore,
 			Formatting = Formatting.None

@@ -22,7 +22,7 @@ namespace DivinityModManager.ModUpdater.Cache
 		public string FileName => "GithubData.json";
 
 		//Format GitHub data so people can more easily edit/add mods manually.
-		public JsonSerializerSettings SerializerSettings => new JsonSerializerSettings()
+		public JsonSerializerSettings SerializerSettings => new()
 		{
 			NullValueHandling = NullValueHandling.Ignore,
 			Formatting = Formatting.Indented,
@@ -57,15 +57,11 @@ namespace DivinityModManager.ModUpdater.Cache
 						var latestRelease = await github.GetLatestReleaseAsync(mod.GitHubData.Author, mod.GitHubData.Repository);
 						if (latestRelease != null)
 						{
-							var releaseAsset = latestRelease.Assets.FirstOrDefault();
-							if(releaseAsset != null)
-							{
-								mod.GitHubData.LatestRelease.Version = latestRelease.TagName;
-								mod.GitHubData.LatestRelease.Date = latestRelease.CreatedAt.Ticks;
-								mod.GitHubData.LatestRelease.Description = latestRelease.Body;
-								mod.GitHubData.LatestRelease.BrowserDownloadLink = releaseAsset.BrowserDownloadUrl;
-								success = true;
-							}
+							mod.GitHubData.LatestRelease.Version = latestRelease.Version;
+							mod.GitHubData.LatestRelease.Date = latestRelease.Date;
+							mod.GitHubData.LatestRelease.Description = latestRelease.Description;
+							mod.GitHubData.LatestRelease.BrowserDownloadLink = latestRelease.BrowserDownloadLink;
+							success = true;
 						}
 						CacheData.Mods[mod.UUID] = mod.GitHubData;
 					}
