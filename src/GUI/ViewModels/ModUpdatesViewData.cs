@@ -205,6 +205,7 @@ namespace DivinityModManager.ViewModels
 					x.IsSelected = b;
 				}
 			}, hasNewMods);
+
 			SelectAllUpdatesCommand = ReactiveCommand.Create<bool>((b) =>
 			{
 				foreach (var x in UpdatedMods)

@@ -206,7 +206,7 @@
 					<TextBlock
 						x:Name="UpdaterTabHeader"
 						Style="{StaticResource TabItemWithContextMenu}"
-						Text="Updater"
+						Text="Script Extender Updater"
 						ToolTip="Script Extender Updater Settings (ScriptExtenderUpdaterConfig.json)" />
 				</TabItem.Header>
 				<Grid>
