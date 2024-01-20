@@ -366,7 +366,7 @@ namespace DivinityModManager.Models
 			switch (modSourceType)
 			{
 				case ModSourceType.STEAM:
-					if (WorkshopData != null && WorkshopData.ModId > DivinityApp.WORKSHOP_MOD_ID_START)
+					if (WorkshopData.IsEnabled)
 					{
 						if (!asProtocol)
 						{
@@ -379,13 +379,13 @@ namespace DivinityModManager.Models
 					}
 					break;
 				case ModSourceType.NEXUSMODS:
-					if (NexusModsData != null && NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START)
+					if (NexusModsData.IsEnabled)
 					{
 						return String.Format(DivinityApp.NEXUSMODS_MOD_URL, NexusModsData.ModId);
 					}
 					break;
 				case ModSourceType.GITHUB:
-					if (GitHubData != null)
+					if (GitHubData.IsEnabled)
 					{
 						return $"https://github.com/{GitHubData.Author}/{GitHubData.Repository}";
 					}

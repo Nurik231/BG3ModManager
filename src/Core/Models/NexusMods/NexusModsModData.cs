@@ -150,13 +150,22 @@ namespace DivinityModManager.Models.NexusMods
 			RaisePropertyChanged(nameof(IsUpdated));
 		}
 
-		[JsonIgnore]
-		public bool IsUpdated { get; set; }
+		[JsonIgnore] public bool IsUpdated { get; set; }
+
+		/// <summary>
+		/// True if ModId is set.
+		/// </summary>
+		[Reactive, JsonIgnore] public bool IsEnabled { get; private set; }
 
 		public NexusModsModData()
 		{
 			ModId = -1;
 			LastFileId = -1;
+
+			this.WhenAnyValue(x => x.ModId)
+			.Select(x => x >= DivinityApp.NEXUSMODS_MOD_ID_START)
+			.ObserveOn(RxApp.MainThreadScheduler)
+			.BindTo(this, x => x.IsEnabled);
 		}
 	}
 }

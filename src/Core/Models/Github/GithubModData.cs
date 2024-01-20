@@ -17,6 +17,9 @@ namespace DivinityModManager.Models.GitHub
 		[Reactive] public string Repository { get; set; }
 		[Reactive] public GitHubLatestReleaseData LatestRelease { get; set; }
 
+		/// <summary>
+		/// True if Author and Repository are set.
+		/// </summary>
 		[Reactive] public bool IsEnabled { get; private set; }
 
 		public void Update(GitHubModData data)
@@ -37,9 +40,9 @@ namespace DivinityModManager.Models.GitHub
 			LatestRelease = new GitHubLatestReleaseData();
 
 			this.WhenAnyValue(x => x.Author, x => x.Repository)
-				.Select(x => !String.IsNullOrEmpty(x.Item1) && !String.IsNullOrEmpty(x.Item2))
-				.ObserveOn(RxApp.MainThreadScheduler)
-				.BindTo(this, x => x.IsEnabled);
+			.Select(x => !String.IsNullOrEmpty(x.Item1) && !String.IsNullOrEmpty(x.Item2))
+			.ObserveOn(RxApp.MainThreadScheduler)
+			.BindTo(this, x => x.IsEnabled);
 		}
 	}
 }

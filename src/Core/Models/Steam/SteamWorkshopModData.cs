@@ -4,6 +4,7 @@ using ReactiveUI.Fody.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,12 +18,22 @@ namespace DivinityModManager.Models.Steam
 
 		public List<string> Tags { get; set; }
 
+		/// <summary>
+		/// True if ModId is set.
+		/// </summary>
+		[Reactive] public bool IsEnabled { get; private set; }
+
 		public void Update(SteamWorkshopModData otherData)
 		{
 			ModId = otherData.ModId;
 			CreatedDate = otherData.CreatedDate;
 			UpdatedDate = otherData.UpdatedDate;
 			Tags = otherData.Tags;
+
+			this.WhenAnyValue(x => x.ModId)
+			.Select(x => x >= DivinityApp.WORKSHOP_MOD_ID_START)
+			.ObserveOn(RxApp.MainThreadScheduler)
+			.BindTo(this, x => x.IsEnabled);
 		}
 	}
 }
