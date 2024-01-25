@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -444,7 +445,7 @@ namespace DivinityModManager.Util
 		}
 
 		private static readonly Regex modMetaPattern = new("^Mods/([^/]+)/meta.lsx", RegexOptions.IgnoreCase);
-		private static bool IsModMetaFile(AbstractFileInfo f)
+		private static bool IsModMetaFile(PackagedFileInfo f)
 		{
 			if (Path.GetFileName(f.Name).Equals("meta.lsx", SCOMP))
 			{
@@ -467,7 +468,7 @@ namespace DivinityModManager.Util
 
 			string pakName = Path.GetFileNameWithoutExtension(pakPath);
 
-			var metaFiles = new List<AbstractFileInfo>();
+			var metaFiles = new List<PackagedFileInfo>();
 			var hasBuiltinDirectory = false;
 			var isOverridingBuiltinDirectory = false;
 			var hasModFolderData = false;
@@ -476,8 +477,8 @@ namespace DivinityModManager.Util
 			var files = new HashSet<string>();
 			var baseGameFiles = new HashSet<string>();
 
-			AbstractFileInfo extenderConfigPath = null;
-			AbstractFileInfo modManagerConfigPath = null;
+			PackagedFileInfo extenderConfigPath = null;
+			PackagedFileInfo modManagerConfigPath = null;
 
 			if (pak != null && pak.Files != null)
 			{
@@ -517,7 +518,7 @@ namespace DivinityModManager.Util
 								}
 								else
 								{
-									using var stream = f.MakeStream();
+									using var stream = f.CreateContentReader();
 									using var sr = new System.IO.StreamReader(stream);
 									string text = await sr.ReadToEndAsync();
 									if (text.Contains("NRD_KillStory") || text.Contains("NRD_BadCall"))
@@ -563,7 +564,7 @@ namespace DivinityModManager.Util
 			}
 
 			var metaCount = metaFiles.Count;
-			AbstractFileInfo metaFile = null;
+			PackagedFileInfo metaFile = null;
 
 			if (metaCount == 0)
 			{
@@ -595,7 +596,7 @@ namespace DivinityModManager.Util
 			if (metaFile != null)
 			{
 				//DivinityApp.LogMessage($"Parsing meta.lsx for mod pak '{pakPath}'.");
-				using var stream = metaFile.MakeStream();
+				using var stream = metaFile.CreateContentReader();
 				using var sr = new System.IO.StreamReader(stream);
 				string text = await sr.ReadToEndAsync();
 				modData = ParseMetaFile(text);
@@ -703,8 +704,8 @@ namespace DivinityModManager.Util
 			{
 				while (!token.IsCancellationRequested)
 				{
-					using var pr = new LSLib.LS.PackageReader(pakPath);
-					var pak = pr.Read();
+					var pr = new LSLib.LS.PackageReader();
+					var pak = pr.Read(pakPath);
 					return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
 				}
 			}
@@ -715,14 +716,14 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		public static async Task<DivinityModData> LoadModDataFromPakAsync(System.IO.Stream stream, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
+		public static async Task<DivinityModData> LoadModDataFromPakAsync(System.IO.FileStream stream, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
 		{
 			try
 			{
 				while (!token.IsCancellationRequested)
 				{
 					stream.Position = 0;
-					using var pr = new LSLib.LS.PackageReader();
+					var pr = new PackageReader();
 					var pak = pr.Read(stream);
 					return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
 				}
@@ -1772,24 +1773,25 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				using var reader = new PackageReader(file);
-				Package package = reader.Read();
-				AbstractFileInfo abstractFileInfo = package.Files.FirstOrDefault(p => p.Name == "meta.lsf");
-				if (abstractFileInfo == null)
+				var reader = new PackageReader();
+				Package package = reader.Read(file);
+				PackagedFileInfo PackagedFileInfo = package.Files.FirstOrDefault(p => p.Name == "meta.lsf");
+				if (PackagedFileInfo == null)
 				{
 					return null;
 				}
 
-				Resource resource;
-				System.IO.Stream rsrcStream = abstractFileInfo.MakeStream();
+				Resource resource = null;
+
+				System.IO.Stream rsrcStream = PackagedFileInfo.CreateContentReader();
 				try
 				{
 					using var rsrcReader = new LSFReader(rsrcStream);
 					resource = rsrcReader.Read();
 				}
-				finally
+				catch(Exception ex)
 				{
-					abstractFileInfo.ReleaseStream();
+					DivinityApp.Log($"Error reading file:\n{ex}");
 				}
 
 				if (resource != null)
@@ -1902,11 +1904,11 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		private static async Task<DivinityModScriptExtenderConfig> LoadScriptExtenderConfigAsync(AbstractFileInfo configFile)
+		private static async Task<DivinityModScriptExtenderConfig> LoadScriptExtenderConfigAsync(PackagedFileInfo configFile)
 		{
 			try
 			{
-				using var stream = configFile.MakeStream();
+				using var stream = configFile.CreateContentReader();
 				using var sr = new System.IO.StreamReader(stream);
 				string text = await sr.ReadToEndAsync();
 				if (!String.IsNullOrWhiteSpace(text))
@@ -1939,12 +1941,10 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		private static async Task<DivinityModData> LoadModFromModInfo(ModInfo modInfo, CancellationToken token)
+		private static async Task<DivinityModData> LoadModFromModInfo(VFS vfs, ModInfo modInfo, CancellationToken token)
 		{
-			var metaFile = modInfo.Meta;
-			if (metaFile != null)
+			if (vfs.TryOpen(modInfo.Meta, out var stream))
 			{
-				using var stream = metaFile.MakeStream();
 				using var sr = new System.IO.StreamReader(stream);
 				if (token.IsCancellationRequested) return null;
 				string text = await sr.ReadToEndAsync();
@@ -1977,8 +1977,12 @@ namespace DivinityModManager.Util
 
 			try
 			{
+				var vfs = new VFS();
+				vfs.AttachGameDirectory(gameDataPath, true);
+				vfs.FinishBuild();
+
 				var modResources = new ModResources();
-				var modHelper = new ModPathVisitor(modResources)
+				var modHelper = new ModPathVisitor(modResources, vfs)
 				{
 					Game = DivinityApp.GAME_COMPILER,
 					CollectGlobals = false,
@@ -1987,7 +1991,7 @@ namespace DivinityModManager.Util
 					CollectStats = false
 				};
 
-				modHelper.DiscoverBuiltinPackages(gameDataPath);
+				modHelper.Discover();
 
 				if (modResources.Mods != null && modResources.Mods.Values != null)
 				{
@@ -1995,7 +1999,7 @@ namespace DivinityModManager.Util
 					var count = modResources.Mods.Values.Count;
 					foreach (var modInfo in modResources.Mods.Values)
 					{
-						var modData = await LoadModFromModInfo(modInfo, token);
+						var modData = await LoadModFromModInfo(vfs, modInfo, token);
 						if (modData != null)
 						{
 							baseMods.Add(modData);
@@ -2012,9 +2016,10 @@ namespace DivinityModManager.Util
 			return baseMods;
 		}
 
-		public static ModuleInfo TryGetMetaFromPakFileStream(System.IO.Stream stream, CancellationToken token)
+		public static ModuleInfo TryGetMetaFromPakFileStream(System.IO.FileStream stream, string filePath, CancellationToken token)
 		{
-			using var pr = new LSLib.LS.PackageReader();
+			stream.Position = 0;
+			var pr = new LSLib.LS.PackageReader();
 			var pak = pr.Read(stream);
 			if (pak != null && pak.Files != null)
 			{
@@ -2025,7 +2030,7 @@ namespace DivinityModManager.Util
 
 					if (IsModMetaFile(f))
 					{
-						using var metaStream = f.MakeStream();
+						using var metaStream = f.CreateContentReader();
 						using var lsxReader = new LSXReader(metaStream);
 						_loadParams.ToSerializationSettings(lsxReader.SerializationSettings);
 						var resource = lsxReader.Read();

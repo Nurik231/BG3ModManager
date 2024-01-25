@@ -104,11 +104,11 @@ namespace DivinityModManager.Util
 			return default;
 		}
 
-		public static async Task<T> DeserializeFromAbstractAsync<T>(AbstractFileInfo file)
+		public static async Task<T> DeserializeFromAbstractAsync<T>(PackagedFileInfo file)
 		{
 			try
 			{
-				using (var stream = file.MakeStream())
+				using (var stream = file.CreateContentReader())
 				{
 					using (var sr = new System.IO.StreamReader(stream, Encoding.UTF8))
 					{

@@ -1840,42 +1840,53 @@ Directory the zip will be extracted to:
 
 		private async Task<ModuleInfo> TryGetMetaFromZipAsync(string filePath, CancellationToken token)
 		{
-			using var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
-			await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
-			fileStream.Position = 0;
-
-			using var archive = ArchiveFactory.Open(fileStream, _importReaderOptions);
-			foreach (var file in archive.Entries)
+			TempFileWrapper tempFile = null;
+			try
 			{
-				if (token.IsCancellationRequested) return null;
-				if (!file.IsDirectory)
+				using var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
+				fileStream.Position = 0;
+
+				using var archive = ArchiveFactory.Open(fileStream, _importReaderOptions);
+				foreach (var file in archive.Entries)
 				{
-					if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
+					if (token.IsCancellationRequested) return null;
+					if (!file.IsDirectory)
 					{
-						using var entryStream = file.OpenEntryStream();
-						using var ms = new System.IO.MemoryStream();
-						await entryStream.CopyToAsync(ms, 4096, token);
-						ms.Position = 0;
-						var meta = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
-						if (meta == null)
+						if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 						{
-							var pakName = Path.GetFileNameWithoutExtension(file.Key);
-							var overrideMod = mods.Lookup(pakName);
-							if (overrideMod.HasValue)
+							using var entryStream = file.OpenEntryStream();
+							tempFile = await DivinityFileUtils.CreateTempFileAsync(String.Join("\\", filePath, file.Key), entryStream, token);
+							var meta = DivinityModDataLoader.TryGetMetaFromPakFileStream(tempFile.Stream, filePath, token);
+							if (meta == null)
 							{
-								return new ModuleInfo
+								var pakName = Path.GetFileNameWithoutExtension(file.Key);
+								var overrideMod = mods.Lookup(pakName);
+								if (overrideMod.HasValue)
 								{
-									UUID = pakName,
-								};
+									return new ModuleInfo
+									{
+										UUID = pakName,
+									};
+								}
 							}
-						}
-						else
-						{
-							return meta;
+							else
+							{
+								return meta;
+							}
 						}
 					}
 				}
 			}
+			catch(Exception ex)
+			{
+				DivinityApp.Log($"Error reading zip:\n{ex}");
+			}
+			finally
+			{
+				tempFile?.Dispose();
+			}
+
 			return null;
 		}
 
@@ -1888,6 +1899,8 @@ Directory the zip will be extracted to:
 				fileStream.Position = 0;
 
 				System.IO.Stream decompressionStream = null;
+				TempFileWrapper tempFile = null;
+
 				try
 				{
 					switch (extension)
@@ -1905,10 +1918,8 @@ Directory the zip will be extracted to:
 
 					if (decompressionStream != null)
 					{
-						using var ms = new System.IO.MemoryStream();
-						await decompressionStream.CopyToAsync(ms, 4096, token);
-						ms.Position = 0;
-						result = DivinityModDataLoader.TryGetMetaFromPakFileStream(ms, token);
+						tempFile = await DivinityFileUtils.CreateTempFileAsync(filePath, decompressionStream, token);
+						result = DivinityModDataLoader.TryGetMetaFromPakFileStream(tempFile.Stream, filePath, token);
 						if (result == null)
 						{
 							var pakName = Path.GetFileNameWithoutExtension(filePath);
@@ -1926,6 +1937,7 @@ Directory the zip will be extracted to:
 				finally
 				{
 					decompressionStream?.Dispose();
+					tempFile?.Dispose();
 				}
 			}
 			return result;
@@ -3548,7 +3560,7 @@ Directory the zip will be extracted to:
 					fileStream.Position = 0;
 					IncreaseMainProgressValue(taskStepAmount);
                     System.IO.Stream decompressionStream = null;
-                    System.IO.Stream outputStream = null;
+					TempFileWrapper tempFile = null;
 
 					try
 					{
@@ -3566,16 +3578,16 @@ Directory the zip will be extracted to:
 						}
 						if (decompressionStream != null)
 						{
-							DivinityApp.Log($"Checking if compressed file ({extension}) is a pak.");
-							var outputName = Path.GetFileNameWithoutExtension(filePath) + ".pak";
+							DivinityApp.Log($"Checking if compressed file ({filePath} => {extension}) is a pak.");
+							var outputName = Path.GetFileNameWithoutExtension(filePath);
+							if (!outputName.EndsWith(".pak", StringComparison.OrdinalIgnoreCase)) outputName += ".pak";
 							var outputFilePath = Path.Combine(outputDirectory, outputName);
-							//outputStream = new System.IO.FileStream(Path.Combine(Path.GetDirectoryName(filePath), "Test.pak"), System.IO.FileMode.OpenOrCreate);
-							outputStream = new System.IO.MemoryStream();
-							await decompressionStream.CopyToAsync(outputStream, 4096, token);
+
+							tempFile = await DivinityFileUtils.CreateTempFileAsync(filePath, decompressionStream, token);
 
 							try
 							{
-								var mod = await DivinityModDataLoader.LoadModDataFromPakAsync(outputStream, outputFilePath, builtinMods, token);
+								var mod = await DivinityModDataLoader.LoadModDataFromPakAsync(tempFile.Stream, outputFilePath, builtinMods, token);
 								if (mod != null)
 								{
 									try
@@ -3598,7 +3610,7 @@ Directory the zip will be extracted to:
 									{
 										try
 										{
-											await decompressionStream.CopyToAsync(fs, 4096, token);
+											await tempFile.Stream.CopyToAsync(fs, 4096, token);
 											success = true;
 										}
 										catch (Exception ex)
@@ -3633,7 +3645,7 @@ Directory the zip will be extracted to:
 					finally
 					{
 						decompressionStream?.Dispose();
-						outputStream?.Dispose();
+						tempFile?.Dispose();
 					}
 
 					IncreaseMainProgressValue(taskStepAmount);

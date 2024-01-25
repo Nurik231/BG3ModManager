@@ -129,19 +129,25 @@ namespace DivinityModManager.Util
 					dataRootPath += Alphaleonis.Win32.Filesystem.Path.DirectorySeparatorChar;
 				}
 
-				var package = new Package();
+				var conversionParams = ResourceConversionParameters.FromGameVersion(DivinityApp.GAME);
+
+				var build = new PackageBuildData
+				{
+					Version = conversionParams.PAKVersion,
+					Compression = CompressionMethod.Zlib,
+					CompressionLevel = LSCompressionLevel.Default
+				};
 
 				foreach (var f in inputPaths)
 				{
 					if (token.Value.IsCancellationRequested) throw new TaskCanceledException("Cancelled package creation.");
-					await AddFilesToPackageAsync(package, f, dataRootPath, outputPath, ignoredFiles, token.Value);
+					await AddFilesToPackageAsync(build, f, dataRootPath, outputPath, ignoredFiles, token.Value);
 				}
 
 				DivinityApp.Log($"Writing package '{outputPath}'.");
-				using (var writer = new PackageWriter(package, outputPath))
-				{
-					await WritePackageAsync(writer, package, outputPath, token.Value);
-				}
+				DivinityApp.Log($"Writing package '{outputPath}'.");
+				using var writer = new PackageWriter(build, outputPath);
+				await WritePackageAsync(writer, outputPath, token.Value);
 				return true;
 			}
 			catch (Exception ex)
@@ -158,7 +164,7 @@ namespace DivinityModManager.Util
 			}
 		}
 
-		private static Task AddFilesToPackageAsync(Package package, string path, string dataRootPath, string outputPath, List<string> ignoredFiles, CancellationToken token)
+		private static Task AddFilesToPackageAsync(PackageBuildData build, string path, string dataRootPath, string outputPath, List<string> ignoredFiles, CancellationToken token)
 		{
 			Task task = null;
 
@@ -183,15 +189,15 @@ namespace DivinityModManager.Util
 					{
 						throw new TaskCanceledException(task);
 					}
-					FilesystemFileInfo fileInfo = FilesystemFileInfo.CreateFromEntry(file.Value, file.Key);
-					package.Files.Add(fileInfo);
+					var fileInfo = PackageBuildInputFile.CreateFromFilesystem(file.Value, file.Key);
+					build.Files.Add(fileInfo);
 				}
 			}, token);
 
 			return task;
 		}
 
-		private static Task WritePackageAsync(PackageWriter writer, Package package, string outputPath, CancellationToken token)
+		private static Task WritePackageAsync(PackageWriter writer, string outputPath, CancellationToken token)
 		{
 			var task = Task.Run(async () =>
 			{
@@ -200,10 +206,6 @@ namespace DivinityModManager.Util
 				{
 					try
 					{
-						//writer.WriteProgress += WriteProgressUpdate;
-						writer.Version = PackageVersion.V13;
-						writer.Compression = CompressionMethod.LZ4;
-						writer.CompressionLevel = CompressionLevel.MaxCompression;
 						writer.Write();
 					}
 					catch (Exception)
@@ -221,77 +223,6 @@ namespace DivinityModManager.Util
 			}, token);
 
 			return task;
-		}
-		#endregion
-		#region Package Creation
-		public static bool CreatePackage(string dataRootPath, List<string> inputPaths, string outputPath, List<string> ignoredFiles)
-		{
-			try
-			{
-				if (!dataRootPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
-				{
-					dataRootPath += Path.DirectorySeparatorChar;
-				}
-
-				var package = new Package();
-
-				foreach (var f in inputPaths)
-				{
-					AddFilesToPackage(package, f, dataRootPath, outputPath, ignoredFiles);
-				}
-
-				DivinityApp.Log($"Writing package '{outputPath}'.");
-				using (var writer = new PackageWriter(package, outputPath))
-				{
-					WritePackage(writer, package, outputPath);
-				}
-				return true;
-			}
-			catch (Exception ex)
-			{
-				DivinityApp.Log($"Error creating package: {ex}");
-				return false;
-			}
-		}
-
-		private static void AddFilesToPackage(Package package, string path, string dataRootPath, string outputPath, List<string> ignoredFiles)
-		{
-			if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()))
-			{
-				path += Path.DirectorySeparatorChar;
-			}
-
-			var files = Directory.EnumerateFiles(path, DirectoryEnumerationOptions.Recursive | DirectoryEnumerationOptions.LargeCache, new DirectoryEnumerationFilters()
-			{
-				InclusionFilter = (f) =>
-				{
-					return !ignoredFiles.Any(x => IgnoreFile(f.FullPath, x));
-				}
-			}).ToDictionary(k => k.Replace(dataRootPath, String.Empty), v => v);
-
-			foreach (KeyValuePair<string, string> file in files)
-			{
-				DivinityApp.Log("Creating FilesystemFileInfo ");
-				FilesystemFileInfo fileInfo = FilesystemFileInfo.CreateFromEntry(file.Value, file.Key);
-				package.Files.Add(fileInfo);
-			}
-		}
-
-		private static void WritePackage(PackageWriter writer, Package package, string outputPath)
-		{
-			try
-			{
-				//writer.WriteProgress += WriteProgressUpdate;
-				writer.Version = PackageVersion.V13;
-				writer.Compression = CompressionMethod.LZ4;
-				writer.CompressionLevel = CompressionLevel.MaxCompression;
-				writer.Write();
-			}
-			catch (Exception)
-			{
-				// ignored because an exception on a cancellation request 
-				// cannot be avoided if the stream gets disposed afterwards 
-			}
 		}
 		#endregion
 
@@ -455,6 +386,66 @@ namespace DivinityModManager.Util
 			}
 			catch (Exception ex) { }
 			return false;
+		}
+
+		public static async Task<TempFileWrapper> CreateTempFileAsync(string sourcePath, CancellationToken token)
+		{
+			var tempFile = new TempFileWrapper(sourcePath);
+			await tempFile.CreateAsync(token);
+			tempFile.Stream.Position = 0;
+			return tempFile;
+		}
+
+		public static async Task<TempFileWrapper> CreateTempFileAsync(string sourcePath, System.IO.Stream source, CancellationToken token)
+		{
+			var tempFile = new TempFileWrapper(sourcePath);
+			await tempFile.CreateAsync(source, token);
+			tempFile.Stream.Position = 0;
+			return tempFile;
+		}
+	}
+
+	public class TempFileWrapper : IDisposable
+	{
+		private readonly System.IO.FileStream _stream;
+		private readonly string _path;
+		private readonly string _sourcePath;
+
+		public System.IO.FileStream Stream => _stream;
+		public string FilePath => _path;
+		public string SourceFilePath => _sourcePath;
+
+		public TempFileWrapper(string sourcePath)
+		{
+			var tempDir = DivinityApp.GetAppDirectory("Temp");
+			Directory.CreateDirectory(tempDir);
+			_path = Path.Combine(tempDir, Path.GetFileName(sourcePath));
+			_sourcePath = sourcePath;
+			_stream = File.Create(_path, 4096, System.IO.FileOptions.Asynchronous);
+		}
+
+		public async Task CreateAsync(CancellationToken token)
+		{
+			using var sourceStream = File.Open(_path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+			await sourceStream.CopyToAsync(_stream, 4096, token);
+		}
+
+		public async Task CreateAsync(System.IO.Stream sourceStream, CancellationToken token)
+		{
+			await sourceStream.CopyToAsync(_stream, 4096, token);
+		}
+
+		public void Dispose()
+		{
+			_stream?.Dispose();
+			try
+			{
+				File.Delete(_path);
+			}
+			catch(Exception ex)
+			{
+				DivinityApp.Log($"Error deleting temp file at '{_path}':\n{ex}");
+			}
 		}
 	}
 }
