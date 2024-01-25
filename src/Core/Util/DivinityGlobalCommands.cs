@@ -37,6 +37,7 @@ namespace DivinityModManager.Util
 		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageInSteamCommand { get; private set; }
 		public ReactiveCommand<object, Unit> OpenURLCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> ToggleForceAllowInLoadOrderCommand { get; private set; }
+		public ReactiveCommand<DivinityModData, Unit> CopyModAsDependencyCommand { get; private set; }
 
 		public void OpenFile(string path)
 		{
@@ -161,6 +162,21 @@ namespace DivinityModManager.Util
 			_viewModel.ClearMissingMods();
 		}
 
+		public void CopyModAsDependency(DivinityModData mod)
+		{
+			try
+			{
+				var safeName = System.Security.SecurityElement.Escape(mod.Name);
+				var text = String.Format(DivinityApp.XML_MODULE_SHORT_DESC, mod.Folder, mod.MD5, safeName, mod.UUID, mod.Version.VersionInt);
+				Clipboard.SetText(text);
+				_viewModel.ShowAlert($"Copied ModuleShortDesc for mod '{mod.Name}' to clipboard", 0, 10);
+			}
+			catch (Exception ex)
+			{
+				_viewModel.ShowAlert($"Error copying text to clipboard: {ex}", AlertType.Danger, 10);
+			}
+		}
+
 		public DivinityGlobalCommands()
 		{
 			var canExecuteViewModelCommands = this.WhenAnyValue(x => x.ViewModel, x => x.ViewModel.IsLocked, (vm, b) => vm != null && !b);
@@ -198,6 +214,7 @@ namespace DivinityModManager.Util
 			OpenSteamWorkshopPageCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPage, canExecuteViewModelCommands);
 			OpenSteamWorkshopPageInSteamCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPageInSteam, canExecuteViewModelCommands);
 			ToggleForceAllowInLoadOrderCommand = ReactiveCommand.Create<DivinityModData>(ToggleForceAllowInLoadOrder, canExecuteViewModelCommands);
+			CopyModAsDependencyCommand = ReactiveCommand.Create<DivinityModData>(CopyModAsDependency, canExecuteViewModelCommands);
 		}
 	}
 }

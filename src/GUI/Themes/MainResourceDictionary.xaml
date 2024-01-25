@@ -389,6 +389,12 @@
 						Header="Copy FolderName to Clipboard"
 						Style="{StaticResource MenuItemCopyToClipboardStyle}"
 						Visibility="{Binding Path=(dapp:DivinityApp.DeveloperModeEnabled), Converter={StaticResource BoolToVisibilityConverter}}" />
+					<MenuItem
+						Command="{Binding Path=CopyModAsDependencyCommand, Source={x:Static dapp:DivinityApp.Commands}}"
+						CommandParameter="{Binding}"
+						Header="Copy ModuleShortDesc to Clipboard"
+						ToolTip="Copy the mod's information as a ModuleShortDesc node, typically for dependencies in a meta.lsx"
+						Visibility="{Binding Path=(dapp:DivinityApp.DeveloperModeEnabled), Converter={StaticResource BoolToVisibilityConverter}}" />
 				</ContextMenu>
 			</Setter.Value>
 		</Setter>
