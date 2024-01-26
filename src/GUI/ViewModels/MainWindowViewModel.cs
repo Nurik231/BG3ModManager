@@ -1840,7 +1840,7 @@ Directory the zip will be extracted to:
 
 		private async Task<ModuleInfo> TryGetMetaFromZipAsync(string filePath, CancellationToken token)
 		{
-			TempFileWrapper tempFile = null;
+			TempFile tempFile = null;
 			try
 			{
 				using var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
@@ -1856,7 +1856,7 @@ Directory the zip will be extracted to:
 						if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 						{
 							using var entryStream = file.OpenEntryStream();
-							tempFile = await DivinityFileUtils.CreateTempFileAsync(String.Join("\\", filePath, file.Key), entryStream, token);
+							tempFile = await TempFile.CreateAsync(String.Join("\\", filePath, file.Key), entryStream, token);
 							var meta = DivinityModDataLoader.TryGetMetaFromPakFileStream(tempFile.Stream, filePath, token);
 							if (meta == null)
 							{
@@ -1899,7 +1899,7 @@ Directory the zip will be extracted to:
 				fileStream.Position = 0;
 
 				System.IO.Stream decompressionStream = null;
-				TempFileWrapper tempFile = null;
+				TempFile tempFile = null;
 
 				try
 				{
@@ -1918,7 +1918,7 @@ Directory the zip will be extracted to:
 
 					if (decompressionStream != null)
 					{
-						tempFile = await DivinityFileUtils.CreateTempFileAsync(filePath, decompressionStream, token);
+						tempFile = await TempFile.CreateAsync(filePath, decompressionStream, token);
 						result = DivinityModDataLoader.TryGetMetaFromPakFileStream(tempFile.Stream, filePath, token);
 						if (result == null)
 						{
@@ -3560,7 +3560,7 @@ Directory the zip will be extracted to:
 					fileStream.Position = 0;
 					IncreaseMainProgressValue(taskStepAmount);
                     System.IO.Stream decompressionStream = null;
-					TempFileWrapper tempFile = null;
+					TempFile tempFile = null;
 
 					try
 					{
@@ -3583,7 +3583,7 @@ Directory the zip will be extracted to:
 							if (!outputName.EndsWith(".pak", StringComparison.OrdinalIgnoreCase)) outputName += ".pak";
 							var outputFilePath = Path.Combine(outputDirectory, outputName);
 
-							tempFile = await DivinityFileUtils.CreateTempFileAsync(filePath, decompressionStream, token);
+							tempFile = await TempFile.CreateAsync(filePath, decompressionStream, token);
 
 							try
 							{
