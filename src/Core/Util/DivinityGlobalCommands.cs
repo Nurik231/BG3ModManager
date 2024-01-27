@@ -167,7 +167,7 @@ namespace DivinityModManager.Util
 			try
 			{
 				var safeName = System.Security.SecurityElement.Escape(mod.Name);
-				var text = String.Format(DivinityApp.XML_MODULE_SHORT_DESC, mod.Folder, mod.MD5, safeName, mod.UUID, mod.Version.VersionInt);
+				var text = String.Format(DivinityApp.XML_MODULE_SHORT_DESC_FORMATTED, mod.Folder, mod.MD5, safeName, mod.UUID, mod.Version.VersionInt);
 				Clipboard.SetText(text);
 				_viewModel.ShowAlert($"Copied ModuleShortDesc for mod '{mod.Name}' to clipboard", 0, 10);
 			}

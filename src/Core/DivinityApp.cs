@@ -27,6 +27,7 @@ namespace DivinityModManager
 
 		public const string XML_MOD_ORDER_MODULE = @"<node id=""Module""><attribute id=""UUID"" value=""{0}"" type=""FixedString""/></node>";
 		public const string XML_MODULE_SHORT_DESC = @"<node id=""ModuleShortDesc""><attribute id=""Folder"" value=""{0}"" type=""LSString""/><attribute id=""MD5"" value=""{1}"" type=""LSString""/><attribute id=""Name"" value=""{2}"" type=""LSString""/><attribute id=""UUID"" value=""{3}"" type=""FixedString"" /><attribute id=""Version64"" value=""{4}"" type=""int64""/></node>";
+		public const string XML_MODULE_SHORT_DESC_FORMATTED = "<node id=\"ModuleShortDesc\">\n\t<attribute id=\"Folder\" value=\"{0}\" type=\"LSString\"/>\n\t<attribute id=\"MD5\" value=\"{1}\" type=\"LSString\"/>\n\t<attribute id=\"Name\" value=\"{2}\" type=\"LSString\"/>\n\t<attribute id=\"UUID\" value=\"{3}\" type=\"FixedString\" />\n\t<attribute id=\"Version64\" value=\"{4}\" type=\"int64\"/>\n</node>";
 		public const string XML_MOD_SETTINGS_TEMPLATE = @"<?xml version=""1.0"" encoding=""UTF-8""?><save><version major=""4"" minor=""0"" revision=""9"" build=""331""/><region id=""ModuleSettings""><node id=""root""><children><node id=""ModOrder""><children>{0}</children></node><node id=""Mods""><children>{1}</children></node></children></node></region></save>";
 
 		public const string PATH_RESOURCES = "Resources";
