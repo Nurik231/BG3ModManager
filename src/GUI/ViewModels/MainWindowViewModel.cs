@@ -3836,8 +3836,7 @@ Directory the zip will be extracted to:
 			{
 				var sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.Replace("/", "-");
 				var gameDataFolder = Path.GetFullPath(Settings.GameDataPath);
-				var appDir = DivinityApp.GetAppDirectory();
-				var tempDir = Path.Combine(appDir, "_Temp_" + DateTime.Now.ToString(sysFormat + "_HH-mm-ss"));
+				var tempDir = DivinityApp.GetAppDirectory("Temp");
 				Directory.CreateDirectory(tempDir);
 
 				if (String.IsNullOrEmpty(outputPath))
@@ -3847,12 +3846,9 @@ Directory the zip will be extracted to:
 					{
 						baseOrderName = $"{SelectedProfile.Name}_{SelectedModOrder.Name}";
 					}
-					var outputDir = Path.Combine(appDir, "Export");
+					var outputDir = DivinityApp.GetAppDirectory("Export");
+					Directory.CreateDirectory(outputDir);
 					outputPath = Path.Combine(outputDir, $"{baseOrderName}-{DateTime.Now.ToString(sysFormat + "_HH-mm-ss")}.zip");
-					if (!Directory.Exists(outputDir))
-					{
-						Directory.CreateDirectory(outputDir);
-					}
 				}
 
 				var modPaks = new List<DivinityModData>(Mods.Where(x => SelectedModOrder.Order.Any(o => o.UUID == x.UUID)));
