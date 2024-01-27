@@ -320,6 +320,7 @@ namespace DivinityModManager.Views
 
 			this.OneWayBind(ViewModel, vm => vm.SelectedAdventureMod.FilePath, view => view.AdventureContextMenuOpenMenuItem.CommandParameter);
 			this.OneWayBind(ViewModel, vm => vm.SelectedAdventureMod.FilePath, view => view.AdventureContextMenuCopyMenuItem.CommandParameter);
+			this.OneWayBind(ViewModel, vm => vm.SelectedAdventureMod, view => view.AdventureContextMenuModDeveloperMenuItem.DataContext);
 			//this.BindCommand(ViewModel, vm => vm.CopyPathToClipboardCommand, view => view.AdventureContextMenuCopyMenuItem);
 			var canOpenAdventurePath = ViewModel.WhenAnyValue(x => x.SelectedAdventureMod.FilePath).Select(PathExists);
 			canOpenAdventurePath.BindTo(this, x => x.AdventureContextMenuOpenMenuItem.IsEnabled);

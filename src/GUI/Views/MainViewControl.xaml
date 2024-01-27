@@ -514,6 +514,7 @@
 											<ContextMenu>
 												<MenuItem x:Name="AdventureContextMenuOpenMenuItem" Style="{StaticResource MenuItemOpenInExplorerStyle}" />
 												<MenuItem x:Name="AdventureContextMenuCopyMenuItem" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
+												<MenuItem x:Name="AdventureContextMenuModDeveloperMenuItem" Style="{StaticResource MenuItemModDeveloperStyle}" />
 											</ContextMenu>
 										</ComboBox.ContextMenu>
 									</ComboBox>
