@@ -8,6 +8,7 @@ using DivinityModManager.Models.Mod;
 using DynamicData;
 
 using LSLib.LS;
+using LSLib.LS.Enums;
 
 using Microsoft.VisualBasic.Logging;
 
@@ -41,7 +42,7 @@ namespace DivinityModManager.Util
 		private static readonly string[] VersionAttributes = new string[] { "Version64", "Version" };
 		public static readonly HashSet<string> IgnoreBuiltinPath = new();
 
-		private static readonly ResourceLoadParameters _loadParams = ResourceLoadParameters.FromGameVersion(LSLib.LS.Enums.Game.BaldursGate3);
+		private static readonly ResourceLoadParameters _loadParams = ResourceLoadParameters.FromGameVersion(Game.BaldursGate3);
 
 		public static bool IgnoreMod(string modUUID)
 		{
@@ -157,20 +158,6 @@ namespace DivinityModManager.Util
 				str = str.Replace("<br>", Environment.NewLine);
 			}
 			return str;
-		}
-
-		private static void WriteTextFile(string path, string contents)
-		{
-			var buffer = Encoding.UTF8.GetBytes(contents);
-			using var fs = new System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None, buffer.Length, false);
-			fs.Write(buffer, 0, buffer.Length);
-		}
-
-		private static async Task WriteTextFileAsync(string path, string contents)
-		{
-			var buffer = Encoding.UTF8.GetBytes(contents);
-			using var fs = new System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None, buffer.Length, true);
-			await fs.WriteAsync(buffer, 0, buffer.Length);
 		}
 
 		private static DivinityModData ParseMetaFile(string metaContents)
@@ -462,7 +449,7 @@ namespace DivinityModManager.Util
 			"Localization",
 		};
 
-		private static async Task<DivinityModData> InternalLoadModDataFromPakAsync(LSLib.LS.Package pak, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
+		private static async Task<DivinityModData> InternalLoadModDataFromPakAsync(Package pak, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
 		{
 			DivinityModData modData = null;
 
@@ -598,7 +585,7 @@ namespace DivinityModManager.Util
 				//DivinityApp.LogMessage($"Parsing meta.lsx for mod pak '{pakPath}'.");
 				using var stream = metaFile.CreateContentReader();
 				using var sr = new System.IO.StreamReader(stream);
-				string text = await sr.ReadToEndAsync();
+				var text = await sr.ReadToEndAsync();
 				modData = ParseMetaFile(text);
 				if(modData != null && isOverridingBuiltinDirectory)
 				{
@@ -704,7 +691,7 @@ namespace DivinityModManager.Util
 			{
 				while (!token.IsCancellationRequested)
 				{
-					var pr = new LSLib.LS.PackageReader();
+					var pr = new PackageReader();
 					var pak = pr.Read(pakPath);
 					return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
 				}
@@ -1027,7 +1014,7 @@ namespace DivinityModManager.Util
 				Resource modSettingsRes = null;
 				try
 				{
-					modSettingsRes = await LoadResourceAsync(path, LSLib.LS.Enums.ResourceFormat.LSX);
+					modSettingsRes = await LoadResourceAsync(path, ResourceFormat.LSX);
 				}
 				catch (Exception ex)
 				{
@@ -1158,7 +1145,7 @@ namespace DivinityModManager.Util
 			{
 				try
 				{
-					var resource = LSLib.LS.ResourceUtils.LoadResource(path, _loadParams);
+					var resource = ResourceUtils.LoadResource(path, _loadParams);
 					return resource;
 				}
 				catch (Exception ex)
@@ -1169,14 +1156,14 @@ namespace DivinityModManager.Util
 			});
 		}
 
-		public static async Task<Resource> LoadResourceAsync(string path, LSLib.LS.Enums.ResourceFormat resourceFormat)
+		public static async Task<Resource> LoadResourceAsync(string path, ResourceFormat resourceFormat)
 		{
 			try
 			{
 				using var fs = File.Open(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
 				await fs.ReadAsync(new byte[fs.Length], 0, (int)fs.Length);
 				fs.Position = 0;
-				var resource = LSLib.LS.ResourceUtils.LoadResource(fs, resourceFormat, _loadParams);
+				var resource = ResourceUtils.LoadResource(fs, resourceFormat, _loadParams);
 				return resource;
 			}
 			catch (Exception ex)
@@ -1186,13 +1173,13 @@ namespace DivinityModManager.Util
 			}
 		}
 
-		public static async Task<Resource> LoadResourceAsync(System.IO.Stream stream, LSLib.LS.Enums.ResourceFormat resourceFormat)
+		public static async Task<Resource> LoadResourceAsync(System.IO.Stream stream, ResourceFormat resourceFormat)
 		{
 			return await Task.Run(() =>
 			{
 				try
 				{
-					var resource = LSLib.LS.ResourceUtils.LoadResource(stream, resourceFormat, _loadParams);
+					var resource = ResourceUtils.LoadResource(stream, resourceFormat, _loadParams);
 					return resource;
 				}
 				catch (Exception ex)
@@ -1299,7 +1286,7 @@ namespace DivinityModManager.Util
 
 			string contents = JsonConvert.SerializeObject(order, Newtonsoft.Json.Formatting.Indented);
 
-			WriteTextFile(outputFilePath, contents);
+			DivinityFileUtils.WriteTextFile(outputFilePath, contents);
 
 			order.FilePath = outputFilePath;
 
@@ -1313,7 +1300,7 @@ namespace DivinityModManager.Util
 
 			string contents = JsonConvert.SerializeObject(order, Newtonsoft.Json.Formatting.Indented);
 
-			await WriteTextFileAsync(outputFilePath, contents);
+			await DivinityFileUtils.WriteTextFileAsync(outputFilePath, contents);
 
 			order.FilePath = outputFilePath;
 
@@ -1559,7 +1546,7 @@ namespace DivinityModManager.Util
 					xw.Indentation = 2;
 					xml.WriteTo(xw);
 
-					await WriteTextFileAsync(outputFilePath, sw.ToString());
+					await DivinityFileUtils.WriteTextFileAsync(outputFilePath, sw.ToString());
 
 					return true;
 				}
@@ -1601,7 +1588,7 @@ namespace DivinityModManager.Util
 
 			string contents = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
 
-			await WriteTextFileAsync(settingsFilePath, contents);
+			await DivinityFileUtils.WriteTextFileAsync(settingsFilePath, contents);
 
 			DivinityApp.Log($"Updated {settingsFilePath}");
 			return true;
@@ -2019,7 +2006,7 @@ namespace DivinityModManager.Util
 		public static ModuleInfo TryGetMetaFromPakFileStream(System.IO.FileStream stream, string filePath, CancellationToken token)
 		{
 			stream.Position = 0;
-			var pr = new LSLib.LS.PackageReader();
+			var pr = new PackageReader();
 			var pak = pr.Read(stream);
 			if (pak != null && pak.Files != null)
 			{

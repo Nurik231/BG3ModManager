@@ -145,7 +145,6 @@ namespace DivinityModManager.Util
 				}
 
 				DivinityApp.Log($"Writing package '{outputPath}'.");
-				DivinityApp.Log($"Writing package '{outputPath}'.");
 				using var writer = new PackageWriter(build, outputPath);
 				await WritePackageAsync(writer, outputPath, token.Value);
 				return true;
@@ -296,14 +295,13 @@ namespace DivinityModManager.Util
 			return task;
 		}
 
-		public static async Task<bool> WriteFileAsync(string path, string content)
+		public static bool WriteTextFile(string path, string contents)
 		{
 			try
 			{
-				using (System.IO.StreamWriter outputFile = new System.IO.StreamWriter(path))
-				{
-					await outputFile.WriteAsync(content);
-				}
+				var buffer = Encoding.UTF8.GetBytes(contents);
+				using var fs = new System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None, buffer.Length, false);
+				fs.Write(buffer, 0, buffer.Length);
 				return true;
 			}
 			catch (Exception ex)
@@ -313,16 +311,30 @@ namespace DivinityModManager.Util
 			}
 		}
 
-		public static async Task<byte[]> LoadFileAsync(string path, CancellationToken token)
+		public static async Task<bool> WriteTextFileAsync(string path, string contents)
 		{
 			try
 			{
-				using (var file = File.Open(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
-				{
-					var result = new byte[file.Length];
-					var totalBytesRead = await file.ReadAsync(result, 0, (int)file.Length, token);
-					return result;
-				}
+				var buffer = Encoding.UTF8.GetBytes(contents);
+				using var fs = new System.IO.FileStream(path, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.None, buffer.Length, true);
+				await fs.WriteAsync(buffer, 0, buffer.Length);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error writing file: {ex}");
+				return false;
+			}
+		}
+
+		public static async Task<byte[]> LoadFileAsBytesAsync(string path, CancellationToken token)
+		{
+			try
+			{
+				using var file = File.Open(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				var result = new byte[file.Length];
+				var totalBytesRead = await file.ReadAsync(result, 0, (int)file.Length, token);
+				return result;
 			}
 			catch (Exception ex)
 			{
@@ -335,15 +347,10 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				using (var sourceFile = File.Open(copyFromPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
-				{
-					using (var outputFile = File.Open(copyFromPath, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None, 4096, true))
-					{
-
-						await sourceFile.CopyToAsync(outputFile, 4096, token);
-						return true;
-					}
-				}
+				using var sourceFile = File.Open(copyFromPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				using var outputFile = File.Create(copyToPath, 4096, System.IO.FileOptions.Asynchronous, PathFormat.FullPath);
+				await sourceFile.CopyToAsync(outputFile, 4096, token);
+				return true;
 			}
 			catch (Exception ex)
 			{
