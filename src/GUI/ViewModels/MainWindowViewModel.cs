@@ -2135,9 +2135,7 @@ Directory the zip will be extracted to:
 				{
 					taskResult.TotalPaks++;
 
-					using var sourceStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 8192, true);
-					using var destinationStream = File.Create(outputFilePath);
-					await sourceStream.CopyToAsync(destinationStream, 8192, token);
+					await DivinityFileUtils.CopyFileAsync(filePath, outputFilePath, token);
 
 					if (File.Exists(outputFilePath))
 					{
@@ -3717,17 +3715,19 @@ Directory the zip will be extracted to:
 								var outputName = Path.GetFileName(file.Key);
 								var outputFilePath = Path.Combine(outputDirectory, outputName);
 								taskResult.TotalPaks++;
-								using var entryStream = file.OpenEntryStream();
-								using var fs = File.Create(outputFilePath, 4096, System.IO.FileOptions.Asynchronous);
-								try
+								using (var entryStream = file.OpenEntryStream())
 								{
-									await entryStream.CopyToAsync(fs, 4096, token);
-									success = true;
-								}
-								catch (Exception ex)
-								{
-									taskResult.AddError(outputFilePath, ex);
-									DivinityApp.Log($"Error copying file '{file.Key}' from archive to '{outputFilePath}':\n{ex}");
+									using var fs = File.Create(outputFilePath, 4096, System.IO.FileOptions.Asynchronous);
+									try
+									{
+										await entryStream.CopyToAsync(fs, 4096, token);
+										success = true;
+									}
+									catch (Exception ex)
+									{
+										taskResult.AddError(outputFilePath, ex);
+										DivinityApp.Log($"Error copying file '{file.Key}' from archive to '{outputFilePath}':\n{ex}");
+									}
 								}
 
 								if (success)
@@ -3782,7 +3782,7 @@ Directory the zip will be extracted to:
 			finally
 			{
 				RxApp.MainThreadScheduler.Schedule(_ => MainProgressWorkText = $"Cleaning up...");
-				fileStream?.Close();
+				fileStream?.Dispose();
 				IncreaseMainProgressValue(taskStepAmount);
 
 				if (!onlyMods && jsonFiles.Count > 0)
