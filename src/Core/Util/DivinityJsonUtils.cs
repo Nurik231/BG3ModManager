@@ -87,7 +87,7 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				var fileBytes = await DivinityFileUtils.LoadFileAsync(path, token);
+				var fileBytes = await DivinityFileUtils.LoadFileAsBytesAsync(path, token);
 				if (fileBytes != null)
 				{
 					var contents = Encoding.UTF8.GetString(fileBytes);
