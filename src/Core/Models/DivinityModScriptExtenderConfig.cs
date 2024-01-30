@@ -1,4 +1,6 @@
-﻿using DynamicData;
+﻿using DivinityModManager.Json;
+
+using DynamicData;
 using DynamicData.Binding;
 
 using Newtonsoft.Json;
@@ -19,6 +21,7 @@ namespace DivinityModManager.Models
 		[DataMember] [Reactive] public int RequiredVersion { get; set; }
 		[DataMember] [Reactive] public string ModTable { get; set; }
 
+		[JsonConverter(typeof(JsonArrayToSourceListConverter<string>))]
 		[DataMember] public SourceList<string> FeatureFlags { get; set; }
 
 		[ObservableAsProperty] public int TotalFeatureFlags { get; }

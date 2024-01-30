@@ -53,7 +53,6 @@ namespace DivinityModManager.Json
 					else
 					{
 						cache = new SourceCache<TValue, string>(x => x.Id);
-						
 					}
 
 					foreach (var entry in entries)
