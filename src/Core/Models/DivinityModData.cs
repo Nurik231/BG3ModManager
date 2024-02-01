@@ -152,7 +152,8 @@ namespace DivinityModManager.Models
 		[Reactive] public string FileName { get; private set; }
 		[Reactive] public string AuthorDisplayName { get; private set; }
 
-		[ObservableAsProperty] public string DisplayName { get; }
+		// This is a property instead of an ObservableAsProperty so the name is set immediately
+		[Reactive] public string DisplayName { get; private set; }
 		[ObservableAsProperty] public bool CanAddToLoadOrder { get; }
 		[ObservableAsProperty] public bool CanDelete { get; }
 		[ObservableAsProperty] public bool HasColorOverride { get; }
@@ -196,26 +197,32 @@ namespace DivinityModManager.Models
 		[Reactive] public GitHubModData GitHubData { get; set; }
 		[Reactive] public ModConfig ModManagerConfig { get; set; }
 
-		public virtual string GetDisplayName()
+		private static string GetDisplayName(ValueTuple<string, string, string, string, bool, bool> x)
 		{
-			if (DisplayFileForName)
+			var name = x.Item1;
+			var fileName = x.Item2;
+			var folder = x.Item3;
+			var uuid = x.Item4;
+			var isEditorMod = x.Item5;
+			var displayFileForName = x.Item6;
+			if (displayFileForName)
 			{
-				if (!IsEditorMod)
+				if (!isEditorMod)
 				{
-					return FileName;
+					return fileName;
 				}
 				else
 				{
-					return Folder + " [Editor Project]";
+					return folder + " [Editor Project]";
 				}
 			}
 			else
 			{
-				if (!DivinityApp.DeveloperModeEnabled && UUID == DivinityApp.MAIN_CAMPAIGN_UUID)
+				if (!DivinityApp.DeveloperModeEnabled && uuid == DivinityApp.MAIN_CAMPAIGN_UUID)
 				{
 					return "Main";
 				}
-				return Name;
+				return name;
 			}
 		}
 
@@ -224,7 +231,7 @@ namespace DivinityModManager.Models
 			return "";
 		}
 
-		private string ExtenderStatusToToolTipText(DivinityExtenderModStatus status, int requiredVersion, int currentVersion)
+		private static string ExtenderStatusToToolTipText(DivinityExtenderModStatus status, int requiredVersion, int currentVersion)
 		{
 			var result = "";
 			switch (status)
@@ -573,7 +580,8 @@ namespace DivinityModManager.Models
 			this.WhenAnyValue(x => x.FilePath).Select(f => Path.GetFileName(f)).BindTo(this, x => x.FileName);
 			this.WhenAnyValue(x => x.Author, x => x.NexusModsData.Author, x => x.GitHubData.Author, x => x.IsLarianMod).Select(GetAuthor).BindTo(this, x => x.AuthorDisplayName);
 
-			this.WhenAnyValue(x => x.Name, x => x.FilePath, x => x.DisplayFileForName).Select(x => GetDisplayName()).ToUIProperty(this, x => x.DisplayName);
+			this.WhenAnyValue(x => x.Name, x => x.FilePath, x => x.Folder, x => x.UUID, x => x.IsEditorMod, x => x.DisplayFileForName)
+				.Select(GetDisplayName).ObserveOn(RxApp.MainThreadScheduler).BindTo(this, x => x.DisplayName);
 			this.WhenAnyValue(x => x.Description).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.DescriptionVisibility);
 
 			this.WhenAnyValue(x => x.AuthorDisplayName).Select(PropertyConverters.StringToVisibility).ToUIPropertyImmediate(this, x => x.AuthorVisibility);
