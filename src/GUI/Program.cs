@@ -25,16 +25,12 @@ namespace DivinityModManager
 					var argsMessage = String.Join(" ", args);
 					try
 					{
-						using(var pipe = new NamedPipeClientStream(".", DivinityApp.PIPE_ID,
-						PipeDirection.Out, PipeOptions.WriteThrough, System.Security.Principal.TokenImpersonationLevel.Impersonation))
-						{
-							pipe.Connect(500);
-							using (var sw = new StreamWriter(pipe, Encoding.UTF8))
-							{
-								sw.Write(argsMessage);
-								sw.Flush();
-							}
-						}				
+						using var pipe = new NamedPipeClientStream(".", DivinityApp.PIPE_ID,
+						PipeDirection.Out, PipeOptions.WriteThrough, System.Security.Principal.TokenImpersonationLevel.Impersonation);
+						pipe.Connect(500);
+						using var sw = new StreamWriter(pipe, Encoding.UTF8);
+						sw.Write(argsMessage);
+						sw.Flush();
 					}
 					catch(Exception ex)
 					{
