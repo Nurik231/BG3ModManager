@@ -449,16 +449,12 @@ namespace DivinityModManager.Models
 
 		private static string OsirisStatusToTooltipText(DivinityOsirisModStatus status)
 		{
-			switch(status)
+			return status switch
 			{
-				case DivinityOsirisModStatus.SCRIPTS:
-					return "Has Osiris Scripting";
-				case DivinityOsirisModStatus.MODFIXER:
-					return "Has Mod Fixer";
-				case DivinityOsirisModStatus.NONE:
-				default:
-					return "";
-			}
+				DivinityOsirisModStatus.SCRIPTS => "Has Osiris Scripting",
+				DivinityOsirisModStatus.MODFIXER => "Has Mod Fixer",
+				_ => "",
+			};
 		}
 
 		private static bool CanOpenWorkshopBoolCheck(bool enabled, bool isHidden, bool isLarianMod, long workshopID)
