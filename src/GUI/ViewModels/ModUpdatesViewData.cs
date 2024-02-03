@@ -127,7 +127,8 @@ namespace DivinityModManager.ViewModels
 					result.ModId = partition.Current.Mod.UUID;
 					if (token.IsCancellationRequested) return result;
 					await Task.Yield(); // prevents a sync/hot thread hangup
-					result.Success = await partition.Current.DownloadData.DownloadAsync(partition.Current.LocalFilePath, outputFolder, token);
+					var downloadResult = await partition.Current.DownloadData.DownloadAsync(partition.Current.LocalFilePath, outputFolder, token);
+					result.Success = downloadResult.Success;
 					await _mainWindowViewModel.IncreaseMainProgressValueAsync(progressIncrement);
 				}
 			}
