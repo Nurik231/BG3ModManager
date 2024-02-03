@@ -20,6 +20,12 @@ namespace DivinityModManager.Models.Updates
 		URL
 	}
 
+	public struct ModDownloadResult
+	{
+		public bool Success;
+		public string OutputFilePath;
+	}
+
 	public class ModDownloadData : ReactiveObject
 	{
 		[Reactive] public string DownloadPath { get; set; }
@@ -30,9 +36,9 @@ namespace DivinityModManager.Models.Updates
 		[Reactive] public string Description { get; set; }
 		[Reactive] public bool IsIndirectDownload { get; set; }
 
-		private bool FileNamesMatch(string localFilePath, string newFilePath) => Path.GetFileName(localFilePath).Equals(Path.GetFileName(newFilePath), StringComparison.OrdinalIgnoreCase);
+		private static bool FileNamesMatch(string localFilePath, string newFilePath) => Path.GetFileName(localFilePath).Equals(Path.GetFileName(newFilePath), StringComparison.OrdinalIgnoreCase);
 
-		private void MoveOldPakToRecycleBin(string previousFilePath, string newFilePath)
+		private static void MoveOldPakToRecycleBin(string previousFilePath, string newFilePath)
 		{
 			if (!String.IsNullOrEmpty(previousFilePath) && FileNamesMatch(previousFilePath, newFilePath))
 			{
@@ -42,10 +48,12 @@ namespace DivinityModManager.Models.Updates
 
 		private static System.IO.Stream MakeFileStream(string path) => File.Open(path, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None, 4096, true);
 
-		public async Task<bool> DownloadAsync(string previousFilePath, string outputDirectory, CancellationToken token)
+		public async Task<ModDownloadResult> DownloadAsync(string previousFilePath, string outputDirectory, CancellationToken token)
 		{
+			var result = new ModDownloadResult();
 			try
 			{
+				Directory.CreateDirectory(outputDirectory);
 				DivinityApp.Log($"Downloading {DownloadPath} - DownloadPathType({DownloadPathType}) DownloadSourceType({DownloadSourceType})");
 				if (DownloadPathType == ModDownloadPathType.FILE)
 				{
@@ -53,63 +61,60 @@ namespace DivinityModManager.Models.Updates
 					//This covers when an update changes the pak name
 					MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
 					await DivinityFileUtils.CopyFileAsync(DownloadPath, outputFilePath, token);
-					return true;
+					result.Success = true;
+					result.OutputFilePath = outputFilePath;
+					return result;
 				}
 				else if (DownloadPathType == ModDownloadPathType.URL)
 				{
-					var success = false;
 					if(IsIndirectDownload)
 					{
 						//Nexus non-premium users need to go to the website and get a nxm:// link to have download authorization.
 						DivinityFileUtils.TryOpenPath(DownloadPath);
-						return true;
+						result.Success = true;
+						result.OutputFilePath = DownloadPath;
+						return result;
 					}
 					else
 					{
-						using (var webStream = await WebHelper.DownloadFileAsStreamAsync(DownloadPath, token))
-						{
-							if (webStream == null) return false;
+						using var webStream = await WebHelper.DownloadFileAsStreamAsync(DownloadPath, token);
+						if (webStream == null) return result;
 
-							if (DownloadPath.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
+						if (DownloadPath.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
+						{
+							var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(DownloadPath));
+							MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
+							using var outputFile = MakeFileStream(outputFilePath);
+							await webStream.CopyToAsync(outputFile, 4096, token);
+							result.Success = true;
+							result.OutputFilePath = outputFilePath;
+						}
+						else
+						{
+							var archive = new ZipArchive(webStream);
+							foreach (var entry in archive.Entries)
 							{
-								var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(DownloadPath));
-								MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
-								using (var outputFile = MakeFileStream(outputFilePath))
+								if (entry.Name.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 								{
-									await webStream.CopyToAsync(outputFile, 4096, token);
-									success = true;
-								}
-							}
-							else
-							{
-								ZipArchive archive = new ZipArchive(webStream);
-								foreach (ZipArchiveEntry entry in archive.Entries)
-								{
-									if (entry.Name.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
-									{
-										using (var entryStream = entry.Open())
-										{
-											var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(entry.Name));
-											MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
-											using (var outputFile = MakeFileStream(outputFilePath))
-											{
-												await entryStream.CopyToAsync(outputFile, 4096, token);
-												success = true;
-											}
-										}
-									}
+									using var entryStream = entry.Open();
+									var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(entry.Name));
+									MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
+									using var outputFile = MakeFileStream(outputFilePath);
+									await entryStream.CopyToAsync(outputFile, 4096, token);
+									result.Success = true;
+									result.OutputFilePath = outputFilePath;
 								}
 							}
 						}
 					}
-					return success;
+					return result;
 				}
 			}
 			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error downloading update ({DownloadPath}): {ex}");
 			}
-			return false;
+			return result;
 		}
 	}
 }
