@@ -170,9 +170,14 @@ namespace DivinityModManager.AppServices
 		public async Task<UpdateResult> FetchModInfoAsync(IEnumerable<DivinityModData> mods, CancellationToken token)
 		{
 			var taskResult = new UpdateResult();
+			if (token.IsCancellationRequested)
+			{
+				taskResult.FailureMessage = "Task canceled.";
+				return taskResult;
+			}
+
 			if (!CanFetchData)
 			{
-				taskResult.Success = false;
 				if (_client == null)
 				{
 					taskResult.FailureMessage = "API Client not initialized.";
@@ -209,6 +214,8 @@ namespace DivinityModManager.AppServices
 
 				foreach (var mod in targetMods)
 				{
+					if (token.IsCancellationRequested) break;
+
 					var result = await _dataLoader.Mods.GetMod(DivinityApp.NEXUSMODS_GAME_DOMAIN, mod.NexusModsData.ModId, token);
 					if (result != null)
 					{
@@ -216,8 +223,6 @@ namespace DivinityModManager.AppServices
 						taskResult.UpdatedMods.Add(mod);
 						totalLoaded++;
 					}
-
-					if (token.IsCancellationRequested) break;
 				}
 			}
 			catch (Exception ex)
@@ -232,27 +237,25 @@ namespace DivinityModManager.AppServices
 		{
 			try
 			{
-				using (var webClient = new WebClient())
+				using var webClient = new WebClient();
+				webClient.Headers.Add("apikey", ApiKey);
+				double receivedBytes = 0;
+
+				var stream = await webClient.OpenReadTaskAsync(downloadUrl);
+				var ms = new System.IO.MemoryStream();
+				var buffer = new byte[4096];
+				int read = 0;
+				double totalBytes = double.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
+
+				while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
 				{
-					webClient.Headers.Add("apikey", ApiKey);
-					double receivedBytes = 0;
-
-					var stream = await webClient.OpenReadTaskAsync(downloadUrl);
-					var ms = new System.IO.MemoryStream();
-					var buffer = new byte[4096];
-					int read = 0;
-					double totalBytes = double.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
-
-					while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
-					{
-						ms.Write(buffer, 0, read);
-						receivedBytes += read;
-						DownloadProgressValue = (receivedBytes / totalBytes) * 100d;
-					}
-					DownloadProgressValue = 100d;
-					stream.Close();
-					return ms;
+					ms.Write(buffer, 0, read);
+					receivedBytes += read;
+					DownloadProgressValue = (receivedBytes / totalBytes) * 100d;
 				}
+				DownloadProgressValue = 100d;
+				stream.Close();
+				return ms;
 			}
 			catch (Exception ex)
 			{
