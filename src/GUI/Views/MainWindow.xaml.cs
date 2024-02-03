@@ -297,25 +297,28 @@ namespace DivinityModManager.Views
 			return new CachedAutomationPeer(this);
 		}
 
+		public static readonly Uri LightTheme = new("pack://application:,,,/BG3ModManager;component/Themes/Light.xaml", UriKind.Absolute);
+		public static readonly Uri DarkTheme = new("pack://application:,,,/BG3ModManager;component/Themes/Dark.xaml", UriKind.Absolute);
+
 		public void UpdateColorTheme(bool darkMode)
 		{
-			ResourceLocator.SetColorScheme(this.Resources, !darkMode ? DivinityApp.LightTheme : DivinityApp.DarkTheme);
-			ResourceLocator.SetColorScheme(SettingsWindow.Resources, !darkMode ? DivinityApp.LightTheme : DivinityApp.DarkTheme);
+			ResourceLocator.SetColorScheme(this.Resources, !darkMode ? LightTheme : DarkTheme);
+			ResourceLocator.SetColorScheme(SettingsWindow.Resources, !darkMode ? LightTheme : DarkTheme);
 			if (AboutWindow != null)
 			{
-				ResourceLocator.SetColorScheme(AboutWindow.Resources, !darkMode ? DivinityApp.LightTheme : DivinityApp.DarkTheme);
+				ResourceLocator.SetColorScheme(AboutWindow.Resources, !darkMode ? LightTheme : DarkTheme);
 			}
 			if (VersionGeneratorWindow != null)
 			{
-				ResourceLocator.SetColorScheme(VersionGeneratorWindow.Resources, !darkMode ? DivinityApp.LightTheme : DivinityApp.DarkTheme);
+				ResourceLocator.SetColorScheme(VersionGeneratorWindow.Resources, !darkMode ? LightTheme : DarkTheme);
 			}
 			if (UpdateWindow != null)
 			{
-				ResourceLocator.SetColorScheme(UpdateWindow.Resources, !darkMode ? DivinityApp.LightTheme : DivinityApp.DarkTheme);
+				ResourceLocator.SetColorScheme(UpdateWindow.Resources, !darkMode ? LightTheme : DarkTheme);
 			}
 			if (HelpWindow != null)
 			{
-				ResourceLocator.SetColorScheme(HelpWindow.Resources, !darkMode ? DivinityApp.LightTheme : DivinityApp.DarkTheme);
+				ResourceLocator.SetColorScheme(HelpWindow.Resources, !darkMode ? LightTheme : DarkTheme);
 			}
 		}
 

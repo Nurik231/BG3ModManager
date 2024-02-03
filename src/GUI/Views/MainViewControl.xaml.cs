@@ -129,7 +129,7 @@ namespace DivinityModManager.Views
 
 		public void UpdateColorTheme(bool darkMode)
 		{
-			ResourceLocator.SetColorScheme(this.Resources, !darkMode ? DivinityApp.LightTheme : DivinityApp.DarkTheme);
+			ResourceLocator.SetColorScheme(this.Resources, !darkMode ? MainWindow.LightTheme : MainWindow.DarkTheme);
 			main.UpdateColorTheme(darkMode);
 		}
 

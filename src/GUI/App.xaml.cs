@@ -32,8 +32,8 @@ namespace DivinityModManager
 			var assembly = Assembly.GetExecutingAssembly();
 			var appName = ((AssemblyProductAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyProductAttribute), false)).Product;
 			var version = assembly.GetName().Version.ToString();
-
 			var productName = Regex.Replace(appName.Trim(), @"\s+", String.Empty);
+
 			Services.RegisterSingleton<ISettingsService>(new SettingsService());
 			Services.RegisterSingleton<IFileWatcherService>(new FileWatcherService());
 			Services.RegisterSingleton<IGitHubService>(new GitHubService(productName, version));

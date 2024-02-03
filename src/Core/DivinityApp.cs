@@ -61,16 +61,21 @@ namespace DivinityModManager
 		public const LSLib.LS.Enums.Game GAME = LSLib.LS.Enums.Game.BaldursGate3;
 		public const LSLib.LS.Story.Compiler.TargetGame GAME_COMPILER = LSLib.LS.Story.Compiler.TargetGame.BG3;
 
-		public static readonly Uri LightTheme = new Uri("pack://application:,,,/BG3ModManager;component/Themes/Light.xaml", UriKind.Absolute);
-		public static readonly Uri DarkTheme = new Uri("pack://application:,,,/BG3ModManager;component/Themes/Dark.xaml", UriKind.Absolute);
-
 		public const string PIPE_ID = "bg3mm.server";
 
-		public static HashSet<DivinityModData> IgnoredMods { get; set; } = new HashSet<DivinityModData>();
-		public static HashSet<DivinityModData> IgnoredDependencyMods { get; set; } = new HashSet<DivinityModData>();
+		public static HashSet<DivinityModData> IgnoredMods { get; private set; }
+		public static HashSet<DivinityModData> IgnoredDependencyMods { get; private set; }
 
-		public static DivinityGlobalCommands Commands { get; private set; } = new DivinityGlobalCommands();
-		public static DivinityGlobalEvents Events { get; private set; } = new DivinityGlobalEvents();
+		public static DivinityGlobalCommands Commands { get; private set; }
+		public static DivinityGlobalEvents Events { get; private set; }
+
+		static DivinityApp()
+		{
+			IgnoredMods = new HashSet<DivinityModData>();
+			IgnoredDependencyMods = new HashSet<DivinityModData>();
+			Commands = new DivinityGlobalCommands();
+			Events = new DivinityGlobalEvents();
+		}
 
 		public static event PropertyChangedEventHandler StaticPropertyChanged;
 
@@ -109,9 +114,13 @@ namespace DivinityModManager
 		public static string DateTimeTooltipFormat { get; set; } = "MMMM dd, yyyy";
 		public static string DateTimeExtenderBuildFormat { get; set; } = "MM/dd/yyyy hh:mm tt";
 
+		public delegate void LogFunction(string message);
+
+		public static Action<string> LogMethod { private get; set; } = s => Trace.WriteLine(s);
+
 		public static void Log(string msg, [CallerMemberName] string mName = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
 		{
-			System.Diagnostics.Trace.WriteLine($"[{Path.GetFileName(path)}:{mName}({line})] {msg}");
+			LogMethod($"[{Path.GetFileName(path)}:{mName}({line})] {msg}");
 		}
 
 		[DllImport("user32.dll")]
