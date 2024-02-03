@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{97
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusModsNET", "External\NexusModsNET\NexusModsNET\NexusModsNET.csproj", "{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "src\Tests\Tests.csproj", "{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -49,11 +51,23 @@ Global
 		{2F2EF4FE-7254-425A-8DE9-47457CC057C6}.PublishTest|x64.ActiveCfg = PublishTest|x64
 		{2F2EF4FE-7254-425A-8DE9-47457CC057C6}.PublishTest|x64.Build.0 = PublishTest|x64
 		{2F2EF4FE-7254-425A-8DE9-47457CC057C6}.Release|x64.ActiveCfg = Release|x64
+		{2F2EF4FE-7254-425A-8DE9-47457CC057C6}.Release|x64.Build.0 = Release|x64
 		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.Debug|x64.ActiveCfg = Debug|x64
 		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.Debug|x64.Build.0 = Debug|x64
 		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.Publish|x64.ActiveCfg = Debug|x64
+		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.Publish|x64.Build.0 = Debug|x64
 		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.PublishTest|x64.ActiveCfg = Debug|x64
+		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.PublishTest|x64.Build.0 = Debug|x64
 		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.Release|x64.ActiveCfg = Release|x64
+		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}.Release|x64.Build.0 = Release|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.Debug|x64.ActiveCfg = Debug|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.Debug|x64.Build.0 = Debug|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.Publish|x64.ActiveCfg = Debug|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.Publish|x64.Build.0 = Debug|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.PublishTest|x64.ActiveCfg = Debug|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.PublishTest|x64.Build.0 = Debug|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.Release|x64.ActiveCfg = Debug|x64
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}.Release|x64.Build.0 = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
