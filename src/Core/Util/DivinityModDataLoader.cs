@@ -692,7 +692,7 @@ namespace DivinityModManager.Util
 				while (!token.IsCancellationRequested)
 				{
 					var pr = new PackageReader();
-					var pak = pr.Read(pakPath);
+					using var pak = pr.Read(pakPath);
 					return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
 				}
 			}
@@ -711,7 +711,7 @@ namespace DivinityModManager.Util
 				{
 					stream.Position = 0;
 					var pr = new PackageReader();
-					var pak = pr.Read(stream);
+					using var pak = pr.Read(stream);
 					return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
 				}
 			}
@@ -1761,7 +1761,7 @@ namespace DivinityModManager.Util
 			try
 			{
 				var reader = new PackageReader();
-				Package package = reader.Read(file);
+				using var package = reader.Read(file);
 				PackagedFileInfo PackagedFileInfo = package.Files.FirstOrDefault(p => p.Name == "meta.lsf");
 				if (PackagedFileInfo == null)
 				{
@@ -2007,7 +2007,7 @@ namespace DivinityModManager.Util
 		{
 			stream.Position = 0;
 			var pr = new PackageReader();
-			var pak = pr.Read(stream);
+			using var pak = pr.Read(stream);
 			if (pak != null && pak.Files != null)
 			{
 				for (int i = 0; i < pak.Files.Count; i++)

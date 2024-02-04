@@ -23,7 +23,7 @@ namespace DivinityModManager.Util
 				string output = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(pathToSave), newName), ".lsv");
 
 				var reader = new PackageReader();
-				Package package = reader.Read(pathToSave);
+				using var package = reader.Read(pathToSave);
 				var saveScreenshotImage = package.Files.FirstOrDefault(p => p.Name.EndsWith(".WebP"));
 				if (saveScreenshotImage != null)
 				{
