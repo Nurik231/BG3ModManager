@@ -1,12 +1,12 @@
 ﻿using Alphaleonis.Win32.Filesystem;
-using DivinityModManager.Models;
+
 using LSLib.LS;
-using LSLib.LS.Enums;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -113,20 +113,19 @@ namespace DivinityModManager.Util
 			return false;
 		}
 		#region Package Creation Async
-		public static async Task<bool> CreatePackageAsync(string dataRootPath, List<string> inputPaths, string outputPath, List<string> ignoredFiles, CancellationToken? token = null)
+		public static async Task<bool> CreatePackageAsync(string rootPath, List<string> inputPaths, string outputPath, CancellationToken token, List<string> ignoredFiles = null)
 		{
 			try
 			{
 				if (token == null) token = CancellationToken.None;
 
-				if (token.Value.IsCancellationRequested)
-				{
-					return false;
-				}
+				ignoredFiles ??= IgnoredPackageFiles;
 
-				if (!dataRootPath.EndsWith(Alphaleonis.Win32.Filesystem.Path.DirectorySeparatorChar.ToString()))
+				if (token.IsCancellationRequested) return false;
+
+				if (!rootPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
 				{
-					dataRootPath += Alphaleonis.Win32.Filesystem.Path.DirectorySeparatorChar;
+					rootPath += Path.DirectorySeparatorChar;
 				}
 
 				var conversionParams = ResourceConversionParameters.FromGameVersion(DivinityApp.GAME);
@@ -134,24 +133,32 @@ namespace DivinityModManager.Util
 				var build = new PackageBuildData
 				{
 					Version = conversionParams.PAKVersion,
-					Compression = CompressionMethod.Zlib,
-					CompressionLevel = LSCompressionLevel.Default
+					Compression = CompressionMethod.LZ4,
+					CompressionLevel = LSCompressionLevel.Default,
+					Priority = 0,
 				};
 
 				foreach (var f in inputPaths)
 				{
-					if (token.Value.IsCancellationRequested) throw new TaskCanceledException("Cancelled package creation.");
-					await AddFilesToPackageAsync(build, f, dataRootPath, outputPath, ignoredFiles, token.Value);
+					if (token.IsCancellationRequested) break;
+					AddFilesToPackage(f, build, rootPath, ignoredFiles, token);
 				}
 
 				DivinityApp.Log($"Writing package '{outputPath}'.");
 				using var writer = new PackageWriter(build, outputPath);
-				await WritePackageAsync(writer, outputPath, token.Value);
+				writer.Write();
+				/*await Observable.Start(() =>
+				{
+					using var writer = new PackageWriter(build, outputPath);
+					writer.Write();
+				}, RxApp.MainThreadScheduler);*/
+				//using var writer = new PackageWriter(build, outputPath);
+				//await WritePackageAsync(writer, outputPath, token);
 				return true;
 			}
 			catch (Exception ex)
 			{
-				if (!token.Value.IsCancellationRequested)
+				if (!token.IsCancellationRequested)
 				{
 					DivinityApp.Log($"Error creating package: {ex}");
 				}
@@ -163,37 +170,43 @@ namespace DivinityModManager.Util
 			}
 		}
 
-		private static Task AddFilesToPackageAsync(PackageBuildData build, string path, string dataRootPath, string outputPath, List<string> ignoredFiles, CancellationToken token)
+		private static void AddFilesToPackage(string filePath, PackageBuildData build, string rootPath, List<string> ignoredFiles, CancellationToken token)
 		{
-			Task task = null;
-
-			task = Task.Run(() =>
+			if (!rootPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
 			{
-				if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()))
+				rootPath += Path.DirectorySeparatorChar;
+			}
+
+			if (Directory.Exists(filePath))
+			{
+				if (!filePath.EndsWith(Path.DirectorySeparatorChar.ToString()))
 				{
-					path += Path.DirectorySeparatorChar;
+					filePath += Path.DirectorySeparatorChar;
 				}
 
-				var files = Directory.EnumerateFiles(path, DirectoryEnumerationOptions.Recursive | DirectoryEnumerationOptions.LargeCache, new DirectoryEnumerationFilters()
+				var files = Directory.EnumerateFiles(filePath, DirectoryEnumerationOptions.Recursive | DirectoryEnumerationOptions.LargeCache, new DirectoryEnumerationFilters()
 				{
 					InclusionFilter = (f) =>
 					{
 						return !ignoredFiles.Any(x => IgnoreFile(f.FullPath, x));
 					}
-				}).ToDictionary(k => k.Replace(dataRootPath, String.Empty), v => v);
+				}).ToDictionary(k => k.Replace(rootPath, String.Empty), v => v);
 
-				foreach (KeyValuePair<string, string> file in files)
+				foreach (var file in files)
 				{
-					if (token.IsCancellationRequested)
-					{
-						throw new TaskCanceledException(task);
-					}
+					if (token.IsCancellationRequested) break;
 					var fileInfo = PackageBuildInputFile.CreateFromFilesystem(file.Value, file.Key);
 					build.Files.Add(fileInfo);
 				}
-			}, token);
-
-			return task;
+			}
+			else if (File.Exists(filePath))
+			{
+				var name = Common.GetRelativePath(rootPath, filePath);
+				//var key = filePath.Replace(rootPath, String.Empty);
+				DivinityApp.Log($"file({filePath}) name({name})");
+				var fileInfo = PackageBuildInputFile.CreateFromFilesystem(filePath, name);
+				build.Files.Add(fileInfo);
+			}
 		}
 
 		private static Task WritePackageAsync(PackageWriter writer, string outputPath, CancellationToken token)
