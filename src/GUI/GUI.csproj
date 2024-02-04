@@ -34,11 +34,15 @@
 		<DebugType>full</DebugType>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Publish' or '$(Configuration)' == 'PublishTest'">
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' or '$(Configuration)' == 'Publish' or '$(Configuration)' == 'PublishTest'">
+		<TidyRelease>True</TidyRelease>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TidyRelease)' == True">
 		<PreBuildEvent>rd /s /q $(TargetDir)_Lib</PreBuildEvent>
 	</PropertyGroup>
 
-	<Target Name="SetupLibFolder" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Publish' or '$(Configuration)' == 'PublishTest'">
+	<Target Name="SetupLibFolder" AfterTargets="AfterBuild" Condition="'$(TidyRelease)' == True">
 		<ItemGroup>
 			<DeleteDebug Include="$(OutputPath)*.pdb" />
 			<MoveToLibFolder Include="$(OutputPath)*.dll;$(OutputPath)*.xml" />
