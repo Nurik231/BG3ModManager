@@ -113,6 +113,19 @@
 		Height="16"
 		x:Shared="false"
 		Source="{StaticResource OsirisImage}" />
+	<!--
+		This avoids a System.Windows.Data relative binding error for these properties.
+		"This happens when you set MenuItem.ItemsSource to a Collection that contains MenuItems.
+		This error has already been handled internally, so you can just leave it alone.
+		Or you can explicit set MenuItem.HorizontalContentAlignment property and VerticalContentAlignment property to avoid this error."
+		See here: https://stackoverflow.com/a/14528872
+	-->
+	<Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
+		<Style.Setters>
+			<Setter Property="HorizontalContentAlignment" Value="Left" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style.Setters>
+	</Style>
 	<Style
 		x:Key="MenuItemCopyToClipboardStyle"
 		BasedOn="{StaticResource {x:Type MenuItem}}"
