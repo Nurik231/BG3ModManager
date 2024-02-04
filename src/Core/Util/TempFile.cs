@@ -12,17 +12,21 @@ namespace DivinityModManager.Util
 		private readonly string _path;
 		private readonly string _sourcePath;
 
+		private readonly int _bufferSize;
+
 		public System.IO.FileStream Stream => _stream;
 		public string FilePath => _path;
 		public string SourceFilePath => _sourcePath;
 
-		private TempFile(string sourcePath)
+		//128 KB since we're using asynchronous streams, default is 4 KB
+		private TempFile(string sourcePath, int bufferSize = 128000)
 		{
+			_bufferSize = bufferSize;
 			var tempDir = DivinityApp.GetAppDirectory("Temp");
 			Directory.CreateDirectory(tempDir);
 			_path = Path.Combine(tempDir, Path.GetFileName(sourcePath));
 			_sourcePath = sourcePath;
-			_stream = File.Create(_path, 4096, System.IO.FileOptions.Asynchronous | System.IO.FileOptions.DeleteOnClose, PathFormat.LongFullPath);
+			_stream = File.Create(_path, _bufferSize, System.IO.FileOptions.Asynchronous | System.IO.FileOptions.DeleteOnClose, PathFormat.LongFullPath);
 		}
 
 		public static async Task<TempFile> CreateAsync(string sourcePath, CancellationToken token)
@@ -42,12 +46,12 @@ namespace DivinityModManager.Util
 		private async Task CopyAsync(CancellationToken token)
 		{
 			using var sourceStream = File.Open(_path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
-			await sourceStream.CopyToAsync(_stream, 4096, token);
+			await sourceStream.CopyToAsync(_stream, _bufferSize, token);
 		}
 
 		private async Task CopyAsync(System.IO.Stream sourceStream, CancellationToken token)
 		{
-			await sourceStream.CopyToAsync(_stream, 4096, token);
+			await sourceStream.CopyToAsync(_stream, _bufferSize, token);
 		}
 
 		public void Dispose()

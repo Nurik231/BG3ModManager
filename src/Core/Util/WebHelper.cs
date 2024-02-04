@@ -36,9 +36,9 @@ namespace DivinityModManager.Util
 
 					Stream stream = await webClient.OpenReadTaskAsync(downloadUrl);
 					MemoryStream ms = new MemoryStream();
-					var buffer = new byte[4096];
+					var buffer = new byte[128000];
 					int read = 0;
-					var totalBytes = Int32.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
+					var totalBytes = int.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
 
 					while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
 					{

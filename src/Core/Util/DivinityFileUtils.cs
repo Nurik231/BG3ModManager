@@ -348,8 +348,8 @@ namespace DivinityModManager.Util
 			try
 			{
 				using var sourceFile = File.Open(copyFromPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
-				using var outputFile = File.Create(copyToPath, 4096, System.IO.FileOptions.Asynchronous, PathFormat.FullPath);
-				await sourceFile.CopyToAsync(outputFile, 4096, token);
+				using var outputFile = File.Create(copyToPath, 128000, System.IO.FileOptions.Asynchronous, PathFormat.FullPath);
+				await sourceFile.CopyToAsync(outputFile, 128000, token); // 81920 default
 				return true;
 			}
 			catch (Exception ex)

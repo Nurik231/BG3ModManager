@@ -456,8 +456,8 @@ namespace DivinityModManager.ViewModels
 							if (entry.Name.Equals(DivinityApp.EXTENDER_UPDATER_FILE, StringComparison.OrdinalIgnoreCase))
 							{
 								unzippedEntryStream = entry.Open(); // .Open will return a stream
-								using var fs = File.Create(dllDestination, 4096, System.IO.FileOptions.Asynchronous);
-								await unzippedEntryStream.CopyToAsync(fs, 4096, MainProgressToken.Token);
+								using var fs = File.Create(dllDestination, ARCHIVE_BUFFER, System.IO.FileOptions.Asynchronous);
+								await unzippedEntryStream.CopyToAsync(fs, ARCHIVE_BUFFER, MainProgressToken.Token);
 								successes += 1;
 								break;
 							}
@@ -3610,11 +3610,11 @@ Directory the zip will be extracted to:
 										outputFilePath = Path.Combine(outputDirectory, nameFromMeta);
 										mod.FilePath = outputFilePath;
 									}
-									using (var fs = File.Create(outputFilePath, 4096, System.IO.FileOptions.Asynchronous))
+									using (var fs = File.Create(outputFilePath, ARCHIVE_BUFFER, System.IO.FileOptions.Asynchronous))
 									{
 										try
 										{
-											await tempFile.Stream.CopyToAsync(fs, 4096, token);
+											await tempFile.Stream.CopyToAsync(fs, ARCHIVE_BUFFER, token);
 											success = true;
 										}
 										catch (Exception ex)
