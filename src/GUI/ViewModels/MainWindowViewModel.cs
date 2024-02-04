@@ -3686,6 +3686,8 @@ Directory the zip will be extracted to:
 			return success;
 		}
 
+		private const int ARCHIVE_BUFFER = 128000;
+
 		private async Task<bool> ImportArchiveAsync(Dictionary<string, DivinityModData> builtinMods, ImportOperationResults taskResult, 
 			string archivePath, bool onlyMods, CancellationToken token, bool toActiveList = false)
 		{
@@ -3717,10 +3719,10 @@ Directory the zip will be extracted to:
 								taskResult.TotalPaks++;
 								using (var entryStream = file.OpenEntryStream())
 								{
-									using var fs = File.Create(outputFilePath, 4096, System.IO.FileOptions.Asynchronous);
+									using var fs = File.Create(outputFilePath, ARCHIVE_BUFFER, System.IO.FileOptions.Asynchronous);
 									try
 									{
-										await entryStream.CopyToAsync(fs, 4096, token);
+										await entryStream.CopyToAsync(fs, ARCHIVE_BUFFER, token);
 										success = true;
 									}
 									catch (Exception ex)
