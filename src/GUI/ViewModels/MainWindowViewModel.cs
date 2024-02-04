@@ -63,6 +63,8 @@ namespace DivinityModManager.ViewModels
 {
 	public class MainWindowViewModel : BaseHistoryViewModel, IDivinityAppViewModel
 	{
+		private const int ARCHIVE_BUFFER = 128000;
+
 		[Reactive] public MainWindow Window { get; private set; }
 		[Reactive] public MainViewControl View { get; private set; }
 		public DownloadActivityBarViewModel DownloadBar { get; private set; }
@@ -449,7 +451,7 @@ namespace DivinityModManager.ViewModels
 					{
 						successes += 1;
 						await IncreaseMainProgressValueAsync(taskStepAmount, $"Extracting zip to {exeDir}...");
-						var archive = new ZipArchive(webStream);
+						using var archive = new ZipArchive(webStream);
 						foreach (var entry in archive.Entries)
 						{
 							if (MainProgressToken.IsCancellationRequested) break;
@@ -3692,19 +3694,16 @@ Directory the zip will be extracted to:
 			return success;
 		}
 
-		private const int ARCHIVE_BUFFER = 128000;
-
 		private async Task<bool> ImportArchiveAsync(Dictionary<string, DivinityModData> builtinMods, ImportOperationResults taskResult, 
 			string archivePath, bool onlyMods, CancellationToken token, bool toActiveList = false)
 		{
-			System.IO.FileStream fileStream = null;
 			string outputDirectory = PathwayData.AppDataModsPath;
 			double taskStepAmount = 1.0 / 4;
 			bool success = false;
 			var jsonFiles = new Dictionary<string, string>();
 			try
 			{
-				fileStream = File.Open(archivePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				using var fileStream = File.Open(archivePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
 				if (fileStream != null)
 				{
 					var info = NexusModFileVersionData.FromFilePath(archivePath);
@@ -3787,30 +3786,26 @@ Directory the zip will be extracted to:
 					ShowAlert($"Error extracting archive (check the log): {ex.Message}", AlertType.Danger, 0);
 				});
 			}
-			finally
-			{
-				RxApp.MainThreadScheduler.Schedule(_ => MainProgressWorkText = $"Cleaning up...");
-				fileStream?.Dispose();
-				IncreaseMainProgressValue(taskStepAmount);
+			RxApp.MainThreadScheduler.Schedule(_ => MainProgressWorkText = $"Cleaning up...");
+			IncreaseMainProgressValue(taskStepAmount);
 
-				if (!onlyMods && jsonFiles.Count > 0)
+			if (!onlyMods && jsonFiles.Count > 0)
+			{
+				RxApp.MainThreadScheduler.Schedule(_ =>
 				{
-					RxApp.MainThreadScheduler.Schedule(_ =>
+					foreach (var kvp in jsonFiles)
 					{
-						foreach (var kvp in jsonFiles)
+						DivinityLoadOrder order = DivinityJsonUtils.SafeDeserialize<DivinityLoadOrder>(kvp.Value);
+						if (order != null)
 						{
-							DivinityLoadOrder order = DivinityJsonUtils.SafeDeserialize<DivinityLoadOrder>(kvp.Value);
-							if (order != null)
-							{
-								taskResult.Orders.Add(order);
-								order.Name = kvp.Key;
-								DivinityApp.Log($"Imported mod order from archive: {String.Join(@"\n\t", order.Order.Select(x => x.Name))}");
-							}
+							taskResult.Orders.Add(order);
+							order.Name = kvp.Key;
+							DivinityApp.Log($"Imported mod order from archive: {String.Join(@"\n\t", order.Order.Select(x => x.Name))}");
 						}
-					});
-				}
-				IncreaseMainProgressValue(taskStepAmount);
+					}
+				});
 			}
+			IncreaseMainProgressValue(taskStepAmount);
 			return success;
 		}
 
