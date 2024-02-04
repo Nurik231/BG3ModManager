@@ -2884,6 +2884,8 @@ Directory the zip will be extracted to:
 
 				DivinityApp.Log($"Finalizing refresh operation.");
 
+				View.ModLayout.RestoreLayout();
+
 				OnMainProgressComplete();
 				OnRefreshed?.Invoke(this, new EventArgs());
 
@@ -5267,6 +5269,7 @@ Directory the zip will be extracted to:
 				Window.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.Normal;
 				Window.TaskbarItemInfo.ProgressValue = 0;
 				IsRefreshing = true;
+				View.ModLayout.SaveLayout();
 				RxApp.TaskpoolScheduler.ScheduleAsync(RefreshAsync);
 			}, canRefreshObservable, RxApp.MainThreadScheduler);
 

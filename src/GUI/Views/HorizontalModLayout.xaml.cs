@@ -435,6 +435,27 @@ namespace DivinityModManager.Views
 			}
 		}
 
+		private GridLength? _lastActiveModsRowHeight;
+		private GridLength? _lastActiveModsSplitterHeight;
+		private GridLength? _lastActiveModsOverridesHeight;
+
+		public void SaveLayout()
+		{
+			_lastActiveModsRowHeight = ActiveModsListRow.Height;
+			_lastActiveModsSplitterHeight = ActiveModsListGridRow.Height;
+			_lastActiveModsOverridesHeight = ActiveModsListForcedModsRow.Height;
+		}
+
+		public void RestoreLayout()
+		{
+			if(_lastActiveModsRowHeight != null)
+			{
+				ActiveModsListRow.Height = _lastActiveModsRowHeight.Value;
+				ActiveModsListGridRow.Height = _lastActiveModsSplitterHeight.Value;
+				ActiveModsListForcedModsRow.Height = _lastActiveModsOverridesHeight.Value;
+			}
+		}
+
 		public HorizontalModLayout()
 		{
 			InitializeComponent();
