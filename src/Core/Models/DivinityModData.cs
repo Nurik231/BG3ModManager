@@ -652,8 +652,8 @@ namespace DivinityModManager.Models
 				Select(x => !DivinityApp.IsScreenReaderActive() && (!String.IsNullOrEmpty(x.Item1) || x.Item2 || !String.IsNullOrEmpty(x.Item3)))
 				.ToUIProperty(this, x => x.HasToolTip, true);
 
-			this.WhenAnyValue(x => x.IsEditorMod, x => x.CanAddToLoadOrder, x => x.FilePath,
-				(isEditorMod, canAdd, path) => !isEditorMod && canAdd && !String.IsNullOrEmpty(path)).ToUIPropertyImmediate(this, x => x.CanDelete);
+			this.WhenAnyValue(x => x.IsEditorMod, x => x.IsHidden, x => x.FilePath,
+				(isEditorMod, isHidden, path) => !isEditorMod && !isHidden && !String.IsNullOrEmpty(path)).ToUIPropertyImmediate(this, x => x.CanDelete);
 
 			var whenExtenderProp = this.WhenAnyValue(x => x.ExtenderModStatus, x => x.ScriptExtenderData.RequiredVersion, x => x.CurrentExtenderVersion);
 			whenExtenderProp.Select(x => ExtenderStatusToToolTipText(x.Item1, x.Item2, x.Item3)).ToUIProperty(this, x => x.ScriptExtenderSupportToolTipText);
