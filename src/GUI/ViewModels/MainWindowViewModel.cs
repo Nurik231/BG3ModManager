@@ -1746,9 +1746,9 @@ Directory the zip will be extracted to:
 
 				DivinityLoadOrder currentOrder = new() { Name = "Current", FilePath = Path.Combine(SelectedProfile.FilePath, "modsettings.lsx"), IsModSettings = true };
 
-				if (this.SelectedModOrder != null && this.SelectedModOrder.IsModSettings)
+				if (SelectedModOrder != null && SelectedModOrder.IsModSettings)
 				{
-					currentOrder.SetOrder(this.SelectedModOrder);
+					currentOrder.SetOrder(SelectedModOrder);
 				}
 				else
 				{
@@ -1818,13 +1818,7 @@ Directory the zip will be extracted to:
 							{
 								LoadGameMasterCampaignModOrder(SelectedGameMasterCampaign);
 							}
-							else
-							{
-								LoadModOrder(nextOrder, missingMods);
-							}*/
-
-							//Adds mods that will always be "enabled"
-							//ForceLoadedMods.AddRange(Mods.Where(x => !x.IsActive && x.IsForceLoaded));
+							*/
 
 							Settings.LastOrder = nextOrder?.Name;
 						}
@@ -2322,7 +2316,7 @@ Directory the zip will be extracted to:
 					newOrder.FilePath = Path.Combine(Settings.LoadOrderPath, DivinityModDataLoader.MakeSafeFilename(Path.Combine(newOrder.Name + ".json"), '_'));
 				}
 				SavedModOrderList.Add(newOrder);
-				BuildModOrderList(ModOrderList.Count);
+				BuildModOrderList(SavedModOrderList.Count); // +1 due to Current being index 0
 			};
 
 			this.CreateSnapshot(undo, redo);
@@ -3041,17 +3035,27 @@ Directory the zip will be extracted to:
 				{
 					ShowAlert($"Saved mod load order to '{outputPath}'", AlertType.Success, 10);
 					var updatedOrder = false;
-					foreach (var order in ModOrderList)
+					int updatedOrderIndex = -1;
+					for (var i = 0; i < ModOrderList.Count; i++)
 					{
+						var order = ModOrderList[i];
 						if (order.FilePath == outputPath)
 						{
+							updatedOrderIndex = i;
 							order.SetOrder(tempOrder);
 							updatedOrder = true;
 							DivinityApp.Log($"Updated saved order '{order.Name}' from '{modOrderName}'");
 						}
 					}
-					if (!updatedOrder) AddNewModOrder(tempOrder);
-					LoadModOrder(tempOrder);
+					if (!updatedOrder) 
+					{
+						AddNewModOrder(tempOrder);
+					}
+					else
+					{
+						SelectedModOrderIndex = updatedOrderIndex;
+						LoadModOrder(tempOrder);
+					}
 				}
 				else
 				{
