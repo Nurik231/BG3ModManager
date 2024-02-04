@@ -20,18 +20,14 @@ using ReactiveUI;
 
 namespace DivinityModManager.Tests
 {
-	public class NexusMods
+	public class NexusModsTests : BaseTest
 	{
-		private readonly ITestOutputHelper _output;
 		private readonly NexusModsService _service;
 		private readonly string _testModUUID = "789deb36-e3da-4a5e-b737-eb644cd1dd6a";
 		private readonly List<DivinityModData> _mods;
 
-		public NexusMods(ITestOutputHelper output)
+		public NexusModsTests(ITestOutputHelper output) : base(output)
 		{
-			_output = output;
-			DivinityApp.LogMethod = _output.WriteLine;
-
 			var apiKey = Environment.GetEnvironmentVariable("NEXUS_API_KEY");
 			Assert.True(!String.IsNullOrEmpty(apiKey), "Set the NEXUS_API_KEY environment variable in order to run automated NexusMods tests");
 
@@ -76,11 +72,11 @@ namespace DivinityModManager.Tests
 			{
 				Assert.True(results.Success, $"Failed to fetch info: {results.FailureMessage}");
 				Assert.True(results.UpdatedMods.Count > 0, "No mods were updated?");
-				_output.WriteLine($"NexusMods Info:\n{JsonConvert.SerializeObject(results.UpdatedMods.First().NexusModsData, Formatting.Indented)}");
+				Output.WriteLine($"NexusMods Info:\n{JsonConvert.SerializeObject(results.UpdatedMods.First().NexusModsData, Formatting.Indented)}");
 			}
 			else
 			{
-				_output.WriteLine("Task successfully canceled");
+				Output.WriteLine("Task successfully canceled");
 			}
 		}
 

@@ -116,7 +116,14 @@ namespace DivinityModManager
 
 		public delegate void LogFunction(string message);
 
-		public static Action<string> LogMethod { private get; set; } = s => Trace.WriteLine(s);
+		private static readonly Action<string> BaseLogMethod = s => Trace.WriteLine(s);
+
+		private static Action<string> _overwrittenLogMethod;
+		public static Action<string> LogMethod
+		{
+			get => _overwrittenLogMethod ?? BaseLogMethod;
+			set => _overwrittenLogMethod = value;
+		}
 
 		public static void Log(string msg, [CallerMemberName] string mName = "", [CallerFilePath] string path = "", [CallerLineNumber] int line = 0)
 		{
