@@ -33,12 +33,19 @@ namespace DivinityModManager.AppServices
 
 		private IDisposable _backgroundCheckTask;
 
-		private static readonly HashSet<string> GameExeNames = new HashSet<string>() { "bg3", "bg3_dx11" };
+		private static readonly HashSet<string> GameExeNames = new(){ "bg3", "bg3_dx11" };
 
 		public void CheckForGameProcess()
 		{
-			var processes = GameExeNames.SelectMany(x => Process.GetProcessesByName(x)).ToArray();
-			GameIsRunning = processes.Length > 0;
+			foreach(var process in Process.GetProcesses())
+			{
+				if (GameExeNames.Contains(process.ProcessName))
+				{
+					GameIsRunning = true;
+					return;
+				}
+			}
+			GameIsRunning = false;
 		}
 
 		public void AddGameProcessName(string name)
@@ -61,7 +68,7 @@ namespace DivinityModManager.AppServices
 				}
 			});
 
-			ProcessCheckInterval = TimeSpan.FromSeconds(30);
+			ProcessCheckInterval = TimeSpan.FromSeconds(10);
 		}
 	}
 }
