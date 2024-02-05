@@ -31,6 +31,7 @@ namespace DivinityModManager.Util
 		public ReactiveCommand<DivinityModData, Unit> ToggleNameDisplayCommand { get; private set; }
 		public ReactiveCommand<string, Unit> CopyToClipboardCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> DeleteModCommand { get; private set; }
+		public ReactiveCommand<DivinityModData, Unit> DeleteSelectedModsCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> OpenGitHubPageCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> OpenNexusModsPageCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageCommand { get; private set; }
@@ -200,12 +201,14 @@ namespace DivinityModManager.Util
 
 			CopyToClipboardCommand = ReactiveCommand.Create<string>(CopyToClipboard, canExecuteViewModelCommands);
 
-			DeleteModCommand = ReactiveCommand.Create<DivinityModData>((mod) =>
+			DeleteModCommand = ReactiveCommand.Create<DivinityModData>(mod =>
 			{
-				if (mod.CanDelete && _viewModel != null)
-				{
-					_viewModel.DeleteMod(mod);
-				}
+				_viewModel.DeleteMod(mod);
+			}, canExecuteViewModelCommands);
+
+			DeleteSelectedModsCommand = ReactiveCommand.Create<DivinityModData>(mod =>
+			{
+				_viewModel.DeleteSelectedMods(mod);
 			}, canExecuteViewModelCommands);
 
 			OpenURLCommand = ReactiveCommand.Create<object>(x => OpenURL(x.ToString()), canExecuteViewModelCommands);

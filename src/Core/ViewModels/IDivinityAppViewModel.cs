@@ -28,6 +28,7 @@ namespace DivinityModManager.ViewModels
 
 		void ShowAlert(string message, AlertType alertType = AlertType.Info, int timeout = 0);
 		void DeleteMod(DivinityModData mod);
+		void DeleteSelectedMods(DivinityModData contextMenuMod);
 		void ClearMissingMods();
 		void AddActiveMod(DivinityModData mod);
 		void RemoveActiveMod(DivinityModData mod);

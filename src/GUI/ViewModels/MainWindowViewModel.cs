@@ -4486,7 +4486,30 @@ Directory the zip will be extracted to:
 
 		public void DeleteMod(DivinityModData mod)
 		{
-			DeleteMods(new List<DivinityModData>() { mod });
+			if (mod.CanDelete)
+			{
+				DeleteMods(new List<DivinityModData>() { mod });
+			}
+			else
+			{
+				ShowAlert("Unable to delete mod", AlertType.Danger, 30);
+			}
+		}
+
+		public void DeleteSelectedMods(DivinityModData contextMenuMod)
+		{
+			var list = contextMenuMod.IsActive ? ActiveMods : InactiveMods;
+			var targetMods = new List<DivinityModData>();
+			targetMods.AddRange(list.Where(x => x.CanDelete && x.IsSelected));
+			if (!contextMenuMod.IsSelected && contextMenuMod.CanDelete) targetMods.Add(contextMenuMod);
+			if(targetMods.Count > 0)
+			{
+				DeleteMods(targetMods);
+			}
+			else
+			{
+				ShowAlert("Unable to delete selected mod(s)", AlertType.Danger, 30);
+			}
 		}
 
 		public void RemoveDeletedMods(HashSet<string> deletedMods, HashSet<string> deletedWorkshopMods = null, bool removeFromLoadOrder = true)
