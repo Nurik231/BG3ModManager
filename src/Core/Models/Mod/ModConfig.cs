@@ -19,6 +19,7 @@ namespace DivinityModManager.Models.Mod
 		/// <summary>
 		/// The mod UUID or FileName (override paks) associated with this config.
 		/// </summary>
+		[JsonIgnore] public bool IsLoaded { get; set; }
 		[JsonIgnore] public string Id { get; set; }
 
 		[Reactive] public string Notes { get; set; }

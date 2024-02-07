@@ -27,7 +27,7 @@ namespace DivinityModManager.Models.Settings
 
 		private ICommand AutosaveCommand { get; set; }
 
-		private void TrySave()
+		public void TrySave()
 		{
 			this.Save(out _);
 		}
