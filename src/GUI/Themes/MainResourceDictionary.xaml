@@ -19,6 +19,7 @@
 	xmlns:extdata="clr-namespace:DivinityModManager.Models.Extender;assembly=DivinityModManagerCore"
 	xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 	xmlns:local="clr-namespace:DivinityModManager.Views"
+	xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
 	xmlns:templateSelectors="clr-namespace:DivinityModManager.Controls.TemplateSelectors"
 	xmlns:updates="clr-namespace:DivinityModManager.Models.Updates;assembly=DivinityModManagerCore"
@@ -44,6 +45,7 @@
 	<xconv:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter" />
 	<templateSelectors:TagTemplateSelector x:Key="TagTemplateSelector" />
 	<BitmapImage x:Key="AddItemImage" UriSource="pack://application:,,,/Resources/Icons/AddItem_16x.png" />
+	<BitmapImage x:Key="AddPropertyImage" UriSource="pack://application:,,,/Resources/Icons/AddProperty_16x.png" />
 	<BitmapImage x:Key="AlertBar_Close" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Close.png" />
 	<BitmapImage x:Key="AlertBar_Close_Hover" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Close_Hover.png" />
 	<BitmapImage x:Key="AlertBar_Danger" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Danger_16x.png" />
@@ -51,6 +53,7 @@
 	<BitmapImage x:Key="AlertBar_Success" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Success_16x.png" />
 	<BitmapImage x:Key="AlertBar_Warning" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Warning_16x.png" />
 	<BitmapImage x:Key="CopyToClipboardImage" UriSource="pack://application:,,,/Resources/Icons/CopyToClipboard_16x.png" />
+	<BitmapImage x:Key="ConfigurationFileImage" UriSource="pack://application:,,,/Resources/Icons/ConfigurationFile_16x.png" />
 	<BitmapImage x:Key="DefaultIcon" UriSource="pack://application:,,,/Resources/Icons/DefaultIcon_16x.png" />
 	<BitmapImage x:Key="DeleteModImage" UriSource="pack://application:,,,/Resources/Icons/DeleteAzureResource_16x.png" />
 	<BitmapImage x:Key="DivinityEngine" UriSource="pack://application:,,,/Resources/Icons/DivinityEngineGlasses_64x.png" />
@@ -77,11 +80,12 @@
 	<BitmapImage x:Key="SaveAsImage" UriSource="pack://application:,,,/Resources/Icons/SaveAs_16x.png" />
 	<BitmapImage x:Key="SaveDisabledImage" UriSource="pack://application:,,,/Resources/Icons/SaveGrey_16x.png" />
 	<BitmapImage x:Key="SaveImage" UriSource="pack://application:,,,/Resources/Icons/Save_16x.png" />
+	<BitmapImage x:Key="SelectImage" UriSource="pack://application:,,,/Resources/Icons/Select_16x.png" />
+	<BitmapImage x:Key="SettingsFileImage" UriSource="pack://application:,,,/Resources/Icons/SettingsFile_16x.png" />
+	<BitmapImage x:Key="ShowAllFilesImage" UriSource="pack://application:,,,/Resources/Icons/ShowAllFiles_16x.png" />
 	<BitmapImage x:Key="StatusWarning" UriSource="pack://application:,,,/Resources/Icons/StatusWarning_16x.png" />
 	<BitmapImage x:Key="ZipFileAsImage" UriSource="pack://application:,,,/Resources/Icons/ZipFileAs_16x.png" />
 	<BitmapImage x:Key="ZipFileImage" UriSource="pack://application:,,,/Resources/Icons/ZipFile_16x.png" />
-	<BitmapImage x:Key="SelectImage" UriSource="pack://application:,,,/Resources/Icons/Select_16x.png" />
-	<BitmapImage x:Key="ShowAllFilesImage" UriSource="pack://application:,,,/Resources/Icons/ShowAllFiles_16x.png" />
 	<!--  Overrides the default context menu open animation to remove flickering.  -->
 	<PopupAnimation x:Key="{x:Static SystemParameters.MenuPopupAnimationKey}">None</PopupAnimation>
 	<!--  x:Shared is required so prevent the next MenuItem from unsetting the previous icon.  -->
@@ -116,6 +120,12 @@
 		x:Shared="false"
 		Source="{StaticResource OsirisImage}" />
 	<Image
+		x:Key="ModPropertiesIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource ConfigurationFileImage}" />
+	<Image
 		x:Key="DeleteModIcon"
 		Width="16"
 		Height="16"
@@ -133,6 +143,27 @@
 		Height="16"
 		x:Shared="false"
 		Source="{StaticResource ShowAllFilesImage}" />
+	<Image
+		x:Key="LargeFileIcon"
+		Width="36"
+		Height="36"
+		x:Shared="false"
+		Source="{svgc:SvgImage Source=/Resources/Icons/CurrentFile_16x.svg,
+		                       AppName=BG3ModManager}" />
+	<Image
+		x:Key="LargeFolderIcon"
+		Width="36"
+		Height="36"
+		x:Shared="false"
+		Source="{svgc:SvgImage Source=/Resources/Icons/Folder_16x.svg,
+		                       AppName=BG3ModManager}" />
+	<svgc:SvgBitmap
+		x:Key="HelpIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		AppName="BG3ModManager"
+		UriSource="/Resources/Icons/StatusHelp_16x.svg" />
 	<!--
 		This avoids a System.Windows.Data relative binding error for these properties.
 		"This happens when you set MenuItem.ItemsSource to a Collection that contains MenuItems.
@@ -219,6 +250,17 @@
 			<Setter Property="Header" Value="Mod Developer..." />
 			<Setter Property="Visibility" Value="{Binding Path=(dapp:DivinityApp.DeveloperModeEnabled), Converter={StaticResource BoolToVisibilityConverter}}" />
 			<Setter Property="ItemsSource" Value="{StaticResource ModDeveloperModMenuItems}" />
+		</Style.Setters>
+	</Style>
+	<Style
+		x:Key="MenuItemModPropertiesStyle"
+		BasedOn="{StaticResource {x:Type MenuItem}}"
+		TargetType="{x:Type MenuItem}">
+		<Style.Setters>
+			<Setter Property="Icon" Value="{StaticResource ModPropertiesIcon}" />
+			<Setter Property="Header" Value="Properties" />
+			<Setter Property="Command" Value="{Binding Path=OpenModPropertiesCommand, Source={x:Static dapp:DivinityApp.Commands}}" />
+			<Setter Property="CommandParameter" Value="{Binding}" />
 		</Style.Setters>
 	</Style>
 	<Style
@@ -357,33 +399,25 @@
 					</ContextMenu.Resources>
 					<MenuItem CommandParameter="{Binding FilePath}" Style="{StaticResource MenuItemOpenInExplorerStyle}" />
 					<MenuItem CommandParameter="{Binding FilePath}" Style="{StaticResource MenuItemCopyToClipboardStyle}" />
+					<Separator />
 					<MenuItem
 						Command="{Binding Path=OpenGitHubPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
 						Header="Open GitHub Page (Browser)..."
-						Visibility="{Binding OpenGitHubLinkVisibility}">
-						<MenuItem.Icon>
-							<Image Source="{StaticResource OpenInBrowserImage}" />
-						</MenuItem.Icon>
-					</MenuItem>
+						Style="{StaticResource MenuItemOpenURLStyle}"
+						Visibility="{Binding OpenGitHubLinkVisibility}" />
 					<MenuItem
 						Command="{Binding Path=OpenNexusModsPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
 						Header="Open NexusMods Page (Browser)..."
-						Visibility="{Binding OpenNexusModsLinkVisibility}">
-						<MenuItem.Icon>
-							<Image Source="{StaticResource OpenInBrowserImage}" />
-						</MenuItem.Icon>
-					</MenuItem>
+						Style="{StaticResource MenuItemOpenURLStyle}"
+						Visibility="{Binding OpenNexusModsLinkVisibility}" />
 					<MenuItem
 						Command="{Binding Path=OpenSteamWorkshopPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
 						Header="Open Steam Workshop Page (Browser)..."
-						Visibility="{Binding OpenWorkshopLinkVisibility}">
-						<MenuItem.Icon>
-							<Image Source="{StaticResource OpenInBrowserImage}" />
-						</MenuItem.Icon>
-					</MenuItem>
+						Style="{StaticResource MenuItemOpenURLStyle}"
+						Visibility="{Binding OpenWorkshopLinkVisibility}" />
 					<MenuItem
 						Command="{Binding Path=OpenSteamWorkshopPageInSteamCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
@@ -393,6 +427,7 @@
 							<Image Source="{StaticResource OpenSteamWorkshopFolderImage}" />
 						</MenuItem.Icon>
 					</MenuItem>
+					<Separator />
 					<MenuItem
 						Command="{Binding Path=ToggleForceAllowInLoadOrderCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
@@ -426,6 +461,7 @@
 							</TextBlock>
 						</MenuItem.Header>
 					</MenuItem>
+					<Separator />
 					<MenuItem Header="Delete..." Style="{StaticResource MenuItemDeleteModStyle}">
 						<MenuItem
 							Command="{Binding Path=DeleteModCommand, Source={x:Static dapp:DivinityApp.Commands}}"
@@ -439,6 +475,7 @@
 							Header="Selected Mods..."
 							Icon="{StaticResource ShowAllFilesIcon}" />
 					</MenuItem>
+					<Separator />
 					<MenuItem Command="{Binding Path=ToggleNameDisplayCommand, Source={x:Static dapp:DivinityApp.Commands}}" CommandParameter="{Binding}">
 						<MenuItem.Header>
 							<TextBlock>
@@ -459,6 +496,8 @@
 						</MenuItem.Icon>
 					</MenuItem>
 					<MenuItem DataContext="{Binding}" Style="{StaticResource MenuItemModDeveloperStyle}" />
+					<Separator />
+					<MenuItem DataContext="{Binding}" Style="{StaticResource MenuItemModPropertiesStyle}" />
 				</ContextMenu>
 			</Setter.Value>
 		</Setter>
