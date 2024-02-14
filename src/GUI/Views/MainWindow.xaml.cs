@@ -37,6 +37,7 @@ namespace DivinityModManager.Views
 		public MainViewControl MainView { get; private set; }
 
 		public SettingsWindow SettingsWindow { get; private set; }
+		public ModPropertiesWindow ModPropertiesWindow { get; private set; }
 		public AboutWindow AboutWindow { get; private set; }
 		public VersionGeneratorWindow VersionGeneratorWindow { get; private set; }
 		public AppUpdateWindow UpdateWindow { get; private set; }
@@ -369,6 +370,8 @@ namespace DivinityModManager.Views
 			MainGrid.Children.Add(MainView);
 
 			SettingsWindow = new SettingsWindow();
+			ModPropertiesWindow = new ModPropertiesWindow();
+			ModPropertiesWindow.Hide();
 			//TODO Replace with new updater service
 			/*SettingsWindow.OnWorkshopPathChanged += delegate
 			{
@@ -400,6 +403,17 @@ namespace DivinityModManager.Views
 			DataContext = ViewModel;
 
 			_wih = new WindowInteropHelper(this);
+
+			DivinityInteractions.OpenModProperties.RegisterHandler(interaction =>
+			{
+				ModPropertiesWindow.ViewModel.SetMod(interaction.Input);
+				if(!ModPropertiesWindow.IsVisible)
+				{
+					ModPropertiesWindow.Show();
+					ModPropertiesWindow.Owner = this;
+				}
+				interaction.SetOutput(true);
+			});
 
 			this.WhenActivated(d =>
 			{
