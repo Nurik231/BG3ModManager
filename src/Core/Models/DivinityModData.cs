@@ -670,6 +670,8 @@ namespace DivinityModManager.Models
 
 			this.WhenAnyValue(x => x.FilePath).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.HasFilePathVisibility, Visibility.Collapsed);
 			this.WhenAnyValue(x => x.Version.Version).ToUIProperty(this, x => x.DisplayVersion, "0.0.0.0");
+
+			SetIsBaseGameMod(false);
 		}
 
 		private CompositeDisposable _modConfigDisposables;

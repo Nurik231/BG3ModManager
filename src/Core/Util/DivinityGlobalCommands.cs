@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Windows;
 
 namespace DivinityModManager.Util
@@ -39,6 +40,7 @@ namespace DivinityModManager.Util
 		public ReactiveCommand<object, Unit> OpenURLCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> ToggleForceAllowInLoadOrderCommand { get; private set; }
 		public ReactiveCommand<DivinityModData, Unit> CopyModAsDependencyCommand { get; private set; }
+		public ReactiveCommand<DivinityModData, Unit> OpenModPropertiesCommand { get; private set; }
 
 		public void OpenFile(string path)
 		{
@@ -178,6 +180,11 @@ namespace DivinityModManager.Util
 			}
 		}
 
+		public void OpenModProperties(DivinityModData mod)
+		{
+			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
+		}
+
 		public DivinityGlobalCommands()
 		{
 			var canExecuteViewModelCommands = this.WhenAnyValue(x => x.ViewModel, x => x.ViewModel.IsLocked, (vm, b) => vm != null && !b);
@@ -218,6 +225,7 @@ namespace DivinityModManager.Util
 			OpenSteamWorkshopPageInSteamCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPageInSteam, canExecuteViewModelCommands);
 			ToggleForceAllowInLoadOrderCommand = ReactiveCommand.Create<DivinityModData>(ToggleForceAllowInLoadOrder, canExecuteViewModelCommands);
 			CopyModAsDependencyCommand = ReactiveCommand.Create<DivinityModData>(CopyModAsDependency, canExecuteViewModelCommands);
+			OpenModPropertiesCommand = ReactiveCommand.Create<DivinityModData>(OpenModProperties, canExecuteViewModelCommands);
 		}
 	}
 }

@@ -20,6 +20,7 @@ namespace DivinityModManager
 
 	public static class DivinityInteractions
 	{
-		public static readonly Interaction<DeleteFilesViewConfirmationData, bool> ConfirmModDeletion = new Interaction<DeleteFilesViewConfirmationData, bool>();
+		public static readonly Interaction<DeleteFilesViewConfirmationData, bool> ConfirmModDeletion = new();
+		public static readonly Interaction<DivinityModData, bool> OpenModProperties = new();
 	}
 }
