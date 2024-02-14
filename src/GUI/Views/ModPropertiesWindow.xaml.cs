@@ -38,6 +38,7 @@ namespace DivinityModManager.Views
 		[ObservableAsProperty] public string ModType { get; }
 		[ObservableAsProperty] public string ModSizeText { get; }
 		[ObservableAsProperty] public string ModFilePath { get; }
+		[ObservableAsProperty] public bool IsEditorMod { get; }
 		[ObservableAsProperty] public Visibility AuthorLabelVisibility { get; }
 		[ObservableAsProperty] public Visibility RepoLabelVisibility { get; }
 
@@ -150,6 +151,7 @@ namespace DivinityModManager.Views
 			whenModSet.Select(GetModType).ToUIProperty(this, x => x.ModType);
 			whenModSet.Select(GetModSize).ToUIProperty(this, x => x.ModSizeText);
 			whenModSet.Select(GetModFilePath).ToUIProperty(this, x => x.ModFilePath);
+			whenModSet.Select(x => x.IsEditorMod).ToUIProperty(this, x => x.IsEditorMod);
 
 			var whenNotLocked = this.WhenAnyValue(x => x.Locked, x => x.IsActive).Select(x => !x.Item1 && x.Item2);
 			var whenConfig = Observable.FromEventPattern<PropertyChangedEventArgs>(this, nameof(ReactiveObject.PropertyChanged));
@@ -196,6 +198,11 @@ namespace DivinityModManager.Views
 			Hide();
 		}
 
+		private readonly object LargeFileIcon;
+		private readonly object LargeFolderIcon;
+
+		private object GetModTypeIcon(bool isEditorMod) => isEditorMod ? LargeFolderIcon : LargeFileIcon;
+
 		public ModPropertiesWindow()
 		{
 			InitializeComponent();
@@ -205,6 +212,9 @@ namespace DivinityModManager.Views
 				OKCommand = ReactiveCommand.Create(ConfirmAndClose),
 				CancelCommand = ReactiveCommand.Create(CancelAndClose)
 			};
+
+			LargeFileIcon = FindResource("LargeFileIcon");
+			LargeFolderIcon = FindResource("LargeFolderIcon");
 
 			/*ConfigAutoGrid.Loaded += (o, e) =>
 			{
@@ -220,6 +230,7 @@ namespace DivinityModManager.Views
 			{
 				this.OneWayBind(ViewModel, vm => vm.Title, v => v.Title);
 
+				this.OneWayBind(ViewModel, vm => vm.Mod.FileName, v => v.ModFileNameText.Text);
 				this.OneWayBind(ViewModel, vm => vm.Mod.Name, v => v.ModNameText.Text);
 				this.OneWayBind(ViewModel, vm => vm.Mod.Description, v => v.ModDescriptionText.Text);
 				this.OneWayBind(ViewModel, vm => vm.ModFilePath, v => v.ModPathText.Text);
@@ -232,6 +243,8 @@ namespace DivinityModManager.Views
 				this.OneWayBind(ViewModel, vm => vm.ModSizeText, v => v.ModSizeText.Text);
 				this.OneWayBind(ViewModel, vm => vm.AuthorLabelVisibility, v => v.AuthorLabel.Visibility);
 				this.OneWayBind(ViewModel, vm => vm.RepoLabelVisibility, v => v.RepoLabel.Visibility);
+
+				this.OneWayBind(ViewModel, vm => vm.Mod.IsEditorMod, v => v.ModTypeIconControl.Content, GetModTypeIcon);
 
 				this.BindCommand(ViewModel, vm => vm.ApplyCommand, v => v.ApplyButton);
 				this.BindCommand(ViewModel, vm => vm.OKCommand, v => v.OKButton);

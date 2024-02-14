@@ -23,10 +23,8 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="../Themes/MainResourceDictionary.xaml" />
 			</ResourceDictionary.MergedDictionaries>
-			<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
-				<Setter Property="VerticalAlignment" Value="Center" />
-			</Style>
 		</ResourceDictionary>
+
 	</Window.Resources>
 	<Border
 		Padding="8"
@@ -38,40 +36,69 @@
 				<RowDefinition Height="*" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<TabControl SelectedIndex="1">
+			<TabControl>
 				<TabItem Header="General">
+					<TabItem.Resources>
+						<Style BasedOn="{StaticResource ReadOnlyTextBox}" TargetType="{x:Type TextBox}">
+							<Setter Property="VerticalAlignment" Value="Bottom" />
+							<Setter Property="HorizontalAlignment" Value="Stretch" />
+							<Setter Property="TextAlignment" Value="Left" />
+							<Setter Property="Background" Value="Transparent" />
+							<Setter Property="BorderThickness" Value="0" />
+							<Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource self}}" />
+						</Style>
+						<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="{x:Type TextBlock}">
+							<Setter Property="VerticalAlignment" Value="Bottom" />
+							<Setter Property="HorizontalAlignment" Value="Stretch" />
+							<Setter Property="TextAlignment" Value="Left" />
+						</Style>
+					</TabItem.Resources>
 					<autogrid:AutoGrid
 						Margin="10,0"
 						ChildMargin="4"
 						ColumnCount="2"
 						Columns="auto,*"
-						RowCount="10"
+						RowCount="11"
 						RowHeight="auto">
-
-						<ContentControl HorizontalAlignment="Left" Content="{StaticResource LargeFileIcon}" />
-						<TextBlock x:Name="ModNameText" Text="Mod File Location" />
+						<ContentControl
+							x:Name="ModTypeIconControl"
+							HorizontalAlignment="Left"
+							Content="{StaticResource LargeFileIcon}" />
+						<TextBox
+							x:Name="ModFileNameText"
+							BorderThickness="1"
+							IsReadOnly="True"
+							Text="ModFile.pak" />
 
 						<Separator Grid.ColumnSpan="2" Margin="4,8" />
 
 						<TextBlock Text="Mod type:" />
-						<TextBlock x:Name="ModTypeText" HorizontalAlignment="Right" />
+						<TextBlock x:Name="ModTypeText" Text="Pak" />
+
+						<TextBlock Text="Name:" />
+						<TextBox
+							x:Name="ModNameText"
+							Background="Transparent"
+							Text="Mod Name" />
 
 						<TextBlock Text="Description:" />
-						<TextBlock x:Name="ModDescriptionText" HorizontalAlignment="Right" />
+						<TextBox
+							x:Name="ModDescriptionText"
+							MaxHeight="128"
+							Background="Transparent"
+							TextWrapping="Wrap"
+							VerticalScrollBarVisibility="Auto" />
 
 						<Separator Grid.ColumnSpan="2" Margin="4,8" />
 
 						<TextBlock Text="Location:" />
-						<TextBlock
+						<TextBox
 							x:Name="ModPathText"
-							HorizontalAlignment="Right"
+							Background="Transparent"
 							TextWrapping="NoWrap" />
 
 						<TextBlock Text="Size:" />
-						<TextBlock
-							x:Name="ModSizeText"
-							HorizontalAlignment="Right"
-							TextWrapping="NoWrap" />
+						<TextBlock x:Name="ModSizeText" TextWrapping="NoWrap" />
 					</autogrid:AutoGrid>
 				</TabItem>
 				<TabItem Header="Config">
