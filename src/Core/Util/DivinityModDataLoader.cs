@@ -441,7 +441,7 @@ namespace DivinityModManager.Util
 			return false;
 		}
 
-		private static readonly Regex _ModFolderPattern = new("^(Mods|Public)/(.+?)/.+$");
+		private static readonly Regex _ModFolderPattern = new("^(Mods|Public|Generated)/(.+?)/.+$");
 		private static readonly string[] _IgnoredRecursiveFolders = new string[]
 		{
 			"Baldur's Gate 3\\Data",
@@ -1943,8 +1943,8 @@ namespace DivinityModManager.Util
 					var isBaseMod = DivinityApp.IgnoredMods.Any(x => x.UUID == modData.UUID) || modData.IsLarianMod;
 					if (isBaseMod)
 					{
-						DivinityApp.Log($"Added base mod: Name({modData.Name}) UUID({modData.UUID}) Author({modData.Author}) Version({modData.Version.VersionInt})");
 						modData.SetIsBaseGameMod(true);
+						DivinityApp.Log($"Added base mod: Name({modData.Name}) UUID({modData.UUID}) Author({modData.Author}) Version({modData.Version.VersionInt})");
 						DivinityApp.Log($"CanAddToLoadOrder({modData.CanAddToLoadOrder}) IsHidden({modData.IsHidden})");
 					}
 					else
