@@ -13,31 +13,31 @@ namespace DivinityModManager.Util
 			switch (Math.Abs(value))
 			{
 				case >= 0x1000000000000000:
-					suffix = "EiB";
+					suffix = "EB";
 					readable = value >> 50;
 					break;
 				case >= 0x4000000000000:
-					suffix = "PiB";
+					suffix = "PB";
 					readable = value >> 40;
 					break;
 				case >= 0x10000000000:
-					suffix = "TiB";
+					suffix = "TB";
 					readable = value >> 30;
 					break;
 				case >= 0x40000000:
-					suffix = "GiB";
+					suffix = "GB";
 					readable = value >> 20;
 					break;
 				case >= 0x100000:
-					suffix = "MiB";
+					suffix = "MB";
 					readable = value >> 10;
 					break;
 				case >= 0x400:
-					suffix = "KiB";
+					suffix = "KB";
 					readable = value;
 					break;
 				default:
-					return value.ToString("0 B");
+					return value.ToString("0B");
 			}
 
 			return (readable / 1024).ToString("0.## ", CultureInfo.InvariantCulture) + suffix;
