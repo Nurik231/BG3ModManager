@@ -15,6 +15,8 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
 using DynamicData;
+using System.Windows.Input;
+using System.Windows;
 
 namespace DivinityModManager.Views
 {
@@ -23,62 +25,36 @@ namespace DivinityModManager.Views
 	public class ModConfigPropertiesViewModel : ReactiveObject
 	{
 		[Reactive] public string Title { get; set; }
+		[Reactive] public bool IsActive { get; set; }
 		[Reactive] public bool Locked { get; set; }
+		[Reactive] public bool HasChanges { get; private set; }
 		[Reactive] public DivinityModData Mod { get; set; }
-		[ObservableAsProperty] public string ModType { get; }
-		[ObservableAsProperty] public string ModSizeText { get; }
-
 		[Reactive] public string Notes { get; set; }
 		[Reactive] public string GitHubAuthor { get; set; }
 		[Reactive] public string GitHubRepository { get; set; }
 		[Reactive] public long NexusModsId { get; set; }
 		[Reactive] public long SteamWorkshopId { get; set; }
 
-		public ReactiveCommand<Unit, Unit> ApplyConfigCommand { get; private set; }
+		[ObservableAsProperty] public string ModType { get; }
+		[ObservableAsProperty] public string ModSizeText { get; }
+		[ObservableAsProperty] public string ModFilePath { get; }
+		[ObservableAsProperty] public Visibility AuthorLabelVisibility { get; }
+		[ObservableAsProperty] public Visibility RepoLabelVisibility { get; }
 
-		private static string ModToTitle(DivinityModData mod)
+		public ICommand OKCommand { get; set; }
+		public ICommand CancelCommand { get; set; }
+		public ICommand ApplyCommand { get; }
+
+		public void SetMod(DivinityModData mod)
 		{
-			if(mod == null) return "Mod Properties";
-
-			return $"{mod.DisplayName} Properties";
-		}
-
-		private static string GetModType(DivinityModData mod)
-		{
-			if (mod?.IsEditorMod == true) return "Editor Project";
-			return "Pak";
-		}
-
-		private static string GetModSize(DivinityModData mod)
-		{
-			if (mod == null) return "0 bytes";
-
-			try
-			{
-				if(mod != null && File.Exists(mod.FilePath))
-				{
-					if (mod.IsEditorMod)
-					{
-						var dir = new DirectoryInfo(mod.FilePath);
-						var length = dir.EnumerateFiles("*.*", System.IO.SearchOption.AllDirectories).Sum(file => file.Length);
-						return StringUtils.BytesToString(length);
-					}
-					else
-					{
-						return StringUtils.BytesToString(new FileInfo(mod.FilePath).Length);
-					}
-				}
-			}
-			catch(Exception ex)
-			{
-				DivinityApp.Log($"Error checking mod file size at path '{mod?.FilePath}':\n{ex}");
-			}
-			return "0 bytes";
+			Mod = mod;
+			HasChanges = false;
 		}
 
 		private void LoadConfigProperties(DivinityModData mod)
 		{
 			Locked = true;
+			//var disp = this.SuppressChangeNotifications();
 			if(mod != null)
 			{
 				if(mod.ModManagerConfig != null && mod.ModManagerConfig.IsLoaded)
@@ -98,12 +74,18 @@ namespace DivinityModManager.Views
 					Notes = "";
 				}
 			}
-			RxApp.TaskpoolScheduler.Schedule(TimeSpan.FromMilliseconds(10), () => { Locked = false; });
+			Locked = HasChanges = false;
+			//disp.Dispose();
 		}
 
-		public void ApplyConfigSettings()
+		public void Apply()
 		{
 			var modConfigService = Services.Get<ISettingsService>().ModConfig;
+
+			if(Mod.ModManagerConfig == null)
+			{
+				Mod.ModManagerConfig = new();
+			}
 
 			modConfigService.Mods.AddOrUpdate(Mod.ModManagerConfig);
 
@@ -116,22 +98,61 @@ namespace DivinityModManager.Views
 			//Should be called automatically when the mod config is updated
 			//Services.Get<ISettingsService>().ModConfig.TrySave();
 		}
+		
+		public void OnClose()
+		{
+			HasChanges = false;
+			Mod = null;
+		}
+
+		private static string ModToTitle(DivinityModData mod) => mod != null ? $"{mod.DisplayName} Properties" : "Mod Properties";
+		private static string GetModType(DivinityModData mod) => mod?.IsEditorMod == true ? "Editor Project" : "Pak";
+		private static string GetModFilePath(DivinityModData mod) => StringUtils.ReplaceSpecialPathways(mod.FilePath);
+
+		private static string GetModSize(DivinityModData mod)
+		{
+			if (mod == null) return "0 bytes";
+
+			try
+			{
+				if (mod != null && File.Exists(mod.FilePath))
+				{
+					if (mod.IsEditorMod)
+					{
+						var dir = new DirectoryInfo(mod.FilePath);
+						var length = dir.EnumerateFiles("*.*", System.IO.SearchOption.AllDirectories).Sum(file => file.Length);
+						return StringUtils.BytesToString(length);
+					}
+					else
+					{
+						return StringUtils.BytesToString(new FileInfo(mod.FilePath).Length);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error checking mod file size at path '{mod?.FilePath}':\n{ex}");
+			}
+			return "0 bytes";
+		}
+
+		public static Visibility LabelVisibility(string str) => String.IsNullOrEmpty(str) ? Visibility.Visible : Visibility.Hidden;
 
 		public ModConfigPropertiesViewModel()
 		{
 			Title = "Mod Properties";
 
-			var whenModSet = this.WhenAnyValue(x => x.Mod);
+			var whenModSet = this.WhenAnyValue(x => x.Mod).WhereNotNull();
 			whenModSet.Select(ModToTitle).ObserveOn(RxApp.MainThreadScheduler).BindTo(this, x => x.Title);
 
 			whenModSet.Subscribe(LoadConfigProperties);
 
 			whenModSet.Select(GetModType).ToUIProperty(this, x => x.ModType);
 			whenModSet.Select(GetModSize).ToUIProperty(this, x => x.ModSizeText);
+			whenModSet.Select(GetModFilePath).ToUIProperty(this, x => x.ModFilePath);
 
-			var whenNotLocked = this.WhenAnyValue(x => x.Locked, b => !b);
-			var propertyChanged = nameof(ReactiveObject.PropertyChanged);
-			var whenConfig = Observable.FromEventPattern<PropertyChangedEventArgs>(this, propertyChanged);
+			var whenNotLocked = this.WhenAnyValue(x => x.Locked, x => x.IsActive).Select(x => !x.Item1 && x.Item2);
+			var whenConfig = Observable.FromEventPattern<PropertyChangedEventArgs>(this, nameof(ReactiveObject.PropertyChanged));
 			var autoSaveProperties = new HashSet<string>()
 			{ 
 				nameof(GitHubAuthor),
@@ -141,11 +162,20 @@ namespace DivinityModManager.Views
 				nameof(Notes),
 			};
 
-			ApplyConfigCommand = ReactiveCommand.Create(ApplyConfigSettings, whenNotLocked);
-			whenConfig.Where(e => autoSaveProperties.Contains(e.EventArgs.PropertyName))
+			whenConfig.Where(e => autoSaveProperties.Contains(e.EventArgs.PropertyName)).Subscribe(e =>
+			{
+				if (IsActive && !Locked) HasChanges = true;
+			});
+
+			
+			this.WhenAnyValue(x => x.GitHubAuthor).Select(LabelVisibility).ToUIProperty(this, x => x.AuthorLabelVisibility, Visibility.Visible);
+			this.WhenAnyValue(x => x.GitHubRepository).Select(LabelVisibility).ToUIProperty(this, x => x.RepoLabelVisibility, Visibility.Visible);
+
+			ApplyCommand = ReactiveCommand.Create(Apply, this.WhenAnyValue(x => x.HasChanges));
+			/*whenConfig.Where(e => autoSaveProperties.Contains(e.EventArgs.PropertyName))
 			.Throttle(TimeSpan.FromMilliseconds(100))
 			.Select(x => Unit.Default)
-			.InvokeCommand(ApplyConfigCommand);
+			.InvokeCommand(ApplyConfigCommand);*/
 		}
 	}
 
@@ -154,11 +184,27 @@ namespace DivinityModManager.Views
 	/// </summary>
 	public partial class ModPropertiesWindow : ModPropertiesWindowBase
 	{
+		private void ConfirmAndClose()
+		{
+			ViewModel.Apply();
+			Hide();
+		}
+
+		private void CancelAndClose()
+		{
+			ViewModel.OnClose();
+			Hide();
+		}
+
 		public ModPropertiesWindow()
 		{
 			InitializeComponent();
 
-			ViewModel = new ModConfigPropertiesViewModel();
+			ViewModel = new ModConfigPropertiesViewModel()
+			{
+				OKCommand = ReactiveCommand.Create(ConfirmAndClose),
+				CancelCommand = ReactiveCommand.Create(CancelAndClose)
+			};
 
 			/*ConfigAutoGrid.Loaded += (o, e) =>
 			{
@@ -167,20 +213,31 @@ namespace DivinityModManager.Views
 
 			ModNexusModsIDUpDown.Minimum = DivinityApp.NEXUSMODS_MOD_ID_START;
 
+			this.Activated += (o, e) => ViewModel.IsActive = true;
+			this.Deactivated += (o, e) => ViewModel.IsActive = false;
+
 			this.WhenActivated(d =>
 			{
-				d(this.OneWayBind(ViewModel, vm => vm.Title, v => v.Title));
+				this.OneWayBind(ViewModel, vm => vm.Title, v => v.Title);
 
-				d(this.OneWayBind(ViewModel, vm => vm.Mod.Name, v => v.ModNameText.Text));
-				d(this.OneWayBind(ViewModel, vm => vm.Mod.Description, v => v.ModDescriptionText.Text));
-				d(this.OneWayBind(ViewModel, vm => vm.Mod.FilePath, v => v.ModPathText.Text));
+				this.OneWayBind(ViewModel, vm => vm.Mod.Name, v => v.ModNameText.Text);
+				this.OneWayBind(ViewModel, vm => vm.Mod.Description, v => v.ModDescriptionText.Text);
+				this.OneWayBind(ViewModel, vm => vm.ModFilePath, v => v.ModPathText.Text);
 
-				d(this.Bind(ViewModel, vm => vm.NexusModsId, v => v.ModNexusModsIDUpDown.Value));
-				d(this.Bind(ViewModel, vm => vm.GitHubAuthor, v => v.ModGitHubAuthorText.Text));
-				d(this.Bind(ViewModel, vm => vm.GitHubRepository, v => v.ModGitHubRepositoryText.Text));
+				this.Bind(ViewModel, vm => vm.NexusModsId, v => v.ModNexusModsIDUpDown.Value);
+				this.Bind(ViewModel, vm => vm.GitHubAuthor, v => v.ModGitHubAuthorText.Text);
+				this.Bind(ViewModel, vm => vm.GitHubRepository, v => v.ModGitHubRepositoryText.Text);
 
-				d(this.OneWayBind(ViewModel, vm => vm.ModType, v => v.ModTypeText.Text));
-				d(this.OneWayBind(ViewModel, vm => vm.ModSizeText, v => v.ModSizeText.Text));
+				this.OneWayBind(ViewModel, vm => vm.ModType, v => v.ModTypeText.Text);
+				this.OneWayBind(ViewModel, vm => vm.ModSizeText, v => v.ModSizeText.Text);
+				this.OneWayBind(ViewModel, vm => vm.AuthorLabelVisibility, v => v.AuthorLabel.Visibility);
+				this.OneWayBind(ViewModel, vm => vm.RepoLabelVisibility, v => v.RepoLabel.Visibility);
+
+				this.BindCommand(ViewModel, vm => vm.ApplyCommand, v => v.ApplyButton);
+				this.BindCommand(ViewModel, vm => vm.OKCommand, v => v.OKButton);
+				this.BindCommand(ViewModel, vm => vm.CancelCommand, v => v.CancelButton);
+
+				HelpStackPanel.ToolTip = "Set the NexusMods ID to allow auto-updating (provided a NexusMods API key is set)\n\nSetting a valid GitHub Author/Repository will also allow auto-updating from GitHub";
 			});
 		}
 	}
