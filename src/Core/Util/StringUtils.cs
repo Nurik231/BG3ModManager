@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace DivinityModManager.Util
@@ -40,6 +41,35 @@ namespace DivinityModManager.Util
 			}
 
 			return (readable / 1024).ToString("0.## ", CultureInfo.InvariantCulture) + suffix;
+		}
+
+		private static readonly Dictionary<string, string> replacePaths = new();
+
+		private static void MaybeAddReplacement(string key, string path)
+		{
+			if (!String.IsNullOrEmpty(path))
+			{
+				replacePaths.Add(key, path);
+			}
+		}
+
+		static StringUtils()
+		{
+			MaybeAddReplacement("%LOCALAPPDATA%", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+			MaybeAddReplacement("%APPDATA%", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+			MaybeAddReplacement("%USERPROFILE%", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
+		}
+
+		public static string ReplaceSpecialPathways(string input)
+		{
+			if (!String.IsNullOrEmpty(input))
+			{
+				foreach (var kvp in replacePaths)
+				{
+					input = input.Replace(kvp.Value, kvp.Key);
+				}
+			}
+			return input;
 		}
 	}
 }
