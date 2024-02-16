@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Reactive;
 
 namespace DivinityModManager.Models.Settings
 {
@@ -25,7 +26,7 @@ namespace DivinityModManager.Models.Settings
 		public SourceCache<ModConfig, string> Mods { get; set; }
 		public Dictionary<string, long> LastUpdated { get; set; }
 
-		private ICommand AutosaveCommand { get; set; }
+		private ICommand AutosaveCommand { get; }
 
 		public void TrySave()
 		{
@@ -45,7 +46,7 @@ namespace DivinityModManager.Models.Settings
 
 			AutosaveCommand = ReactiveCommand.Create(TrySave);
 
-			Mods.Connect().WhenAnyPropertyChanged(props).Throttle(TimeSpan.FromMilliseconds(25)).InvokeCommand(AutosaveCommand);
+			Mods.Connect().WhenAnyPropertyChanged(props).Throttle(TimeSpan.FromMilliseconds(25)).Select(x => Unit.Default).InvokeCommand(AutosaveCommand);
 		}
 	}
 }
