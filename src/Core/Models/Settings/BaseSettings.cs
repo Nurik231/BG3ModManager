@@ -30,6 +30,12 @@ namespace DivinityModManager.Models.Settings
 
 		public virtual string GetDirectory() => DivinityApp.GetAppDirectory("Data");
 
+		private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
+		{
+			Formatting = Formatting.Indented,
+			NullValueHandling = NullValueHandling.Ignore
+		};
+
 		public BaseSettings(string fileName)
 		{
 			FileName = fileName;
@@ -43,7 +49,7 @@ namespace DivinityModManager.Models.Settings
 				var directory = GetDirectory();
 				var filePath = Path.Combine(directory, FileName);
 				Directory.CreateDirectory(directory);
-				var contents = JsonConvert.SerializeObject(this, Formatting.Indented);
+				var contents = JsonConvert.SerializeObject(this, _jsonSerializerSettings);
 				File.WriteAllText(filePath, contents);
 				return true;
 			}

@@ -19,7 +19,7 @@ namespace DivinityModManager.ModUpdater.Cache
 	public class NexusModsCacheHandler : ReactiveObject, IExternalModCacheHandler<NexusModsCachedData>
 	{
 		public ModSourceType SourceType => ModSourceType.NEXUSMODS;
-		public string FileName => "NexusModsData.json";
+		public string FileName => "nexusmodsdata.json";
 		public JsonSerializerSettings SerializerSettings { get; }
 		[Reactive] public bool IsEnabled { get; set; }
 		public NexusModsCachedData CacheData { get; set; }
