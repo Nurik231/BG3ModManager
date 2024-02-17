@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DivinityModManager.Views;
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -16,11 +18,11 @@ using System.Windows.Media.Imaging;
 
 namespace DivinityModManager.Controls
 {
-    /// <summary>
-    /// Source: https://github.com/theunrepentantgeek
-    /// Copyright (c) 2010 Bevan Arps
-    /// MIT License
-    /// </summary>
+	/// <summary>
+	/// Source: https://github.com/theunrepentantgeek/Markdown.XAML
+	/// Copyright (c) 2010 Bevan Arps
+	/// MIT License
+	/// </summary>
 	public class Markdown : DependencyObject
 	{
         /// <summary>
@@ -208,7 +210,11 @@ namespace DivinityModManager.Controls
                 document.PagePadding = new Thickness(0);
             }
 
-            return document;
+			var darkMode = Services.Get<ISettingsService>().ManagerSettings.DarkThemeEnabled;
+
+			AdonisUI.ResourceLocator.SetColorScheme(document.Resources, !darkMode ? MainWindow.LightTheme : MainWindow.DarkTheme);
+
+			return document;
         }
 
         /// <summary>
