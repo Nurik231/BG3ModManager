@@ -205,8 +205,10 @@ namespace DivinityModManager.Views
 			ViewModel = new SettingsWindowViewModel(this, main);
 			//main.WhenAnyValue(x => x.Settings).BindTo(ViewModel, vm => vm.Settings);
 
-			var settingsFilePath = DivinityApp.GetAppDirectory("Data", "settings.json");
-			var keybindingsFilePath = DivinityApp.GetAppDirectory("Data", "keybindings.json");
+			var settingsService = Services.Get<ISettingsService>();
+
+			var settingsFilePath = DivinityApp.GetAppDirectory("Data", settingsService.ManagerSettings.FileName);
+			var keybindingsFilePath = AppKeys.SettingsFilePath();
 
 			GeneralSettingsTabHeader.Tag = settingsFilePath;
 			UpdateSettingsTabHeader.Tag = settingsFilePath;
