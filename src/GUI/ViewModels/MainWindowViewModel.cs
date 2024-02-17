@@ -181,13 +181,17 @@ namespace DivinityModManager.ViewModels
 		public ObservableCollectionExtended<DivinityProfileData> Profiles { get; set; } = new ObservableCollectionExtended<DivinityProfileData>();
 		[ObservableAsProperty] public int ActiveSelected { get; }
 		[ObservableAsProperty] public int InactiveSelected { get; }
+		[ObservableAsProperty] public int OverrideModsSelected { get; }
 		[ObservableAsProperty] public string ActiveSelectedText { get; }
 		[ObservableAsProperty] public string InactiveSelectedText { get; }
+		[ObservableAsProperty] public string OverrideModsSelectedText { get; }
 		[ObservableAsProperty] public string ActiveModsFilterResultText { get; }
 		[ObservableAsProperty] public string InactiveModsFilterResultText { get; }
+		[ObservableAsProperty] public string OverrideModsFilterResultText { get; }
 
 		[Reactive] public string ActiveModFilterText { get; set; }
 		[Reactive] public string InactiveModFilterText { get; set; }
+		[Reactive] public string OverrideModsFilterText { get; set; }
 
 		[Reactive] public int SelectedProfileIndex { get; set; }
 		[Reactive] public DivinityProfileData SelectedProfile { get; private set; }
@@ -2446,6 +2450,7 @@ Directory the zip will be extracted to:
 
 			OnFilterTextChanged(ActiveModFilterText, ActiveMods);
 			OnFilterTextChanged(InactiveModFilterText, InactiveMods);
+			OnFilterTextChanged(OverrideModsFilterText, ForceLoadedMods);
 
 			if (missingMods.Count > 0)
 			{
@@ -4288,6 +4293,7 @@ Directory the zip will be extracted to:
 
 		[Reactive] public int TotalActiveModsHidden { get; set; }
 		[Reactive] public int TotalInactiveModsHidden { get; set; }
+		[Reactive] public int TotalOverrideModsHidden { get; set; }
 
 		private string HiddenToLabel(int totalHidden, int totalCount)
 		{
@@ -4419,6 +4425,10 @@ Directory the zip will be extracted to:
 			if (modDataList == ActiveMods)
 			{
 				TotalActiveModsHidden = totalHidden;
+			}
+			else if (modDataList == ForceLoadedMods)
+			{
+				TotalOverrideModsHidden = totalHidden;
 			}
 			else if (modDataList == InactiveMods)
 			{
@@ -5339,6 +5349,9 @@ Directory the zip will be extracted to:
 			this.WhenAnyValue(x => x.InactiveModFilterText).Throttle(TimeSpan.FromMilliseconds(500)).ObserveOn(RxApp.MainThreadScheduler).
 				Subscribe((s) => { OnFilterTextChanged(s, InactiveMods); });
 
+			this.WhenAnyValue(x => x.OverrideModsFilterText).Throttle(TimeSpan.FromMilliseconds(500)).ObserveOn(RxApp.MainThreadScheduler).
+				Subscribe((s) => { OnFilterTextChanged(s, ForceLoadedMods); });
+
 			ActiveMods.WhenAnyPropertyChanged(nameof(DivinityModData.Index)).Throttle(TimeSpan.FromMilliseconds(25)).Subscribe(_ =>
 			{
 				SelectedModOrder?.Sort(SortModOrder);
@@ -5348,12 +5361,15 @@ Directory the zip will be extracted to:
 
 			selectedModsConnection.Filter(x => x.IsActive).Count().ToUIProperty(this, x => x.ActiveSelected);
 			selectedModsConnection.Filter(x => !x.IsActive).Count().ToUIProperty(this, x => x.InactiveSelected);
+			ForceLoadedMods.ToObservableChangeSet().AutoRefresh(x => x.IsSelected).Filter(x => x.IsSelected).Count().ToUIProperty(this, x => x.OverrideModsSelected);
 
 			this.WhenAnyValue(x => x.ActiveSelected, x => x.TotalActiveModsHidden).Select(x => SelectedToLabel(x.Item1, x.Item2)).ToUIProperty(this, x => x.ActiveSelectedText);
 			this.WhenAnyValue(x => x.InactiveSelected, x => x.TotalInactiveModsHidden).Select(x => SelectedToLabel(x.Item1, x.Item2)).ToUIProperty(this, x => x.InactiveSelectedText);
+			this.WhenAnyValue(x => x.OverrideModsSelected, x => x.TotalOverrideModsHidden).Select(x => SelectedToLabel(x.Item1, x.Item2)).ToUIProperty(this, x => x.OverrideModsSelectedText);
 			//TODO Change .Count to CollectionChanged?
 			this.WhenAnyValue(x => x.TotalActiveModsHidden).Select(x => HiddenToLabel(x, ActiveMods.Count)).ToUIProperty(this, x => x.ActiveModsFilterResultText);
 			this.WhenAnyValue(x => x.TotalInactiveModsHidden).Select(x => HiddenToLabel(x, InactiveMods.Count)).ToUIProperty(this, x => x.InactiveModsFilterResultText);
+			this.WhenAnyValue(x => x.TotalOverrideModsHidden).Select(x => HiddenToLabel(x, ForceLoadedMods.Count)).ToUIProperty(this, x => x.OverrideModsFilterResultText);
 
 			DivinityApp.Events.OrderNameChanged += OnOrderNameChanged;
 

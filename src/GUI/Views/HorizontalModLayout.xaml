@@ -142,10 +142,70 @@
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="*" />
 					</Grid.RowDefinitions>
-					<TextBlock
-						HorizontalAlignment="Center"
-						FontSize="16"
-						Text="Active Override Mods" />
+					<Grid Margin="4,0,0,4">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="4" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<TextBlock
+							Padding="4"
+							Text="Active Override Mods"
+							ToolTip="Override mods are always active just from being in the Mods folder, and do not need to be included in the load order" />
+						<c:UnfocusableTextBox
+							x:Name="OverrideModsFilterTextBox"
+							Grid.Column="1"
+							Width="200"
+							Padding="4,0"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Center"
+							behavior:ScreenReaderHelperBehavior.Name="Override Mods Filter"
+							AcceptsReturn="False"
+							AcceptsTab="False"
+							CanUndoTextOnEscape="True"
+							TextAlignment="Left"
+							ToolTip="Filter Override Mods"
+							UpdateBindingOnFocusLost="True" />
+						<TextBlock
+							Grid.Column="1"
+							Margin="0"
+							Padding="4,0"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Center"
+							Foreground="{DynamicResource {x:Static adonisUI:Brushes.DisabledForegroundBrush}}"
+							IsHitTestVisible="False"
+							Text="Filter Override Mods">
+							<TextBlock.Style>
+								<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="{x:Type TextBlock}">
+									<Setter Property="Visibility" Value="Collapsed" />
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding Text, ElementName=OverrideModsFilterTextBox}" Value="">
+											<Setter Property="Visibility" Value="Visible" />
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</TextBlock.Style>
+						</TextBlock>
+						<TextBlock
+							x:Name="OverrideModsFilterResultText"
+							Grid.Column="3"
+							Margin="0"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Center"
+							behavior:ScreenReaderHelperBehavior.Name="Total Hidden Override Mods"
+							AutomationProperties.HelpText="{Binding Text, RelativeSource={RelativeSource Self}}" />
+						<TextBlock
+							x:Name="OverrideModsSelectedText"
+							Grid.Column="4"
+							Margin="0"
+							HorizontalAlignment="Left"
+							VerticalAlignment="Center"
+							AutomationProperties.HelpText="{Binding Text, RelativeSource={RelativeSource Self}}"
+							AutomationProperties.Name="Override Mods" />
+					</Grid>
 					<c:ModListView
 						x:Name="ForceLoadedModsListView"
 						Grid.Row="1"

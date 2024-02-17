@@ -530,16 +530,21 @@ namespace DivinityModManager.Views
 
 					d(this.Bind(ViewModel, vm => vm.ActiveModFilterText, v => v.ActiveModsFilterTextBox.Text));
 					d(this.Bind(ViewModel, vm => vm.InactiveModFilterText, v => v.InactiveModsFilterTextBox.Text));
+					d(this.Bind(ViewModel, vm => vm.OverrideModsFilterText, v => v.OverrideModsFilterTextBox.Text));
 
 					d(this.OneWayBind(ViewModel, vm => vm.ActiveModsFilterResultText, v => v.ActiveModsFilterResultText.Text));
 					d(this.OneWayBind(ViewModel, vm => vm.InactiveModsFilterResultText, v => v.InactiveModsFilterResultText.Text));
+					d(this.OneWayBind(ViewModel, vm => vm.OverrideModsFilterResultText, v => v.OverrideModsFilterResultText.Text));
 					d(this.OneWayBind(ViewModel, vm => vm.TotalActiveModsHidden, v => v.ActiveModsFilterResultText.Visibility, IntToVisibilityConverter.FromInt));
 					d(this.OneWayBind(ViewModel, vm => vm.TotalInactiveModsHidden, v => v.InactiveModsFilterResultText.Visibility, IntToVisibilityConverter.FromInt));
+					d(this.OneWayBind(ViewModel, vm => vm.TotalOverrideModsHidden, v => v.OverrideModsFilterResultText.Visibility, IntToVisibilityConverter.FromInt));
 
 					d(this.OneWayBind(ViewModel, vm => vm.ActiveSelectedText, v => v.ActiveSelectedText.Text));
 					d(this.OneWayBind(ViewModel, vm => vm.ActiveSelected, v => v.ActiveSelectedText.Visibility, IntToVisibilityConverter.FromInt));
 					d(this.OneWayBind(ViewModel, vm => vm.InactiveSelectedText, v => v.InactiveSelectedText.Text));
 					d(this.OneWayBind(ViewModel, vm => vm.InactiveSelected, v => v.InactiveSelectedText.Visibility, IntToVisibilityConverter.FromInt));
+					d(this.OneWayBind(ViewModel, vm => vm.OverrideModsSelectedText, v => v.OverrideModsSelectedText.Text));
+					d(this.OneWayBind(ViewModel, vm => vm.OverrideModsSelected, v => v.OverrideModsSelectedText.Visibility, IntToVisibilityConverter.FromInt));
 
 					var gridLengthConverter = new GridLengthConverter();
 					var zeroHeight = (GridLength)gridLengthConverter.ConvertFrom(0);
@@ -657,6 +662,15 @@ namespace DivinityModManager.Views
 						if (c > 1 && DivinityApp.IsScreenReaderActive())
 						{
 							var peer = UIElementAutomationPeer.FromElement(this.InactiveSelectedText) ?? UIElementAutomationPeer.CreatePeerForElement(this.InactiveSelectedText);
+							peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
+						}
+					}));
+
+					d(ViewModel.WhenAnyValue(x => x.OverrideModsSelected).Subscribe((c) =>
+					{
+						if (c > 1 && DivinityApp.IsScreenReaderActive())
+						{
+							var peer = UIElementAutomationPeer.FromElement(this.OverrideModsSelectedText) ?? UIElementAutomationPeer.CreatePeerForElement(this.OverrideModsSelectedText);
 							peer.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
 						}
 					}));
