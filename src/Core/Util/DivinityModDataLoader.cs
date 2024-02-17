@@ -479,6 +479,10 @@ namespace DivinityModManager.Util
 					{
 						extenderConfigPath = f;
 					}
+					else if (f.Name.Contains(ModConfig.FileName) && Path.GetDirectoryName(f.Name) == "Mods")
+					{
+						modManagerConfigPath = f;
+					}
 					else if (IsModMetaFile(f))
 					{
 						metaFiles.Add(f);
@@ -660,7 +664,7 @@ namespace DivinityModManager.Util
 
 				if (modManagerConfigPath != null)
 				{
-					var modManagerConfig = await DivinityJsonUtils.DeserializeFromAbstractAsync<ModConfig>(extenderConfigPath);
+					var modManagerConfig = await DivinityJsonUtils.DeserializeFromAbstractAsync<ModConfig>(modManagerConfigPath);
 					if (modManagerConfig != null)
 					{
 						modData.ApplyModConfig(modManagerConfig);
