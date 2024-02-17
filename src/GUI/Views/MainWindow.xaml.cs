@@ -303,24 +303,14 @@ namespace DivinityModManager.Views
 
 		public void UpdateColorTheme(bool darkMode)
 		{
-			ResourceLocator.SetColorScheme(this.Resources, !darkMode ? LightTheme : DarkTheme);
-			ResourceLocator.SetColorScheme(SettingsWindow.Resources, !darkMode ? LightTheme : DarkTheme);
-			if (AboutWindow != null)
-			{
-				ResourceLocator.SetColorScheme(AboutWindow.Resources, !darkMode ? LightTheme : DarkTheme);
-			}
-			if (VersionGeneratorWindow != null)
-			{
-				ResourceLocator.SetColorScheme(VersionGeneratorWindow.Resources, !darkMode ? LightTheme : DarkTheme);
-			}
-			if (UpdateWindow != null)
-			{
-				ResourceLocator.SetColorScheme(UpdateWindow.Resources, !darkMode ? LightTheme : DarkTheme);
-			}
-			if (HelpWindow != null)
-			{
-				ResourceLocator.SetColorScheme(HelpWindow.Resources, !darkMode ? LightTheme : DarkTheme);
-			}
+			var theme = !darkMode ? LightTheme : DarkTheme;
+			ResourceLocator.SetColorScheme(this.Resources, theme);
+			ResourceLocator.SetColorScheme(SettingsWindow.Resources, theme);
+			if (AboutWindow != null) ResourceLocator.SetColorScheme(AboutWindow.Resources, theme);
+			if (VersionGeneratorWindow != null) ResourceLocator.SetColorScheme(VersionGeneratorWindow.Resources, theme);
+			if (UpdateWindow != null) ResourceLocator.SetColorScheme(UpdateWindow.Resources, theme);
+			if (HelpWindow != null) ResourceLocator.SetColorScheme(HelpWindow.Resources, theme);
+			if (ModPropertiesWindow != null) ResourceLocator.SetColorScheme(ModPropertiesWindow.Resources, theme);
 		}
 
 		private void OnClosing()
