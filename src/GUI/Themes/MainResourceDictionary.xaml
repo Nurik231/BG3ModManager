@@ -30,6 +30,7 @@
 	x:Name="MainResources">
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="DefaultStyles/ComboBox.xaml" />
+		<ResourceDictionary Source="DefaultStyles/MarkdownStyle.xaml" />
 	</ResourceDictionary.MergedDictionaries>
 	<conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 	<conv:BoolToVisibilityConverterReversed x:Key="BoolToVisibilityConverterReversed" />
@@ -42,6 +43,7 @@
 	<conv:StringToLinearBrushConverter x:Key="StringToLinearBrushConverter" />
 	<conv:UriToBitmapImageConverter x:Key="UriToBitmapImageConverter" />
 	<conv:TimeSpanToReadableStringConverter x:Key="TimeSpanToReadableStringConverter" />
+	<conv:StringToMarkdownConverter x:Key="StringToMarkdownConverter" />
 	<xconv:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter" />
 	<templateSelectors:TagTemplateSelector x:Key="TagTemplateSelector" />
 	<BitmapImage x:Key="AddItemImage" UriSource="pack://application:,,,/Resources/Icons/AddItem_16x.png" />
@@ -66,6 +68,7 @@
 	<BitmapImage x:Key="ExportScriptImage" UriSource="pack://application:,,,/Resources/Icons/ExportScript_16x.png" />
 	<BitmapImage x:Key="LoadCampaignOrderImage" UriSource="pack://application:,,,/Resources/Icons/LoadCampaignOrder_16x.png" />
 	<BitmapImage x:Key="LogImage" UriSource="pack://application:,,,/Resources/Icons/Log_Normal_32x.png" />
+	<BitmapImage x:Key="NotesImage" UriSource="pack://application:,,,/Resources/Icons/Notes_16x.png" />
 	<BitmapImage x:Key="OpenDonationLinkImage" UriSource="pack://application:,,,/Resources/Icons/Kofi_16x.png" />
 	<BitmapImage x:Key="OpenFileImage" UriSource="pack://application:,,,/Resources/Icons/OpenFile_16x.png" />
 	<BitmapImage x:Key="OpenFolderImage" UriSource="pack://application:,,,/Resources/Icons/OpenFolder_16x.png" />
@@ -783,146 +786,177 @@
 				</Setter>
 			</Style>
 		</controls:AutomationTooltip.Style>
-		<StackPanel
-			x:Name="InfoStackPanel"
-			MaxWidth="700"
-			Background="Transparent"
-			Orientation="Vertical">
-			<StackPanel.Resources>
-				<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
-					<Setter Property="TextWrapping" Value="Wrap" />
-					<Setter Property="Margin" Value="2" />
-					<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}" />
-					<!--<Setter Property="FontFamily" Value="Arial" />-->
-				</Style>
-				<Style BasedOn="{StaticResource {x:Type ListBox}}" TargetType="ListBox" />
-			</StackPanel.Resources>
-			<Grid>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="Auto" />
-					<ColumnDefinition Width="Auto" />
-					<ColumnDefinition Width="*" />
-				</Grid.ColumnDefinitions>
-				<TextBlock
-					FontSize="16"
-					FontWeight="Bold"
-					Foreground="{DynamicResource {x:Static adonisUI:Brushes.AlertBrush}}"
-					Text="{Binding Name}">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<StackPanel
+				x:Name="InfoStackPanel"
+				MaxWidth="700"
+				Background="Transparent"
+				Orientation="Vertical">
+				<StackPanel.Resources>
+					<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
+						<Setter Property="TextWrapping" Value="Wrap" />
+						<Setter Property="Margin" Value="2" />
+						<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}" />
+						<!--<Setter Property="FontFamily" Value="Arial" />-->
+					</Style>
+					<Style BasedOn="{StaticResource {x:Type ListBox}}" TargetType="ListBox" />
+				</StackPanel.Resources>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<TextBlock
+						FontSize="16"
+						FontWeight="Bold"
+						Foreground="{DynamicResource {x:Static adonisUI:Brushes.AlertBrush}}"
+						Text="{Binding Name}">
+						<TextBlock.Effect>
+							<DropShadowEffect
+								BlurRadius="4"
+								Direction="330"
+								Opacity="0.25"
+								ShadowDepth="2"
+								Color="Black" />
+						</TextBlock.Effect>
+					</TextBlock>
+					<TextBlock Grid.Column="1" Text="{Binding DisplayVersion}" />
+					<StackPanel
+						Grid.Column="2"
+						HorizontalAlignment="Right"
+						Orientation="Horizontal">
+						<TextBlock
+							HorizontalAlignment="Right"
+							Foreground="Lime"
+							Text="(Editor Project)"
+							Visibility="{Binding IsEditorMod, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" />
+						<TextBlock
+							HorizontalAlignment="Right"
+							Foreground="Orange"
+							Text="(Override)"
+							Visibility="{Binding IsForceLoaded, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" />
+					</StackPanel>
+				</Grid>
+
+				<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
+				<TextBlock TextWrapping="Wrap" Visibility="{Binding AuthorVisibility}"><Run Text="Created by " /><Run
+						FontWeight="Bold"
+						Foreground="#3da2fa"
+						Text="{Binding AuthorDisplayName, Mode=OneWay}" />
 					<TextBlock.Effect>
 						<DropShadowEffect
 							BlurRadius="4"
 							Direction="330"
 							Opacity="0.25"
-							ShadowDepth="2"
+							ShadowDepth="3"
 							Color="Black" />
 					</TextBlock.Effect>
 				</TextBlock>
-				<TextBlock Grid.Column="1" Text="{Binding DisplayVersion}" />
-				<StackPanel
-					Grid.Column="2"
-					HorizontalAlignment="Right"
-					Orientation="Horizontal">
-					<TextBlock
-						HorizontalAlignment="Right"
-						Foreground="Lime"
-						Text="(Editor Project)"
-						Visibility="{Binding IsEditorMod, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" />
-					<TextBlock
-						HorizontalAlignment="Right"
-						Foreground="Orange"
-						Text="(Override)"
-						Visibility="{Binding IsForceLoaded, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" />
+				<TextBlock
+					Text="{Binding Description}"
+					TextWrapping="Wrap"
+					Visibility="{Binding DescriptionVisibility}" />
+				<StackPanel Orientation="Vertical" Visibility="{Binding NexusModsInformationVisibility}">
+					<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
+					<TextBlock Text="{Binding NexusModsTooltipInfo}" />
+					<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
 				</StackPanel>
+				<StackPanel
+					Margin="2"
+					Orientation="Vertical"
+					Visibility="{Binding DependencyVisibility, FallbackValue=Collapsed}">
+					<TextBlock FontWeight="Bold" Text="Dependencies:" />
+					<ListBox
+						Margin="2"
+						Padding="0"
+						BorderBrush="{DynamicResource {x:Static adonisUI:Brushes.AccentInteractionBorderBrush}}"
+						BorderThickness="1"
+						ItemsSource="{Binding DisplayedDependencies}" />
+				</StackPanel>
+				<StackPanel
+					Margin="2"
+					DataContext="{Binding}"
+					Orientation="Vertical">
+					<ItemsControl ItemTemplateSelector="{StaticResource TagTemplateSelector}" ItemsSource="{Binding Tags}">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel Orientation="Horizontal" />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+						<ItemsControl.Style>
+							<Style>
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding}" />
+								</Style.Triggers>
+							</Style>
+						</ItemsControl.Style>
+					</ItemsControl>
+				</StackPanel>
+				<StackPanel Orientation="Vertical">
+					<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
+					<TextBlock Text="{Binding FileName}" Visibility="{Binding HasFilePathVisibility}" />
+					<TextBlock
+						Foreground="Goldenrod"
+						Text="{Binding ScriptExtenderSupportToolTipText}"
+						Visibility="{Binding ExtenderStatusVisibility}" />
+					<TextBlock Margin="2" Text="{Binding LastModifiedDateText}" />
+				</StackPanel>
+				<StackPanel
+					Margin="2"
+					Orientation="Vertical"
+					Visibility="{Binding IsForceLoaded, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
+					<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
+					<TextBlock Foreground="OrangeRed">
+						This mod overrides base game files directly.<LineBreak />
+						As long as this mod exists in the Mods folder,<LineBreak />
+						these files will be overwritten, even if the mod is disabled.</TextBlock>
+					<TextBlock Text="If this is intended, you can ignore this warning." />
+					<TextBlock
+						Foreground="Lime"
+						Text="This mod can be rearranged in the load order, due to it also having files of its own. Note that disabling it will not disable the file overrides."
+						Visibility="{Binding IsForceLoadedMergedMod, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" />
+					<TextBlock Foreground="OrangeRed" Text="Overwritten builtin folders:" />
+					<TextBlock Text="{Binding BuiltinOverrideModsText}" />
+				</StackPanel>
+				<Image
+					MaxWidth="256"
+					MaxHeight="256"
+					RenderOptions.BitmapScalingMode="HighQuality"
+					Source="{Binding NexusModsData.PictureUrl, Converter={StaticResource UriToBitmapImageConverter}}"
+					Stretch="UniformToFill"
+					Visibility="{Binding NexusImageVisibility}" />
+			</StackPanel>
+
+			<Grid Grid.Column="1" Visibility="{Binding NotesVisibility}">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+				<TextBlock
+					FontSize="24"
+					Text="Notes"
+					TextAlignment="Center" />
+				<FlowDocumentScrollViewer
+					Grid.Row="1"
+					Document="{Binding Notes, Converter={StaticResource StringToMarkdownConverter}, ConverterParameter={StaticResource DefaultMarkdown}}"
+					ScrollViewer.CanContentScroll="True"
+					ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+					ScrollViewer.VerticalScrollBarVisibility="Auto">
+					<FlowDocumentScrollViewer.Resources>
+						<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
+							<Setter Property="TextWrapping" Value="Wrap" />
+							<Setter Property="Foreground" Value="Red" />
+						</Style>
+					</FlowDocumentScrollViewer.Resources>
+				</FlowDocumentScrollViewer>
 			</Grid>
 
-			<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
-			<TextBlock TextWrapping="Wrap" Visibility="{Binding AuthorVisibility}"><Run Text="Created by " /><Run
-					FontWeight="Bold"
-					Foreground="#3da2fa"
-					Text="{Binding AuthorDisplayName, Mode=OneWay}" />
-				<TextBlock.Effect>
-					<DropShadowEffect
-						BlurRadius="4"
-						Direction="330"
-						Opacity="0.25"
-						ShadowDepth="3"
-						Color="Black" />
-				</TextBlock.Effect>
-			</TextBlock>
-			<TextBlock
-				Text="{Binding Description}"
-				TextWrapping="Wrap"
-				Visibility="{Binding DescriptionVisibility}" />
-			<StackPanel Orientation="Vertical" Visibility="{Binding NexusModsInformationVisibility}">
-				<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
-				<TextBlock Text="{Binding NexusModsTooltipInfo}" />
-				<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
-			</StackPanel>
-			<StackPanel
-				Margin="2"
-				Orientation="Vertical"
-				Visibility="{Binding DependencyVisibility, FallbackValue=Collapsed}">
-				<TextBlock FontWeight="Bold" Text="Dependencies:" />
-				<ListBox
-					Margin="2"
-					Padding="0"
-					BorderBrush="{DynamicResource {x:Static adonisUI:Brushes.AccentInteractionBorderBrush}}"
-					BorderThickness="1"
-					ItemsSource="{Binding DisplayedDependencies}" />
-			</StackPanel>
-			<StackPanel
-				Margin="2"
-				DataContext="{Binding}"
-				Orientation="Vertical">
-				<ItemsControl ItemTemplateSelector="{StaticResource TagTemplateSelector}" ItemsSource="{Binding Tags}">
-					<ItemsControl.ItemsPanel>
-						<ItemsPanelTemplate>
-							<StackPanel Orientation="Horizontal" />
-						</ItemsPanelTemplate>
-					</ItemsControl.ItemsPanel>
-					<ItemsControl.Style>
-						<Style>
-							<Style.Triggers>
-								<DataTrigger Binding="{Binding}" />
-							</Style.Triggers>
-						</Style>
-					</ItemsControl.Style>
-				</ItemsControl>
-			</StackPanel>
-			<StackPanel Orientation="Vertical">
-				<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
-				<TextBlock Text="{Binding FileName}" Visibility="{Binding HasFilePathVisibility}" />
-				<TextBlock
-					Foreground="Goldenrod"
-					Text="{Binding ScriptExtenderSupportToolTipText}"
-					Visibility="{Binding ExtenderStatusVisibility}" />
-				<TextBlock Margin="2" Text="{Binding LastModifiedDateText}" />
-			</StackPanel>
-			<StackPanel
-				Margin="2"
-				Orientation="Vertical"
-				Visibility="{Binding IsForceLoaded, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}">
-				<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
-				<TextBlock Foreground="OrangeRed">
-					This mod overrides base game files directly.<LineBreak />
-					As long as this mod exists in the Mods folder,<LineBreak />
-					these files will be overwritten, even if the mod is disabled.</TextBlock>
-				<TextBlock Text="If this is intended, you can ignore this warning." />
-				<TextBlock
-					Foreground="Lime"
-					Text="This mod can be rearranged in the load order, due to it also having files of its own. Note that disabling it will not disable the file overrides."
-					Visibility="{Binding IsForceLoadedMergedMod, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" />
-				<TextBlock Foreground="OrangeRed" Text="Overwritten builtin folders:" />
-				<TextBlock Text="{Binding BuiltinOverrideModsText}" />
-			</StackPanel>
-			<Image
-				MaxWidth="256"
-				MaxHeight="256"
-				RenderOptions.BitmapScalingMode="HighQuality"
-				Source="{Binding NexusModsData.PictureUrl, Converter={StaticResource UriToBitmapImageConverter}}"
-				Stretch="UniformToFill"
-				Visibility="{Binding NexusImageVisibility}" />
-		</StackPanel>
+		</Grid>
 	</controls:AutomationTooltip>
 	<Style
 		x:Key="AdventureModTooltipStyle"
@@ -1131,6 +1165,33 @@
 				Padding="0,0,4,0"
 				BorderThickness="0">
 				<StackPanel Orientation="Horizontal">
+					<!--<Image
+						Width="16"
+						Height="16"
+						MaxWidth="16"
+						MaxHeight="16"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
+						DataContext="{Binding}"
+						RenderOptions.BitmapScalingMode="HighQuality"
+						Source="{StaticResource NotesImage}"
+						Stretch="UniformToFill"
+						Visibility="{Binding NotesVisibility}">
+						<Image.ToolTip>
+							<FlowDocumentScrollViewer
+								Document="{Binding Notes, Converter={StaticResource StringToMarkdownConverter}, ConverterParameter={StaticResource DefaultMarkdown}}"
+								ScrollViewer.CanContentScroll="True"
+								ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+								ScrollViewer.VerticalScrollBarVisibility="Auto">
+								<FlowDocumentScrollViewer.Resources>
+									<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
+										<Setter Property="TextWrapping" Value="Wrap" />
+										<Setter Property="Foreground" Value="Red" />
+									</Style>
+								</FlowDocumentScrollViewer.Resources>
+							</FlowDocumentScrollViewer>
+						</Image.ToolTip>
+					</Image>-->
 					<Image
 						x:Name="OsirisStatusImage"
 						Width="16"

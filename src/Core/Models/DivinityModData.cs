@@ -1,5 +1,6 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
+using DivinityModManager.Extensions;
 using DivinityModManager.Models.GitHub;
 using DivinityModManager.Models.Mod;
 using DivinityModManager.Models.NexusMods;
@@ -171,6 +172,7 @@ namespace DivinityModManager.Models
 		[ObservableAsProperty] public Visibility ToggleForceAllowInLoadOrderVisibility { get; }
 		[ObservableAsProperty] public Visibility ExtenderStatusVisibility { get; }
 		[ObservableAsProperty] public Visibility OsirisStatusVisibility { get; }
+		[ObservableAsProperty] public Visibility NotesVisibility { get; }
 		[ObservableAsProperty] public Visibility HasFilePathVisibility { get; }
 
 		#region NexusMods Properties
@@ -195,7 +197,6 @@ namespace DivinityModManager.Models
 		[Reactive] public SteamWorkshopModData WorkshopData { get; set; }
 		[Reactive] public NexusModsModData NexusModsData { get; set; }
 		[Reactive] public GitHubModData GitHubData { get; set; }
-		[Reactive] public ModConfig ModManagerConfig { get; set; }
 
 		private static string GetDisplayName(ValueTuple<string, string, string, string, bool, bool> x)
 		{
@@ -491,13 +492,54 @@ namespace DivinityModManager.Models
 			return String.Join("\n", lines);
 		}
 
+
+		private CompositeDisposable _modConfigDisposables;
+		private ModConfig _modManagerConfig;
+
+		public ModConfig ModManagerConfig
+		{
+			get => _modManagerConfig;
+			set
+			{
+				this.RaiseAndSetIfChanged(ref _modManagerConfig, value);
+				if (_modManagerConfig != null)
+				{
+					if (_modConfigDisposables == null)
+					{
+						_modConfigDisposables = new CompositeDisposable();
+
+						this.WhenAnyValue(x => x.ModManagerConfig.Notes).ToUIProperty(this, x => x.Notes, "").DisposeWith(_modConfigDisposables);
+
+						this.WhenAnyValue(x => x.UUID).BindTo(ModManagerConfig, x => x.Id).DisposeWith(_modConfigDisposables);
+
+						this.WhenAnyValue(x => x.NexusModsData.ModId).BindTo(this, x => x.ModManagerConfig.NexusModsId).DisposeWith(_modConfigDisposables);
+						this.WhenAnyValue(x => x.WorkshopData.ModId).BindTo(this, x => x.ModManagerConfig.SteamWorkshopId).DisposeWith(_modConfigDisposables);
+						this.WhenAnyValue(x => x.GitHubData.Author).BindTo(this, x => x.ModManagerConfig.GitHubAuthor).DisposeWith(_modConfigDisposables);
+						this.WhenAnyValue(x => x.GitHubData.Repository).BindTo(this, x => x.ModManagerConfig.GitHubRepository).DisposeWith(_modConfigDisposables);
+					}
+				}
+				else
+				{
+					_modConfigDisposables?.Dispose();
+				}
+			}
+		}
+
 		public void ApplyModConfig(ModConfig config)
 		{
-			ModManagerConfig = config;
-			//if (config.NexusMods.ModId > DivinityApp.NEXUSMODS_MOD_ID_START) ModManagerConfig.NexusMods.ModId = config.NexusMods.ModId;
-			//if (config.SteamWorkshop.ModId > DivinityApp.WORKSHOP_MOD_ID_START) ModManagerConfig.SteamWorkshop.ModId = config.SteamWorkshop.ModId;
-			//if (!String.IsNullOrWhiteSpace(config.GitHub.Author)) ModManagerConfig.GitHub.Author = config.GitHub.Author;
-			//if (!String.IsNullOrWhiteSpace(config.GitHub.Repository)) ModManagerConfig.GitHub.Repository = config.GitHub.Repository;
+			if(ModManagerConfig != null)
+			{
+				if (config != ModManagerConfig) ModManagerConfig.SetFrom<ModConfig, ReactiveAttribute>(config);
+			}
+			else
+			{
+				ModManagerConfig = config;
+			}
+
+			if (config.NexusModsId > DivinityApp.NEXUSMODS_MOD_ID_START) NexusModsData.ModId = config.NexusModsId;
+			if (config.SteamWorkshopId > DivinityApp.WORKSHOP_MOD_ID_START) WorkshopData.ModId = config.SteamWorkshopId;
+			if (!String.IsNullOrWhiteSpace(config.GitHubAuthor)) GitHubData.Author = config.GitHubAuthor;
+			if (!String.IsNullOrWhiteSpace(config.GitHubRepository)) GitHubData.Repository = config.GitHubRepository;
 		}
 
 		private static string GetAuthor(ValueTuple<string, string, string, bool> x)
@@ -664,6 +706,8 @@ namespace DivinityModManager.Models
 			whenOsirisStatusChanges.Select(x => x != DivinityOsirisModStatus.NONE ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.OsirisStatusVisibility);
 			whenOsirisStatusChanges.Select(OsirisStatusToTooltipText).ToUIProperty(this, x => x.OsirisStatusToolTipText);
 
+			this.WhenAnyValue(x => x.Notes).Select(PropertyConverters.StringToVisibility).ToUIProperty(this, x => x.NotesVisibility, Visibility.Collapsed);
+
 			this.WhenAnyValue(x => x.LastUpdated).SkipWhile(x => !x.HasValue)
 				.Select(x => $"Last Modified on {x.Value.ToString(DivinityApp.DateTimeColumnFormat, CultureInfo.InstalledUICulture)}")
 				.ToUIProperty(this, x => x.LastModifiedDateText, "");
@@ -674,8 +718,6 @@ namespace DivinityModManager.Models
 			SetIsBaseGameMod(false);
 		}
 
-		private CompositeDisposable _modConfigDisposables;
-
 		public void SetIsBaseGameMod(bool isBaseGameMod)
 		{
 			if (!isBaseGameMod)
@@ -683,29 +725,16 @@ namespace DivinityModManager.Models
 				IsHidden = false;
 				if(ModManagerConfig == null)
 				{
-					_modConfigDisposables = new CompositeDisposable();
 					ModManagerConfig = new ModConfig
 					{
 						Id = UUID
 					};
-
-					this.WhenAnyValue(x => x.ModManagerConfig.Notes).ToUIProperty(this, x => x.Notes, "").DisposeWith(_modConfigDisposables);
-
-					this.WhenAnyValue(x => x.NexusModsData.ModId).BindTo(this, x => x.ModManagerConfig.NexusModsId).DisposeWith(_modConfigDisposables);
-					this.WhenAnyValue(x => x.WorkshopData.ModId).BindTo(this, x => x.ModManagerConfig.SteamWorkshopId).DisposeWith(_modConfigDisposables);
-					this.WhenAnyValue(x => x.GitHubData.Author).BindTo(this, x => x.ModManagerConfig.GitHubAuthor).DisposeWith(_modConfigDisposables);
-					this.WhenAnyValue(x => x.GitHubData.Repository).BindTo(this, x => x.ModManagerConfig.GitHubRepository).DisposeWith(_modConfigDisposables);
 				}
 			}
 			else
 			{
 				IsHidden = true;
-				if(_modConfigDisposables != null)
-				{
-					_modConfigDisposables.Dispose();
-					_modConfigDisposables = null;
-					ModManagerConfig = null;
-				}
+				ModManagerConfig = null;
 			}
 		}
 
