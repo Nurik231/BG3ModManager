@@ -1115,6 +1115,18 @@ Directory the zip will be extracted to:
 			}
 		}
 
+		private void ApplyUserModConfig()
+		{
+			foreach (var mod in mods.Items)
+			{
+				var config = _settings.ModConfig.Mods.Lookup(mod.UUID);
+				if (config.HasValue)
+				{
+					mod.ApplyModConfig(config.Value);
+				}
+			}
+		}
+
 		private bool LoadSettings()
 		{
 			var success = true;
@@ -1173,18 +1185,6 @@ Directory the zip will be extracted to:
 			_updater.GitHub.IsEnabled = githubSupportEnabled;
 			_updater.NexusMods.IsEnabled = nexusModsSupportEnabled;
 			_updater.SteamWorkshop.IsEnabled = workshopSupportEnabled;
-
-			foreach (var mod in mods.Items)
-			{
-				mod.SteamWorkshopEnabled = workshopSupportEnabled;
-				mod.NexusModsEnabled = nexusModsSupportEnabled;
-				mod.GitHubEnabled = githubSupportEnabled;
-				var config = _settings.ModConfig.Mods.Lookup(mod.UUID);
-				if (config.HasValue)
-				{
-					mod.ApplyModConfig(config.Value);
-				}
-			}
 
 			if (Settings.LogEnabled)
 			{
@@ -2912,6 +2912,8 @@ Directory the zip will be extracted to:
 				IsRefreshing = false;
 				IsLoadingOrder = false;
 				IsInitialized = true;
+
+				ApplyUserModConfig();
 
 				if (AppSettings.Features.ScriptExtender)
 				{
