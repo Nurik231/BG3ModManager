@@ -157,9 +157,12 @@ namespace DivinityModManager.ViewModels
 		protected readonly ReadOnlyObservableCollection<Hotkey> allKeys;
 		public ReadOnlyObservableCollection<Hotkey> All => allKeys;
 
+		public static string SettingsFilePath() => DivinityApp.GetAppDirectory("Data", "keybindings.json");
+		public static string DefaultSettingsFilePath() => DivinityApp.GetAppDirectory("Data", "keybindings-default.json");
+
 		public void SaveDefaultKeybindings()
 		{
-			string filePath = DivinityApp.GetAppDirectory("Data", "keybindings-default.json");
+			string filePath = DefaultSettingsFilePath();
 			try
 			{
 				Directory.CreateDirectory(Path.GetDirectoryName(filePath));
@@ -180,7 +183,7 @@ namespace DivinityModManager.ViewModels
 		public bool SaveKeybindings(out string result)
 		{
 			result = "";
-			var filePath = DivinityApp.GetAppDirectory("Data", "keybindings.json");
+			var filePath = SettingsFilePath();
 			try
 			{
 				Directory.CreateDirectory(Path.GetDirectoryName(filePath));
@@ -213,7 +216,7 @@ namespace DivinityModManager.ViewModels
 
 		public bool LoadKeybindings(MainWindowViewModel vm)
 		{
-			var filePath = DivinityApp.GetAppDirectory("Data", "keybindings.json");
+			var filePath = SettingsFilePath();
 			try
 			{
 				if (DivinityJsonUtils.TrySafeDeserializeFromPath<Dictionary<string, Hotkey>>(filePath, out var allKeybindings))
