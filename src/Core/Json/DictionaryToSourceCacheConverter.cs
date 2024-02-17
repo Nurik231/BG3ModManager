@@ -16,15 +16,11 @@ namespace DivinityModManager.Json
 		string Id { get; set; }
 	}
 
-
 	public class DictionaryToSourceCacheConverter<TValue> : JsonConverter where TValue : IObjectWithId
 	{
-		private static readonly Type _dictType = typeof(IDictionary);
+		private static readonly Type _type = typeof(SourceCache<TValue, string>);
 
-		public override bool CanConvert(Type objectType)
-		{
-			return _dictType.IsAssignableFrom(objectType);
-		}
+		public override bool CanConvert(Type objectType) => _type.IsAssignableFrom(objectType);
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{

@@ -17,14 +17,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Reactive;
+using System.Runtime.Serialization;
 
 namespace DivinityModManager.Models.Settings
 {
+	[DataContract]
 	public class UserModConfig : BaseSettings<UserModConfig>, ISerializableSettings
 	{
-		[JsonConverter(typeof(DictionaryToSourceCacheConverter<ModConfig>))]
+		[Newtonsoft.Json.JsonConverter(typeof(DictionaryToSourceCacheConverter<ModConfig>)), DataMember]
 		public SourceCache<ModConfig, string> Mods { get; set; }
-		public Dictionary<string, long> LastUpdated { get; set; }
+
+		[DataMember] public Dictionary<string, long> LastUpdated { get; set; }
 
 		private ICommand AutosaveCommand { get; }
 
@@ -33,7 +36,7 @@ namespace DivinityModManager.Models.Settings
 			this.Save(out _);
 		}
 
-		public UserModConfig() : base("UserModConfig.json")
+		public UserModConfig() : base("usermodconfig.json")
 		{
 			Mods = new SourceCache<ModConfig, string>(x => x.Id);
 			LastUpdated = new Dictionary<string, long>();
