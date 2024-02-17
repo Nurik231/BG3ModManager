@@ -81,12 +81,10 @@ namespace DivinityModManager.Views
 
 		public void Apply()
 		{
+			if (Mod.ModManagerConfig == null) throw new NullReferenceException($"ModManagerConfig is null for mod ({Mod})");
 			var modConfigService = Services.Get<ISettingsService>().ModConfig;
 
-			if(Mod.ModManagerConfig == null)
-			{
-				Mod.ModManagerConfig = new();
-			}
+			if (String.IsNullOrEmpty(Mod.ModManagerConfig.Id)) Mod.ModManagerConfig.Id = Mod.UUID;
 
 			modConfigService.Mods.AddOrUpdate(Mod.ModManagerConfig);
 
@@ -95,6 +93,7 @@ namespace DivinityModManager.Views
 			Mod.ModManagerConfig.NexusModsId = NexusModsId;
 			Mod.ModManagerConfig.SteamWorkshopId = SteamWorkshopId;
 			Mod.ModManagerConfig.Notes = Notes;
+			Mod.ApplyModConfig(Mod.ModManagerConfig);
 
 			//Should be called automatically when the mod config is updated
 			//Services.Get<ISettingsService>().ModConfig.TrySave();
@@ -238,6 +237,8 @@ namespace DivinityModManager.Views
 				this.Bind(ViewModel, vm => vm.NexusModsId, v => v.ModNexusModsIDUpDown.Value);
 				this.Bind(ViewModel, vm => vm.GitHubAuthor, v => v.ModGitHubAuthorText.Text);
 				this.Bind(ViewModel, vm => vm.GitHubRepository, v => v.ModGitHubRepositoryText.Text);
+
+				this.Bind(ViewModel, vm => vm.Notes, v => v.ModNotesTextBox.Text);
 
 				this.OneWayBind(ViewModel, vm => vm.ModType, v => v.ModTypeText.Text);
 				this.OneWayBind(ViewModel, vm => vm.ModSizeText, v => v.ModSizeText.Text);
