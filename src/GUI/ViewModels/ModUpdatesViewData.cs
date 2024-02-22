@@ -46,7 +46,7 @@ namespace DivinityModManager.ViewModels
 			public bool Success { get; set; }
 		}
 
-		public SourceList<DivinityModUpdateData> Mods { get; private set; } = new SourceList<DivinityModUpdateData>();
+		private readonly SourceList<DivinityModUpdateData> Mods = new SourceList<DivinityModUpdateData>();
 
 		private readonly ReadOnlyObservableCollection<DivinityModUpdateData> _newMods;
 		public ReadOnlyObservableCollection<DivinityModUpdateData> NewMods => _newMods;
@@ -60,14 +60,19 @@ namespace DivinityModManager.ViewModels
 		[ObservableAsProperty] public bool NewAvailable { get; }
 		[ObservableAsProperty] public bool UpdatesAvailable { get; }
 		[ObservableAsProperty] public int TotalUpdates { get; }
+		[ObservableAsProperty] public Visibility UpdatesHeaderVisiblity { get; }
 
-		public ICommand CopySelectedModsCommand { get; private set; }
-		public ICommand SelectAllNewModsCommand { get; private set; }
-		public ICommand SelectAllUpdatesCommand { get; private set; }
+		public ICommand CopySelectedModsCommand { get; }
+		public ICommand SelectAllNewModsCommand { get; }
+		public ICommand SelectAllUpdatesCommand { get; }
 
 		public Action<bool> CloseView { get; set; }
 
 		private readonly MainWindowViewModel _mainWindowViewModel;
+
+		public void Add(DivinityModUpdateData mod) => Mods.Add(mod);
+
+		public void Add(IEnumerable<DivinityModUpdateData> mods) => Mods.AddRange(mods);
 
 		public void Clear()
 		{
@@ -83,12 +88,12 @@ namespace DivinityModManager.ViewModels
 			}
 		}
 
-		public void CopySelectedMods()
+		public void UpdateSelectedMods()
 		{
 			var documentsFolder = _mainWindowViewModel.PathwayData.AppDataGameFolder;
 			var modPakFolder = _mainWindowViewModel.PathwayData.AppDataModsPath;
 
-			using (var dialog = new TaskDialog()
+			using var dialog = new TaskDialog()
 			{
 				Buttons = {
 					new TaskDialogButton(ButtonType.Yes),
@@ -97,23 +102,21 @@ namespace DivinityModManager.ViewModels
 				WindowTitle = "Update Mods?",
 				Content = "Download / copy updates? Previous pak files will be moved to the Recycle Bin.",
 				MainIcon = TaskDialogIcon.Warning
-			})
+			};
+			var result = dialog.ShowDialog(MainWindow.Self);
+			if (result.ButtonType == ButtonType.Yes)
 			{
-				var result = dialog.ShowDialog(MainWindow.Self);
-				if (result.ButtonType == ButtonType.Yes)
+				var updates = Mods.Items.Where(x => x.IsSelected).ToList();
+
+				Unlocked = false;
+
+				StartUpdating(new CopyModUpdatesTask()
 				{
-					var updates = Mods.Items.Where(x => x.IsSelected).ToList();
-
-					Unlocked = false;
-
-					StartUpdating(new CopyModUpdatesTask()
-					{
-						DocumentsFolder = documentsFolder,
-						ModPakFolder = modPakFolder,
-						Updates = Mods.Items.Where(x => x.IsSelected).ToList(),
-						TotalProcessed = 0
-					});
-				}
+					DocumentsFolder = documentsFolder,
+					ModPakFolder = modPakFolder,
+					Updates = Mods.Items.Where(x => x.IsSelected).ToList(),
+					TotalProcessed = 0
+				});
 			}
 		}
 
@@ -197,7 +200,10 @@ namespace DivinityModManager.ViewModels
 
 			var anySelectedObservable = this.WhenAnyValue(x => x.AnySelected);
 
-			CopySelectedModsCommand = ReactiveCommand.Create(CopySelectedMods, anySelectedObservable);
+			this.WhenAnyValue(x => x.NewAvailable, x => x.UpdatesAvailable).Select(x => x.Item1 && x.Item2 ? Visibility.Visible : Visibility.Collapsed)
+				.ToUIProperty(this, x => x.UpdatesHeaderVisiblity, Visibility.Collapsed);
+
+			CopySelectedModsCommand = ReactiveCommand.Create(UpdateSelectedMods, anySelectedObservable);
 
 			SelectAllNewModsCommand = ReactiveCommand.Create<bool>((b) =>
 			{

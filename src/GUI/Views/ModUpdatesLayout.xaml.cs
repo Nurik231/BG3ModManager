@@ -31,6 +31,7 @@ namespace DivinityModManager.Views
 			{
 				this.OneWayBind(ViewModel, vm => vm.Unlocked, view => view.IsManipulationEnabled);
 				this.OneWayBind(ViewModel, vm => vm.Unlocked, view => view.IsEnabled);
+				this.OneWayBind(ViewModel, vm => vm.UpdatesHeaderVisiblity, view => view.UpdatesHeaderTextBlock.Visibility);
 
 				this.OneWayBind(ViewModel, vm => vm.NewAvailable, view => view.NewFilesModListView.IsEnabled);
 				this.OneWayBind(ViewModel, vm => vm.NewMods, view => view.NewFilesModListView.ItemsSource);
@@ -38,7 +39,7 @@ namespace DivinityModManager.Views
 				this.OneWayBind(ViewModel, vm => vm.UpdatesAvailable, view => view.UpdatesModListView.IsEnabled);
 				this.OneWayBind(ViewModel, vm => vm.UpdatedMods, view => view.UpdatesModListView.ItemsSource);
 
-				this.BindCommand(ViewModel, vm => vm.CopySelectedModsCommand, view => view.CopySelectedButton);
+				this.BindCommand(ViewModel, vm => vm.CopySelectedModsCommand, view => view.UpdateButton);
 
 				this.OneWayBind(ViewModel, vm => vm.AllNewModsSelected, view => view.NewFilesModListViewCheckboxHeader.IsChecked);
 				this.BindCommand(ViewModel, vm => vm.SelectAllNewModsCommand, view => view.NewFilesModListViewCheckboxHeader, vm => vm.AllNewModsSelected);

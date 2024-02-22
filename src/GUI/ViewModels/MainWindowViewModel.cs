@@ -1261,7 +1261,7 @@ Directory the zip will be extracted to:
 								DivinityApp.Log($"Update available for ({pakMod.FileName}): Workshop({workshopMod.LastModified}) > Local({pakMod.LastModified})");
 							}
 
-							ModUpdatesViewData.Mods.Add(new DivinityModUpdateData()
+							ModUpdatesViewData.Add(new DivinityModUpdateData()
 							{
 								Mod = pakMod,
 								DownloadData = new ModDownloadData()
@@ -1285,7 +1285,7 @@ Directory the zip will be extracted to:
 				}
 				else
 				{
-					ModUpdatesViewData.Mods.Add(new DivinityModUpdateData()
+					ModUpdatesViewData.Add(new DivinityModUpdateData()
 					{
 						Mod = workshopMod,
 						DownloadData = new ModDownloadData()
@@ -2616,7 +2616,7 @@ Directory the zip will be extracted to:
 									Date = kvp.Value.Date
 								},
 							};
-							ModUpdatesViewData.Mods.Add(updateData);
+							ModUpdatesViewData.Add(updateData);
 						}
 					}
 				}, RxApp.MainThreadScheduler);
@@ -2667,7 +2667,7 @@ Directory the zip will be extracted to:
 							updateData.DownloadData.IsIndirectDownload = true;
 							updateData.DownloadData.DownloadPath = $"https://www.nexusmods.com/Core/Libs/Common/Widgets/DownloadPopUp?id={update.File.FileId}{nxmEnabled}&game_id={DivinityApp.NEXUSMODS_GAME_ID}";
 						}
-						ModUpdatesViewData.Mods.Add(updateData);
+						ModUpdatesViewData.Add(updateData);
 					}
 				}, RxApp.MainThreadScheduler);
 			}

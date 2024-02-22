@@ -28,6 +28,9 @@
 				TargetType="{x:Type ListViewItem}">
 				<Setter Property="Tag" Value="{Binding Mod}" />
 			</Style>
+			<Style BasedOn="{StaticResource {x:Type Hyperlink}}" TargetType="{x:Type Hyperlink}">
+				<Setter Property="Foreground" Value="Lime" />
+			</Style>
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.Style>
@@ -152,6 +155,7 @@
 				RowCount="2"
 				Rows="auto,*">
 				<TextBlock
+					x:Name="UpdatesHeaderTextBlock"
 					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}"
 					FontSize="20"
 					Text="Updates"
@@ -281,9 +285,9 @@
 					VerticalAlignment="Center"
 					Orientation="Horizontal">
 					<Button
-						x:Name="CopySelectedButton"
+						x:Name="UpdateButton"
 						Padding="8,2"
-						Content="Copy Selected to Mods Folder" />
+						Content="Updated Selected Mods" />
 				</StackPanel>
 			</Grid>
 		</Grid>
