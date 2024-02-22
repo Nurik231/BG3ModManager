@@ -72,6 +72,7 @@ namespace DivinityModManager.Models.Updates
 
 		public DivinityModUpdateData()
 		{
+			IsSelected = true;
 			CanDrag = true;
 			Visibility = Visibility.Visible;
 
