@@ -25,8 +25,9 @@ namespace DivinityModManager.Models.Settings
 		[SettingsEntry("Update NexusMods Mods", "Automatically check for mod updates for mods configured with NexusMods releases")]
 		[DataMember, Reactive] public bool UpdateNexusMods { get; set; }
 
+		//TODO: Remove if Larian doesn't add workshop support
 		[DefaultValue(true)]
-		[SettingsEntry("Update Steam Workshop Mods", "Automatically check for mod updates for mods configured with Steam Workshop releases", HideFromUI=true)]
+		[SettingsEntry("Update Steam Workshop Mods", "Automatically check for mod updates for mods configured with Steam Workshop releases", HideFromUI = true)]
 		[DataMember, Reactive] public bool UpdateSteamWorkshopMods { get; set; }
 
 		[DefaultValue("")]
@@ -36,6 +37,10 @@ namespace DivinityModManager.Models.Settings
 		[DefaultValue(typeof(TimeSpan), "00:30:00")] // 30 minutes
 		[SettingsEntry("Minimum Update Time Period", "Prevent checking for updates for individual mods until this amount of time has passed since the last check\nThis is to prevent hitting API limits too quickly")]
 		[DataMember, Reactive] public TimeSpan MinimumUpdateTimePeriod { get; set; }
+
+		[DefaultValue(false)]
+		[SettingsEntry("Allow Adult Content", "Allow adult content when downloading collections from NexusMods")]
+		[DataMember, Reactive] public bool AllowAdultContent { get; set; }
 
 		[Reactive] public bool IsAssociatedWithNXM { get; set; }
 

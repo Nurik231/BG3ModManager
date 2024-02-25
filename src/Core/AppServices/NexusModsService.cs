@@ -2,6 +2,7 @@
 
 using DivinityModManager.Models;
 using DivinityModManager.Models.NexusMods;
+using DivinityModManager.Models.NexusMods.NXM;
 using DivinityModManager.Models.Updates;
 
 using DynamicData;
@@ -125,7 +126,7 @@ namespace DivinityModManager.AppServices
 		{
 			var links = new Dictionary<string, NexusModsModDownloadLink>();
 			if (!CanFetchData) return links;
-			
+
 			try
 			{
 				//1 call for the mod files, 1 call to get a mod file link
@@ -264,54 +265,85 @@ namespace DivinityModManager.AppServices
 			return null;
 		}
 
+		private static INexusModsProtocol GetProtocolData(string url)
+		{
+			if (url.Contains("collections"))
+			{
+				return NexusDownloadCollectionProtocolData.FromUrl(url);
+			}
+			return NexusDownloadModProtocolData.FromUrl(url);
+		}
+
 		public async Task<bool> ProcessNXMLinkAsync(string url, IScheduler sch, CancellationToken token)
 		{
 			if (!CanFetchData) return false;
 
 			try
 			{
-				var data = NexusModsProtocolData.FromUrl(url);
-				if (data.IsValid)
+				var data = GetProtocolData(url);
+				if (!data.IsValid)
 				{
-					var files = await _dataLoader.ModFiles.GetModFileDownloadLinksAsync(data.GameId, data.ModId, data.FileId, data.Key, data.Expires, token);
-					if (files != null)
+					DivinityApp.Log($"nxm url ({url}) is not valid:\n{data}");
+					return false;
+				}
+				if (data.GameDomain != DivinityApp.NEXUSMODS_GAME_DOMAIN)
+				{
+					DivinityApp.Log($"Game ({data.GameDomain}) is not Baldur's Gate 3 ({DivinityApp.NEXUSMODS_GAME_DOMAIN}). Skipping.");
+					return false;
+				}
+				DownloadProgressValue = 0;
+				while (!token.IsCancellationRequested)
+				{
+					switch (data.ProtocolType)
 					{
-						var file = files.FirstOrDefault();
-						if (file != null)
-						{
-							var outputFolder = DivinityApp.GetAppDirectory("Downloads");
-							Directory.CreateDirectory(outputFolder);
-							var fileName = Path.GetFileName(WebUtility.UrlDecode(file.Uri.AbsolutePath));
-							var filePath = Path.Combine(outputFolder, fileName);
-							DivinityApp.Log($"Downloading {file.Uri} to {filePath}");
-							DownloadProgressText = $"Downloading {fileName}...";
-							DownloadProgressValue = 0;
-							using (var stream = await DownloadUrlAsStreamAsync(file.Uri, token))
+						case NexusModsProtocolType.ModFile:
+							var modProtocol = (NexusDownloadModProtocolData)data;
+							var files = await _dataLoader.ModFiles.GetModFileDownloadLinksAsync(modProtocol.GameDomain,
+								modProtocol.ModId, modProtocol.FileId, modProtocol.Key, modProtocol.Expires, token);
+							if (files != null)
 							{
-								if(token.IsCancellationRequested)
+								var file = files.FirstOrDefault();
+								if (file != null)
 								{
-									DownloadProgressText = $"Stopped downloading {fileName}";
+									var outputFolder = DivinityApp.GetAppDirectory("Downloads");
+									Directory.CreateDirectory(outputFolder);
+									var fileName = Path.GetFileName(WebUtility.UrlDecode(file.Uri.AbsolutePath));
+									var filePath = Path.Combine(outputFolder, fileName);
+									DivinityApp.Log($"Downloading {file.Uri} to {filePath}");
+									DownloadProgressText = $"Downloading {fileName}...";
 									DownloadProgressValue = 0;
-									return false;
-								}
-								using (var outputStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
-								{
+									using var stream = await DownloadUrlAsStreamAsync(file.Uri, token);
+									using var outputStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
 									stream.Position = 0;
 									await stream.CopyToAsync(outputStream, 4096, token);
 									DownloadResults.Add(filePath);
 									DivinityApp.Log("Download done.");
 									DownloadProgressText = $"Downloaded {fileName}";
+									return true;
 								}
 							}
-						}
+							break;
+
+						case NexusModsProtocolType.Collection:
+							var collectionProtocol = (NexusDownloadCollectionProtocolData)data;
+							var allowAdultContent = Services.Settings.ManagerSettings.UpdateSettings.AllowAdultContent;
+							var collectionData = await _dataLoader.Graph.GetCollectionRevisionAsync(collectionProtocol.GameDomain, collectionProtocol.Slug, collectionProtocol.Revision, allowAdultContent, token);
+							if (collectionData.Data != null)
+							{
+								var modFiles = collectionData.Data.CollectionRevision?.ModFiles;
+								if (modFiles != null)
+								{
+									DivinityApp.Log($"Total mods in collection: {modFiles.Length}");
+								}
+							}
+							break;
 					}
+					return false;
 				}
-				else
-				{
-					DivinityApp.Log($"nxm url ({url}) is not valid:\n{data}");
-				}
+				DownloadProgressText = $"Stopped downloading mod file.";
+				return false;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error processing nxm url ({url}):\n{ex}");
 			}
@@ -322,7 +354,8 @@ namespace DivinityModManager.AppServices
 
 		public void ProcessNXMLinkBackground(string url)
 		{
-			var task = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch,token) => {
+			var task = RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, token) =>
+			{
 				_scheduledClearTasks?.Dispose();
 				await ProcessNXMLinkAsync(url, sch, token);
 				_scheduledClearTasks = sch.Schedule(TimeSpan.FromMilliseconds(250), ClearTasks);
@@ -357,7 +390,7 @@ namespace DivinityModManager.AppServices
 					_client = NexusModsClient.Create(key, appName, appVersion, _apiLimits);
 					_dataLoader = new InfosInquirer(_client);
 
-					if(ProfileAvatarUrl == null)
+					if (ProfileAvatarUrl == null)
 					{
 						DivinityApp.Log("Fetching NexusMods user profile info...");
 						RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, cts) =>
