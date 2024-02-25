@@ -1,22 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reactive.Concurrency;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-
-using DivinityModManager.AppServices;
+﻿using DivinityModManager.AppServices;
 using DivinityModManager.Models;
 using DivinityModManager.Models.Updates;
 using DivinityModManager.Util;
 
+using Newtonsoft.Json;
+
+using ReactiveUI;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+
 using Xunit;
 using Xunit.Abstractions;
-using ReactiveUI;
 
 namespace DivinityModManager.Tests
 {
@@ -61,14 +63,14 @@ namespace DivinityModManager.Tests
 		{
 			var cts = new CancellationTokenSource();
 
-			if(cancelAfter > 0)
+			if (cancelAfter > 0)
 			{
 				RxApp.TaskpoolScheduler.Schedule(TimeSpan.FromMilliseconds(cancelAfter), () => cts.Cancel(false));
 			}
-			
+
 			var results = await _service.FetchModInfoAsync(_mods, cts.Token);
 
-			if(!cts.IsCancellationRequested)
+			if (!cts.IsCancellationRequested)
 			{
 				Assert.True(results.Success, $"Failed to fetch info: {results.FailureMessage}");
 				Assert.True(results.UpdatedMods.Count > 0, "No mods were updated?");
@@ -84,12 +86,12 @@ namespace DivinityModManager.Tests
 		public async Task QueryAndDownloadModUpdate()
 		{
 			var cts = new CancellationTokenSource();
-			
+
 			var results = await _service.GetLatestDownloadsForModsAsync(_mods, cts.Token);
 
 			Assert.True(results.TryGetValue(_testModUUID, out var downloadLink), "Failed to get download link");
 			var url = downloadLink.DownloadLink.Uri.ToString();
-			
+
 			var downloadData = new ModDownloadData()
 			{
 				DownloadPath = url,

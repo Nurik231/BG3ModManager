@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
@@ -23,7 +19,7 @@ namespace DivinityModManager.Converters
 					bitmap.EndInit();
 					return bitmap;
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					DivinityApp.Log($"Failed to create BitmapImage from '{uri}':\n{ex}");
 				}

@@ -1,10 +1,8 @@
 ﻿using ReactiveUI;
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading;
@@ -31,9 +29,9 @@ namespace DivinityModManager.AppServices
 				using (var sr = new StreamReader(_pipe, Encoding.UTF8))
 				{
 					var message = await sr.ReadToEndAsync();
-					if(!String.IsNullOrEmpty(message))
+					if (!String.IsNullOrEmpty(message))
 					{
-						if(message.IndexOf("nxm://") > -1)
+						if (message.IndexOf("nxm://") > -1)
 						{
 							var nexusMods = Services.Get<INexusModsService>();
 							nexusMods.ProcessNXMLinkBackground(message);
@@ -41,7 +39,7 @@ namespace DivinityModManager.AppServices
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error with server pipe:\n{ex}");
 			}

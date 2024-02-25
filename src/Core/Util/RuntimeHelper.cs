@@ -1,10 +1,7 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {
@@ -14,7 +11,7 @@ namespace DivinityModManager.Util
 
 		private static Version PathToVersion(string path)
 		{
-			if(Version.TryParse(Path.GetFileName(path), out var version))
+			if (Version.TryParse(Path.GetFileName(path), out var version))
 			{
 				return version;
 			}
@@ -23,7 +20,7 @@ namespace DivinityModManager.Util
 
 		public static bool NetCoreRuntimeGreaterThanOrEqualTo(int majorVersion)
 		{
-			if(Directory.Exists(NET_CORE_DIR))
+			if (Directory.Exists(NET_CORE_DIR))
 			{
 				try
 				{
@@ -36,7 +33,7 @@ namespace DivinityModManager.Util
 						}
 					}
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					DivinityApp.Log($"Error checking directories for .NET:\n{ex}");
 				}

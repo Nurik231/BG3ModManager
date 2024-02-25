@@ -8,7 +8,6 @@ using DivinityModManager.Models.Steam;
 using DivinityModManager.Util;
 
 using DynamicData;
-using DynamicData.Aggregation;
 using DynamicData.Binding;
 
 using ReactiveUI;
@@ -119,7 +118,7 @@ namespace DivinityModManager.Models
 		[Reactive] public int CurrentExtenderVersion { get; set; }
 
 		[Reactive] public DivinityModScriptExtenderConfig ScriptExtenderData { get; set; }
-		
+
 
 		protected ReadOnlyObservableCollection<DivinityModDependencyData> _displayedDependencies;
 		public ReadOnlyObservableCollection<DivinityModDependencyData> DisplayedDependencies => _displayedDependencies;
@@ -484,7 +483,7 @@ namespace DivinityModManager.Models
 				lines.Add($"Created on {createdDate.ToString(DivinityApp.DateTimeColumnFormat, CultureInfo.InstalledUICulture)}");
 			}
 
-			if(updatedDate != DateTime.MinValue)
+			if (updatedDate != DateTime.MinValue)
 			{
 				lines.Add($"Last updated on {createdDate.ToString(DivinityApp.DateTimeColumnFormat, CultureInfo.InstalledUICulture)}");
 			}
@@ -527,7 +526,7 @@ namespace DivinityModManager.Models
 
 		public void ApplyModConfig(ModConfig config)
 		{
-			if(ModManagerConfig != null)
+			if (ModManagerConfig != null)
 			{
 				if (config != ModManagerConfig) ModManagerConfig.SetFrom<ModConfig, ReactiveAttribute>(config);
 			}
@@ -588,7 +587,7 @@ namespace DivinityModManager.Models
 				SelectedColor = EditorProjectBackgroundSelectedColor;
 				ListColor = EditorProjectBackgroundColor;
 			}
-			else if(isForceLoadedMergedMod || (isForceLoadedMod && isActive))
+			else if (isForceLoadedMergedMod || (isForceLoadedMod && isActive))
 			{
 				SelectedColor = ForceLoadedBackgroundSelectedColor;
 				ListColor = ForceLoadedBackgroundColor;
@@ -675,7 +674,7 @@ namespace DivinityModManager.Models
 				var isForceLoadedMergedMod = b.Item3;
 				var forceAllowInLoadOrder = b.Item4;
 
-				if(forceAllowInLoadOrder || isActive)
+				if (forceAllowInLoadOrder || isActive)
 				{
 					CanDrag = true;
 				}
@@ -723,7 +722,7 @@ namespace DivinityModManager.Models
 			if (!isBaseGameMod)
 			{
 				IsHidden = false;
-				if(ModManagerConfig == null)
+				if (ModManagerConfig == null)
 				{
 					ModManagerConfig = new ModConfig
 					{

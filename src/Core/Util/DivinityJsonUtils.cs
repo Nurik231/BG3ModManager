@@ -5,10 +5,8 @@ using LSLib.LS;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +35,7 @@ namespace DivinityModManager.Util
 		public static T SafeDeserialize<T>(string text)
 		{
 			var result = JsonConvert.DeserializeObject<T>(text, _errorHandleSettings);
-			if(result != null)
+			if (result != null)
 			{
 				return result;
 			}
@@ -58,7 +56,7 @@ namespace DivinityModManager.Util
 					DivinityApp.Log($"Error deserializing json: File '{path}' does not exist.");
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log("Error deserializing json:\n" + ex.ToString());
 			}
@@ -97,7 +95,7 @@ namespace DivinityModManager.Util
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error deserializing '{path}':\n{ex}");
 			}

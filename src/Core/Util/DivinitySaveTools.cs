@@ -1,14 +1,9 @@
 ﻿using Alphaleonis.Win32.Filesystem;
+
 using LSLib.LS;
-using LSLib.LS.Enums;
+
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DivinityModManager.Extensions;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DivinityModManager.Util
 {
@@ -48,9 +43,9 @@ namespace DivinityModManager.Util
 				File.SetLastAccessTime(output, File.GetLastAccessTime(pathToSave));
 
 				return true;
-				
+
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Failed to rename save: {ex}");
 			}

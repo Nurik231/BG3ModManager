@@ -11,7 +11,6 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO.Packaging;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -147,7 +146,7 @@ namespace DivinityModManager.Views
 					{
 						listView = ActiveModsListView;
 					}
-					else if(dataList == ViewModel.InactiveMods)
+					else if (dataList == ViewModel.InactiveMods)
 					{
 						listView = InactiveModsListView;
 					}
@@ -165,10 +164,10 @@ namespace DivinityModManager.Views
 						var listItem = (ListViewItem)listView.ItemContainerGenerator.ContainerFromItem(mod);
 						if (listItem != null)
 						{
-							if(mod.Visibility == Visibility.Visible)
+							if (mod.Visibility == Visibility.Visible)
 							{
 								listItem.IsSelected = mod.IsSelected;
-								if(listView.IsFocused && focusedItem == null && mod.IsSelected)
+								if (listView.IsFocused && focusedItem == null && mod.IsSelected)
 								{
 									focusedItem = listItem;
 									FocusManager.SetFocusedElement(listView, focusedItem);
@@ -210,7 +209,7 @@ namespace DivinityModManager.Views
 				{
 					foreach (var removedItem in e.RemovedItems.Cast<DivinityModData>())
 					{
-						if(targetUUIDs.Contains(removedItem.UUID))
+						if (targetUUIDs.Contains(removedItem.UUID))
 						{
 							removedItem.IsSelected = false;
 						}
@@ -412,7 +411,7 @@ namespace DivinityModManager.Views
 		public void ScrollToMod(ModListView modListView, DivinityModData mod)
 		{
 			var index = modListView.Items.IndexOf(mod);
-			if(index > -1)
+			if (index > -1)
 			{
 				modListView.UpdateLayout();
 				modListView.ScrollIntoView(modListView.Items[index]);
@@ -421,7 +420,7 @@ namespace DivinityModManager.Views
 
 		public void ScrollToTop(ModListView modListView)
 		{
-			if(modListView.GetVisualDescendent<ScrollViewer>() is ScrollViewer scrollViewer)
+			if (modListView.GetVisualDescendent<ScrollViewer>() is ScrollViewer scrollViewer)
 			{
 				scrollViewer.ScrollToTop();
 			}
@@ -429,7 +428,7 @@ namespace DivinityModManager.Views
 
 		public void ScrollToBottom(ModListView modListView)
 		{
-			if(modListView.GetVisualDescendent<ScrollViewer>() is ScrollViewer scrollViewer)
+			if (modListView.GetVisualDescendent<ScrollViewer>() is ScrollViewer scrollViewer)
 			{
 				scrollViewer.ScrollToBottom();
 			}
@@ -448,7 +447,7 @@ namespace DivinityModManager.Views
 
 		public void RestoreLayout()
 		{
-			if(_lastActiveModsRowHeight != null)
+			if (_lastActiveModsRowHeight != null)
 			{
 				ActiveModsListRow.Height = _lastActiveModsRowHeight.Value;
 				ActiveModsListGridRow.Height = _lastActiveModsSplitterHeight.Value;
@@ -512,7 +511,7 @@ namespace DivinityModManager.Views
 
 					d(this.ViewModel.WhenAnyValue(x => x.OrderJustLoaded).ObserveOn(RxApp.MainThreadScheduler).Subscribe((b) =>
 					{
-						if(b)
+						if (b)
 						{
 							this.AutoSizeNameColumn_ActiveMods();
 							this.AutoSizeNameColumn_InactiveMods();
@@ -552,15 +551,15 @@ namespace DivinityModManager.Views
 
 					d(ViewModel.WhenAnyValue(x => x.HasForceLoadedMods).ObserveOn(RxApp.MainThreadScheduler).Subscribe((b) =>
 					{
-						foreach(var row in this.ActiveModListGrid.RowDefinitions.Where(x => x.Name != "ActiveModsListRow"))
+						foreach (var row in this.ActiveModListGrid.RowDefinitions.Where(x => x.Name != "ActiveModsListRow"))
 						{
 							if (b)
 							{
-								if(row.Name == "ActiveModsListGridRow")
+								if (row.Name == "ActiveModsListGridRow")
 								{
 									row.Height = GridLength.Auto;
 								}
-								else if(row.Name == "ActiveModsListForcedModsRow")
+								else if (row.Name == "ActiveModsListForcedModsRow")
 								{
 									row.Height = forceModsHeight;
 								}
@@ -696,7 +695,7 @@ namespace DivinityModManager.Views
 			if (ViewModel.CanMoveSelectedMods && keyIsDown)
 			{
 				DivinityApp.IsKeyboardNavigating = true;
-				if(ViewModel.ActiveSelected > 0 || ViewModel.InactiveSelected > 0)
+				if (ViewModel.ActiveSelected > 0 || ViewModel.InactiveSelected > 0)
 				{
 					MoveSelectedMods();
 				}
@@ -792,7 +791,7 @@ namespace DivinityModManager.Views
 						var longestOverrideName = ViewModel.ForceLoadedMods.OrderByDescending(m => m.Name.Length).FirstOrDefault()?.Name ?? "";
 
 						var sortName = longestName;
-						if(!String.IsNullOrEmpty(longestOverrideName) && longestOverrideName.Length > longestName.Length)
+						if (!String.IsNullOrEmpty(longestOverrideName) && longestOverrideName.Length > longestName.Length)
 						{
 							sortName = longestOverrideName;
 						}

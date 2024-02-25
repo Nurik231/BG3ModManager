@@ -1,6 +1,5 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
-using DivinityModManager.Extensions;
 using DivinityModManager.Util;
 
 using Newtonsoft.Json;
@@ -8,11 +7,7 @@ using Newtonsoft.Json;
 using ReactiveUI;
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Settings
 {
@@ -53,7 +48,7 @@ namespace DivinityModManager.Models.Settings
 				File.WriteAllText(filePath, contents);
 				return true;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error saving {FileName}:\n{ex}");
 				error = ex;
@@ -84,9 +79,9 @@ namespace DivinityModManager.Models.Settings
 						return true;
 					}
 				}
-				else if(saveIfNotFound)
+				else if (saveIfNotFound)
 				{
-					if(!Save(out var saveError))
+					if (!Save(out var saveError))
 					{
 						error = saveError;
 						return false;

@@ -4,18 +4,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace DivinityModManager.Views
 {
@@ -48,8 +37,8 @@ namespace DivinityModManager.Views
 		}
 
 		public HelpWindow()
-        {
-            InitializeComponent();
+		{
+			InitializeComponent();
 
 			ViewModel = new HelpWindowViewModel();
 
@@ -66,5 +55,5 @@ namespace DivinityModManager.Views
 				d(this.OneWayBind(ViewModel, vm => vm.HelpText, v => v.MarkdownViewer.Document, StringToMarkdown));
 			});
 		}
-    }
+	}
 }

@@ -1,11 +1,11 @@
 ﻿using Alphaleonis.Win32.Filesystem;
+
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Text;
 
 namespace DivinityModManager.Models
 {

@@ -1,12 +1,7 @@
 ﻿using DivinityModManager.Controls;
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Automation.Peers;
-using System.Windows.Controls;
 
 namespace DivinityModManager.Util.ScreenReader
 {
@@ -32,12 +27,12 @@ namespace DivinityModManager.Util.ScreenReader
 		{
 			List<AutomationPeer> peers = new();
 			var textElements = alertBar.GetTextElements();
-			if(textElements.Count > 0)
+			if (textElements.Count > 0)
 			{
-				foreach(var element in textElements)
+				foreach (var element in textElements)
 				{
 					var peer = UIElementAutomationPeer.CreatePeerForElement(element);
-					if(peer != null)
+					if (peer != null)
 					{
 						peers.Add(peer);
 					}

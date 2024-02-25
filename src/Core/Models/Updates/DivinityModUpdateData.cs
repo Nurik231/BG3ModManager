@@ -33,10 +33,10 @@ namespace DivinityModManager.Models.Updates
 
 		private Uri SourceToLink(ValueTuple<DivinityModData, ModSourceType> data)
 		{
-			if(data.Item1 != null)
+			if (data.Item1 != null)
 			{
 				var url = data.Item1.GetURL(data.Item2);
-				if(!String.IsNullOrEmpty(url))
+				if (!String.IsNullOrEmpty(url))
 				{
 					return new Uri(url);
 				}
@@ -46,7 +46,7 @@ namespace DivinityModManager.Models.Updates
 
 		private string DateToString(DateTimeOffset? date)
 		{
-			if(date.HasValue)
+			if (date.HasValue)
 			{
 				return date.Value.ToString(DivinityApp.DateTimeColumnFormat, CultureInfo.InstalledUICulture);
 			}

@@ -1,12 +1,15 @@
 ﻿using AdonisUI;
+
 using DivinityModManager.ViewModels;
+
 using Microsoft.Windows.Themes;
+
 using ReactiveUI;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,13 +42,13 @@ namespace DivinityModManager.Views
 				this.OneWayBind(ViewModel, vm => vm.UpdatesAvailable, view => view.UpdatesModListView.IsEnabled);
 				this.OneWayBind(ViewModel, vm => vm.UpdatedMods, view => view.UpdatesModListView.ItemsSource);
 
-				this.BindCommand(ViewModel, vm => vm.CopySelectedModsCommand, view => view.UpdateButton);
+				this.BindCommand(ViewModel, vm => vm.UpdateModsCommand, view => view.UpdateButton);
 
 				this.OneWayBind(ViewModel, vm => vm.AllNewModsSelected, view => view.NewFilesModListViewCheckboxHeader.IsChecked);
-				this.BindCommand(ViewModel, vm => vm.SelectAllNewModsCommand, view => view.NewFilesModListViewCheckboxHeader, vm => vm.AllNewModsSelected);
+				this.BindCommand(ViewModel, vm => vm.SelectAllNewModsCommand, view => view.NewFilesModListViewCheckboxHeader);
 
 				this.OneWayBind(ViewModel, vm => vm.AllModUpdatesSelected, view => view.ModUpdatesCheckboxHeader.IsChecked);
-				this.BindCommand(ViewModel, vm => vm.SelectAllUpdatesCommand, view => view.ModUpdatesCheckboxHeader, vm => vm.AllModUpdatesSelected);
+				this.BindCommand(ViewModel, vm => vm.SelectAllUpdatesCommand, view => view.ModUpdatesCheckboxHeader);
 
 				ViewModel.WhenAnyValue(x => x.NewAvailable).Select(b => b ? StarLength : CollapsedLength).BindTo(NewModsGridRow, x => x.Height);
 				ViewModel.WhenAnyValue(x => x.UpdatesAvailable).Select(b => b ? StarLength : CollapsedLength).BindTo(UpdatesGridRow, x => x.Height);
@@ -75,8 +78,8 @@ namespace DivinityModManager.Views
 			if (sortBy == "Version" || sortBy == "Current") sortBy = "Version.Version";
 			if (sortBy == "New") sortBy = "UpdatedMod.Version.Version";
 			if (sortBy == "#") sortBy = "Index";
-			
-			if (modUpdatesGrid && sortBy != "IsSelected" && sortBy != "UpdatedMod.Version.Version") 
+
+			if (modUpdatesGrid && sortBy != "IsSelected" && sortBy != "UpdatedMod.Version.Version")
 			{
 				sortBy = "Mod." + sortBy;
 			}

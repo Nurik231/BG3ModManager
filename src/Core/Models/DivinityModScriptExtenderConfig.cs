@@ -1,7 +1,6 @@
 ﻿using DivinityModManager.Json;
 
 using DynamicData;
-using DynamicData.Binding;
 
 using Newtonsoft.Json;
 
@@ -18,8 +17,8 @@ namespace DivinityModManager.Models
 	[DataContract]
 	public class DivinityModScriptExtenderConfig : ReactiveObject
 	{
-		[DataMember] [Reactive] public int RequiredVersion { get; set; }
-		[DataMember] [Reactive] public string ModTable { get; set; }
+		[DataMember][Reactive] public int RequiredVersion { get; set; }
+		[DataMember][Reactive] public string ModTable { get; set; }
 
 		[JsonConverter(typeof(JsonArrayToSourceListConverter<string>))]
 		[DataMember] public SourceList<string> FeatureFlags { get; set; }

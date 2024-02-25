@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-using DivinityModManager.Models;
+﻿using DivinityModManager.Models;
 using DivinityModManager.Models.GitHub;
 
 using Octokit;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DivinityModManager
 {
@@ -45,7 +44,7 @@ namespace DivinityModManager.AppServices
 		public async Task<GitHubLatestReleaseData> GetLatestReleaseAsync(string owner, string repo)
 		{
 			var result = await _client.Repository.Release.GetLatest(owner, repo);
-			if(result != null)
+			if (result != null)
 			{
 				return new GitHubLatestReleaseData()
 				{
@@ -69,7 +68,7 @@ namespace DivinityModManager.AppServices
 					if (mod.GitHubData.IsEnabled)
 					{
 						var result = await GetLatestReleaseAsync(mod.GitHubData.Author, mod.GitHubData.Repository);
-						if(result != null)
+						if (result != null)
 						{
 							results.Add(mod.UUID, result);
 						}

@@ -2,6 +2,6 @@
 {
 	public class ApiKeys
 	{
-		public const string STEAM_WEB_API="";
+		public const string STEAM_WEB_API = "";
 	}
 }

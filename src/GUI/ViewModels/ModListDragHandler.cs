@@ -62,7 +62,7 @@ namespace DivinityModManager.ViewModels
 					var selected = _viewModel.InactiveMods.Where(x => x.IsSelected && x.Visibility == Visibility.Visible && x.CanDrag);
 					dragInfo.Data = selected;
 				}
-				if(dragInfo.Data != null)
+				if (dragInfo.Data != null)
 				{
 					_viewModel.IsDragging = true;
 				}
@@ -77,7 +77,7 @@ namespace DivinityModManager.ViewModels
 
 		public override bool CanStartDrag(IDragInfo dragInfo)
 		{
-			if(!_viewModel.AllowDrop)
+			if (!_viewModel.AllowDrop)
 			{
 				return false;
 			}
@@ -98,7 +98,7 @@ namespace DivinityModManager.ViewModels
 		public override void DragCancelled()
 		{
 			_viewModel.IsDragging = false;
-			if(_lastDragInfo != null)
+			if (_lastDragInfo != null)
 			{
 				_lastDragInfo.Effects = DragDropEffects.None;
 			}
@@ -106,7 +106,7 @@ namespace DivinityModManager.ViewModels
 
 		public override bool TryCatchOccurredException(Exception exception)
 		{
-			if(exception is COMException)
+			if (exception is COMException)
 			{
 				//dragError.Message.IndexOf("A drag operation is already in progress") > -1
 				DragCancelled();

@@ -1,7 +1,4 @@
-﻿using Alphaleonis.Win32.Filesystem;
-
-using DivinityModManager.Models;
-using DivinityModManager.Util;
+﻿using DivinityModManager.Models;
 
 using DynamicData;
 using DynamicData.Binding;
@@ -10,14 +7,10 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,7 +46,7 @@ namespace DivinityModManager.ViewModels
 		[Reactive] public ExportOrderFileType SelectedOrderType { get; set; }
 
 		private readonly ObservableCollectionExtended<ExportOrderFileType> _orderTypes;
-		
+
 		public ObservableCollectionExtended<ExportOrderFileType> OrderTypes => _orderTypes;
 
 		private readonly ObservableCollectionExtended<ExportOrderFileEntry> _entries;
@@ -111,7 +104,7 @@ namespace DivinityModManager.ViewModels
 
 			this.WhenAnyValue(x => x.IncludeOverrides).Subscribe(b =>
 			{
-				foreach(var entry in _entries)
+				foreach (var entry in _entries)
 				{
 					if (entry.Mod.IsForceLoaded && !entry.Mod.IsForceLoadedMergedMod)
 					{

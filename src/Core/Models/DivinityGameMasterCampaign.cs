@@ -1,27 +1,11 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
 using DivinityModManager.Extensions;
-using DivinityModManager.Util;
-
-using DynamicData;
-using DynamicData.Binding;
 
 using LSLib.LS;
 
-using Newtonsoft.Json;
-
-using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Windows;
-using System.Windows.Automation.Peers;
-using System.Windows.Input;
 
 namespace DivinityModManager.Models
 {
@@ -40,7 +24,7 @@ namespace DivinityModManager.Models
 					var backupName = Path.Combine(Path.GetDirectoryName(FilePath), FileName + ".backup");
 					File.Copy(FilePath, backupName, true);
 				}
-				
+
 				if (MetaResource.TryFindNode("Dependencies", out var dependenciesNode))
 				{
 					if (dependenciesNode.Children.TryGetValue("ModuleShortDesc", out var nodeList))
@@ -78,7 +62,7 @@ namespace DivinityModManager.Models
 				}
 				return true;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error saving GM Campaign meta.lsf:\n{ex}");
 			}

@@ -1,21 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DivinityModManager.Models.App;
+
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using DivinityModManager.Models.App;
-
-using ReactiveUI;
-using ReactiveUI.Wpf;
 
 namespace DivinityModManager.Controls
 {
@@ -91,7 +78,7 @@ namespace DivinityModManager.Controls
 			}
 
 			// Shortcut for resetting
-			if(modifiers == ModifierKeys.Shift && key == Key.Back)
+			if (modifiers == ModifierKeys.Shift && key == Key.Back)
 			{
 				Hotkey.ResetToDefault();
 				SetEditing(false);

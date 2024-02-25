@@ -10,8 +10,6 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager
 {
@@ -48,7 +46,7 @@ namespace DivinityModManager.AppServices
 				LoadAppSettings();
 				return true;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				error = ex;
 			}
@@ -94,7 +92,7 @@ namespace DivinityModManager.AppServices
 							}
 						}
 					}
-	
+
 					foreach (var dict in ignoredModsData.Mods)
 					{
 						var mod = new DivinityModData();
@@ -190,7 +188,7 @@ namespace DivinityModManager.AppServices
 			var capturedErrors = new List<Exception>();
 			_saveSettings.ForEach(entry =>
 			{
-				if(!entry.Save(out var ex))
+				if (!entry.Save(out var ex))
 				{
 					capturedErrors.Add(ex);
 				}
@@ -215,7 +213,7 @@ namespace DivinityModManager.AppServices
 
 		public void UpdateLastUpdated(IList<string> updatedModIds)
 		{
-			if(updatedModIds.Count > 0)
+			if (updatedModIds.Count > 0)
 			{
 				var time = DateTime.Now.Ticks;
 				foreach (var id in updatedModIds)
@@ -228,7 +226,7 @@ namespace DivinityModManager.AppServices
 
 		public void UpdateLastUpdated(IList<DivinityModData> updatedMods)
 		{
-			if(updatedMods.Count > 0)
+			if (updatedMods.Count > 0)
 			{
 				var time = DateTime.Now.Ticks;
 				foreach (var mod in updatedMods)

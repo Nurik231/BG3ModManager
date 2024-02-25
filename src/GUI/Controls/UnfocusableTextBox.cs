@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -36,7 +31,7 @@ namespace DivinityModManager.Controls
 
 		public UnfocusableTextBox()
 		{
-			
+
 		}
 
 		private string lastText = "";
@@ -54,16 +49,16 @@ namespace DivinityModManager.Controls
 			{
 				Keyboard.ClearFocus();
 				lastText = Text;
-				if(UpdateBindingOnFocusLost)
+				if (UpdateBindingOnFocusLost)
 				{
 					var bindingExpression = BindingOperations.GetBindingExpression(this, TextBox.TextProperty);
-					if(bindingExpression != null)
+					if (bindingExpression != null)
 					{
 						bindingExpression.UpdateSource();
 					}
 				}
 			}
-			else if(e.Key == Key.Escape && CanUndoTextOnEscape)
+			else if (e.Key == Key.Escape && CanUndoTextOnEscape)
 			{
 				if (CanUndoTextOnEscape && Text != lastText) Text = lastText;
 				Keyboard.ClearFocus();

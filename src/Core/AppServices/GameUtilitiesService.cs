@@ -33,11 +33,11 @@ namespace DivinityModManager.AppServices
 
 		private IDisposable _backgroundCheckTask;
 
-		private static readonly HashSet<string> GameExeNames = new(){ "bg3", "bg3_dx11" };
+		private static readonly HashSet<string> GameExeNames = new() { "bg3", "bg3_dx11" };
 
 		public void CheckForGameProcess()
 		{
-			foreach(var process in Process.GetProcesses())
+			foreach (var process in Process.GetProcesses())
 			{
 				if (GameExeNames.Contains(process.ProcessName))
 				{

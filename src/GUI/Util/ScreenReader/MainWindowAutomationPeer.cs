@@ -1,11 +1,5 @@
 ﻿using DivinityModManager.Views;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Automation.Peers;
 
 namespace DivinityModManager.Util.ScreenReader
@@ -20,7 +14,7 @@ namespace DivinityModManager.Util.ScreenReader
 
 		protected override string GetNameCore()
 		{
-			if(mainWindow.ViewModel != null)
+			if (mainWindow.ViewModel != null)
 			{
 				return mainWindow.ViewModel.Title;
 			}

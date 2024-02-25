@@ -2,12 +2,8 @@
 using ReactiveUI.Fody.Helpers;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.GitHub
 {
@@ -26,11 +22,11 @@ namespace DivinityModManager.Models.GitHub
 		{
 			Author = data.Author;
 			Repository = data.Repository;
-			if(data.LatestRelease != null)
+			if (data.LatestRelease != null)
 			{
-				LatestRelease.Version =	data.LatestRelease.Version;
-				LatestRelease.Description =	data.LatestRelease.Description;
-				LatestRelease.Date =	data.LatestRelease.Date;
+				LatestRelease.Version = data.LatestRelease.Version;
+				LatestRelease.Description = data.LatestRelease.Description;
+				LatestRelease.Date = data.LatestRelease.Date;
 				LatestRelease.BrowserDownloadLink = data.LatestRelease.BrowserDownloadLink;
 			}
 		}

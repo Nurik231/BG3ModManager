@@ -242,7 +242,7 @@ namespace DivinityModManager.Util
 		{
 			int success = 0;
 			int count = pakPaths.Count();
-			foreach(var path in pakPaths)
+			foreach (var path in pakPaths)
 			{
 				try
 				{
@@ -250,7 +250,7 @@ namespace DivinityModManager.Util
 					string destination = Path.Combine(outputDirectory, Path.GetFileNameWithoutExtension(path));
 
 					//Unless the foldername == the pak name and we're only extracting one pak
-					if(count == 1 && Path.GetDirectoryName(outputDirectory).Equals(Path.GetFileNameWithoutExtension(path)))
+					if (count == 1 && Path.GetDirectoryName(outputDirectory).Equals(Path.GetFileNameWithoutExtension(path)))
 					{
 						destination = outputDirectory;
 					}

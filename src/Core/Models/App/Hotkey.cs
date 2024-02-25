@@ -1,25 +1,17 @@
-﻿using DynamicData;
-using DynamicData.Binding;
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-
-using Reactive.Bindings.Extensions;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DivinityModManager.Models.App

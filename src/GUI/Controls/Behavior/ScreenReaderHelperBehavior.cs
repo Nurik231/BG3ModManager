@@ -1,15 +1,5 @@
-﻿using DivinityModManager.Models;
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace DivinityModManager.Controls.Behavior
 {
@@ -100,7 +90,7 @@ namespace DivinityModManager.Controls.Behavior
 
 		private static void Element_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
 		{
-			if(sender is null)
+			if (sender is null)
 			{
 				return;
 			}
@@ -109,7 +99,7 @@ namespace DivinityModManager.Controls.Behavior
 			var attributes = t.GetCustomAttributes(typeof(ScreenReaderHelperAttribute), true);
 			if (attributes.Length > 0)
 			{
-				foreach(var attr in attributes)
+				foreach (var attr in attributes)
 				{
 					ScreenReaderHelperAttribute sr = (ScreenReaderHelperAttribute)attr;
 					if (!String.IsNullOrEmpty(sr.Name))
@@ -118,7 +108,7 @@ namespace DivinityModManager.Controls.Behavior
 						if (prop != null)
 						{
 							var propValue = (string)prop.GetValue(e.NewValue);
-							if(!String.IsNullOrEmpty(propValue))
+							if (!String.IsNullOrEmpty(propValue))
 							{
 								System.Windows.Automation.AutomationProperties.SetName(depObj, propValue);
 								//Trace.WriteLine($"Set AutomationProperties.Name to {propValue}");
@@ -131,7 +121,7 @@ namespace DivinityModManager.Controls.Behavior
 						if (prop != null)
 						{
 							var propValue = (string)prop.GetValue(e.NewValue);
-							if(!String.IsNullOrEmpty(propValue))
+							if (!String.IsNullOrEmpty(propValue))
 							{
 								System.Windows.Automation.AutomationProperties.SetHelpText(depObj, propValue);
 								//Trace.WriteLine($"Set AutomationProperties.HelpText to {propValue}");

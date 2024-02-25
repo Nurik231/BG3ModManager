@@ -143,15 +143,15 @@ namespace DivinityModManager.ViewModels
 			var url = String.Format(DivinityApp.EXTENDER_MANIFESTS_URL, channel.GetDescription());
 			DivinityApp.Log($"Checking for script extender manifest info at '{url}'");
 			var text = await WebHelper.DownloadUrlAsStringAsync(url);
-//#if DEBUG
-//			DivinityApp.Log($"Manifest info:\n{text}");
-//#endif
+			//#if DEBUG
+			//			DivinityApp.Log($"Manifest info:\n{text}");
+			//#endif
 			if (!String.IsNullOrEmpty(text))
 			{
-				if(DivinityJsonUtils.TrySafeDeserialize<ScriptExtenderUpdateData>(text, out var data))
+				if (DivinityJsonUtils.TrySafeDeserialize<ScriptExtenderUpdateData>(text, out var data))
 				{
 					var res = data.Resources.FirstOrDefault();
-					if(res != null)
+					if (res != null)
 					{
 						var lastVersion = ExtenderUpdaterSettings.TargetVersion;
 						var lastDigest = ExtenderUpdaterSettings.TargetResourceDigest;
@@ -163,12 +163,12 @@ namespace DivinityModManager.ViewModels
 							ScriptExtenderUpdates.Clear();
 							ScriptExtenderUpdates.Add(_emptyVersion);
 							ScriptExtenderUpdates.AddRange(res.Versions.OrderByDescending(x => x.BuildDate));
-							if(lastBuildDate != null) nextVersion = ScriptExtenderUpdates.FirstOrDefault(x => x.BuildDate == lastBuildDate);
-							if(nextVersion == null && !String.IsNullOrEmpty(lastDigest))
+							if (lastBuildDate != null) nextVersion = ScriptExtenderUpdates.FirstOrDefault(x => x.BuildDate == lastBuildDate);
+							if (nextVersion == null && !String.IsNullOrEmpty(lastDigest))
 							{
 								nextVersion = ScriptExtenderUpdates.FirstOrDefault(x => x.Digest == lastDigest);
 							}
-							if(nextVersion == null && !String.IsNullOrEmpty(lastVersion))
+							if (nextVersion == null && !String.IsNullOrEmpty(lastVersion))
 							{
 								nextVersion = ScriptExtenderUpdates.FirstOrDefault(x => x.Version == lastVersion);
 							}
@@ -217,7 +217,7 @@ namespace DivinityModManager.ViewModels
 
 		public void OnTargetVersionSelected(ScriptExtenderUpdateVersion entry)
 		{
-			if(HasFetchedManifest)
+			if (HasFetchedManifest)
 			{
 				if (entry != _emptyVersion)
 				{
@@ -266,7 +266,7 @@ namespace DivinityModManager.ViewModels
 				ShowAlert($"Saved Script Extender Updater settings to '{outputFile}'", AlertType.Success, 20);
 
 				Main.UpdateExtender(true);
-			
+
 				return true;
 			}
 			catch (Exception ex)
@@ -351,7 +351,7 @@ HKEY_CLASSES_ROOT\nxm\shell\open\command
 			MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No, Main.View.MainWindowMessageBox_OK.Style);
 			if (result == MessageBoxResult.Yes)
 			{
-				if(DivinityRegistryHelper.AssociateWithNXMProtocol(DivinityApp.GetExePath()))
+				if (DivinityRegistryHelper.AssociateWithNXMProtocol(DivinityApp.GetExePath()))
 				{
 					UpdateSettings.IsAssociatedWithNXM = true;
 					ShowAlert("nxm:// protocol assocation successfully set");
@@ -409,14 +409,14 @@ HKEY_CLASSES_ROOT\nxm\shell\open\command
 			this.WhenAnyValue(x => x.ExtenderUpdaterSettings.UpdaterIsAvailable)
 				.Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.ExtenderTabVisibility);
 
-			this.WhenAnyValue(x => x.ExtenderUpdaterSettings.UpdaterIsAvailable, 
+			this.WhenAnyValue(x => x.ExtenderUpdaterSettings.UpdaterIsAvailable,
 				x => x.Settings.DebugModeEnabled,
 				x => x.ExtenderSettings.DeveloperMode)
 				.Select(x => PropertyConverters.BoolToVisibility(x.Item1 && (x.Item2 || x.Item3))).ToUIProperty(this, x => x.ExtenderUpdaterVisibility);
 
 			ExtenderUpdaterSettings.WhenAnyValue(x => x.UpdateChannel).Subscribe((channel) =>
 			{
-				if(IsVisible)
+				if (IsVisible)
 				{
 					FetchLatestManifestData(channel, true);
 				}
@@ -456,7 +456,7 @@ HKEY_CLASSES_ROOT\nxm\shell\open\command
 					MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No, Main.View.MainWindowMessageBox_OK.Style);
 				if (result == MessageBoxResult.Yes)
 				{
-					switch(SelectedTabIndex)
+					switch (SelectedTabIndex)
 					{
 						case SettingsWindowTab.Default:
 							Settings.SetToDefault();

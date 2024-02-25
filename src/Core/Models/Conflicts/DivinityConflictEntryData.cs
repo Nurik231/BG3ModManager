@@ -1,8 +1,6 @@
-﻿using DivinityModManager.Util;
-using ReactiveUI;
-using System;
+﻿using ReactiveUI;
+
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DivinityModManager.Models.Conflicts
 {

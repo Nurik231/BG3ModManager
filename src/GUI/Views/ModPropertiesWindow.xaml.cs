@@ -1,8 +1,9 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
 using DivinityModManager.Models;
-using DivinityModManager.Models.Mod;
 using DivinityModManager.Util;
+
+using DynamicData;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -11,12 +12,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Concurrency;
-using DynamicData;
-using System.Windows.Input;
 using System.Windows;
+using System.Windows.Input;
 
 namespace DivinityModManager.Views
 {
@@ -56,9 +54,9 @@ namespace DivinityModManager.Views
 		{
 			Locked = true;
 			//var disp = this.SuppressChangeNotifications();
-			if(mod != null)
+			if (mod != null)
 			{
-				if(mod.ModManagerConfig != null && mod.ModManagerConfig.IsLoaded)
+				if (mod.ModManagerConfig != null && mod.ModManagerConfig.IsLoaded)
 				{
 					GitHubAuthor = mod.ModManagerConfig.GitHubAuthor;
 					GitHubRepository = mod.ModManagerConfig.GitHubRepository;
@@ -98,7 +96,7 @@ namespace DivinityModManager.Views
 			//Should be called automatically when the mod config is updated
 			//Services.Get<ISettingsService>().ModConfig.TrySave();
 		}
-		
+
 		public void OnClose()
 		{
 			HasChanges = false;
@@ -155,7 +153,7 @@ namespace DivinityModManager.Views
 			var whenNotLocked = this.WhenAnyValue(x => x.Locked, x => x.IsActive).Select(x => !x.Item1 && x.Item2);
 			var whenConfig = Observable.FromEventPattern<PropertyChangedEventArgs>(this, nameof(ReactiveObject.PropertyChanged));
 			var autoSaveProperties = new HashSet<string>()
-			{ 
+			{
 				nameof(GitHubAuthor),
 				nameof(GitHubRepository),
 				nameof(NexusModsId),
@@ -168,7 +166,7 @@ namespace DivinityModManager.Views
 				if (IsActive && !Locked) HasChanges = true;
 			});
 
-			
+
 			this.WhenAnyValue(x => x.GitHubAuthor).Select(LabelVisibility).ToUIProperty(this, x => x.AuthorLabelVisibility, Visibility.Visible);
 			this.WhenAnyValue(x => x.GitHubRepository).Select(LabelVisibility).ToUIProperty(this, x => x.RepoLabelVisibility, Visibility.Visible);
 

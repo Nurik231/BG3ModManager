@@ -1,24 +1,17 @@
-﻿using DynamicData;
+﻿using DivinityModManager.Extensions;
+
+using DynamicData;
 using DynamicData.Binding;
+
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
+
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
-using Newtonsoft.Json;
-using System.Runtime.Serialization;
-using System.Windows.Input;
-using DivinityModManager.Util;
-using System.Reactive.Disposables;
 using System.Reflection;
-using Alphaleonis.Win32.Filesystem;
-using DivinityModManager.Models.App;
-using System.Reactive;
-using ReactiveUI.Fody.Helpers;
-using System.ComponentModel;
-using System.Reactive.Concurrency;
-using DivinityModManager.Extensions;
+using System.Runtime.Serialization;
 
 namespace DivinityModManager.Models.Settings
 {

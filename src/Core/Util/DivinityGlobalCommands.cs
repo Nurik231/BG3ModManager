@@ -67,7 +67,7 @@ namespace DivinityModManager.Util
 
 		public void OpenInFileExplorer(string path)
 		{
-			if(!String.IsNullOrEmpty(path))
+			if (!String.IsNullOrEmpty(path))
 			{
 				if (File.Exists(path))
 				{
@@ -88,7 +88,7 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				if(!String.IsNullOrEmpty(text))
+				if (!String.IsNullOrEmpty(text))
 				{
 					Clipboard.SetText(text);
 					_viewModel.ShowAlert($"Copied to clipboard: {text}", 0, 10);

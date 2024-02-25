@@ -32,7 +32,7 @@ namespace DivinityModManager.Models.Mod
 		{
 			if (node.Attributes.TryGetValue(property, out var nodeAttribute))
 			{
-				if(fieldType == typeof(string))
+				if (fieldType == typeof(string))
 				{
 					return nodeAttribute.AsString(nodeSerializationSettings);
 				}
@@ -49,16 +49,16 @@ namespace DivinityModManager.Models.Mod
 		public static ModuleInfo FromResource(Resource res)
 		{
 			var meta = new ModuleInfo();
-			if(res != null)
+			if (res != null)
 			{
-				if(res.TryFindRegion("Config", out var region))
+				if (res.TryFindRegion("Config", out var region))
 				{
 					if (region.TryFindNode("ModuleInfo", out var moduleInfo))
 					{
-						foreach(var field in _fields)
+						foreach (var field in _fields)
 						{
 							var value = TryGetAttribute(field.Name, moduleInfo, field.FieldType);
-							if(value != null)
+							if (value != null)
 							{
 								field.SetValue(meta, value);
 							}

@@ -1,11 +1,9 @@
 ﻿using DivinityModManager.Models;
+
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -33,11 +31,11 @@ namespace DivinityModManager.Controls.Behavior
 
 		static void OnAutoSizeColumnsChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
 		{
-			if(depObj is ListView listView)
+			if (depObj is ListView listView)
 			{
-				if(e.NewValue is bool enabled)
+				if (e.NewValue is bool enabled)
 				{
-					if(enabled)
+					if (enabled)
 					{
 						listView.Loaded += OnDataChangedChanged;
 						//listView.SizeChanged += OnGridViewSizeChanged;
@@ -99,7 +97,7 @@ namespace DivinityModManager.Controls.Behavior
 			}
 		}
 
-		private static Size MeasureTextSize(Visual target, string text, FontFamily fontFamily, FontStyle fontStyle, 
+		private static Size MeasureTextSize(Visual target, string text, FontFamily fontFamily, FontStyle fontStyle,
 			FontWeight fontWeight, FontStretch fontStretch, double fontSize)
 		{
 			var typeFace = new Typeface(fontFamily, fontStyle, fontWeight, fontStretch);

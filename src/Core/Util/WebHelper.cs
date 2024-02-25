@@ -1,33 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {
-    public struct WebRequestHeaderValue
-    {
-        public HttpRequestHeader HttpRequestHeader { get; set; }
-        public string Value { get; set; }
-    }
+	public struct WebRequestHeaderValue
+	{
+		public HttpRequestHeader HttpRequestHeader { get; set; }
+		public string Value { get; set; }
+	}
 	public static class WebHelper
 	{
-        public static readonly HttpClient Client = new HttpClient();
+		public static readonly HttpClient Client = new HttpClient();
 
-        public static void SetupClient()
-        {
-            // Required for GitHub permissions
-            Client.DefaultRequestHeaders.Add("User-Agent", "BG3ModManager");
-        }
+		public static void SetupClient()
+		{
+			// Required for GitHub permissions
+			Client.DefaultRequestHeaders.Add("User-Agent", "BG3ModManager");
+		}
 
-        public static async Task<Stream> DownloadFileAsStreamAsync(string downloadUrl, CancellationToken token)
-        {
+		public static async Task<Stream> DownloadFileAsStreamAsync(string downloadUrl, CancellationToken token)
+		{
 			try
 			{
 				using (var webClient = new WebClient())
@@ -49,49 +45,49 @@ namespace DivinityModManager.Util
 					return ms;
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error downloading url ({downloadUrl}):\n{ex}");
 			}
 			return null;
-        }
+		}
 
-        public static string DownloadUrlAsString(string downloadUrl)
-        {
-            using (System.Net.WebClient webClient = new System.Net.WebClient())
-            {
-                try
+		public static string DownloadUrlAsString(string downloadUrl)
+		{
+			using (System.Net.WebClient webClient = new System.Net.WebClient())
+			{
+				try
 				{
-                    return webClient.DownloadString(downloadUrl);
+					return webClient.DownloadString(downloadUrl);
 				}
-                catch(Exception ex)
+				catch (Exception ex)
 				{
-                    DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
+					DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
 				}
-                return "";
-            }
-        }
+				return "";
+			}
+		}
 
-        public static async Task<string> DownloadUrlAsStringAsync(string downloadUrl)
-        {
-            using (System.Net.WebClient webClient = new System.Net.WebClient())
-            {
-                try
+		public static async Task<string> DownloadUrlAsStringAsync(string downloadUrl)
+		{
+			using (System.Net.WebClient webClient = new System.Net.WebClient())
+			{
+				try
 				{
-                    return await webClient.DownloadStringTaskAsync(downloadUrl);
+					return await webClient.DownloadStringTaskAsync(downloadUrl);
 				}
-                catch(Exception ex)
+				catch (Exception ex)
 				{
-                    DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
+					DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
 				}
-                return "";
-            }
-        }
+				return "";
+			}
+		}
 
-        #region OLD
+		#region OLD
 
-        // Get/Post sources from here: https://stackoverflow.com/a/27108442
-        /*
+		// Get/Post sources from here: https://stackoverflow.com/a/27108442
+		/*
         public static string Get(string uri, params WebRequestHeaderValue[] webRequestHeaders)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
@@ -219,6 +215,6 @@ namespace DivinityModManager.Util
             return "";
         }
         */
-        #endregion
-    }
+		#endregion
+	}
 }

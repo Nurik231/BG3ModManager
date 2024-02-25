@@ -8,8 +8,6 @@ using SharpCompress.Archives.Zip;
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,13 +51,13 @@ namespace DivinityModManager.Tests
 			{
 				Directory.Delete(testDir);
 			}
-			catch(Exception ex) { }
+			catch (Exception ex) { }
 		}
 
 		[Theory]
 		[InlineData(42000, false)] // 42 KB
 		[InlineData(500000000, true)] // 500 MB
-		//[InlineData(2048L * 1024 * 1024)] // 2GB
+									  //[InlineData(2048L * 1024 * 1024)] // 2GB
 		public async Task ImportModPak(int intendedPakSize, bool asArchive)
 		{
 			var pakPath = Path.Combine(outputDirectory, $"Test_{StringUtils.BytesToString(intendedPakSize)}.pak");

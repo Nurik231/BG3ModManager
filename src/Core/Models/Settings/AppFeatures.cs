@@ -3,11 +3,8 @@ using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Settings
 {
@@ -25,9 +22,9 @@ namespace DivinityModManager.Models.Settings
 
 		public void ApplyDictionary(Dictionary<string, bool> dict)
 		{
-			foreach(var prop in _props)
+			foreach (var prop in _props)
 			{
-				if(dict.TryGetValue(prop.Name, out var b))
+				if (dict.TryGetValue(prop.Name, out var b))
 				{
 					prop.SetValue(this, b);
 				}

@@ -3,11 +3,7 @@
 using Newtonsoft.Json;
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Json
 {
@@ -69,15 +65,15 @@ namespace DivinityModManager.Json
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value == null)
+			if (value == null)
 			{
 				writer.WriteNull();
 			}
-			else if(value is SourceCache<TValue, string> cache)
+			else if (value is SourceCache<TValue, string> cache)
 			{
 				writer.WriteStartObject();
 
-				foreach(var entry in cache.Items)
+				foreach (var entry in cache.Items)
 				{
 					writer.WritePropertyName(entry.Id);
 					serializer.Serialize(writer, entry);

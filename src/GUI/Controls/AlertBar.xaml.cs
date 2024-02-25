@@ -54,11 +54,11 @@ namespace DivinityModManager.Controls
 
 		private static SolidColorBrush GetBrushFromColor(string color)
 		{
-			if(_colors.TryGetValue(color, out var brush))
+			if (_colors.TryGetValue(color, out var brush))
 			{
 				return brush;
 			}
-			if(new BrushConverter().ConvertFrom(color) is SolidColorBrush newBrush)
+			if (new BrushConverter().ConvertFrom(color) is SolidColorBrush newBrush)
 			{
 				_colors[color] = newBrush;
 				return newBrush;

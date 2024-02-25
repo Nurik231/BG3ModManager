@@ -4,13 +4,9 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -44,11 +40,11 @@ namespace DivinityModManager.ViewModels
 
 		public void Cancel()
 		{
-			if(CancelAction != null)
+			if (CancelAction != null)
 			{
 				CancelAction.Invoke();
 			}
-			else if(!String.IsNullOrEmpty(ProgressText))
+			else if (!String.IsNullOrEmpty(ProgressText))
 			{
 				RxApp.MainThreadScheduler.Schedule(() =>
 				{
@@ -63,7 +59,7 @@ namespace DivinityModManager.ViewModels
 		{
 			return Math.Min(100, Math.Max(0, value));
 		}
-		
+
 		public DownloadActivityBarViewModel()
 		{
 			this.WhenAnyValue(x => x.ProgressValue).Select(Clamp).ToUIProperty(this, x => x.CurrentValue, 0d);

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-
-using DivinityModManager.Util;
+﻿using DivinityModManager.Util;
 using DivinityModManager.Util.ScreenReader;
 
 namespace DivinityModManager
 {
-	
+
 
 	public static class ScreenReaderHelper
 	{
@@ -25,7 +18,7 @@ namespace DivinityModManager
 		};
 		public static void Init()
 		{
-			if(!loadedLibraries)
+			if (!loadedLibraries)
 			{
 				/*
 				 * Since the above DLLs are native, they need to be loaded manually from the _Lib directory since DLLImport and LoadLibrary in
@@ -47,7 +40,7 @@ namespace DivinityModManager
 
 		public static void Speak(string text, bool interrupt = true)
 		{
-			if(DivinityApp.IsScreenReaderActive())
+			if (DivinityApp.IsScreenReaderActive())
 			{
 				if (!isLoaded)
 				{
@@ -55,7 +48,7 @@ namespace DivinityModManager
 				}
 				if (isLoaded)
 				{
-					if(!Tolk.HasSpeech())
+					if (!Tolk.HasSpeech())
 					{
 						Tolk.TrySAPI(true);
 					}

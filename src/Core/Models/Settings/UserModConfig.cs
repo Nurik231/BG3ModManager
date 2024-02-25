@@ -3,21 +3,17 @@ using DivinityModManager.Models.Mod;
 
 using DynamicData;
 
-using Newtonsoft.Json;
-
-using ReactiveUI.Fody.Helpers;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Reactive;
 using System.Runtime.Serialization;
+using System.Windows.Input;
 
 namespace DivinityModManager.Models.Settings
 {

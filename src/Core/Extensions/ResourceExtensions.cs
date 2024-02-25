@@ -1,9 +1,8 @@
 ﻿using LSLib.LS;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Extensions
 {
@@ -92,7 +91,7 @@ namespace DivinityModManager.Extensions
 		{
 			foreach (var region in resource.Regions.Values)
 			{
-				if(region.RegionName == name)
+				if (region.RegionName == name)
 				{
 					return region;
 				}
@@ -105,7 +104,7 @@ namespace DivinityModManager.Extensions
 		{
 			foreach (var region in resource.Regions.Values)
 			{
-				if(region.RegionName == name)
+				if (region.RegionName == name)
 				{
 					targetRegion = region;
 					return true;
@@ -125,9 +124,9 @@ namespace DivinityModManager.Extensions
 			{
 				DivinityApp.Log($"{indent} Node: Name({node.Name}) Children{node.ChildCount}");
 			}
-			
+
 			DivinityApp.Log($"{indent}Attributes ({node.Attributes.Count})");
-			if(node.Attributes.Count > 0)
+			if (node.Attributes.Count > 0)
 			{
 				foreach (var entry in node.Attributes)
 				{
@@ -136,7 +135,7 @@ namespace DivinityModManager.Extensions
 			}
 
 			DivinityApp.Log($"{indent}Children ({node.ChildCount})");
-			if(node.ChildCount > 0)
+			if (node.ChildCount > 0)
 			{
 				foreach (var entry in node.Children)
 				{
@@ -153,13 +152,13 @@ namespace DivinityModManager.Extensions
 
 		public static void PrintDebug(this Resource resource)
 		{
-			foreach(var kvpRegion in resource.Regions)
+			foreach (var kvpRegion in resource.Regions)
 			{
 				DivinityApp.Log($"Region: Key({kvpRegion.Key}) Name({kvpRegion.Value.Name}) RegionName({kvpRegion.Value.RegionName})");
-				foreach(var nodeList in kvpRegion.Value.Children)
+				foreach (var nodeList in kvpRegion.Value.Children)
 				{
 					DivinityApp.Log($" Children: Key({nodeList.Key})");
-					for(var i = 0; i < nodeList.Value.Count; i++)
+					for (var i = 0; i < nodeList.Value.Count; i++)
 					{
 						var node = nodeList.Value[i];
 						PrintDebugNode(node, "  ", i);

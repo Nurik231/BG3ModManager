@@ -18,7 +18,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -116,7 +115,7 @@ namespace DivinityModManager.Views
 
 		public void DisplayError(string msg, string caption, bool showLog = false)
 		{
-			if(!showLog)
+			if (!showLog)
 			{
 				Xceed.Wpf.Toolkit.MessageBox.Show(msg, caption,
 				System.Windows.MessageBoxButton.OK,
@@ -137,7 +136,7 @@ namespace DivinityModManager.Views
 			var shutdownText = doShutdown ? " The program will close." : "";
 			DivinityApp.Log($"An exception in the UI occurred.{shutdownText}\n{e.Exception}");
 
-			var result = Xceed.Wpf.Toolkit.MessageBox.Show($"An exception in the UI occurred.{shutdownText}\n{e.Exception}", 
+			var result = Xceed.Wpf.Toolkit.MessageBox.Show($"An exception in the UI occurred.{shutdownText}\n{e.Exception}",
 				"Open the logs folder?",
 				System.Windows.MessageBoxButton.YesNo,
 				System.Windows.MessageBoxImage.Error,
@@ -171,7 +170,7 @@ namespace DivinityModManager.Views
 				DivinityFileUtils.TryOpenPath(DivinityApp.GetAppDirectory("_Logs"));
 			}
 
-			if(doShutdown)
+			if (doShutdown)
 			{
 				App.Current.Shutdown(1);
 			}
@@ -179,7 +178,7 @@ namespace DivinityModManager.Views
 
 		void OnStateChanged(object sender, EventArgs e)
 		{
-			if(ViewModel?.Settings?.Loaded == true)
+			if (ViewModel?.Settings?.Loaded == true)
 			{
 				var windowSettings = ViewModel.Settings.Window;
 				windowSettings.Maximized = WindowState == WindowState.Maximized;
@@ -218,7 +217,7 @@ namespace DivinityModManager.Views
 
 		public void OpenPreferences(bool switchToKeybindings = false, bool forceOpen = false)
 		{
-			if(SettingsWindow.ViewModel == null)
+			if (SettingsWindow.ViewModel == null)
 			{
 				SettingsWindow.Init(ViewModel);
 			}
@@ -232,7 +231,7 @@ namespace DivinityModManager.Views
 				SettingsWindow.Owner = this;
 				ViewModel.Settings.SettingsWindowIsOpen = true;
 			}
-			else if(!forceOpen)
+			else if (!forceOpen)
 			{
 				SettingsWindow.Hide();
 				ViewModel.Settings.SettingsWindowIsOpen = false;
@@ -262,13 +261,13 @@ namespace DivinityModManager.Views
 			if (visible)
 			{
 				UpdateWindow.ViewModel.CheckArgs(e);
-				if(!UpdateWindow.IsVisible)
+				if (!UpdateWindow.IsVisible)
 				{
 					UpdateWindow.Show();
 					UpdateWindow.Owner = this;
 				}
 			}
-			else if(UpdateWindow.IsVisible)
+			else if (UpdateWindow.IsVisible)
 			{
 				UpdateWindow.Hide();
 			}
@@ -385,7 +384,7 @@ namespace DivinityModManager.Views
 
 			this.TaskbarItemInfo.ProgressState = System.Windows.Shell.TaskbarItemProgressState.None;
 
-			Closed += (o,e) => OnClosing();
+			Closed += (o, e) => OnClosing();
 			AutoUpdater.ApplicationExitEvent += AutoUpdater_OnClosing;
 			AutoUpdater.HttpUserAgent = "DivinityModManagerUser";
 			AutoUpdater.RunUpdateAsAdmin = false;
@@ -397,7 +396,7 @@ namespace DivinityModManager.Views
 			DivinityInteractions.OpenModProperties.RegisterHandler(interaction =>
 			{
 				ModPropertiesWindow.ViewModel.SetMod(interaction.Input);
-				if(!ModPropertiesWindow.IsVisible)
+				if (!ModPropertiesWindow.IsVisible)
 				{
 					ModPropertiesWindow.Show();
 					ModPropertiesWindow.Owner = this;

@@ -1,18 +1,14 @@
 ﻿using DivinityModManager.Enums.Extender;
 using DivinityModManager.Extensions;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Settings
 {

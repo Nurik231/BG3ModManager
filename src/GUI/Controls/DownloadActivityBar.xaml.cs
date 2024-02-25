@@ -15,7 +15,7 @@ namespace DivinityModManager.Controls
 			this.WhenActivated(d =>
 			{
 				DataContext = ViewModel;
-				if(ViewModel != null)
+				if (ViewModel != null)
 				{
 					this.OneWayBind(ViewModel, vm => vm.CurrentValue, view => view.TaskProgressBar.Value);
 					this.OneWayBind(ViewModel, vm => vm.CurrentText, view => view.TaskProgressWorkText.Text);

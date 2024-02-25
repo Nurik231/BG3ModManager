@@ -4,11 +4,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models
 {
@@ -20,7 +16,7 @@ namespace DivinityModManager.Models
 		[Reactive] public ulong Revision { get; set; }
 		[Reactive] public ulong Build { get; set; }
 
-		[JsonProperty] [Reactive] public string Version { get; set; }
+		[JsonProperty][Reactive] public string Version { get; set; }
 
 		private ulong versionInt = 0;
 
@@ -72,10 +68,10 @@ namespace DivinityModManager.Models
 			var values = nextVersion.Split('.');
 			if (values.Length > 0)
 			{
-				if(ulong.TryParse(values[0], out var major)) Major = major;
-				if(values.Length > 1 && ulong.TryParse(values[1], out var minor)) Minor = minor;
-				if(values.Length > 2 && ulong.TryParse(values[2], out var revision)) Revision = revision;
-				if(values.Length > 3 && ulong.TryParse(values[3], out var build)) Build = build;
+				if (ulong.TryParse(values[0], out var major)) Major = major;
+				if (values.Length > 1 && ulong.TryParse(values[1], out var minor)) Minor = minor;
+				if (values.Length > 2 && ulong.TryParse(values[2], out var revision)) Revision = revision;
+				if (values.Length > 3 && ulong.TryParse(values[3], out var build)) Build = build;
 				versionInt = ToInt();
 				this.RaisePropertyChanged("VersionInt");
 			}

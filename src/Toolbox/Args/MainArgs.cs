@@ -10,7 +10,7 @@ namespace Toolbox.Args
 		[ArgActionMethod, ArgDescription("Updates the script extender using the updater dll")]
 		public static void UpdateScriptExtender(ScriptExtenderUpdaterArgs args)
 		{
-			if(!File.Exists(args.Updater) || !Directory.Exists(args.BinFolder))
+			if (!File.Exists(args.Updater) || !Directory.Exists(args.BinFolder))
 			{
 				throw new FileNotFoundException($"-u ({args.Updater}) and -b ({args.BinFolder}) args must be valid file paths.");
 			}

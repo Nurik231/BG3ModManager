@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Humanizer;
+
+using System;
 using System.Windows.Data;
-using Humanizer;
 
 namespace DivinityModManager.Converters
 {
@@ -12,9 +9,9 @@ namespace DivinityModManager.Converters
 	{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{
-			if(value is TimeSpan time)
+			if (value is TimeSpan time)
 			{
-				if(time <= TimeSpan.Zero)
+				if (time <= TimeSpan.Zero)
 				{
 					return "0 minutes (Disabled)";
 				}

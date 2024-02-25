@@ -1,25 +1,18 @@
-﻿using DivinityModManager.Models;
+﻿using DivinityModManager.Extensions;
+using DivinityModManager.Models;
 using DivinityModManager.Util.ScreenReader;
 
 using DynamicData.Binding;
 
-using ReactiveUI;
-
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Concurrency;
-using System.Windows;
-using System.ComponentModel;
-using System.Collections.Specialized;
-using DivinityModManager.Extensions;
 
 namespace DivinityModManager.Controls
 {
@@ -98,7 +91,7 @@ namespace DivinityModManager.Controls
 					var indexOrder = colList.Select(x => GetColumnActualIndex(x)).ToList();
 					DivinityApp.Log($"[Order] indexOrder({String.Join(";", indexOrder)})");
 					var len = view.Columns.Count;
-					for(int i = 0; i < len; i++)
+					for (int i = 0; i < len; i++)
 					{
 						var col = view.Columns[i];
 						var nextIndex = indexOrder.IndexOf(GetColumnActualIndex(col));

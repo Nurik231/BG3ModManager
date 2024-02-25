@@ -1,14 +1,15 @@
-﻿using System;
-using System.ComponentModel;
-using System.Reactive.Disposables;
-using System.Runtime.CompilerServices;
-using ReactiveUI;
-using ReactiveHistory;
+﻿using DivinityModManager.Models;
+
 using Reactive.Bindings.Extensions;
-using System.Reflection;
-using System.Windows.Input;
+
+using ReactiveHistory;
+
+using ReactiveUI;
+
+using System;
 using System.Collections.Generic;
-using DivinityModManager.Models;
+using System.Reactive.Disposables;
+using System.Windows.Input;
 
 namespace DivinityModManager.ViewModels
 {

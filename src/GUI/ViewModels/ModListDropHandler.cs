@@ -79,14 +79,14 @@ namespace DivinityModManager.ViewModels
 	{
 		public override void DragOver(IDropInfo dropInfo)
 		{
-			if(!_viewModel.AllowDrop)
+			if (!_viewModel.AllowDrop)
 			{
 				DivinityApp.Log($"[AllowDrop] IsRefreshing({_viewModel.IsRefreshing}) IsInitialized({_viewModel.IsInitialized}) IsLoadingOrder({_viewModel.IsLoadingOrder})");
 				dropInfo.Effects = DragDropEffects.None;
 				return;
 			}
 			base.DragOver(dropInfo);
-			if(dropInfo.Effects == DragDropEffects.None && dropInfo.Data is DataObject data && data.ContainsFileDropList())
+			if (dropInfo.Effects == DragDropEffects.None && dropInfo.Data is DataObject data && data.ContainsFileDropList())
 			{
 				var files = data.GetFileDropList();
 				foreach (var file in files)

@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Extensions
 {
 	public static class DictionaryExtensions
 	{
-		public static object FindKeyValue(this Dictionary<string,object> dict, string key, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+		public static object FindKeyValue(this Dictionary<string, object> dict, string key, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
 		{
-			foreach(KeyValuePair<string,object> kvp in dict)
+			foreach (KeyValuePair<string, object> kvp in dict)
 			{
-				if(kvp.Key.Equals(key, stringComparison))
+				if (kvp.Key.Equals(key, stringComparison))
 				{
 					return kvp.Value;
 				}
-				else if(kvp.Value.GetType() == typeof(Dictionary<string, object>))
+				else if (kvp.Value.GetType() == typeof(Dictionary<string, object>))
 				{
 					var subDict = (Dictionary<string, object>)kvp.Value;
 					var val = subDict.FindKeyValue(key, stringComparison);
@@ -66,7 +63,7 @@ namespace DivinityModManager.Extensions
 				else
 				{
 					var val = FindKeyValue_Recursive(kvp.Value, key, stringComparison);
-					if(val != null)
+					if (val != null)
 					{
 						valObj = val;
 						return true;

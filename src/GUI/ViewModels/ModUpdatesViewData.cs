@@ -1,11 +1,8 @@
-﻿using Alphaleonis.Win32.Filesystem;
-
-using DivinityModManager.Models.Updates;
+﻿using DivinityModManager.Models.Updates;
 using DivinityModManager.Views;
 
 using DynamicData;
 using DynamicData.Binding;
-using DynamicData.Aggregation;
 
 using Ookii.Dialogs.Wpf;
 
@@ -13,17 +10,17 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Windows.Input;
-using System.Reactive.Concurrency;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Reactive;
-using System.Collections.Concurrent;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace DivinityModManager.ViewModels
 {
@@ -62,7 +59,7 @@ namespace DivinityModManager.ViewModels
 		[ObservableAsProperty] public int TotalUpdates { get; }
 		[ObservableAsProperty] public Visibility UpdatesHeaderVisiblity { get; }
 
-		public ICommand CopySelectedModsCommand { get; }
+		public ICommand UpdateModsCommand { get; }
 		public ICommand SelectAllNewModsCommand { get; }
 		public ICommand SelectAllUpdatesCommand { get; }
 
@@ -143,7 +140,7 @@ namespace DivinityModManager.ViewModels
 			await _mainWindowViewModel.StartMainProgressAsync("Processing updates...");
 			var currentTime = DateTime.Now;
 			var partitionAmount = Environment.ProcessorCount;
-			var progressIncrement = (int)Math.Ceiling(100d/taskData.Updates.Count);
+			var progressIncrement = (int)Math.Ceiling(100d / taskData.Updates.Count);
 			var results = await Task.WhenAll(Partitioner.Create(taskData.Updates).GetPartitions(partitionAmount).AsParallel().Select(p => AwaitDownloadPartition(p, progressIncrement, taskData.ModPakFolder, token)));
 			UpdateLastUpdated(results);
 			await Observable.Start(FinishUpdating, RxApp.MainThreadScheduler);
@@ -152,7 +149,7 @@ namespace DivinityModManager.ViewModels
 
 		private void StartUpdating(CopyModUpdatesTask taskData)
 		{
-			RxApp.MainThreadScheduler.ScheduleAsync(async (sch,token) => await ProcessUpdatesAsync(taskData,sch,token));
+			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await ProcessUpdatesAsync(taskData, sch, token));
 		}
 
 		private void UpdateLastUpdated(UpdateTaskResult[] results)
@@ -171,6 +168,7 @@ namespace DivinityModManager.ViewModels
 		public ModUpdatesViewData(MainWindowViewModel mainWindowViewModel)
 		{
 			Unlocked = true;
+			AllNewModsSelected = AllModUpdatesSelected = true;
 
 			_mainWindowViewModel = mainWindowViewModel;
 
@@ -195,17 +193,17 @@ namespace DivinityModManager.ViewModels
 			var newModsChangeSet = NewMods.ToObservableChangeSet().AutoRefresh(x => x.IsSelected).ToCollection();
 			var modUpdatesChangeSet = UpdatedMods.ToObservableChangeSet().AutoRefresh(x => x.IsSelected).ToCollection();
 
-			splitList.Filter(x => x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToUIProperty(this, x => x.AllNewModsSelected);
-			splitList.Filter(x => !x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToUIProperty(this, x => x.AllModUpdatesSelected);
+			splitList.Filter(x => x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToUIPropertyImmediate(this, x => x.AllNewModsSelected);
+			splitList.Filter(x => !x.IsNewMod).ToCollection().Select(x => x.All(y => y.IsSelected)).ToUIPropertyImmediate(this, x => x.AllModUpdatesSelected);
 
 			var anySelectedObservable = this.WhenAnyValue(x => x.AnySelected);
 
 			this.WhenAnyValue(x => x.NewAvailable, x => x.UpdatesAvailable).Select(x => x.Item1 && x.Item2 ? Visibility.Visible : Visibility.Collapsed)
 				.ToUIProperty(this, x => x.UpdatesHeaderVisiblity, Visibility.Collapsed);
 
-			CopySelectedModsCommand = ReactiveCommand.Create(UpdateSelectedMods, anySelectedObservable);
+			UpdateModsCommand = ReactiveCommand.Create(UpdateSelectedMods, anySelectedObservable);
 
-			SelectAllNewModsCommand = ReactiveCommand.Create<bool>((b) =>
+			SelectAllNewModsCommand = ReactiveCommand.Create<bool>(b =>
 			{
 				foreach (var x in NewMods)
 				{
@@ -213,7 +211,7 @@ namespace DivinityModManager.ViewModels
 				}
 			}, hasNewMods);
 
-			SelectAllUpdatesCommand = ReactiveCommand.Create<bool>((b) =>
+			SelectAllUpdatesCommand = ReactiveCommand.Create<bool>(b =>
 			{
 				foreach (var x in UpdatedMods)
 				{

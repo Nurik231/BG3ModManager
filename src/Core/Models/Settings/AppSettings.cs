@@ -1,15 +1,7 @@
-﻿using ReactiveUI;
+﻿using DivinityModManager.Models.App;
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using DynamicData;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
-using DivinityModManager.Models.App;
 
 namespace DivinityModManager.Models.Settings
 {

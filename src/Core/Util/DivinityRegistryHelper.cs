@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Alphaleonis.Win32.Filesystem;
-using Microsoft.Win32;
+﻿using Alphaleonis.Win32.Filesystem;
+
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
-using System.Drawing.Drawing2D;
+
+using Microsoft.Win32;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DivinityModManager.Util
 {
@@ -29,7 +28,7 @@ namespace DivinityModManager.Util
 		{
 			get
 			{
-				if(lastSteamInstallPath == "" || !Directory.Exists(lastSteamInstallPath))
+				if (lastSteamInstallPath == "" || !Directory.Exists(lastSteamInstallPath))
 				{
 					lastSteamInstallPath = GetSteamInstallPath();
 				}
@@ -79,7 +78,7 @@ namespace DivinityModManager.Util
 					DivinityApp.Log($"Skipping junction check for path '{path}'. Drive type is '{driveType}'.");
 				}
 			}
-			catch (Exception ex) 
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error checking junction point '{path}': {ex}");
 			}
@@ -100,27 +99,27 @@ namespace DivinityModManager.Util
 			}
 			return "";
 		}
-  
+
 		public static string GetSteamWorkshopPath()
 		{
-			if(LastSteamInstallPath != "")
+			if (LastSteamInstallPath != "")
 			{
 				string workshopFolder = Path.Combine(LastSteamInstallPath, PATH_Steam_WorkshopFolder);
 				DivinityApp.Log($"Looking for workshop folder at '{workshopFolder}'.");
-				if(Directory.Exists(workshopFolder))
+				if (Directory.Exists(workshopFolder))
 				{
 					return workshopFolder;
 				}
 			}
 			return "";
 		}
-		
+
 		public static string GetWorkshopPath(string appid)
 		{
 			if (LastSteamInstallPath != "")
 			{
 				string steamWorkshopPath = GetSteamWorkshopPath();
-				if(!String.IsNullOrEmpty(steamWorkshopPath))
+				if (!String.IsNullOrEmpty(steamWorkshopPath))
 				{
 					string workshopFolder = Path.Combine(steamWorkshopPath, "content", appid);
 					DivinityApp.Log($"Looking for game workshop folder at '{workshopFolder}'.");
@@ -227,7 +226,7 @@ namespace DivinityModManager.Util
 					return lastGamePath;
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"[*ERROR*] Error finding game path: {ex}");
 			}
@@ -270,7 +269,7 @@ namespace DivinityModManager.Util
 				reg.Close();
 				return true;
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error updating nxm protocol:\n{ex}");
 			}

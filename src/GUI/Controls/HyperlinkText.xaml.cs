@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DivinityModManager.Controls
 {
@@ -35,12 +26,12 @@ namespace DivinityModManager.Controls
 		{
 			string url = (string)e.NewValue;
 			Uri uri = null;
-			if(Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
+			if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
 			{
 				HyperlinkText x = (HyperlinkText)d;
 				x.Hyperlink.NavigateUri = uri;
 				x.ToolTip = url;
-				if(String.IsNullOrEmpty(x.DisplayText) || x.UseUrlForDisplayText)
+				if (String.IsNullOrEmpty(x.DisplayText) || x.UseUrlForDisplayText)
 				{
 					x.DisplayText = url;
 				}

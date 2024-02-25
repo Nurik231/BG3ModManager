@@ -10,15 +10,12 @@ using DynamicData;
 using LSLib.LS;
 using LSLib.LS.Enums;
 
-using Microsoft.VisualBasic.Logging;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -503,7 +500,7 @@ namespace DivinityModManager.Util
 								{
 									hasOsirisScripts = DivinityOsirisModStatus.SCRIPTS;
 								}
-								if(f.Name.Contains("ForceRecompile.txt"))
+								if (f.Name.Contains("ForceRecompile.txt"))
 								{
 									hasOsirisScripts = DivinityOsirisModStatus.MODFIXER;
 								}
@@ -525,7 +522,7 @@ namespace DivinityModManager.Util
 								if (!IgnoreBuiltinPath.Any(x => f.Name.Contains(x)))
 								{
 									isOverridingBuiltinDirectory = true;
-										
+
 									if (f.Size() > 0)
 									{
 										if (modFolder == "Game" && f.Name.Contains("GUI"))
@@ -591,12 +588,12 @@ namespace DivinityModManager.Util
 				using var sr = new System.IO.StreamReader(stream);
 				var text = await sr.ReadToEndAsync();
 				modData = ParseMetaFile(text);
-				if(modData != null && isOverridingBuiltinDirectory)
+				if (modData != null && isOverridingBuiltinDirectory)
 				{
 					modData.IsForceLoadedMergedMod = hasModFolderData;
 				}
 			}
-			else if(isOverridingBuiltinDirectory)
+			else if (isOverridingBuiltinDirectory)
 			{
 				//var pakData = new DivinityPakFile()
 				//{
@@ -622,7 +619,7 @@ namespace DivinityModManager.Util
 				modData.Files = files;
 				if (isOverridingBuiltinDirectory)
 				{
-					if(baseGameFiles.Count > 0 && baseGameFiles.Count < DivinityApp.MAX_FILE_OVERRIDE_DISPLAY)
+					if (baseGameFiles.Count > 0 && baseGameFiles.Count < DivinityApp.MAX_FILE_OVERRIDE_DISPLAY)
 					{
 						modData.BuiltinOverrideModsText = String.Join(Environment.NewLine, baseGameFiles.OrderBy(x => x));
 					}
@@ -633,7 +630,7 @@ namespace DivinityModManager.Util
 					modData.IsForceLoaded = true;
 				}
 				modData.FilePath = pakPath;
-				if(File.Exists(pakPath))
+				if (File.Exists(pakPath))
 				{
 					try
 					{
@@ -676,7 +673,7 @@ namespace DivinityModManager.Util
 			}
 			else
 			{
-				if(metaFile == null)
+				if (metaFile == null)
 				{
 					DivinityApp.Log($"No meta.lsx for mod pak '{pakPath}'.");
 				}
@@ -783,16 +780,16 @@ namespace DivinityModManager.Util
 			var mods = loadedMods.ToList();
 			var dupes = mods.GroupBy(x => x.UUID).Where(g => g.Count() > 1).SelectMany(x => x);
 			var lastestDuplicates = new Dictionary<string, DivinityModData>();
-			foreach(var m in dupes)
+			foreach (var m in dupes)
 			{
-				if(!lastestDuplicates.ContainsKey(m.UUID))
+				if (!lastestDuplicates.ContainsKey(m.UUID))
 				{
 					lastestDuplicates[m.UUID] = m;
 				}
 				else
 				{
 					var existing = lastestDuplicates[m.UUID];
-					if(m.Version.VersionInt > existing.Version.VersionInt)
+					if (m.Version.VersionInt > existing.Version.VersionInt)
 					{
 						lastestDuplicates[m.UUID] = m;
 					}
@@ -1113,13 +1110,13 @@ namespace DivinityModManager.Util
 							}
 						}
 					}
-					
-					if(String.IsNullOrEmpty(name))
+
+					if (String.IsNullOrEmpty(name))
 					{
 						name = folderName;
 					}
 
-					if(String.IsNullOrEmpty(displayedName))
+					if (String.IsNullOrEmpty(displayedName))
 					{
 						displayedName = name;
 					}
@@ -1582,7 +1579,7 @@ namespace DivinityModManager.Util
 				return false;
 			}
 			settings["SendStats"] = enableTelemetry;
-			if(force || !enableModWarnings)
+			if (force || !enableModWarnings)
 			{
 				settings["ModsWarningShown"] = !enableModWarnings;
 				settings["DataWarningShown"] = !enableModWarnings;
@@ -1610,9 +1607,9 @@ namespace DivinityModManager.Util
 					var dependencyMods = GetDependencyMods(dependencyModData, allMods, addedMods);
 					if (dependencyMods.Count > 0)
 					{
-						foreach(var m in dependencyMods)
+						foreach (var m in dependencyMods)
 						{
-							if((!forExport || m.CanAddToLoadOrder) && !addedMods.Contains(m.UUID))
+							if ((!forExport || m.CanAddToLoadOrder) && !addedMods.Contains(m.UUID))
 							{
 								addedMods.Add(m.UUID);
 								mods.Add(m);
@@ -1780,7 +1777,7 @@ namespace DivinityModManager.Util
 					using var rsrcReader = new LSFReader(rsrcStream);
 					resource = rsrcReader.Read();
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					DivinityApp.Log($"Error reading file:\n{ex}");
 				}

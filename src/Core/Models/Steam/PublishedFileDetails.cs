@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Steam
 {
@@ -26,7 +22,7 @@ namespace DivinityModManager.Models.Steam
 		[JsonProperty("response")]
 		public PublishedFileDetailsResponseData Response { get; set; }
 	}
-	
+
 	public class PublishedFileDetailsResponseData
 	{
 		[JsonProperty("result")]
@@ -36,7 +32,7 @@ namespace DivinityModManager.Models.Steam
 		public int ResultCount { get; set; }
 
 		[JsonProperty("publishedfiledetails")]
-		public List<PublishedFileDetails> PublishedFileDetails { get; set;}
+		public List<PublishedFileDetails> PublishedFileDetails { get; set; }
 	}
 
 

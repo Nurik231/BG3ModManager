@@ -1,4 +1,5 @@
 ﻿using DivinityModManager.Controls;
+using DivinityModManager.Models.Settings;
 using DivinityModManager.Models.View;
 using DivinityModManager.Util;
 using DivinityModManager.ViewModels;
@@ -6,13 +7,13 @@ using DivinityModManager.ViewModels;
 using DynamicData;
 
 using ReactiveUI;
-using System.Windows.Controls.Primitives;
 
 using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -23,7 +24,6 @@ using System.Windows.Navigation;
 using WpfAutoGrid;
 
 using Xceed.Wpf.Toolkit;
-using DivinityModManager.Models.Settings;
 
 namespace DivinityModManager.Views
 {
@@ -75,7 +75,7 @@ namespace DivinityModManager.Views
 					tb.SetBinding(TextBlock.VisibilityProperty, debugModeBinding);
 				}
 
-				if(prop.Property.PropertyType.IsEnum)
+				if (prop.Property.PropertyType.IsEnum)
 				{
 					var combo = new ComboBox()
 					{
@@ -96,9 +96,9 @@ namespace DivinityModManager.Views
 					continue;
 				}
 
-				if(prop.Property.PropertyType == typeof(TimeSpan))
+				if (prop.Property.PropertyType == typeof(TimeSpan))
 				{
-					if(TryFindResource("TimePeriodPicker") is DataTemplate template)
+					if (TryFindResource("TimePeriodPicker") is DataTemplate template)
 					{
 						var element = template.LoadContent() as FrameworkElement;
 						element.SetBinding(DataContextProperty, new Binding(prop.Property.Name)

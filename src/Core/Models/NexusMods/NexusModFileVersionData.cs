@@ -1,11 +1,6 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.NexusMods
 {
@@ -25,7 +20,7 @@ namespace DivinityModManager.Models.NexusMods
 			long modId = -1;
 			long fileId = -1;
 
-			if(match.Success)
+			if (match.Success)
 			{
 				if (long.TryParse(match.Groups[1]?.Value, out var mid))
 				{

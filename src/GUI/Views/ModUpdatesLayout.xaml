@@ -28,9 +28,6 @@
 				TargetType="{x:Type ListViewItem}">
 				<Setter Property="Tag" Value="{Binding Mod}" />
 			</Style>
-			<Style BasedOn="{StaticResource {x:Type Hyperlink}}" TargetType="{x:Type Hyperlink}">
-				<Setter Property="Foreground" Value="Lime" />
-			</Style>
 		</ResourceDictionary>
 	</UserControl.Resources>
 	<UserControl.Style>
@@ -92,7 +89,8 @@
 										<CheckBox
 											x:Name="NewFilesModListViewCheckboxHeader"
 											HorizontalAlignment="Center"
-											VerticalAlignment="Center" />
+											VerticalAlignment="Center"
+											CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
 									</GridViewColumn.Header>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
@@ -176,7 +174,8 @@
 										<CheckBox
 											x:Name="ModUpdatesCheckboxHeader"
 											HorizontalAlignment="Center"
-											VerticalAlignment="Center" />
+											VerticalAlignment="Center"
+											CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
 									</GridViewColumn.Header>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
@@ -267,6 +266,7 @@
 												<Hyperlink
 													Command="{Binding Path=OpenURLCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 													CommandParameter="{Binding UpdateLink}"
+													Foreground="Lime"
 													NavigateUri="{Binding UpdateLink}">
 													<TextBlock Text="{Binding SourceText}" />
 												</Hyperlink>

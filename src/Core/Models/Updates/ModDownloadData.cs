@@ -1,16 +1,14 @@
-﻿using DivinityModManager.Util;
+﻿using Alphaleonis.Win32.Filesystem;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Alphaleonis.Win32.Filesystem;
+using DivinityModManager.Util;
+
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+
+using System;
+using System.IO.Compression;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Updates
 {
@@ -67,7 +65,7 @@ namespace DivinityModManager.Models.Updates
 				}
 				else if (DownloadPathType == ModDownloadPathType.URL)
 				{
-					if(IsIndirectDownload)
+					if (IsIndirectDownload)
 					{
 						//Nexus non-premium users need to go to the website and get a nxm:// link to have download authorization.
 						DivinityFileUtils.TryOpenPath(DownloadPath);

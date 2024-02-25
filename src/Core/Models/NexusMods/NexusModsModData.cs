@@ -1,6 +1,4 @@
-﻿using DivinityModManager.Util;
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 using NexusModsNET.DataModels;
@@ -14,8 +12,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.NexusMods
 {
@@ -32,7 +28,7 @@ namespace DivinityModManager.Models.NexusMods
 			get => _lastFileId;
 			set
 			{
-				if(_lastFileId != value)
+				if (_lastFileId != value)
 				{
 					_lastFileId = value;
 					RaisePropertyChanged(nameof(LastFileId));
@@ -91,7 +87,7 @@ namespace DivinityModManager.Models.NexusMods
 
 		public void SetModVersion(NexusModFileVersionData info)
 		{
-			if(info.Success)
+			if (info.Success)
 			{
 				SetModVersion(info.ModId, info.FileId);
 			}
@@ -117,10 +113,10 @@ namespace DivinityModManager.Models.NexusMods
 
 		public void Update(NexusModsModData data)
 		{
-			foreach(var prop in _lazySerializedProperties)
+			foreach (var prop in _lazySerializedProperties)
 			{
 				var value = prop.GetValue(data);
-				if(value != null)
+				if (value != null)
 				{
 					prop.SetValue(this, value);
 					RaisePropertyChanged(prop.Name);
@@ -133,10 +129,10 @@ namespace DivinityModManager.Models.NexusMods
 		public void Update(NexusMod data)
 		{
 			var t = typeof(NexusMod);
-			foreach(var prop in _lazySerializedProperties)
+			foreach (var prop in _lazySerializedProperties)
 			{
 				var nexusProp = t.GetProperty(prop.Name);
-				if(nexusProp != null)
+				if (nexusProp != null)
 				{
 					var value = nexusProp.GetValue(data);
 					if (value != null)

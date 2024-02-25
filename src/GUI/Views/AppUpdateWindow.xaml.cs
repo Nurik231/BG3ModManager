@@ -1,24 +1,13 @@
-﻿using AdonisUI.Controls;
-
-using AutoUpdaterDotNET;
+﻿using AutoUpdaterDotNET;
 
 using DivinityModManager.Controls;
-using DivinityModManager.Converters;
 using DivinityModManager.Util;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Documents;
 using System.Windows.Input;
 

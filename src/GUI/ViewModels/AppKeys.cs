@@ -8,15 +8,12 @@ using DynamicData;
 using Newtonsoft.Json;
 
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace DivinityModManager.ViewModels

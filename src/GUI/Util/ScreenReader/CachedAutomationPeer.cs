@@ -1,10 +1,5 @@
-﻿using DivinityModManager.Views;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Media;
@@ -23,7 +18,7 @@ namespace DivinityModManager.Util.ScreenReader
 			{
 				return FrameworkElementAutomationPeer.CreatePeerForElement(element);
 			}
-			catch(Exception)
+			catch (Exception)
 			{
 				return null;
 			}
@@ -75,10 +70,10 @@ namespace DivinityModManager.Util.ScreenReader
 
 		protected override List<AutomationPeer> GetChildrenCore()
 		{
-			if(HasNullChildElement())
+			if (HasNullChildElement())
 			{
 				return _cachedAutomationPeers;
-			} 
+			}
 			else
 			{
 				_cachedAutomationPeers = GetPeersFromElements();

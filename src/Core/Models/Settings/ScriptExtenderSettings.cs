@@ -1,17 +1,12 @@
 ﻿using DivinityModManager.Extensions;
+
 using Newtonsoft.Json;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Settings
 {

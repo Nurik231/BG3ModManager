@@ -1,10 +1,6 @@
 ﻿using Splat;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DivinityModManager
 {
@@ -35,5 +31,7 @@ namespace DivinityModManager
 		{
 			Locator.CurrentMutable.RegisterLazySingleton(constructorCallback, typeof(T), contract);
 		}
+
+		public static ISettingsService Settings => Get<ISettingsService>();
 	}
 }

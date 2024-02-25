@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.ExceptionServices;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Toolbox.ScriptExtender
 {
@@ -135,7 +129,7 @@ namespace Toolbox.ScriptExtender
 			return false;
 		}
 
-		
+
 		public bool ShowConsoleWindow()
 		{
 			if (!_loaded) return false;
@@ -144,7 +138,7 @@ namespace Toolbox.ScriptExtender
 			return true;
 		}
 
-		
+
 		public bool Update()
 		{
 			if (!_loaded) return false;
@@ -152,7 +146,7 @@ namespace Toolbox.ScriptExtender
 			return true;
 		}
 
-		
+
 		public string GetError()
 		{
 			var error = "";
@@ -161,7 +155,7 @@ namespace Toolbox.ScriptExtender
 			return error;
 		}
 
-		
+
 		private void Shutdown()
 		{
 			if (!_loaded) return;
@@ -179,7 +173,7 @@ namespace Toolbox.ScriptExtender
 				if (_dll != IntPtr.Zero)
 				{
 					if (_loaded) Shutdown();
-					if(_consoleIsOpen)
+					if (_consoleIsOpen)
 					{
 						Console.WriteLine("Console window is open. Good luck.");
 					}

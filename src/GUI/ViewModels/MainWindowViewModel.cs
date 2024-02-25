@@ -5,7 +5,6 @@ using AutoUpdaterDotNET;
 using DivinityModManager.Extensions;
 using DivinityModManager.Models;
 using DivinityModManager.Models.App;
-using DivinityModManager.Models.Extender;
 using DivinityModManager.Models.Mod;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.Settings;
@@ -235,7 +234,7 @@ namespace DivinityModManager.ViewModels
 		[ObservableAsProperty] public bool HideModList { get; }
 		[ObservableAsProperty] public bool HasForceLoadedMods { get; }
 		[ObservableAsProperty] public bool IsDeletingFiles { get; }
-		
+
 		[ObservableAsProperty] public string OpenGameButtonToolTip { get; }
 
 		#region Progress
@@ -663,7 +662,7 @@ Directory the zip will be extracted to:
 				{
 					InclusionFilter = (f) => f.FileName.Equals(DivinityApp.EXTENDER_APPDATA_DLL, StringComparison.OrdinalIgnoreCase)
 				};
-				if(t.HasValue) enumerationFilter.CancellationToken = t.Value;
+				if (t.HasValue) enumerationFilter.CancellationToken = t.Value;
 
 				var files = Directory.EnumerateFiles(extenderAppDataDir, DirectoryEnumerationOptions.Recursive | DirectoryEnumerationOptions.Files, enumerationFilter);
 				var isInstalled = false;
@@ -733,10 +732,10 @@ Directory the zip will be extracted to:
 								if (obj.TryGetValue("browser_download_url", StringComparison.OrdinalIgnoreCase, out var browserUrl))
 								{
 									var url = browserUrl.ToString();
-									if(url.EndsWith(".zip"))
+									if (url.EndsWith(".zip"))
 									{
 										latestReleaseZipUrl = url;
-										if(url.IndexOf("Console") <= -1) break;
+										if (url.IndexOf("Console") <= -1) break;
 									}
 								}
 							}
@@ -914,7 +913,7 @@ Directory the zip will be extracted to:
 				exeArgs.Add("--skip-launcher");
 			}
 
-			if(!Settings.LaunchThroughSteam)
+			if (!Settings.LaunchThroughSteam)
 			{
 				//Args always set by the launcher
 				exeArgs.Add("-externalcrashhandler");
@@ -982,7 +981,7 @@ Directory the zip will be extracted to:
 			var limitToSingle = x.Item2;
 			var isRunning = x.Item3;
 			var canForce = x.Item4;
-			if(exePath.IsExistingFile())
+			if (exePath.IsExistingFile())
 			{
 				if (isRunning && limitToSingle)
 				{
@@ -1068,7 +1067,7 @@ Directory the zip will be extracted to:
 			// Updating extender requirement display
 			Settings.WhenAnyValue(x => x.ExtenderSettings.EnableExtensions).ObserveOn(RxApp.MainThreadScheduler).Subscribe((b) =>
 			{
-				if(Window.SettingsWindow.IsVisible)
+				if (Window.SettingsWindow.IsVisible)
 				{
 					UpdateExtenderVersionForAllMods();
 				}
@@ -1348,7 +1347,7 @@ Directory the zip will be extracted to:
 			try
 			{
 				string localAppDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.DoNotVerify);
-				
+
 				if (String.IsNullOrWhiteSpace(AppSettings.DefaultPathways.DocumentsGameFolder))
 				{
 					AppSettings.DefaultPathways.DocumentsGameFolder = "Larian Studios\\Baldur's Gate 3";
@@ -1878,7 +1877,7 @@ Directory the zip will be extracted to:
 					}
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error reading zip:\n{ex}");
 			}
@@ -1989,8 +1988,8 @@ Directory the zip will be extracted to:
 					results.AddError(filePath, ex);
 				}
 			}
-			
-			if(results.Success)
+
+			if (results.Success)
 			{
 				DivinityApp.Log($"Updated NexusMods mod ids for ({results.Mods.Count}) mod(s).");
 				await _updater.NexusMods.Update(results.Mods, token);
@@ -2084,7 +2083,7 @@ Directory the zip will be extracted to:
 								{
 									ShowAlert("No NexusMods ids found. Does the .zip name contain an id, with a .pak file inside?", AlertType.Warning, 60);
 								}
-								else if(result.Errors.Count > 0)
+								else if (result.Errors.Count > 0)
 								{
 									ShowAlert($"Encountered some errors fetching ids - Check the log", AlertType.Danger, 60);
 								}
@@ -2170,7 +2169,7 @@ Directory the zip will be extracted to:
 					ReportProgress = amount => IncreaseMainProgressValue(amount),
 					ShowAlert = (msg, t, timeout) => RxApp.MainThreadScheduler.Schedule(() => ShowAlert(msg, t, timeout))
 				};
-				
+
 				if (_archiveFormats.Contains(ext, StringComparer.OrdinalIgnoreCase))
 				{
 					await ImportUtils.ImportArchiveAsync(importOptions);
@@ -2180,7 +2179,7 @@ Directory the zip will be extracted to:
 					await ImportUtils.ImportCompressedFileAsync(importOptions);
 				}
 
-				if(importOptions.Result.Mods.Count > 0)
+				if (importOptions.Result.Mods.Count > 0)
 				{
 					await Observable.Start(() =>
 					{
@@ -2191,7 +2190,7 @@ Directory the zip will be extracted to:
 					}, RxApp.MainThreadScheduler);
 				}
 			}
-			
+
 			return taskResult;
 		}
 
@@ -2262,7 +2261,7 @@ Directory the zip will be extracted to:
 						}
 						else
 						{
-							if(total == 0)
+							if (total == 0)
 							{
 								ShowAlert("No mods imported. Does the file contain a .pak?", AlertType.Warning, 60);
 							}
@@ -2298,7 +2297,7 @@ Directory the zip will be extracted to:
 				}
 			}
 
-			if(String.IsNullOrEmpty(directory) || !Directory.Exists(directory))
+			if (String.IsNullOrEmpty(directory) || !Directory.Exists(directory))
 			{
 				directory = DivinityApp.GetAppDirectory();
 			}
@@ -2569,7 +2568,7 @@ Directory the zip will be extracted to:
 
 		private bool CanUpdateMod(DivinityModData mod, DateTime now, TimeSpan minWaitPeriod, ISettingsService settingsService)
 		{
-			if(settingsService.ModConfig.LastUpdated.TryGetValue(mod.UUID, out var last))
+			if (settingsService.ModConfig.LastUpdated.TryGetValue(mod.UUID, out var last))
 			{
 				var time = new DateTime(last);
 				return now - time >= minWaitPeriod;
@@ -2581,7 +2580,7 @@ Directory the zip will be extracted to:
 		{
 			var settingsService = Services.Get<ISettingsService>();
 			var minUpdateTime = Settings.UpdateSettings.MinimumUpdateTimePeriod;
-			if(minUpdateTime > TimeSpan.Zero)
+			if (minUpdateTime > TimeSpan.Zero)
 			{
 				var now = DateTime.Now;
 				return UserMods.Where(x => CanUpdateMod(x, now, minUpdateTime, settingsService)).ToList();
@@ -2659,7 +2658,7 @@ Directory the zip will be extracted to:
 						if (!isPremium)
 						{
 							var nxmEnabled = "";
-							if(Settings.UpdateSettings.IsAssociatedWithNXM)
+							if (Settings.UpdateSettings.IsAssociatedWithNXM)
 							{
 								nxmEnabled = "&nmm=1";
 							}
@@ -2773,7 +2772,7 @@ Directory the zip will be extracted to:
 				}
 				else
 				{
-					if((loadedProfiles == null || loadedProfiles.Count == 0))
+					if ((loadedProfiles == null || loadedProfiles.Count == 0))
 					{
 						DivinityApp.Log("No profiles found?");
 					}
@@ -3080,7 +3079,7 @@ Directory the zip will be extracted to:
 							DivinityApp.Log($"Updated saved order '{order.Name}' from '{modOrderName}'");
 						}
 					}
-					if (!updatedOrder) 
+					if (!updatedOrder)
 					{
 						AddNewModOrder(tempOrder);
 					}
@@ -3395,7 +3394,7 @@ Directory the zip will be extracted to:
 				MainProgressToken = null;
 			}
 
-			if(delay > 0)
+			if (delay > 0)
 			{
 				RxApp.MainThreadScheduler.Schedule(TimeSpan.FromMilliseconds(delay), _ =>
 				{
@@ -3486,12 +3485,12 @@ Directory the zip will be extracted to:
 					{
 						OnMainProgressComplete();
 
-						if(result.Errors.Count > 0)
+						if (result.Errors.Count > 0)
 						{
 							var sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.Replace("/", "-");
 							var errorOutputPath = DivinityApp.GetAppDirectory("_Logs", $"ImportOrderFromArchive_{DateTime.Now.ToString(sysFormat + "_HH-mm-ss")}_Errors.log");
 							var logsDir = Path.GetDirectoryName(errorOutputPath);
-							if(!Directory.Exists(logsDir))
+							if (!Directory.Exists(logsDir))
 							{
 								Directory.CreateDirectory(logsDir);
 							}
@@ -3501,7 +3500,7 @@ Directory the zip will be extracted to:
 						var messages = new List<string>();
 						var total = result.Orders.Count + result.Mods.Count;
 
-						if(total > 0)
+						if (total > 0)
 						{
 							if (result.Orders.Count > 0)
 							{
@@ -3519,7 +3518,7 @@ Directory the zip will be extracted to:
 										else
 										{
 											var currentOrder = ModOrderList.FirstOrDefault(x => x.IsModSettings);
-											if(currentOrder != null)
+											if (currentOrder != null)
 											{
 												SelectedModOrder.SetFrom(currentOrder);
 											}
@@ -3537,7 +3536,7 @@ Directory the zip will be extracted to:
 							}
 							var msg = String.Join(", ", messages);
 							ShowAlert($"Imported {msg}", AlertType.Success, 20);
-						}	
+						}
 						else
 						{
 							ShowAlert($"Successfully extracted archive, but no mods or load orders were found", AlertType.Warning, 20);
@@ -4514,7 +4513,7 @@ Directory the zip will be extracted to:
 			var targetMods = new List<DivinityModData>();
 			targetMods.AddRange(list.Where(x => x.CanDelete && x.IsSelected));
 			if (!contextMenuMod.IsSelected && contextMenuMod.CanDelete) targetMods.Add(contextMenuMod);
-			if(targetMods.Count > 0)
+			if (targetMods.Count > 0)
 			{
 				DeleteMods(targetMods);
 			}
@@ -4831,7 +4830,7 @@ Directory the zip will be extracted to:
 		private void LoadAppConfig()
 		{
 			AppSettingsLoaded = false;
-			if(!_settings.TryLoadAppSettings(out var ex))
+			if (!_settings.TryLoadAppSettings(out var ex))
 			{
 				ShowAlert($"Error loading app settings: {ex.Message}", AlertType.Danger);
 				return;
@@ -4896,7 +4895,7 @@ Directory the zip will be extracted to:
 
 		private static BitmapImage UriToImage(Uri uri)
 		{
-			if(uri != null)
+			if (uri != null)
 			{
 				var bitmap = new BitmapImage();
 				bitmap.BeginInit();
@@ -4945,7 +4944,7 @@ Directory the zip will be extracted to:
 			nexusModsService.WhenAnyValue(x => x.DownloadProgressValue, x => x.DownloadProgressText, x => x.CanCancel).Subscribe(x =>
 			{
 				DownloadBar.UpdateProgress(x.Item1, x.Item2);
-				if(x.Item3)
+				if (x.Item3)
 				{
 					DownloadBar.CancelAction = () => nexusModsService.CancelDownloads();
 				}
@@ -4958,7 +4957,8 @@ Directory the zip will be extracted to:
 			this.WhenAnyValue(x => x.Settings.UpdateSettings.NexusModsAPIKey).BindTo(nexusModsService, x => x.ApiKey);
 
 			IDisposable importDownloadsTask = null;
-			nexusModsService.DownloadResults.ObserveAddChanged().Subscribe(f => {
+			nexusModsService.DownloadResults.ObserveAddChanged().Subscribe(f =>
+			{
 				importDownloadsTask?.Dispose();
 				importDownloadsTask = RxApp.TaskpoolScheduler.ScheduleAsync(TimeSpan.FromMilliseconds(250), async (sch, token) =>
 				{
@@ -4970,7 +4970,7 @@ Directory the zip will be extracted to:
 						TotalFiles = files.Count
 					};
 					var builtinMods = DivinityApp.IgnoredMods.SafeToDictionary(x => x.Folder, x => x);
-					foreach(var filePath in files)
+					foreach (var filePath in files)
 					{
 						await AddModFromFile(builtinMods, result, filePath, token, false);
 					}
@@ -5044,7 +5044,7 @@ Directory the zip will be extracted to:
 			whenRefreshing.Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.UpdatingBusyIndicatorVisibility);
 			whenRefreshing.Select(PropertyConverters.BoolToVisibilityReversed).ToUIProperty(this, x => x.UpdateCountVisibility);
 			this.WhenAnyValue(x => x.ModUpdatesViewVisible).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.UpdatesViewVisibility, Visibility.Collapsed);
-			
+
 			this.WhenAnyValue(x => x.Settings.DebugModeEnabled, x => x.Settings.ExtenderSettings.DeveloperMode)
 			.Select(x => PropertyConverters.BoolToVisibility(x.Item1 || x.Item2)).ToUIProperty(this, x => x.DeveloperModeVisibility);
 
@@ -5292,7 +5292,7 @@ Directory the zip will be extracted to:
 					if (lastProfileIndex != profileIndex)
 					{
 						lastProfileIndex = profileIndex;
-						if(profileIndex > -1 && Profiles.ElementAtOrDefault(profileIndex) is var profile && profile != null)
+						if (profileIndex > -1 && Profiles.ElementAtOrDefault(profileIndex) is var profile && profile != null)
 						{
 							if (orderIndex > -1)
 							{
@@ -5542,7 +5542,7 @@ Directory the zip will be extracted to:
 
 			_modSettingsWatcher.FileChanged.Subscribe(e =>
 			{
-				if(SelectedModOrder != null)
+				if (SelectedModOrder != null)
 				{
 					//var exeName = !Settings.LaunchDX11 ? "bg3" : "bg3_dx11";
 					//var isGameRunning = Process.GetProcessesByName(exeName).Length > 0;
