@@ -4893,19 +4893,6 @@ Directory the zip will be extracted to:
 			return $"NexusMods Limits [Hourly ({limits.HourlyRemaining}/{limits.HourlyLimit}) Daily ({limits.DailyRemaining}/{limits.DailyLimit})]";
 		}
 
-		private static BitmapImage UriToImage(Uri uri)
-		{
-			if (uri != null)
-			{
-				var bitmap = new BitmapImage();
-				bitmap.BeginInit();
-				bitmap.UriSource = uri;
-				bitmap.EndInit();
-				return bitmap;
-			}
-			return null;
-		}
-
 		public MainWindowViewModel() : base()
 		{
 			MainProgressValue = 0d;
@@ -4939,7 +4926,7 @@ Directory the zip will be extracted to:
 			nexusModsService.WhenLimitsChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(NexusModsLimitToText).ToUIProperty(this, x => x.NexusModsLimitsText);
 			var whenNexusModsAvatar = nexusModsService.WhenAnyValue(x => x.ProfileAvatarUrl);
 			whenNexusModsAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.NexusModsProfileAvatarVisibility);
-			whenNexusModsAvatar.Select(UriToImage).ToUIProperty(this, x => x.NexusModsProfileBitmapImage);
+			whenNexusModsAvatar.Select(PropertyHelpers.UriToImage).ToUIProperty(this, x => x.NexusModsProfileBitmapImage);
 
 			nexusModsService.WhenAnyValue(x => x.DownloadProgressValue, x => x.DownloadProgressText, x => x.CanCancel).Subscribe(x =>
 			{

@@ -1,5 +1,6 @@
 ﻿using Alphaleonis.Win32.Filesystem;
 
+using DivinityModManager.AppServices.Data;
 using DivinityModManager.Models;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.NexusMods.NXM;
@@ -8,8 +9,11 @@ using DivinityModManager.Models.Updates;
 using DynamicData;
 using DynamicData.Binding;
 
+using Newtonsoft.Json;
+
 using NexusModsNET;
 using NexusModsNET.DataModels;
+using NexusModsNET.DataModels.GraphQL.Query;
 
 using Reactive.Bindings.Disposables;
 
@@ -20,8 +24,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -327,13 +333,24 @@ namespace DivinityModManager.AppServices
 						case NexusModsProtocolType.Collection:
 							var collectionProtocol = (NexusDownloadCollectionProtocolData)data;
 							var allowAdultContent = Services.Settings.ManagerSettings.UpdateSettings.AllowAdultContent;
-							var collectionData = await _dataLoader.Graph.GetCollectionRevisionAsync(collectionProtocol.GameDomain, collectionProtocol.Slug, collectionProtocol.Revision, allowAdultContent, token);
-							if (collectionData.Data != null)
+
+							var queryData = new NexusGraphQueryCollectionRevisionRequestData(collectionProtocol.GameDomain, collectionProtocol.Slug, 
+								collectionProtocol.Revision, allowAdultContent, NexusModsQuery.CollectionRevision);
+							var payload = JsonConvert.SerializeObject(queryData);
+							var content = new StringContent(payload, Encoding.UTF8, "application/json");
+
+							var collectionData = await _dataLoader.Graph.PostAsync<NexusGraphQueryCollectionRevisionResult>(content, token);
+							if (collectionData?.Data != null)
 							{
 								var modFiles = collectionData.Data.CollectionRevision?.ModFiles;
-								if (modFiles != null)
+								if (modFiles != null && modFiles.Length > 0)
 								{
 									DivinityApp.Log($"Total mods in collection: {modFiles.Length}");
+									var doDownload = await DivinityInteractions.OpenDownloadCollectionView.Handle(collectionData.Data.CollectionRevision);
+									if(doDownload)
+									{
+
+									}
 								}
 							}
 							break;

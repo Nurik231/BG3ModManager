@@ -1,5 +1,7 @@
 ﻿using DivinityModManager.Models;
 
+using NexusModsNET.DataModels.GraphQL.Types;
+
 using ReactiveUI;
 
 using System.Threading;
@@ -17,5 +19,6 @@ namespace DivinityModManager
 	{
 		public static readonly Interaction<DeleteFilesViewConfirmationData, bool> ConfirmModDeletion = new();
 		public static readonly Interaction<DivinityModData, bool> OpenModProperties = new();
+		public static readonly Interaction<NexusGraphCollectionRevision, bool> OpenDownloadCollectionView = new();
 	}
 }

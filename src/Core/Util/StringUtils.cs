@@ -71,5 +71,14 @@ namespace DivinityModManager.Util
 			}
 			return input;
 		}
+
+		public static Uri StringToUri(string value)
+		{
+			if (!String.IsNullOrEmpty(value))
+			{
+				return new Uri(value);
+			}
+			return null;
+		}
 	}
 }

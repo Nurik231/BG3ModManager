@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace DivinityModManager
@@ -18,9 +14,9 @@ namespace DivinityModManager
 		private static bool EnsureSingleInstance(string[] args)
 		{
 			var procName = Process.GetCurrentProcess().ProcessName;
-			if(Process.GetProcessesByName(procName).Length > 1)
+			if (Process.GetProcessesByName(procName).Length > 1)
 			{
-				if(args.Length > 0)
+				if (args.Length > 0)
 				{
 					var argsMessage = String.Join(" ", args);
 					try
@@ -32,7 +28,7 @@ namespace DivinityModManager
 						sw.Write(argsMessage);
 						sw.Flush();
 					}
-					catch(Exception ex)
+					catch (Exception ex)
 					{
 						Console.WriteLine($"Error sending args to server:\n{ex}");
 					}
