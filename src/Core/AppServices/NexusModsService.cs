@@ -347,7 +347,8 @@ namespace DivinityModManager.AppServices
 								{
 									DivinityApp.Log($"Total mods in collection: {modFiles.Length}");
 									var doDownload = await DivinityInteractions.OpenDownloadCollectionView.Handle(collectionData.Data.CollectionRevision);
-									if(doDownload)
+									DivinityApp.Log($"doDownload: {doDownload}");
+									if (doDownload)
 									{
 
 									}

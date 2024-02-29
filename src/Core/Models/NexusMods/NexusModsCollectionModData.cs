@@ -20,6 +20,7 @@ namespace DivinityModManager.Models.NexusMods
 	{
 		public NexusGraphModFile ModFileData { get; }
 
+		[Reactive] public int Index { get; set; }
 		[Reactive] public string Name { get; set; }
 		[Reactive] public string Author { get; set; }
 		[Reactive] public string Summary { get; set; }

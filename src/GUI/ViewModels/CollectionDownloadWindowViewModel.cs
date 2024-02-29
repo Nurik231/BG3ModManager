@@ -33,21 +33,51 @@ namespace DivinityModManager.ViewModels
 	{
 		[Reactive] public NexusModsCollectionData Data { get; private set; }
 
-		[ObservableAsProperty] public string Name { get; }
+		private readonly ReadOnlyObservableCollection<NexusModsCollectionModData> _mods;
+		public ReadOnlyObservableCollection<NexusModsCollectionModData> Mods => _mods;
+
+		[ObservableAsProperty] public string Title { get; }
+		[ObservableAsProperty] public string CreatedByText { get; }
 		[ObservableAsProperty] public Visibility AuthorAvatarVisibility { get; }
 		[ObservableAsProperty] public BitmapImage AuthorAvatar { get; }
+
+		public ICommand SelectAllCommand { get; }
+		public ICommand ConfirmCommand { get; set; }
+		public ICommand CancelCommand { get; set; }
 
 		public void Load(NexusGraphCollectionRevision collectionRevision)
 		{
 			Data = NexusModsCollectionData.FromCollectionRevision(collectionRevision);
 		}
 
+		private static string AuthorToCreatedByText(string author)
+		{
+			var text = "";
+			if (!String.IsNullOrEmpty(author))
+			{
+				text = "Created by " + author;
+			}
+			return text;
+		}
+
 		public CollectionDownloadWindowViewModel()
 		{
-			this.WhenAnyValue(x => x.Data.Name).ToUIProperty(this, x => x.Name);
+			Data.Mods.Connect().ObserveOn(RxApp.MainThreadScheduler).Bind(out _mods).Subscribe();
+
+			this.WhenAnyValue(x => x.Data.Name).ToUIProperty(this, x => x.Title);
+			this.WhenAnyValue(x.Data.Author).Select(AuthorToCreatedByText).ToUIProperty(this, x => x.CreatedByText);
+
 			var whenAvatar = this.WhenAnyValue(x => x.Data.AuthorAvatarUrl);
 			whenAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.AuthorAvatarVisibility);
 			whenAvatar.Select(PropertyHelpers.UriToImage).ToUIProperty(this, x => x.AuthorAvatar);
+
+			SelectAllCommand = ReactiveCommand.Create<bool>(b =>
+			{
+				foreach(var mod in Data.Mods.Items)
+				{
+					mod.IsSelected = b;
+				}
+			});
 		}
 	}
 }

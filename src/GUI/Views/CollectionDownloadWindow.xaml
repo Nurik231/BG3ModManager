@@ -4,11 +4,12 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
 	xmlns:ag="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
+	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dapp="clr-namespace:DivinityModManager;assembly=DivinityModManagerCore"
-	xmlns:data="clr-namespace:DivinityModManager.Models;assembly=DivinityModManagerCore"
+	xmlns:data="clr-namespace:DivinityModManager.Models.NexusMods;assembly=DivinityModManagerCore"
 	xmlns:dd="urn:gong-wpf-dragdrop"
 	xmlns:local="clr-namespace:DivinityModManager.Views"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -96,21 +97,9 @@
 		<Style BasedOn="{StaticResource {x:Type UserControl}}" TargetType="UserControl" />
 	</UserControl.Style>
 	<Border BorderBrush="LightGray" BorderThickness="1">
-		<Grid x:Name="UpdateGrid">
-			<Grid.Resources>
-				<ControlTemplate x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
-					<Border
-						Margin="0,-5"
-						HorizontalAlignment="Stretch"
-						Background="Transparent">
-						<TextBlock
-							Height="1"
-							HorizontalAlignment="Stretch"
-							Background="{DynamicResource {x:Static adonisUI:Brushes.Layer3BackgroundBrush}}" />
-					</Border>
-				</ControlTemplate>
-			</Grid.Resources>
+		<Grid>
 			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="1*" />
 				<RowDefinition Height="Auto" />
@@ -119,12 +108,43 @@
 				<TextBlock
 					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer3BackgroundBrush}}"
 					FontSize="24"
-					Text="Mod Updates"
+					Text="Download Collection"
 					TextAlignment="Center" />
 				<Rectangle Height="2" Fill="LightGray" />
 			</StackPanel>
+			<Grid Grid.Row="1">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<TextBlock
+					x:Name="CollectionTitleTextBlock"
+					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer3BackgroundBrush}}"
+					FontSize="24"
+					TextAlignment="Center" />
+				<StackPanel
+					x:Name="AuthorStackPanel"
+					Grid.Row="1"
+					Orientation="Horizontal">
+					<TextBlock
+						x:Name="CreatedByTextBlock"
+						FontSize="16"
+						FontStyle="Italic"
+						Foreground="LimeGreen"
+						Style="{StaticResource TitleWithDropShadow}" />
+					<Image
+						x:Name="AuthorImage"
+						MaxWidth="32"
+						MaxHeight="32"
+						Margin="4"
+						RenderOptions.BitmapScalingMode="HighQuality"
+						Stretch="UniformToFill" />
+				</StackPanel>
+
+				<Rectangle Height="2" Fill="LightGray" />
+			</Grid>
 			<ag:AutoGrid
-				Grid.Row="1"
+				Grid.Row="2"
 				Columns="*"
 				RowCount="2"
 				Rows="auto,*">
@@ -136,21 +156,41 @@
 				<controls:ModListView
 					x:Name="ModsListView"
 					BorderThickness="0"
-					GridViewColumnHeader.Click="SortNewModsGridView"
-					ItemContainerStyle="{StaticResource DivinityModUpdateListItem}">
+					GridViewColumnHeader.Click="SortModsGridView">
 					<controls:ModListView.View>
 						<GridView
-							x:Name="NewModsGridView"
+							x:Name="ModsGridView"
 							AllowsColumnReorder="True"
 							ColumnHeaderContainerStyle="{StaticResource GridViewLeftContainerStyle}">
 							<GridView.Columns>
+								<GridViewColumn
+									Width="40"
+									behavior:ScreenReaderHelperBehavior.HelpText="The mod order index column"
+									behavior:ScreenReaderHelperBehavior.Name="Index"
+									Header="#"
+									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
+									<GridViewColumn.CellTemplate>
+										<DataTemplate>
+											<TextBlock
+												Margin="2,0,2,0"
+												Background="Transparent"
+												Text="{Binding Index}" />
+										</DataTemplate>
+									</GridViewColumn.CellTemplate>
+								</GridViewColumn>
 								<GridViewColumn Width="40" HeaderContainerStyle="{StaticResource GridViewCenteredContainerStyle}">
 									<GridViewColumn.Header>
-										<CheckBox
-											x:Name="NewFilesModListViewCheckboxHeader"
+										<StackPanel
 											HorizontalAlignment="Center"
 											VerticalAlignment="Center"
-											CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
+											Orientation="Horizontal">
+											<TextBlock Margin="2" Text="Download" />
+											<CheckBox
+												x:Name="CheckboxHeader"
+												Margin="2"
+												CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
+												IsChecked="True" />
+										</StackPanel>
 									</GridViewColumn.Header>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
@@ -163,9 +203,25 @@
 								</GridViewColumn>
 								<GridViewColumn
 									Width="400"
-									CellTemplate="{StaticResource ModNameTemplate}"
 									Header="Name"
-									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}" />
+									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
+									<GridViewColumn.CellTemplate>
+										<DataTemplate>
+											<controls:ModEntryGrid>
+												<controls:ModEntryGrid.ColumnDefinitions>
+													<ColumnDefinition Width="*" />
+													<ColumnDefinition Width="Auto" />
+												</controls:ModEntryGrid.ColumnDefinitions>
+												<TextBlock
+													HorizontalAlignment="Stretch"
+													AutomationProperties.HelpText="{Binding Text, RelativeSource={RelativeSource Self}}"
+													Tag="{Binding}"
+													Text="{Binding Name}"
+													ToolTip="{StaticResource NexusModToolTip}" />
+											</controls:ModEntryGrid>
+										</DataTemplate>
+									</GridViewColumn.CellTemplate>
+								</GridViewColumn>
 								<GridViewColumn
 									Width="100"
 									Header="Author"
@@ -182,17 +238,20 @@
 									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding DisplayVersion, Mode=OneWay}" />
+											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Version, Mode=OneWay}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
 								<GridViewColumn
 									Width="Auto"
-									Header="Type"
+									Header="Optional"
 									HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
-											<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding ModType, Mode=OneWay}" />
+											<CheckBox
+												Focusable="False"
+												IsChecked="{Binding IsOptional}"
+												IsHitTestVisible="False" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
@@ -201,15 +260,18 @@
 					</controls:ModListView.View>
 				</controls:ModListView>
 			</ag:AutoGrid>
-			<Grid Grid.Row="4" Margin="4">
-				<StackPanel
-					HorizontalAlignment="Center"
-					VerticalAlignment="Center"
-					Orientation="Horizontal">
+			<Grid Grid.Row="3" Margin="4">
+				<StackPanel Grid.Row="2" Orientation="Horizontal">
 					<Button
-						x:Name="DownloadButton"
-						Padding="8,2"
-						Content="Downloaded Selected Mods" />
+						x:Name="ConfirmButton"
+						Margin="4,0"
+						Padding="12,2"
+						Content="Download" />
+					<Button
+						x:Name="CancelButton"
+						Margin="4,0"
+						Padding="12,2"
+						Content="Cancel" />
 				</StackPanel>
 			</Grid>
 		</Grid>

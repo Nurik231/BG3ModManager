@@ -34,9 +34,12 @@ namespace DivinityModManager.Models.NexusMods
 			Mods = new();
 		}
 
-		private static NexusModsCollectionModData ModFileToReactiveData(NexusGraphCollectionRevisionMod mod)
+		private static NexusModsCollectionModData ModFileToReactiveData(int index, NexusGraphCollectionRevisionMod mod)
 		{
-			return new NexusModsCollectionModData(mod);
+			return new NexusModsCollectionModData(mod)
+			{
+				Index = index
+			};
 		}
 
 		public static NexusModsCollectionData FromCollectionRevision(NexusGraphCollectionRevision collectionRevision)
@@ -54,7 +57,7 @@ namespace DivinityModManager.Models.NexusMods
 				CreatedAt = collectionRevision.CreatedAt,
 				UpdatedAt = collectionRevision.UpdatedAt
 			};
-			var mods = collectionRevision.ModFiles.Select(ModFileToReactiveData);
+			var mods = Enumerable.Range(0, collectionRevision.ModFiles.Length).Select(i => ModFileToReactiveData(i, collectionRevision.ModFiles[i]));
 			data.Mods.AddRange(mods);
 
 			return data;
