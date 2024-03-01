@@ -109,7 +109,7 @@ namespace DivinityModManager.Util
 			return totalLoaded;
 		}
 
-		public static async Task<bool> GetAllWorkshopDataAsync(SteamWorkshopCachedData cachedData, string appid, CancellationToken token)
+		public static async Task<bool> GetAllWorkshopDataAsync(SteamWorkshopCachedData cachedData, string appid, string apiKey, CancellationToken token)
 		{
 			DivinityApp.Log($"Attempting to get workshop data for mods missing workshop folders.");
 			int totalFound = 0;
@@ -121,7 +121,7 @@ namespace DivinityModManager.Util
 			while (page < maxPage)
 			{
 				if (token.IsCancellationRequested) break;
-				string url = $"https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/?key={ApiKeys.STEAM_WEB_API}&appid={appid}&return_short_description=true&numperpage=99&return_tags=true&return_metadata=true&requiredtags[0]=Definitive+Edition&excludedtags[0]=GM+Campaign&page={page}";
+				string url = $"https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/?key={apiKey}&appid={appid}&return_short_description=true&numperpage=99&return_tags=true&return_metadata=true&excludedtags[0]=GM+Campaign&page={page}";
 				string responseData = "";
 				try
 				{
@@ -195,7 +195,7 @@ namespace DivinityModManager.Util
 			}
 		}
 
-		public static async Task<int> FindWorkshopDataAsync(List<DivinityModData> mods, SteamWorkshopCachedData cachedData, string appid)
+		public static async Task<int> FindWorkshopDataAsync(List<DivinityModData> mods, SteamWorkshopCachedData cachedData, string appid, string apiKey)
 		{
 			if (mods == null || mods.Count == 0)
 			{
@@ -207,7 +207,7 @@ namespace DivinityModManager.Util
 			foreach (var mod in mods)
 			{
 				string name = Uri.EscapeUriString(mod.DisplayName);
-				string url = $"https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/?key={ApiKeys.STEAM_WEB_API}&appid={appid}&search_text={name}&return_short_description=true&return_tags=true&numperpage=99&return_metadata=true&requiredtags[0]=Definitive+Edition";
+				string url = $"https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/?key={apiKey}&appid={appid}&search_text={name}&return_short_description=true&return_tags=true&numperpage=99&return_metadata=true&requiredtags[0]=Definitive+Edition";
 				string responseData = "";
 				try
 				{
