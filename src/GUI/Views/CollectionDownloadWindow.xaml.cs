@@ -57,9 +57,8 @@ namespace DivinityModManager.Views
 				this.OneWayBind(ViewModel, vm => vm.Mods, view => view.ModsListView.ItemsSource);
 
 				this.OneWayBind(ViewModel, vm => vm.Title, view => view.CollectionTitleTextBlock.Text);
-				this.OneWayBind(ViewModel, vm => vm.CreatedByText, view => view.CreatedByTextBlock.Text);
 				this.OneWayBind(ViewModel, vm => vm.AuthorAvatar, view => view.AuthorImage.Source);
-				this.OneWayBind(ViewModel, vm => vm.AuthorAvatarVisibility, view => view.AuthorStackPanel.Visibility);
+				this.OneWayBind(ViewModel, vm => vm.AuthorAvatarVisibility, view => view.AuthorImage.Visibility);
 
 				this.BindCommand(ViewModel, vm => vm.SelectAllCommand, view => view.CheckboxHeader);
 
