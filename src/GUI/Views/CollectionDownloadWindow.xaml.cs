@@ -22,7 +22,7 @@ using System.Windows.Data;
 
 namespace DivinityModManager.Views
 {
-	public class CollectionDownloadWindowBase : ReactiveUserControl<CollectionDownloadWindowViewModel> { }
+	public class CollectionDownloadWindowBase : HideWindowBase<CollectionDownloadWindowViewModel> { }
 
 	public partial class CollectionDownloadWindow : CollectionDownloadWindowBase
 	{
@@ -49,6 +49,8 @@ namespace DivinityModManager.Views
 
 			ViewModel.ConfirmCommand = ReactiveCommand.Create(Confirm);
 			ViewModel.CancelCommand = ReactiveCommand.Create(Cancel);
+
+			Closed += (o, e) => Cancel();
 
 			this.WhenActivated(d =>
 			{

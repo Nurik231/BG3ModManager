@@ -15,10 +15,17 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:reactiveui="http://reactiveui.net"
 	xmlns:vm="clr-namespace:DivinityModManager.ViewModels"
+	Title="NexusMods Collection Downloader"
+	d:DataContext="{d:DesignInstance vm:CollectionDownloadWindowDesignViewModel,
+	                                 IsDesignTimeCreatable=True}"
 	d:DesignHeight="450"
 	d:DesignWidth="800"
+	Background="{DynamicResource {x:Static adonisUI:Brushes.Layer0BackgroundBrush}}"
+	Foreground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
+	TitleBarBackground="#f57842"
+	TitleBarForeground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
 	mc:Ignorable="d">
-	<UserControl.Resources>
+	<Window.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="../Themes/MainResourceDictionary.xaml" />
@@ -92,27 +99,13 @@
 				</Grid>
 			</controls:AutomationTooltip>
 		</ResourceDictionary>
-	</UserControl.Resources>
-	<UserControl.Style>
-		<Style BasedOn="{StaticResource {x:Type UserControl}}" TargetType="UserControl" />
-	</UserControl.Style>
+	</Window.Resources>
 	<Border BorderBrush="LightGray" BorderThickness="1">
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="1*" />
-				<RowDefinition Height="Auto" />
-			</Grid.RowDefinitions>
-			<StackPanel Orientation="Vertical">
-				<TextBlock
-					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer3BackgroundBrush}}"
-					FontSize="24"
-					Text="Download Collection"
-					TextAlignment="Center" />
-				<Rectangle Height="2" Fill="LightGray" />
-			</StackPanel>
-			<Grid Grid.Row="1">
+		<ag:AutoGrid
+			Columns="*"
+			RowCount="3"
+			Rows="auto,*,auto">
+			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
@@ -121,42 +114,52 @@
 					x:Name="CollectionTitleTextBlock"
 					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer3BackgroundBrush}}"
 					FontSize="24"
+					Text="{Binding Title}"
 					TextAlignment="Center" />
 				<StackPanel
 					x:Name="AuthorStackPanel"
 					Grid.Row="1"
+					Margin="4"
+					HorizontalAlignment="Center"
 					Orientation="Horizontal">
 					<TextBlock
 						x:Name="CreatedByTextBlock"
-						FontSize="16"
-						FontStyle="Italic"
-						Foreground="LimeGreen"
-						Style="{StaticResource TitleWithDropShadow}" />
+						VerticalAlignment="Center"
+						FontSize="14"
+						Foreground="{DynamicResource {x:Static adonisUI:Brushes.HyperlinkBrush}}"
+						Style="{StaticResource TitleWithDropShadow}"
+						Text="{Binding CreatedByText}"
+						TextAlignment="Center" />
 					<Image
 						x:Name="AuthorImage"
 						MaxWidth="32"
 						MaxHeight="32"
 						Margin="4"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center"
 						RenderOptions.BitmapScalingMode="HighQuality"
-						Stretch="UniformToFill" />
+						Source="{Binding AuthorAvatar}"
+						Stretch="UniformToFill"
+						Visibility="{Binding AuthorAvatarVisibility}" />
 				</StackPanel>
 
 				<Rectangle Height="2" Fill="LightGray" />
 			</Grid>
 			<ag:AutoGrid
-				Grid.Row="2"
 				Columns="*"
 				RowCount="2"
 				Rows="auto,*">
 				<TextBlock
 					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}"
 					FontSize="20"
+					Foreground="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}"
 					Text="Mods"
 					TextAlignment="Center" />
 				<controls:ModListView
 					x:Name="ModsListView"
 					BorderThickness="0"
-					GridViewColumnHeader.Click="SortModsGridView">
+					GridViewColumnHeader.Click="SortModsGridView"
+					ItemsSource="{Binding Mods}">
 					<controls:ModListView.View>
 						<GridView
 							x:Name="ModsGridView"
@@ -180,24 +183,21 @@
 								</GridViewColumn>
 								<GridViewColumn Width="40" HeaderContainerStyle="{StaticResource GridViewCenteredContainerStyle}">
 									<GridViewColumn.Header>
-										<StackPanel
-											HorizontalAlignment="Center"
-											VerticalAlignment="Center"
-											Orientation="Horizontal">
-											<TextBlock Margin="2" Text="Download" />
-											<CheckBox
-												x:Name="CheckboxHeader"
-												Margin="2"
-												CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
-												IsChecked="True" />
-										</StackPanel>
+										<CheckBox
+											x:Name="CheckboxHeader"
+											Margin="4,0"
+											CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
+											IsChecked="True"
+											Style="{StaticResource VanillaCheckBox}"
+											ToolTip="Download" />
 									</GridViewColumn.Header>
 									<GridViewColumn.CellTemplate>
 										<DataTemplate>
 											<CheckBox
 												HorizontalAlignment="Center"
 												VerticalAlignment="Center"
-												IsChecked="{Binding IsSelected}" />
+												IsChecked="{Binding IsSelected}"
+												Style="{StaticResource VanillaCheckBox}" />
 										</DataTemplate>
 									</GridViewColumn.CellTemplate>
 								</GridViewColumn>
@@ -260,20 +260,20 @@
 					</controls:ModListView.View>
 				</controls:ModListView>
 			</ag:AutoGrid>
-			<Grid Grid.Row="3" Margin="4">
-				<StackPanel Grid.Row="2" Orientation="Horizontal">
-					<Button
-						x:Name="ConfirmButton"
-						Margin="4,0"
-						Padding="12,2"
-						Content="Download" />
-					<Button
-						x:Name="CancelButton"
-						Margin="4,0"
-						Padding="12,2"
-						Content="Cancel" />
-				</StackPanel>
-			</Grid>
-		</Grid>
+			<UniformGrid Margin="4" HorizontalAlignment="Center">
+				<Button
+					x:Name="ConfirmButton"
+					Margin="4,0"
+					Padding="12,2"
+					Background="{DynamicResource {x:Static adonisUI:Brushes.SuccessBrush}}"
+					Content="Download" />
+				<Button
+					x:Name="CancelButton"
+					Margin="4,0"
+					Padding="12,2"
+					Background="{DynamicResource {x:Static adonisUI:Brushes.ErrorBrush}}"
+					Content="Cancel" />
+			</UniformGrid>
+		</ag:AutoGrid>
 	</Border>
 </local:CollectionDownloadWindowBase>
