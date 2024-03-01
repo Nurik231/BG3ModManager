@@ -105,46 +105,28 @@
 			Columns="*"
 			RowCount="3"
 			Rows="auto,*,auto">
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="Auto" />
-				</Grid.RowDefinitions>
+			<StackPanel
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Orientation="Horizontal">
 				<TextBlock
 					x:Name="CollectionTitleTextBlock"
 					Background="{DynamicResource {x:Static adonisUI:Brushes.Layer3BackgroundBrush}}"
 					FontSize="24"
 					Text="{Binding Title}"
 					TextAlignment="Center" />
-				<StackPanel
-					x:Name="AuthorStackPanel"
-					Grid.Row="1"
+				<Image
+					x:Name="AuthorImage"
+					MaxWidth="16"
+					MaxHeight="16"
 					Margin="4"
-					HorizontalAlignment="Center"
-					Orientation="Horizontal">
-					<TextBlock
-						x:Name="CreatedByTextBlock"
-						VerticalAlignment="Center"
-						FontSize="14"
-						Foreground="{DynamicResource {x:Static adonisUI:Brushes.HyperlinkBrush}}"
-						Style="{StaticResource TitleWithDropShadow}"
-						Text="{Binding CreatedByText}"
-						TextAlignment="Center" />
-					<Image
-						x:Name="AuthorImage"
-						MaxWidth="32"
-						MaxHeight="32"
-						Margin="4"
-						HorizontalAlignment="Center"
-						VerticalAlignment="Center"
-						RenderOptions.BitmapScalingMode="HighQuality"
-						Source="{Binding AuthorAvatar}"
-						Stretch="UniformToFill"
-						Visibility="{Binding AuthorAvatarVisibility}" />
-				</StackPanel>
+					RenderOptions.BitmapScalingMode="HighQuality"
+					Source="{Binding AuthorAvatar}"
+					Stretch="UniformToFill"
+					Visibility="{Binding AuthorAvatarVisibility}" />
 
 				<Rectangle Height="2" Fill="LightGray" />
-			</Grid>
+			</StackPanel>
 			<ag:AutoGrid
 				Columns="*"
 				RowCount="2"
