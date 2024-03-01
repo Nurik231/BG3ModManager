@@ -59,7 +59,7 @@ namespace DivinityModManager.Models.NexusMods
 			ImageUrl = StringUtils.StringToUri(ModFileData.Mod.PictureUrl);
 			CreatedAt = ModFileData.Mod.CreatedAt;
 			UpdatedAt = ModFileData.Mod.UpdatedAt;
-			Version = ModFileData.Version;
+			Version = ModFileData.Mod.Version;
 			SizeInBytes = ModFileData.SizeInBytes;
 			Category = ModFileData.Mod.Category;
 			IsOptional = mod.Optional;

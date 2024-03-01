@@ -43,18 +43,5 @@ namespace DivinityModManager.Models.NexusMods
 			CreatedAt = collectionRevision.CreatedAt;
 			UpdatedAt = collectionRevision.UpdatedAt;
 		}
-
-		public NexusModsBaseCollectionData(NexusGraphModFile modFile)
-		{
-			HasAdultContent = modFile.
-			Name = collection.Name;
-			Description = collection.Summary;
-			Author = collection.User.Name;
-			AuthorAvatarUrl = new Uri(collection.User?.Avatar);
-			TileImageUrl = StringUtils.StringToUri(collection.TileImage?.Url);
-			TileImageThumbnailUrl = StringUtils.StringToUri(collection.TileImage?.ThumbnailUrl);
-			CreatedAt = collectionRevision.CreatedAt;
-			UpdatedAt = collectionRevision.UpdatedAt;
-		}
 	}
 }
