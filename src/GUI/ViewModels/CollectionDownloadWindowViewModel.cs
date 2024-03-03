@@ -24,6 +24,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -32,52 +33,59 @@ namespace DivinityModManager.ViewModels
 	public class CollectionDownloadWindowViewModel : ReactiveObject
 	{
 		[Reactive] public NexusModsCollectionData Data { get; private set; }
+		[Reactive] public bool IsCardView { get; set; }
 
-		private ReadOnlyObservableCollection<NexusModsCollectionModData> _mods;
-		public ReadOnlyObservableCollection<NexusModsCollectionModData> Mods => _mods;
+		public ObservableCollectionExtended<NexusModsCollectionModData> Mods { get; }
 
 		[ObservableAsProperty] public string Title { get; }
 		[ObservableAsProperty] public Visibility AuthorAvatarVisibility { get; }
 		[ObservableAsProperty] public BitmapImage AuthorAvatar { get; }
+		[ObservableAsProperty] public Visibility GridViewVisibility { get; }
+		[ObservableAsProperty] public Visibility CardViewVisibility { get; }
 
 		public ICommand SelectAllCommand { get; }
+		public ICommand SetGridViewCommand { get; }
+		public ICommand SetCardViewCommand { get; }
 		public ICommand ConfirmCommand { get; set; }
 		public ICommand CancelCommand { get; set; }
 
 		public void Load(NexusGraphCollectionRevision collectionRevision)
 		{
 			Data = NexusModsCollectionData.FromCollectionRevision(collectionRevision);
+
+			Mods.Clear();
+
+			if (Data?.Mods?.Count > 0)
+			{
+				Mods.AddRange(Data.Mods.Items);
+			}
+
+			this.RaisePropertyChanged("Mods");
 		}
 
 		private static string ToTitleText(ValueTuple<string, string> x)
 		{
-			var author = x.Item2;
 			var text = x.Item1;
+			var author = x.Item2;
 			if (!String.IsNullOrEmpty(author))
 			{
-				text = " by " + author;
+				text += " by " + author;
 			}
 			return text;
 		}
 
-		private IDisposable _modsConnection;
-
 		public CollectionDownloadWindowViewModel()
 		{
-			this.WhenAnyValue(x => x.Data.Mods).Subscribe(mods =>
-			{
-				_modsConnection?.Dispose();
-				if (mods != null)
-				{
-					_modsConnection = mods.Connect().ObserveOn(RxApp.MainThreadScheduler).Bind(out _mods).Subscribe();
-				}
-			});
+			Mods = new ObservableCollectionExtended<NexusModsCollectionModData>();
 
 			this.WhenAnyValue(x => x.Data.Name, x => x.Data.Author).Select(ToTitleText).ToUIProperty(this, x => x.Title);
 
 			var whenAvatar = this.WhenAnyValue(x => x.Data.AuthorAvatarUrl);
 			whenAvatar.Select(x => x != null ? Visibility.Visible : Visibility.Collapsed).ToUIProperty(this, x => x.AuthorAvatarVisibility);
 			whenAvatar.Select(PropertyHelpers.UriToImage).ToUIProperty(this, x => x.AuthorAvatar);
+
+			this.WhenAnyValue(x => x.IsCardView).Select(PropertyConverters.BoolToVisibilityReversed).ToUIProperty(this, x => x.GridViewVisibility, Visibility.Visible);
+			this.WhenAnyValue(x => x.IsCardView).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.CardViewVisibility, Visibility.Collapsed);
 
 			SelectAllCommand = ReactiveCommand.Create<bool>(b =>
 			{
@@ -86,6 +94,9 @@ namespace DivinityModManager.ViewModels
 					mod.IsSelected = b;
 				}
 			});
+
+			SetGridViewCommand = ReactiveCommand.Create(() => IsCardView = false);
+			SetCardViewCommand = ReactiveCommand.Create(() => IsCardView = true);
 		}
 	}
 
@@ -144,7 +155,11 @@ namespace DivinityModManager.ViewModels
 					new(){ File = new NexusGraphModFile(){ SizeInBytes = 1366, Name = "Paladin Unleashed - The Divine Warrior - Lay on Hands Restored and Auras Buffed", Description = "Channeling, smiting and laying on hands now that is what the unleashed divine Paladin does best! Don't worry, they are trained to be completely professional while carrying out their divine duties! In fact, they are ever watchful of her allies and ready to protect them from would be evildoers!", Owner = user, Mod = mod3}},
 				}
 			};
-			Load(designData);
+			RxApp.MainThreadScheduler.Schedule(() =>
+			{
+				Load(designData);
+				DivinityApp.Log($"Mods: {Mods.Count} / {Data?.Mods?.Count}");
+			});
 		}
 	}
 }

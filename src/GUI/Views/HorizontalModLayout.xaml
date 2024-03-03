@@ -5,6 +5,7 @@
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:c="clr-namespace:DivinityModManager.Controls"
+	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:data="clr-namespace:DivinityModManager.Models;assembly=DivinityModManagerCore"
 	xmlns:dd="urn:gong-wpf-dragdrop"
@@ -118,7 +119,7 @@
 					<RowDefinition Name="ActiveModsListGridRow" Height="Auto" />
 					<RowDefinition Name="ActiveModsListForcedModsRow" Height="2*" />
 				</Grid.RowDefinitions>
-				<c:ModListView
+				<views:ModListView
 					x:Name="ActiveModsListView"
 					MaxHeight="99999"
 					behavior:ScreenReaderHelperBehavior.Name="Active Mods"
@@ -206,7 +207,7 @@
 							AutomationProperties.HelpText="{Binding Text, RelativeSource={RelativeSource Self}}"
 							AutomationProperties.Name="Override Mods" />
 					</Grid>
-					<c:ModListView
+					<views:ModListView
 						x:Name="ForceLoadedModsListView"
 						Grid.Row="1"
 						MaxHeight="99999"
@@ -295,7 +296,7 @@
 					AutomationProperties.HelpText="{Binding Text, RelativeSource={RelativeSource Self}}"
 					AutomationProperties.Name="Inactive Mods" />
 			</Grid>
-			<c:ModListView
+			<views:ModListView
 				x:Name="InactiveModsListView"
 				Grid.Row="2"
 				MaxHeight="99999"

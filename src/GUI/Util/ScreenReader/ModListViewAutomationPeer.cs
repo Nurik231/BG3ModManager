@@ -1,4 +1,5 @@
 ﻿using DivinityModManager.Controls;
+using DivinityModManager.Controls.Views;
 
 using System.Windows.Automation;
 using System.Windows.Automation.Peers;

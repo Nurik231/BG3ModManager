@@ -1,0 +1,140 @@
+﻿<ResourceDictionary
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:svgc="http://sharpvectors.codeplex.com/svgc/">
+	<BitmapImage x:Key="AddItemImage" UriSource="pack://application:,,,/Resources/Icons/AddItem_16x.png" />
+	<BitmapImage x:Key="AddPropertyImage" UriSource="pack://application:,,,/Resources/Icons/AddProperty_16x.png" />
+	<BitmapImage x:Key="AlertBar_Close" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Close.png" />
+	<BitmapImage x:Key="AlertBar_Close_Hover" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Close_Hover.png" />
+	<BitmapImage x:Key="AlertBar_Danger" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Danger_16x.png" />
+	<BitmapImage x:Key="AlertBar_Information" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Information_16x.png" />
+	<BitmapImage x:Key="AlertBar_Success" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Success_16x.png" />
+	<BitmapImage x:Key="AlertBar_Warning" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Warning_16x.png" />
+	<BitmapImage x:Key="CopyToClipboardImage" UriSource="pack://application:,,,/Resources/Icons/CopyToClipboard_16x.png" />
+	<BitmapImage x:Key="ConfigurationFileImage" UriSource="pack://application:,,,/Resources/Icons/ConfigurationFile_16x.png" />
+	<BitmapImage x:Key="DefaultIcon" UriSource="pack://application:,,,/Resources/Icons/DefaultIcon_16x.png" />
+	<BitmapImage x:Key="DeleteModImage" UriSource="pack://application:,,,/Resources/Icons/DeleteAzureResource_16x.png" />
+	<BitmapImage x:Key="DivinityEngine" UriSource="pack://application:,,,/Resources/Icons/DivinityEngineGlasses_64x.png" />
+	<BitmapImage x:Key="DivinityEngine2" UriSource="pack://application:,,,/Resources/Icons/DivinityEngine2_64x.png" />
+	<BitmapImage x:Key="ExpandDownImage" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronDown_16x.png" />
+	<BitmapImage x:Key="ExpandDownImageDisabled" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronDown_lightGray_16x.png" />
+	<BitmapImage x:Key="ExpandUpImage" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronUp_16x.png" />
+	<BitmapImage x:Key="ExpandUpImageDisabled" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronUp_lightGrey_16x.png" />
+	<BitmapImage x:Key="ExportDataImage" UriSource="pack://application:,,,/Resources/Icons/ExportData_16x.png" />
+	<BitmapImage x:Key="ExportScriptImage" UriSource="pack://application:,,,/Resources/Icons/ExportScript_16x.png" />
+	<BitmapImage x:Key="LoadCampaignOrderImage" UriSource="pack://application:,,,/Resources/Icons/LoadCampaignOrder_16x.png" />
+	<BitmapImage x:Key="LogImage" UriSource="pack://application:,,,/Resources/Icons/Log_Normal_32x.png" />
+	<BitmapImage x:Key="NotesImage" UriSource="pack://application:,,,/Resources/Icons/Notes_16x.png" />
+	<BitmapImage x:Key="OpenDonationLinkImage" UriSource="pack://application:,,,/Resources/Icons/Kofi_16x.png" />
+	<BitmapImage x:Key="OpenFileImage" UriSource="pack://application:,,,/Resources/Icons/OpenFile_16x.png" />
+	<BitmapImage x:Key="OpenFolderImage" UriSource="pack://application:,,,/Resources/Icons/OpenFolder_16x.png" />
+	<BitmapImage x:Key="OpenGameImage" UriSource="pack://application:,,,/Resources/Icons/BG3_64x.png" />
+	<BitmapImage x:Key="OpenInBrowserImage" UriSource="pack://application:,,,/Resources/Icons/BrowserLink_16x.png" />
+	<BitmapImage x:Key="OpenRepoLinkImage" UriSource="pack://application:,,,/Resources/Icons/GitHub_16x.png" />
+	<BitmapImage x:Key="OpenSteamWorkshopFolderImage" UriSource="pack://application:,,,/Resources/Icons/Steam_16x.png" />
+	<BitmapImage x:Key="OsirisImage" UriSource="pack://application:,,,/Resources/Icons/Osiris_16x.png" />
+	<BitmapImage x:Key="OsirisModFixerImage" UriSource="pack://application:,,,/Resources/Icons/Osiris_ModFixer_16x.png" />
+	<BitmapImage x:Key="RefreshImage" UriSource="pack://application:,,,/Resources/Icons/Refresh_16x.png" />
+	<BitmapImage x:Key="RenameFileImage" UriSource="pack://application:,,,/Resources/Icons/Rename_16x.png" />
+	<BitmapImage x:Key="SaveAsImage" UriSource="pack://application:,,,/Resources/Icons/SaveAs_16x.png" />
+	<BitmapImage x:Key="SaveDisabledImage" UriSource="pack://application:,,,/Resources/Icons/SaveGrey_16x.png" />
+	<BitmapImage x:Key="SaveImage" UriSource="pack://application:,,,/Resources/Icons/Save_16x.png" />
+	<BitmapImage x:Key="SelectImage" UriSource="pack://application:,,,/Resources/Icons/Select_16x.png" />
+	<BitmapImage x:Key="SettingsFileImage" UriSource="pack://application:,,,/Resources/Icons/SettingsFile_16x.png" />
+	<BitmapImage x:Key="ShowAllFilesImage" UriSource="pack://application:,,,/Resources/Icons/ShowAllFiles_16x.png" />
+	<BitmapImage x:Key="StatusWarning" UriSource="pack://application:,,,/Resources/Icons/StatusWarning_16x.png" />
+	<BitmapImage x:Key="ZipFileAsImage" UriSource="pack://application:,,,/Resources/Icons/ZipFileAs_16x.png" />
+	<BitmapImage x:Key="ZipFileImage" UriSource="pack://application:,,,/Resources/Icons/ZipFile_16x.png" />
+	<!--  Overrides the default context menu open animation to remove flickering.  -->
+	<PopupAnimation x:Key="{x:Static SystemParameters.MenuPopupAnimationKey}">None</PopupAnimation>
+	<!--  x:Shared is required so prevent the next MenuItem from unsetting the previous icon.  -->
+	<Image
+		x:Key="CopyToClipboardIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource CopyToClipboardImage}" />
+	<Image
+		x:Key="OpenFolderIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource OpenFolderImage}" />
+	<Image
+		x:Key="OpenFileIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource OpenFileImage}" />
+	<Image
+		x:Key="OpenInBrowserIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource OpenInBrowserImage}" />
+	<Image
+		x:Key="ModDeveloperIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource OsirisImage}" />
+	<Image
+		x:Key="ModPropertiesIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource ConfigurationFileImage}" />
+	<Image
+		x:Key="DeleteModIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource DeleteModImage}" />
+	<Image
+		x:Key="SelectIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource SelectImage}" />
+	<Image
+		x:Key="ShowAllFilesIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource ShowAllFilesImage}" />
+	<Image
+		x:Key="LargeFileIcon"
+		Width="36"
+		Height="36"
+		x:Shared="false"
+		Source="{svgc:SvgImage Source=/Resources/Icons/CurrentFile_16x.svg,
+		                       AppName=BG3ModManager}" />
+	<Image
+		x:Key="LargeFolderIcon"
+		Width="36"
+		Height="36"
+		x:Shared="false"
+		Source="{svgc:SvgImage Source=/Resources/Icons/Folder_16x.svg,
+		                       AppName=BG3ModManager}" />
+	<Image
+		x:Key="ListViewIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{svgc:SvgImage Source=/Resources/Icons/ListView_16x.svg,
+		                       AppName=BG3ModManager}" />
+	<Image
+		x:Key="CardViewIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{svgc:SvgImage Source=/Resources/Icons/ViewPortrait_16x.svg,
+		                       AppName=BG3ModManager}" />
+	<svgc:SvgBitmap
+		x:Key="HelpIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		AppName="BG3ModManager"
+		UriSource="/Resources/Icons/StatusHelp_16x.svg" />
+</ResourceDictionary>

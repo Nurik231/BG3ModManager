@@ -41,6 +41,7 @@ namespace DivinityModManager.Views
 		public VersionGeneratorWindow VersionGeneratorWindow { get; private set; }
 		public AppUpdateWindow UpdateWindow { get; private set; }
 		public HelpWindow HelpWindow { get; private set; }
+		public CollectionDownloadWindow CollectionDownloadWindow { get; private set; }
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -287,6 +288,17 @@ namespace DivinityModManager.Views
 			}
 		}
 
+		public void ToggleCollectionDownloadWindow()
+		{
+			CollectionDownloadWindow ??= new CollectionDownloadWindow();
+
+			if (!CollectionDownloadWindow.IsVisible)
+			{
+				CollectionDownloadWindow.Show();
+				CollectionDownloadWindow.Owner = this;
+			}
+		}
+
 		private static System.Windows.Shell.TaskbarItemProgressState BoolToTaskbarItemProgressState(bool b)
 		{
 			return b ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
@@ -413,6 +425,8 @@ namespace DivinityModManager.Views
 				ViewModel.Keys.OpenPreferences.AddAction(() => OpenPreferences(false));
 				ViewModel.Keys.OpenKeybindings.AddAction(() => OpenPreferences(true));
 				ViewModel.Keys.OpenAboutWindow.AddAction(ToggleAboutWindow);
+
+				ToggleCollectionDownloadWindow();
 
 				ViewModel.Keys.ToggleVersionGeneratorWindow.AddAction(() =>
 				{

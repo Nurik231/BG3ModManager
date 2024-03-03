@@ -1,4 +1,5 @@
 ﻿using DivinityModManager.Controls;
+using DivinityModManager.Controls.Views;
 using DivinityModManager.Converters;
 using DivinityModManager.Models;
 using DivinityModManager.Util;

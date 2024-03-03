@@ -10,6 +10,7 @@
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:chrome="clr-namespace:Xceed.Wpf.Toolkit.Chromes;assembly=Xceed.Wpf.Toolkit"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
+	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
 	xmlns:dapp="clr-namespace:DivinityModManager;assembly=DivinityModManagerCore"
 	xmlns:data="clr-namespace:DivinityModManager.Models;assembly=DivinityModManagerCore"
@@ -19,6 +20,7 @@
 	xmlns:extdata="clr-namespace:DivinityModManager.Models.Extender;assembly=DivinityModManagerCore"
 	xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 	xmlns:local="clr-namespace:DivinityModManager.Views"
+	xmlns:nexusData="clr-namespace:DivinityModManager.Models.NexusMods;assembly=DivinityModManagerCore"
 	xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
 	xmlns:templateSelectors="clr-namespace:DivinityModManager.Controls.TemplateSelectors"
@@ -31,6 +33,7 @@
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="DefaultStyles/ComboBox.xaml" />
 		<ResourceDictionary Source="DefaultStyles/MarkdownStyle.xaml" />
+		<ResourceDictionary Source="Images.xaml" />
 	</ResourceDictionary.MergedDictionaries>
 	<conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 	<conv:BoolToVisibilityConverterReversed x:Key="BoolToVisibilityConverterReversed" />
@@ -46,127 +49,7 @@
 	<conv:StringToMarkdownConverter x:Key="StringToMarkdownConverter" />
 	<xconv:ProgressBarWidthConverter x:Key="ProgressBarWidthConverter" />
 	<templateSelectors:TagTemplateSelector x:Key="TagTemplateSelector" />
-	<BitmapImage x:Key="AddItemImage" UriSource="pack://application:,,,/Resources/Icons/AddItem_16x.png" />
-	<BitmapImage x:Key="AddPropertyImage" UriSource="pack://application:,,,/Resources/Icons/AddProperty_16x.png" />
-	<BitmapImage x:Key="AlertBar_Close" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Close.png" />
-	<BitmapImage x:Key="AlertBar_Close_Hover" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Close_Hover.png" />
-	<BitmapImage x:Key="AlertBar_Danger" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Danger_16x.png" />
-	<BitmapImage x:Key="AlertBar_Information" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Information_16x.png" />
-	<BitmapImage x:Key="AlertBar_Success" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Success_16x.png" />
-	<BitmapImage x:Key="AlertBar_Warning" UriSource="pack://application:,,,/Resources/Icons/AlertBar_Warning_16x.png" />
-	<BitmapImage x:Key="CopyToClipboardImage" UriSource="pack://application:,,,/Resources/Icons/CopyToClipboard_16x.png" />
-	<BitmapImage x:Key="ConfigurationFileImage" UriSource="pack://application:,,,/Resources/Icons/ConfigurationFile_16x.png" />
-	<BitmapImage x:Key="DefaultIcon" UriSource="pack://application:,,,/Resources/Icons/DefaultIcon_16x.png" />
-	<BitmapImage x:Key="DeleteModImage" UriSource="pack://application:,,,/Resources/Icons/DeleteAzureResource_16x.png" />
-	<BitmapImage x:Key="DivinityEngine" UriSource="pack://application:,,,/Resources/Icons/DivinityEngineGlasses_64x.png" />
-	<BitmapImage x:Key="DivinityEngine2" UriSource="pack://application:,,,/Resources/Icons/DivinityEngine2_64x.png" />
-	<BitmapImage x:Key="ExpandDownImage" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronDown_16x.png" />
-	<BitmapImage x:Key="ExpandDownImageDisabled" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronDown_lightGray_16x.png" />
-	<BitmapImage x:Key="ExpandUpImage" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronUp_16x.png" />
-	<BitmapImage x:Key="ExpandUpImageDisabled" UriSource="pack://application:,,,/Resources/Icons/ExpandChevronUp_lightGrey_16x.png" />
-	<BitmapImage x:Key="ExportDataImage" UriSource="pack://application:,,,/Resources/Icons/ExportData_16x.png" />
-	<BitmapImage x:Key="ExportScriptImage" UriSource="pack://application:,,,/Resources/Icons/ExportScript_16x.png" />
-	<BitmapImage x:Key="LoadCampaignOrderImage" UriSource="pack://application:,,,/Resources/Icons/LoadCampaignOrder_16x.png" />
-	<BitmapImage x:Key="LogImage" UriSource="pack://application:,,,/Resources/Icons/Log_Normal_32x.png" />
-	<BitmapImage x:Key="NotesImage" UriSource="pack://application:,,,/Resources/Icons/Notes_16x.png" />
-	<BitmapImage x:Key="OpenDonationLinkImage" UriSource="pack://application:,,,/Resources/Icons/Kofi_16x.png" />
-	<BitmapImage x:Key="OpenFileImage" UriSource="pack://application:,,,/Resources/Icons/OpenFile_16x.png" />
-	<BitmapImage x:Key="OpenFolderImage" UriSource="pack://application:,,,/Resources/Icons/OpenFolder_16x.png" />
-	<BitmapImage x:Key="OpenGameImage" UriSource="pack://application:,,,/Resources/Icons/BG3_64x.png" />
-	<BitmapImage x:Key="OpenInBrowserImage" UriSource="pack://application:,,,/Resources/Icons/BrowserLink_16x.png" />
-	<BitmapImage x:Key="OpenRepoLinkImage" UriSource="pack://application:,,,/Resources/Icons/GitHub_16x.png" />
-	<BitmapImage x:Key="OpenSteamWorkshopFolderImage" UriSource="pack://application:,,,/Resources/Icons/Steam_16x.png" />
-	<BitmapImage x:Key="OsirisImage" UriSource="pack://application:,,,/Resources/Icons/Osiris_16x.png" />
-	<BitmapImage x:Key="OsirisModFixerImage" UriSource="pack://application:,,,/Resources/Icons/Osiris_ModFixer_16x.png" />
-	<BitmapImage x:Key="RefreshImage" UriSource="pack://application:,,,/Resources/Icons/Refresh_16x.png" />
-	<BitmapImage x:Key="RenameFileImage" UriSource="pack://application:,,,/Resources/Icons/Rename_16x.png" />
-	<BitmapImage x:Key="SaveAsImage" UriSource="pack://application:,,,/Resources/Icons/SaveAs_16x.png" />
-	<BitmapImage x:Key="SaveDisabledImage" UriSource="pack://application:,,,/Resources/Icons/SaveGrey_16x.png" />
-	<BitmapImage x:Key="SaveImage" UriSource="pack://application:,,,/Resources/Icons/Save_16x.png" />
-	<BitmapImage x:Key="SelectImage" UriSource="pack://application:,,,/Resources/Icons/Select_16x.png" />
-	<BitmapImage x:Key="SettingsFileImage" UriSource="pack://application:,,,/Resources/Icons/SettingsFile_16x.png" />
-	<BitmapImage x:Key="ShowAllFilesImage" UriSource="pack://application:,,,/Resources/Icons/ShowAllFiles_16x.png" />
-	<BitmapImage x:Key="StatusWarning" UriSource="pack://application:,,,/Resources/Icons/StatusWarning_16x.png" />
-	<BitmapImage x:Key="ZipFileAsImage" UriSource="pack://application:,,,/Resources/Icons/ZipFileAs_16x.png" />
-	<BitmapImage x:Key="ZipFileImage" UriSource="pack://application:,,,/Resources/Icons/ZipFile_16x.png" />
-	<!--  Overrides the default context menu open animation to remove flickering.  -->
-	<PopupAnimation x:Key="{x:Static SystemParameters.MenuPopupAnimationKey}">None</PopupAnimation>
-	<!--  x:Shared is required so prevent the next MenuItem from unsetting the previous icon.  -->
-	<Image
-		x:Key="CopyToClipboardIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource CopyToClipboardImage}" />
-	<Image
-		x:Key="OpenFolderIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource OpenFolderImage}" />
-	<Image
-		x:Key="OpenFileIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource OpenFileImage}" />
-	<Image
-		x:Key="OpenInBrowserIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource OpenInBrowserImage}" />
-	<Image
-		x:Key="ModDeveloperIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource OsirisImage}" />
-	<Image
-		x:Key="ModPropertiesIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource ConfigurationFileImage}" />
-	<Image
-		x:Key="DeleteModIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource DeleteModImage}" />
-	<Image
-		x:Key="SelectIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource SelectImage}" />
-	<Image
-		x:Key="ShowAllFilesIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{StaticResource ShowAllFilesImage}" />
-	<Image
-		x:Key="LargeFileIcon"
-		Width="36"
-		Height="36"
-		x:Shared="false"
-		Source="{svgc:SvgImage Source=/Resources/Icons/CurrentFile_16x.svg,
-		                       AppName=BG3ModManager}" />
-	<Image
-		x:Key="LargeFolderIcon"
-		Width="36"
-		Height="36"
-		x:Shared="false"
-		Source="{svgc:SvgImage Source=/Resources/Icons/Folder_16x.svg,
-		                       AppName=BG3ModManager}" />
-	<svgc:SvgBitmap
-		x:Key="HelpIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		AppName="BG3ModManager"
-		UriSource="/Resources/Icons/StatusHelp_16x.svg" />
+
 	<!--
 		This avoids a System.Windows.Data relative binding error for these properties.
 		"This happens when you set MenuItem.ItemsSource to a Collection that contains MenuItems.
@@ -639,9 +522,19 @@
 		<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 		<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
 	</Style>
-	<Style BasedOn="{StaticResource {x:Type ListView}}" TargetType="controls:ModListView">
+
+	<Style BasedOn="{StaticResource {x:Type ListView}}" TargetType="views:ModListView">
 		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}" />
 	</Style>
+
+	<Style x:Key="ModListViewDefaultStyle" TargetType="views:ModListView">
+		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}" />
+	</Style>
+	
+	<Style x:Key="PlainListView" TargetType="ListView">
+		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}" />
+	</Style>
+	
 	<Style
 		x:Key="ModOrderListView"
 		BasedOn="{StaticResource {x:Type ListView}}"
@@ -653,7 +546,7 @@
 		<Setter Property="ItemContainerStyle" Value="{StaticResource DivinityModDataListItem}" />
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type controls:ModListView}">
+				<ControlTemplate TargetType="{x:Type views:ModListView}">
 					<Grid>
 						<ScrollViewer Name="ListScrollViewer" Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
 							<ItemsPresenter x:Name="ListItemsPresenter" />
@@ -2080,4 +1973,139 @@
 		</Setter>
 	</Style>
 
+	<Style
+		x:Key="CardViewBase" TargetType="{x:Type ListView}" BasedOn="{StaticResource {x:Type ListBox}}">
+		<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}"/>
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer1BorderBrush}}"/>
+		<Setter Property="BorderThickness" Value="{DynamicResource {x:Static adonisUI:Dimensions.BorderThickness}}"/>
+		<Setter Property="adonisExtensions:ScrollViewerExtension.VerticalScrollBarExpansionMode" Value="ExpandOnHover"/>
+		<Setter Property="adonisExtensions:ScrollViewerExtension.HorizontalScrollBarExpansionMode" Value="ExpandOnHover"/>
+		<Setter Property="adonisExtensions:ScrollViewerExtension.VerticalScrollBarPlacement" Value="Docked"/>
+		<Setter Property="adonisExtensions:ScrollViewerExtension.HorizontalScrollBarPlacement" Value="Docked"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center" />
+		<Setter Property="ItemContainerStyle" Value="{Binding (ListView.View).ItemContainerStyle, RelativeSource={RelativeSource Self}}" />
+		<Setter Property="ItemTemplate" Value="{Binding (ListView.View).ItemTemplate, RelativeSource={RelativeSource Self}}" />
+		<Setter Property="ItemsPanel">
+			<Setter.Value>
+				<ItemsPanelTemplate>
+					<WrapPanel
+						Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"
+						MinWidth="{Binding (ListView.View).ItemWidth, RelativeSource={RelativeSource AncestorType=ListView}}"
+						ItemHeight="{Binding (ListView.View).ItemHeight, RelativeSource={RelativeSource AncestorType=ListView}}"
+						ItemWidth="{Binding (ListView.View).ItemWidth, RelativeSource={RelativeSource AncestorType=ListView}}" />
+				</ItemsPanelTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style
+		x:Key="CardViewItemBase"
+		BasedOn="{StaticResource {x:Type ListBoxItem}}"
+		TargetType="{x:Type ListViewItem}">
+		<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+		<Setter Property="VerticalContentAlignment" Value="Stretch" />
+		<Setter Property="Padding" Value="4" />
+		<Setter Property="Margin" Value="2" />
+		<!--<Setter Property="ContentTemplate">
+			<Setter.Value>
+				<DataTemplate>
+					<StackPanel>
+						-->
+		<!--<Border Background="White">
+						<Image Margin="3" Source="{Binding ImageUrl, Converter={StaticResource UriToBitmapImageConverter}}" />
+					</Border>-->
+		<!--
+						<TextBlock Text="{Binding Name}" TextAlignment="Center" />
+					</StackPanel>
+				</DataTemplate>
+			</Setter.Value>
+		</Setter>-->
+	</Style>
+
+	<DataTemplate x:Key="NexusCollectionModCard" DataType="nexusData:NexusModsCollectionModData">
+		<Border Background="#33000000" BorderThickness="0">
+			<Border.Effect>
+				<DropShadowEffect
+					BlurRadius="4"
+					Direction="330"
+					Opacity="0.5"
+					ShadowDepth="4"
+					Color="Black" />
+			</Border.Effect>
+			<Grid>
+				<Grid.Resources>
+					<DataTemplate x:Key="ModImage">
+						<Image
+							RenderOptions.BitmapScalingMode="HighQuality"
+							Source="{Binding ImageUrl, Converter={StaticResource UriToBitmapImageConverter}}"
+							Stretch="UniformToFill" />
+					</DataTemplate>
+					<DataTemplate x:Key="ModFallBackImage">
+						<Border Background="Gray">
+							<TextBlock Text="?" />
+						</Border>
+					</DataTemplate>
+				</Grid.Resources>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+
+				<ContentControl
+					Height="132"
+					HorizontalAlignment="Stretch"
+					Content="{Binding}">
+					<ContentControl.Style>
+						<Style TargetType="{x:Type ContentControl}">
+							<Setter Property="ContentTemplate" Value="{StaticResource ModFallBackImage}" />
+							<Style.Triggers>
+								<DataTrigger Binding="{Binding ImageVisibility}" Value="Visible">
+									<Setter Property="ContentTemplate" Value="{StaticResource ModImage}" />
+								</DataTrigger>
+							</Style.Triggers>
+						</Style>
+					</ContentControl.Style>
+				</ContentControl>
+
+				<autogrid:AutoGrid
+					Grid.Row="1"
+					Columns="*"
+					RowCount="4"
+					Rows="auto,auto,auto,*">
+					<TextBlock Text="{Binding Name}" TextWrapping="Wrap" />
+					<TextBlock
+						FontSize="12"
+						Foreground="#d98f40"
+						Text="{Binding Category}" />
+					<StackPanel Orientation="Vertical">
+						<StackPanel.Resources>
+							<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
+								<Setter Property="FontSize" Value="12" />
+								<Setter Property="TextWrapping" Value="Wrap" />
+							</Style>
+						</StackPanel.Resources>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Foreground="#898989" Text="Uploaded: " />
+							<TextBlock Text="{Binding CreatedDateText}" />
+						</StackPanel>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Foreground="#898989" Text="Last Updated: " />
+							<TextBlock Text="{Binding UpdatedDateText}" />
+						</StackPanel>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Foreground="#898989" Text="Author:" />
+							<TextBlock Text="{Binding Author}" />
+						</StackPanel>
+					</StackPanel>
+					<TextBlock
+						VerticalAlignment="Stretch"
+						Foreground="LightGray"
+						Text="{Binding Description}"
+						TextWrapping="Wrap"
+						ToolTip="{Binding Description}" />
+				</autogrid:AutoGrid>
+			</Grid>
+		</Border>
+	</DataTemplate>
 </ResourceDictionary>

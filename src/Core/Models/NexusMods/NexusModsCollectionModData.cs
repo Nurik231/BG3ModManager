@@ -45,6 +45,8 @@ namespace DivinityModManager.Models.NexusMods
 		[ObservableAsProperty] public Visibility AuthorAvatarVisibility { get; }
 		[ObservableAsProperty] public Visibility ImageVisibility { get; }
 
+		
+
 		public NexusModsCollectionModData(NexusGraphCollectionRevisionMod mod)
 		{
 			IsSelected = true;
@@ -71,12 +73,8 @@ namespace DivinityModManager.Models.NexusMods
 			this.WhenAnyValue(x => x.ImageUrl).Select(PropertyConverters.UriToVisibility).ToUIProperty(this, x => x.ImageVisibility);
 			this.WhenAnyValue(x => x.AuthorAvatarUrl).Select(PropertyConverters.UriToVisibility).ToUIProperty(this, x => x.AuthorAvatarVisibility);
 
-			this.WhenAnyValue(x => x.CreatedAt)
-				.Select(x => $"Published on {x.ToString(DivinityApp.DateTimeColumnFormat, CultureInfo.InstalledUICulture)}")
-				.ToUIProperty(this, x => x.CreatedDateText);
-			this.WhenAnyValue(x => x.UpdatedAt)
-				.Select(x => $"Last updated on {x.ToString(DivinityApp.DateTimeColumnFormat, CultureInfo.InstalledUICulture)}")
-				.ToUIProperty(this, x => x.UpdatedDateText);
+			this.WhenAnyValue(x => x.CreatedAt).Select(PropertyConverters.DateToString).ToUIProperty(this, x => x.CreatedDateText);
+			this.WhenAnyValue(x => x.UpdatedAt).Select(PropertyConverters.DateToString).ToUIProperty(this, x => x.UpdatedDateText);
 		}
 	}
 }

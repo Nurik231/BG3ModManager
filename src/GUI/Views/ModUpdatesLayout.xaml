@@ -5,6 +5,7 @@
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
 	xmlns:ag="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
+	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dapp="clr-namespace:DivinityModManager;assembly=DivinityModManagerCore"
@@ -73,12 +74,12 @@
 					FontSize="20"
 					Text="New Mods"
 					TextAlignment="Center" />
-				<controls:ModListView
+				<views:ModListView
 					x:Name="NewFilesModListView"
 					BorderThickness="0"
 					GridViewColumnHeader.Click="SortNewModsGridView"
 					ItemContainerStyle="{StaticResource DivinityModUpdateListItem}">
-					<controls:ModListView.View>
+					<views:ModListView.View>
 						<GridView
 							x:Name="NewModsGridView"
 							AllowsColumnReorder="True"
@@ -138,8 +139,8 @@
 								</GridViewColumn>
 							</GridView.Columns>
 						</GridView>
-					</controls:ModListView.View>
-				</controls:ModListView>
+					</views:ModListView.View>
+				</views:ModListView>
 			</ag:AutoGrid>
 			<GridSplitter
 				Grid.Row="2"
@@ -158,12 +159,12 @@
 					FontSize="20"
 					Text="Updates"
 					TextAlignment="Center" />
-				<controls:ModListView
+				<views:ModListView
 					x:Name="UpdatesModListView"
 					BorderThickness="0"
 					GridViewColumnHeader.Click="SortModUpdatesGridView"
 					ItemContainerStyle="{StaticResource DivinityModUpdateListItem}">
-					<controls:ModListView.View>
+					<views:ModListView.View>
 						<GridView
 							x:Name="ModUpdatesGridView"
 							AllowsColumnReorder="True"
@@ -276,8 +277,8 @@
 								</GridViewColumn>
 							</GridView.Columns>
 						</GridView>
-					</controls:ModListView.View>
-				</controls:ModListView>
+					</views:ModListView.View>
+				</views:ModListView>
 			</ag:AutoGrid>
 			<Grid Grid.Row="4" Margin="4">
 				<StackPanel

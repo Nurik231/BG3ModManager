@@ -1,4 +1,6 @@
-﻿using DivinityModManager.Extensions;
+﻿using AdonisUI.Extensions;
+
+using DivinityModManager.Extensions;
 using DivinityModManager.Models;
 using DivinityModManager.Util.ScreenReader;
 
@@ -14,36 +16,34 @@ using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace DivinityModManager.Controls
+namespace DivinityModManager.Controls.Views
 {
 	public class ModListView : ListView
 	{
-		private MethodInfo getInfoMethod;
-		private MethodInfo updateAnchorMethod;
-		private PropertyInfo getActualIndex;
+		private static readonly Type t = typeof(ModListView);
+		private static readonly MethodInfo getInfoMethod = typeof(ItemsControl).GetMethod("ItemInfoFromContainer", BindingFlags.NonPublic | BindingFlags.Instance);
+		private static readonly MethodInfo updateAnchorMethod = typeof(ListBox).GetMethod("UpdateAnchorAndActionItem", BindingFlags.NonPublic | BindingFlags.Instance);
+		private static readonly PropertyInfo getActualIndex = typeof(GridViewColumn).GetProperty("ActualIndex", BindingFlags.NonPublic | BindingFlags.Instance);
+		private static readonly PropertyDescriptor pd = DependencyPropertyDescriptor.FromProperty(GridViewColumn.WidthProperty, typeof(GridViewColumn));
+
+		public static readonly DependencyProperty HideHeaderProperty = DependencyProperty.Register("HideHeader", typeof(bool), t, new PropertyMetadata(false));
+		// Using a DependencyProperty as the backing store for LinkedHeaderListView.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty LinkedHeaderListViewProperty = DependencyProperty.Register("LinkedHeaderListView", t, t, new PropertyMetadata(null, new PropertyChangedCallback(OnLinkedHeaderListViewSet)));
 
 		public bool Resizing { get; set; }
 		public bool UserResizedColumns { get; set; }
 
-		private ModListView _copyHeaderView = null;
-
 		public bool HideHeader
 		{
-			get { return (bool)GetValue(HideHeaderProperty); }
-			set { SetValue(HideHeaderProperty, value); }
+			get => (bool)GetValue(HideHeaderProperty);
+			set => SetValue(HideHeaderProperty, value);
 		}
-		public static readonly DependencyProperty HideHeaderProperty =
-			DependencyProperty.Register("HideHeader", typeof(bool), typeof(ModListView), new PropertyMetadata(false));
 
 		public ModListView LinkedHeaderListView
 		{
-			get { return (ModListView)GetValue(LinkedHeaderListViewProperty); }
-			set { SetValue(LinkedHeaderListViewProperty, value); }
+			get => (ModListView)GetValue(LinkedHeaderListViewProperty);
+			set => SetValue(LinkedHeaderListViewProperty, value);
 		}
-
-		// Using a DependencyProperty as the backing store for LinkedHeaderListView.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty LinkedHeaderListViewProperty =
-			DependencyProperty.Register("LinkedHeaderListView", typeof(ModListView), typeof(ModListView), new PropertyMetadata(null, new PropertyChangedCallback(OnLinkedHeaderListViewSet)));
 
 		private static void OnLinkedHeaderListViewSet(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
@@ -51,7 +51,6 @@ namespace DivinityModManager.Controls
 			{
 				if (e.NewValue is ModListView targetView)
 				{
-					view._copyHeaderView = targetView;
 					targetView.Loaded += view.OnTargetGridLoaded;
 					if (targetView.IsLoaded)
 					{
@@ -82,14 +81,12 @@ namespace DivinityModManager.Controls
 
 		private void OnTargetGridCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			DivinityApp.Log($"[OnTargetGridCollectionChanged] sender({sender}) e({e.Action})");
 			if (e.Action == NotifyCollectionChangedAction.Move)
 			{
 				if (sender is GridViewColumnCollection colList)
 				{
 					var view = this.View as GridView;
 					var indexOrder = colList.Select(x => GetColumnActualIndex(x)).ToList();
-					DivinityApp.Log($"[Order] indexOrder({String.Join(";", indexOrder)})");
 					var len = view.Columns.Count;
 					for (int i = 0; i < len; i++)
 					{
@@ -99,20 +96,6 @@ namespace DivinityModManager.Controls
 					}
 				}
 			}
-
-			/*if (_copyHeaderView.View is GridView grid)
-			{
-				var thisView = this.View as GridView;
-				foreach (var col in grid.Columns)
-				{
-					var index = GetColumnActualIndex(col);
-					var myCol = thisView.Columns.FirstOrDefault(x => GetColumnActualIndex(x) == index);
-					if(myCol != null)
-					{
-						myCol.Width = col.Width;
-					}
-				}
-			}*/
 		}
 
 		private void OnColumnWidthChanged_Copy(object sender, EventArgs e)
@@ -127,33 +110,15 @@ namespace DivinityModManager.Controls
 					myCol.Width = col.Width;
 				}
 			}
-			/*if (_copyHeaderView.View is GridView grid)
-			{
-				var thisView = this.View as GridView;
-				foreach (var col in grid.Columns)
-				{
-					var index = GetColumnActualIndex(col);
-					var myCol = thisView.Columns.FirstOrDefault(x => GetColumnActualIndex(x) == index);
-					if(myCol != null)
-					{
-						myCol.Width = col.Width;
-					}
-				}
-			}*/
 		}
 
 		public ModListView() : base()
 		{
-			getInfoMethod = typeof(ItemsControl).GetMethod("ItemInfoFromContainer", BindingFlags.NonPublic | BindingFlags.Instance);
-			updateAnchorMethod = typeof(ListBox).GetMethod("UpdateAnchorAndActionItem", BindingFlags.NonPublic | BindingFlags.Instance);
-			getActualIndex = typeof(GridViewColumn).GetProperty("ActualIndex", BindingFlags.NonPublic | BindingFlags.Instance);
-
 			if (!HideHeader)
 			{
 				Loaded += (o, e) =>
 				{
-					PropertyDescriptor pd = DependencyPropertyDescriptor.FromProperty(GridViewColumn.WidthProperty, typeof(GridViewColumn));
-					if (this.View is GridView grid)
+					if (View is GridView grid)
 					{
 						//Capture user-resizing of the name column to disable auto-resizing
 						var nameColumn = grid.Columns[1];
@@ -178,15 +143,8 @@ namespace DivinityModManager.Controls
 			}
 		}
 
-		protected override AutomationPeer OnCreateAutomationPeer()
-		{
-			return new ModListViewAutomationPeer(this);
-		}
-
-		private int GetColumnActualIndex(GridViewColumn col)
-		{
-			return (int)getActualIndex.GetValue(col);
-		}
+		protected override AutomationPeer OnCreateAutomationPeer() => new ModListViewAutomationPeer(this);
+		private int GetColumnActualIndex(GridViewColumn col) => (int)getActualIndex.GetValue(col);
 
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
