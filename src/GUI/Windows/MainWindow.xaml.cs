@@ -5,6 +5,7 @@ using Alphaleonis.Win32.Filesystem;
 
 using AutoUpdaterDotNET;
 
+using DivinityModManager.AppServices;
 using DivinityModManager.Controls;
 using DivinityModManager.Util;
 using DivinityModManager.Util.ScreenReader;
@@ -268,6 +269,8 @@ namespace DivinityModManager.Windows
 			MainView = new MainViewControl(this, ViewModel);
 			MainGrid.Children.Add(MainView);
 
+			Services.RegisterSingleton(new WindowManagerService());
+
 			if (File.Exists(Alphaleonis.Win32.Filesystem.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "debug")))
 			{
 				ViewModel.DebugMode = true;
@@ -321,6 +324,8 @@ namespace DivinityModManager.Windows
 				.Select(e => (e.EventArgs.Key == Key.LeftShift || e.EventArgs.Key == Key.RightShift) && e.EventArgs.IsDown)
 				.BindTo(ViewModel, x => x.CanForceLaunchGame);
 			});
+
+			Show();
 		}
 	}
 }

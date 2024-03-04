@@ -43,7 +43,6 @@ namespace DivinityModManager
 			Services.RegisterSingleton<IModUpdaterService>(new ModUpdaterService(version));
 			Services.RegisterSingleton<IGameUtilitiesService>(new GameUtilitiesService());
 			Services.RegisterSingleton(new BackgroundCommandService());
-			Services.RegisterSingleton(new WindowManagerService());
 
 			// POCO type warning suppression
 			Services.Register<ICreatesObservableForProperty>(() => new DivinityModManager.Util.CustomPropertyResolver());
