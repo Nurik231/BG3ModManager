@@ -11,7 +11,7 @@ using DivinityModManager.Models.Settings;
 using DivinityModManager.Models.Updates;
 using DivinityModManager.ModUpdater.Cache;
 using DivinityModManager.Util;
-using DivinityModManager.Views;
+using DivinityModManager.Windows;
 
 using DynamicData;
 using DynamicData.Aggregation;
@@ -65,10 +65,10 @@ namespace DivinityModManager.ViewModels
 		private const int ARCHIVE_BUFFER = 128000;
 
 		[Reactive] public MainWindow Window { get; private set; }
-		[Reactive] public MainViewControl View { get; private set; }
+		[Reactive] public DivinityModManager.Views.MainViewControl View { get; private set; }
 		public DownloadActivityBarViewModel DownloadBar { get; private set; }
 
-		public IModViewLayout Layout { get; set; }
+		public DivinityModManager.Views.IModViewLayout Layout { get; set; }
 
 		private ModListDropHandler dropHandler;
 
@@ -1067,7 +1067,7 @@ Directory the zip will be extracted to:
 			// Updating extender requirement display
 			Settings.WhenAnyValue(x => x.ExtenderSettings.EnableExtensions).ObserveOn(RxApp.MainThreadScheduler).Subscribe((b) =>
 			{
-				if (Window.SettingsWindow.IsVisible)
+				if (Settings.SettingsWindowIsOpen)
 				{
 					UpdateExtenderVersionForAllMods();
 				}
@@ -1076,7 +1076,7 @@ Directory the zip will be extracted to:
 			var actionLaunchChanged = Settings.WhenAnyValue(x => x.ActionOnGameLaunch).Skip(1).ObserveOn(RxApp.MainThreadScheduler);
 			actionLaunchChanged.Subscribe((action) =>
 			{
-				if (!Window.SettingsWindow.IsVisible)
+				if (!Settings.SettingsWindowIsOpen)
 				{
 					SaveSettings();
 				}
@@ -2851,7 +2851,7 @@ Directory the zip will be extracted to:
 					if (!GameDirectoryFound)
 					{
 						ShowAlert("Game Data folder is not valid. Please set it in the preferences window and refresh", AlertType.Danger);
-						Window.OpenPreferences(false, true);
+						App.WM.Settings.Toggle(true);
 					}
 				}, RxApp.MainThreadScheduler);
 
@@ -4206,7 +4206,8 @@ Directory the zip will be extracted to:
 			{
 				if (_userInvokedUpdate || e.IsUpdateAvailable)
 				{
-					Window.ToggleUpdateWindow(true, e);
+					App.WM.AppUpdate.Toggle();
+					App.WM.AppUpdate.Window.ViewModel.CheckArgs(e);
 				}
 			}
 			else
@@ -4224,7 +4225,7 @@ Directory the zip will be extracted to:
 			_userInvokedUpdate = false;
 		}
 
-		public void OnViewActivated(MainWindow window, MainViewControl parentView)
+		public void OnViewActivated(MainWindow window, DivinityModManager.Views.MainViewControl parentView)
 		{
 			Window = window;
 			View = parentView;
@@ -5178,6 +5179,14 @@ Directory the zip will be extracted to:
 						ShowAlert("Editor mods cannot be deleted with the Mod Manager", AlertType.Warning, 60);
 					}
 				}
+			});
+
+			var canDownloadNexusFiles = this.WhenAnyValue(x => x.Settings.UpdateSettings.NexusModsAPIKey, x => x.NexusModsSupportEnabled)
+				.Select(x => !String.IsNullOrEmpty(x.Item1) && x.Item2);
+			Keys.DownloadNXMLink.AddCanExecuteCondition(canDownloadNexusFiles);
+			Keys.DownloadNXMLink.AddAction(() =>
+			{
+				App.WM.NxmDownload.Toggle();
 			});
 
 			#endregion

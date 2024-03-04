@@ -2,7 +2,7 @@
 
 using DivinityModManager.AppServices;
 using DivinityModManager.Util;
-using DivinityModManager.Views;
+using DivinityModManager.Windows;
 
 using ReactiveUI;
 
@@ -23,6 +23,8 @@ namespace DivinityModManager
 	{
 		public SplashScreen Splash { get; set; }
 
+		public static WindowManagerService WM => Services.Get<WindowManagerService>();
+
 		public App()
 		{
 			Directory.SetCurrentDirectory(DivinityApp.GetAppDirectory());
@@ -41,6 +43,7 @@ namespace DivinityModManager
 			Services.RegisterSingleton<IModUpdaterService>(new ModUpdaterService(version));
 			Services.RegisterSingleton<IGameUtilitiesService>(new GameUtilitiesService());
 			Services.RegisterSingleton(new BackgroundCommandService());
+			Services.RegisterSingleton(new WindowManagerService());
 
 			// POCO type warning suppression
 			Services.Register<ICreatesObservableForProperty>(() => new DivinityModManager.Util.CustomPropertyResolver());

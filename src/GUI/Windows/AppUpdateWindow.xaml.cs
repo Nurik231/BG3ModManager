@@ -2,7 +2,7 @@
 
 using DivinityModManager.Controls;
 using DivinityModManager.Util;
-
+using DivinityModManager.Windows;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Documents;
 using System.Windows.Input;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class AppUpdateWindowBase : HideWindowBase<AppUpdateWindowViewModel> { }
 

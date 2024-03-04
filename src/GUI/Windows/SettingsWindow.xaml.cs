@@ -3,7 +3,7 @@ using DivinityModManager.Models.Settings;
 using DivinityModManager.Models.View;
 using DivinityModManager.Util;
 using DivinityModManager.ViewModels;
-
+using DivinityModManager.Windows;
 using DynamicData;
 
 using ReactiveUI;
@@ -25,7 +25,7 @@ using WpfAutoGrid;
 
 using Xceed.Wpf.Toolkit;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class SettingsWindowBase : HideWindowBase<SettingsWindowViewModel> { }
 

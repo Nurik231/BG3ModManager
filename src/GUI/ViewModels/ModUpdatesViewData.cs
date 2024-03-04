@@ -1,5 +1,5 @@
 ﻿using DivinityModManager.Models.Updates;
-using DivinityModManager.Views;
+using DivinityModManager.Windows;
 
 using DynamicData;
 using DynamicData.Binding;

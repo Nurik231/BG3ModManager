@@ -1,4 +1,4 @@
-﻿using DivinityModManager.Views;
+﻿using DivinityModManager.Windows;
 
 using System.Windows.Automation.Peers;
 

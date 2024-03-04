@@ -1,4 +1,4 @@
-﻿using DivinityModManager.Views;
+﻿using DivinityModManager.Windows;
 
 using System;
 using System.Collections.Generic;

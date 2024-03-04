@@ -33,5 +33,6 @@ namespace DivinityModManager
 		}
 
 		public static ISettingsService Settings => Get<ISettingsService>();
+		public static INexusModsService NexusMods => Get<INexusModsService>();
 	}
 }

@@ -9,6 +9,7 @@ using DivinityModManager.Controls;
 using DivinityModManager.Util;
 using DivinityModManager.Util.ScreenReader;
 using DivinityModManager.ViewModels;
+using DivinityModManager.Views;
 
 using DynamicData;
 
@@ -24,9 +25,24 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
-	public partial class MainWindow : AdonisWindow, IViewFor<MainWindowViewModel>, INotifyPropertyChanged
+	public class MainWindowBase : HideWindowBase<MainWindowViewModel>
+	{
+		//TODO Hide to notification tray if option is enabled
+
+		public MainWindowBase() : base()
+		{
+			HideOnEscapeKey = false;
+		}
+
+		public override void OnClosing(object sender, CancelEventArgs e)
+		{
+			//base.OnClosing(sender, e);
+		}
+	}
+
+	public partial class MainWindow : MainWindowBase
 	{
 		private static MainWindow self;
 		public static MainWindow Self => self;
@@ -34,34 +50,6 @@ namespace DivinityModManager.Views
 		[DllImport("user32")] public static extern int FlashWindow(IntPtr hwnd, bool bInvert);
 
 		public MainViewControl MainView { get; private set; }
-
-		public SettingsWindow SettingsWindow { get; private set; }
-		public ModPropertiesWindow ModPropertiesWindow { get; private set; }
-		public AboutWindow AboutWindow { get; private set; }
-		public VersionGeneratorWindow VersionGeneratorWindow { get; private set; }
-		public AppUpdateWindow UpdateWindow { get; private set; }
-		public HelpWindow HelpWindow { get; private set; }
-		public CollectionDownloadWindow CollectionDownloadWindow { get; private set; }
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		private MainWindowViewModel viewModel;
-		public MainWindowViewModel ViewModel
-		{
-			get => viewModel;
-			set
-			{
-				viewModel = value;
-				// ViewModel is POCO type warning suppression
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ViewModel"));
-			}
-		}
-
-		object IViewFor.ViewModel
-		{
-			get => ViewModel;
-			set => ViewModel = (MainWindowViewModel)value;
-		}
 
 		private readonly System.Windows.Interop.WindowInteropHelper _hwnd;
 
@@ -216,89 +204,6 @@ namespace DivinityModManager.Views
 			}
 		}
 
-		public void OpenPreferences(bool switchToKeybindings = false, bool forceOpen = false)
-		{
-			if (SettingsWindow.ViewModel == null)
-			{
-				SettingsWindow.Init(ViewModel);
-			}
-			if (!SettingsWindow.IsVisible)
-			{
-				if (switchToKeybindings == true)
-				{
-					SettingsWindow.ViewModel.SelectedTabIndex = SettingsWindowTab.Keybindings;
-				}
-				SettingsWindow.Show();
-				SettingsWindow.Owner = this;
-				ViewModel.Settings.SettingsWindowIsOpen = true;
-			}
-			else if (!forceOpen)
-			{
-				SettingsWindow.Hide();
-				ViewModel.Settings.SettingsWindowIsOpen = false;
-			}
-		}
-
-		private void ToggleAboutWindow()
-		{
-			AboutWindow ??= new AboutWindow();
-
-			if (!AboutWindow.IsVisible)
-			{
-				AboutWindow.DataContext = ViewModel;
-				AboutWindow.Show();
-				AboutWindow.Owner = this;
-			}
-			else
-			{
-				AboutWindow.Hide();
-			}
-		}
-
-		public void ToggleUpdateWindow(bool visible, UpdateInfoEventArgs e = null)
-		{
-			UpdateWindow ??= new AppUpdateWindow();
-
-			if (visible)
-			{
-				UpdateWindow.ViewModel.CheckArgs(e);
-				if (!UpdateWindow.IsVisible)
-				{
-					UpdateWindow.Show();
-					UpdateWindow.Owner = this;
-				}
-			}
-			else if (UpdateWindow.IsVisible)
-			{
-				UpdateWindow.Hide();
-			}
-		}
-
-		public void ShowHelpWindow(string title, string helpText)
-		{
-			HelpWindow ??= new HelpWindow();
-
-			HelpWindow.ViewModel.HelpTitle = title;
-			HelpWindow.ViewModel.HelpText = helpText;
-
-			if (!HelpWindow.IsVisible)
-			{
-				HelpWindow.Show();
-				HelpWindow.Owner = this;
-			}
-		}
-
-		public void ToggleCollectionDownloadWindow()
-		{
-			CollectionDownloadWindow ??= new CollectionDownloadWindow();
-
-			if (!CollectionDownloadWindow.IsVisible)
-			{
-				CollectionDownloadWindow.Show();
-				CollectionDownloadWindow.Owner = this;
-			}
-		}
-
 		private static System.Windows.Shell.TaskbarItemProgressState BoolToTaskbarItemProgressState(bool b)
 		{
 			return b ? System.Windows.Shell.TaskbarItemProgressState.Normal : System.Windows.Shell.TaskbarItemProgressState.None;
@@ -315,13 +220,8 @@ namespace DivinityModManager.Views
 		public void UpdateColorTheme(bool darkMode)
 		{
 			var theme = !darkMode ? LightTheme : DarkTheme;
-			ResourceLocator.SetColorScheme(this.Resources, theme);
-			ResourceLocator.SetColorScheme(SettingsWindow.Resources, theme);
-			if (AboutWindow != null) ResourceLocator.SetColorScheme(AboutWindow.Resources, theme);
-			if (VersionGeneratorWindow != null) ResourceLocator.SetColorScheme(VersionGeneratorWindow.Resources, theme);
-			if (UpdateWindow != null) ResourceLocator.SetColorScheme(UpdateWindow.Resources, theme);
-			if (HelpWindow != null) ResourceLocator.SetColorScheme(HelpWindow.Resources, theme);
-			if (ModPropertiesWindow != null) ResourceLocator.SetColorScheme(ModPropertiesWindow.Resources, theme);
+			ResourceLocator.SetColorScheme(Resources, theme);
+			App.WM.UpdateColorScheme(theme);
 		}
 
 		private void OnClosing()
@@ -364,28 +264,9 @@ namespace DivinityModManager.Views
 			DivinityApp.DateTimeColumnFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
 			DivinityApp.DateTimeTooltipFormat = CultureInfo.CurrentCulture.DateTimeFormat.LongDatePattern;
 
-			RxExceptionHandler.view = this;
-
 			ViewModel = new MainWindowViewModel();
 			MainView = new MainViewControl(this, ViewModel);
 			MainGrid.Children.Add(MainView);
-
-			SettingsWindow = new SettingsWindow();
-			ModPropertiesWindow = new ModPropertiesWindow();
-			ModPropertiesWindow.Hide();
-			//TODO Replace with new updater service
-			/*SettingsWindow.OnWorkshopPathChanged += delegate
-			{
-				RxApp.TaskpoolScheduler.ScheduleAsync(TimeSpan.FromMilliseconds(50), async (sch, cts) => await ViewModel.LoadWorkshopModsAsync(cts));
-			};*/
-			SettingsWindow.Closed += delegate
-			{
-				if (ViewModel?.Settings != null)
-				{
-					ViewModel.Settings.SettingsWindowIsOpen = false;
-				}
-			};
-			SettingsWindow.Hide();
 
 			if (File.Exists(Alphaleonis.Win32.Filesystem.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "debug")))
 			{
@@ -407,12 +288,9 @@ namespace DivinityModManager.Views
 
 			DivinityInteractions.OpenModProperties.RegisterHandler(interaction =>
 			{
-				ModPropertiesWindow.ViewModel.SetMod(interaction.Input);
-				if (!ModPropertiesWindow.IsVisible)
-				{
-					ModPropertiesWindow.Show();
-					ModPropertiesWindow.Owner = this;
-				}
+				var modProperties = App.WM.ModProperties;
+				modProperties.Window.ViewModel.SetMod(interaction.Input);
+				modProperties.Toggle(true);
 				interaction.SetOutput(true);
 			});
 
@@ -422,26 +300,14 @@ namespace DivinityModManager.Views
 				this.WhenAnyValue(x => x.ViewModel.Title).BindTo(this, view => view.Title);
 				this.OneWayBind(ViewModel, vm => vm.MainProgressIsActive, view => view.TaskbarItemInfo.ProgressState, BoolToTaskbarItemProgressState);
 
-				ViewModel.Keys.OpenPreferences.AddAction(() => OpenPreferences(false));
-				ViewModel.Keys.OpenKeybindings.AddAction(() => OpenPreferences(true));
-				ViewModel.Keys.OpenAboutWindow.AddAction(ToggleAboutWindow);
-
-				ToggleCollectionDownloadWindow();
-
-				ViewModel.Keys.ToggleVersionGeneratorWindow.AddAction(() =>
-				{
-					VersionGeneratorWindow ??= new VersionGeneratorWindow();
-
-					if (!VersionGeneratorWindow.IsVisible)
-					{
-						VersionGeneratorWindow.Show();
-						VersionGeneratorWindow.Owner = this;
-					}
-					else
-					{
-						VersionGeneratorWindow.Hide();
-					}
+				ViewModel.Keys.OpenPreferences.AddAction(() => App.WM.Settings.Toggle());
+				ViewModel.Keys.OpenKeybindings.AddAction(() => {
+					App.WM.Settings.Toggle();
+					if(App.WM.Settings.Window.IsVisible) App.WM.Settings.Window.ViewModel.SelectedTabIndex = SettingsWindowTab.Keybindings;
 				});
+				ViewModel.Keys.OpenAboutWindow.AddAction(() => App.WM.About.Toggle());
+
+				ViewModel.Keys.ToggleVersionGeneratorWindow.AddAction(() => App.WM.VersionGenerator.Toggle());
 
 				this.WhenAnyValue(x => x.ViewModel.MainProgressValue).BindTo(this, view => view.TaskbarItemInfo.ProgressValue);
 

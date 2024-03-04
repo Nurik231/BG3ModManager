@@ -5,6 +5,7 @@ using DivinityModManager.Models.Extender;
 using DivinityModManager.Models.Settings;
 using DivinityModManager.Util;
 using DivinityModManager.Views;
+using DivinityModManager.Windows;
 
 using DynamicData.Binding;
 

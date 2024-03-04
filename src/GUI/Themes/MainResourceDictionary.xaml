@@ -10,7 +10,6 @@
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:chrome="clr-namespace:Xceed.Wpf.Toolkit.Chromes;assembly=Xceed.Wpf.Toolkit"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
-	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
 	xmlns:dapp="clr-namespace:DivinityModManager;assembly=DivinityModManagerCore"
 	xmlns:data="clr-namespace:DivinityModManager.Models;assembly=DivinityModManagerCore"
@@ -25,6 +24,7 @@
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
 	xmlns:templateSelectors="clr-namespace:DivinityModManager.Controls.TemplateSelectors"
 	xmlns:updates="clr-namespace:DivinityModManager.Models.Updates;assembly=DivinityModManagerCore"
+	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:vm="clr-namespace:DivinityModManager.ViewModels;assembly=DivinityModManagerCore"
 	xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
 	xmlns:xconv="clr-namespace:Xceed.Wpf.Toolkit.Converters;assembly=Xceed.Wpf.Toolkit"
@@ -530,11 +530,11 @@
 	<Style x:Key="ModListViewDefaultStyle" TargetType="views:ModListView">
 		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}" />
 	</Style>
-	
+
 	<Style x:Key="PlainListView" TargetType="ListView">
 		<Setter Property="Background" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer4BackgroundBrush}}" />
 	</Style>
-	
+
 	<Style
 		x:Key="ModOrderListView"
 		BasedOn="{StaticResource {x:Type ListView}}"
@@ -1974,15 +1974,17 @@
 	</Style>
 
 	<Style
-		x:Key="CardViewBase" TargetType="{x:Type ListView}" BasedOn="{StaticResource {x:Type ListBox}}">
-		<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}"/>
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="BorderBrush" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer1BorderBrush}}"/>
-		<Setter Property="BorderThickness" Value="{DynamicResource {x:Static adonisUI:Dimensions.BorderThickness}}"/>
-		<Setter Property="adonisExtensions:ScrollViewerExtension.VerticalScrollBarExpansionMode" Value="ExpandOnHover"/>
-		<Setter Property="adonisExtensions:ScrollViewerExtension.HorizontalScrollBarExpansionMode" Value="ExpandOnHover"/>
-		<Setter Property="adonisExtensions:ScrollViewerExtension.VerticalScrollBarPlacement" Value="Docked"/>
-		<Setter Property="adonisExtensions:ScrollViewerExtension.HorizontalScrollBarPlacement" Value="Docked"/>
+		x:Key="CardViewBase"
+		BasedOn="{StaticResource {x:Type ListBox}}"
+		TargetType="{x:Type ListView}">
+		<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}" />
+		<Setter Property="Background" Value="Transparent" />
+		<Setter Property="BorderBrush" Value="{DynamicResource {x:Static adonisUI:Brushes.Layer1BorderBrush}}" />
+		<Setter Property="BorderThickness" Value="{DynamicResource {x:Static adonisUI:Dimensions.BorderThickness}}" />
+		<Setter Property="adonisExtensions:ScrollViewerExtension.VerticalScrollBarExpansionMode" Value="ExpandOnHover" />
+		<Setter Property="adonisExtensions:ScrollViewerExtension.HorizontalScrollBarExpansionMode" Value="ExpandOnHover" />
+		<Setter Property="adonisExtensions:ScrollViewerExtension.VerticalScrollBarPlacement" Value="Docked" />
+		<Setter Property="adonisExtensions:ScrollViewerExtension.HorizontalScrollBarPlacement" Value="Docked" />
 		<Setter Property="HorizontalContentAlignment" Value="Center" />
 		<Setter Property="ItemContainerStyle" Value="{Binding (ListView.View).ItemContainerStyle, RelativeSource={RelativeSource Self}}" />
 		<Setter Property="ItemTemplate" Value="{Binding (ListView.View).ItemTemplate, RelativeSource={RelativeSource Self}}" />

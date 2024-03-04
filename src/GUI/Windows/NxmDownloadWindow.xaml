@@ -1,0 +1,46 @@
+﻿<local:NxmDownloadWindowBase
+	x:Class="DivinityModManager.Windows.NxmDownloadWindow"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
+	xmlns:ag="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
+	xmlns:controls="clr-namespace:DivinityModManager.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:local="clr-namespace:DivinityModManager.Windows"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	Title="NXM Downloader"
+	Width="600"
+	Height="200"
+	Background="{DynamicResource {x:Static adonisUI:Brushes.Layer0BackgroundBrush}}"
+	Foreground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
+	TitleBarBackground="#f57842"
+	TitleBarForeground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
+	mc:Ignorable="d">
+	<Window.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="../Themes/MainResourceDictionary.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Window.Resources>
+	<ag:AutoGrid
+		Margin="4"
+		Columns="*"
+		RowCount="3"
+		Rows="3*,auto,1*">
+		<controls:UnfocusableTextBox
+			x:Name="UrlTextBox"
+			Margin="8"
+			HorizontalAlignment="Stretch"
+			VerticalAlignment="Center"
+			AcceptsReturn="False"
+			AcceptsTab="False"
+			TextWrapping="Wrap" />
+		<Button
+			x:Name="DownloadButton"
+			Padding="16,4"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Top"
+			Content="Download" />
+	</ag:AutoGrid>
+</local:NxmDownloadWindowBase>

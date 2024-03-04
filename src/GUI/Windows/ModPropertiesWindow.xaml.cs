@@ -2,7 +2,7 @@
 
 using DivinityModManager.Models;
 using DivinityModManager.Util;
-
+using DivinityModManager.Windows;
 using DynamicData;
 
 using ReactiveUI;
@@ -16,7 +16,7 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Input;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class ModPropertiesWindowBase : HideWindowBase<ModConfigPropertiesViewModel> { }
 

@@ -1,5 +1,5 @@
 ﻿using DivinityModManager.Models;
-using DivinityModManager.Views;
+using DivinityModManager.Windows;
 
 using System;
 using System.Globalization;

@@ -1,6 +1,6 @@
 ﻿using DivinityModManager.Controls;
 using DivinityModManager.Models;
-
+using DivinityModManager.Windows;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -16,7 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class VersionGeneratorViewModel : ReactiveObject
 	{

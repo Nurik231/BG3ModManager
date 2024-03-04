@@ -21,8 +21,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using DivinityModManager.Windows;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class CollectionDownloadWindowBase : HideWindowBase<CollectionDownloadWindowViewModel> { }
 
@@ -41,28 +42,22 @@ namespace DivinityModManager.Views
 		private void Confirm() => _taskResult.OnNext(true);
 		private void Cancel() => _taskResult.OnNext(false);
 
-		private static ViewBase ModsGridView;
-		private static ViewBase ModsCardView;
-
-		private ViewBase GetView(bool isCardView) => isCardView ? ModsCardView : ModsGridView;
-
 		public CollectionDownloadWindow()
 		{
 			InitializeComponent();
 
-			ModsGridView = (ViewBase)FindResource("ModsListViewGridView");
-			ModsCardView = (ViewBase)FindResource("ModsListViewCardView");
-			var cardViewBaseStyle = (Style)FindResource("CardViewBase");
-			var modListViewDefaultStyle = (Style)FindResource("ModListViewDefaultStyle");
-
 			_taskResult = new();
 
-			ViewModel = new CollectionDownloadWindowDesignViewModel();
+			ViewModel = new CollectionDownloadWindowViewModel();
 
 			DivinityInteractions.OpenDownloadCollectionView.RegisterHandler(OpenWindow);
 
 			ViewModel.ConfirmCommand = ReactiveCommand.Create(Confirm);
-			ViewModel.CancelCommand = ReactiveCommand.Create(Cancel);
+			ViewModel.CancelCommand = ReactiveCommand.Create(() =>
+			{
+				Cancel();
+				Close();
+			});
 
 			Closed += (o, e) => Cancel();
 

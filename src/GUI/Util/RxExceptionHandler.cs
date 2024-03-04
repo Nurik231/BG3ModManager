@@ -1,13 +1,10 @@
-﻿using DivinityModManager.Views;
-
-using System;
+﻿using System;
 using System.Windows;
 
 namespace DivinityModManager.Util
 {
 	class RxExceptionHandler : IObserver<Exception>
 	{
-		public static MainWindow view { get; set; }
 		public void OnNext(Exception value)
 		{
 			//if (Debugger.IsAttached) Debugger.Break();

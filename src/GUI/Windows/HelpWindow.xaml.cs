@@ -1,12 +1,12 @@
 ﻿using DivinityModManager.Controls;
-
+using DivinityModManager.Windows;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System;
 using System.Windows.Documents;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class HelpWindowBase : HideWindowBase<HelpWindowViewModel> { }
 

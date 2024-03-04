@@ -1,5 +1,4 @@
 ﻿using AdonisUI.Controls;
-
 using ReactiveUI;
 
 using System;
@@ -8,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class HideWindowBase<TViewModel> : AdonisWindow, IViewFor<TViewModel> where TViewModel : class
 	{
@@ -40,12 +39,14 @@ namespace DivinityModManager.Views
 			set => ViewModel = (TViewModel)value;
 		}
 
+		public bool HideOnEscapeKey { get; set; } = true;
+
 		public HideWindowBase()
 		{
-			Closing += HideWindow_Closing;
+			Closing += OnClosing;
 			KeyDown += (o, e) =>
 			{
-				if (!e.Handled && e.Key == System.Windows.Input.Key.Escape)
+				if (HideOnEscapeKey && !e.Handled && e.Key == Key.Escape)
 				{
 					if (Keyboard.FocusedElement == null || Keyboard.FocusedElement.GetType() != typeof(TextBox))
 					{
@@ -60,7 +61,7 @@ namespace DivinityModManager.Views
 			base.OnSourceInitialized(e);
 		}
 
-		public virtual void HideWindow_Closing(object sender, CancelEventArgs e)
+		public virtual void OnClosing(object sender, CancelEventArgs e)
 		{
 			e.Cancel = true;
 			Hide();

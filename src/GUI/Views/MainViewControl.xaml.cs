@@ -7,6 +7,7 @@ using DivinityModManager.Models.App;
 using DivinityModManager.Util;
 using DivinityModManager.Util.ScreenReader;
 using DivinityModManager.ViewModels;
+using DivinityModManager.Windows;
 
 using ReactiveUI;
 
@@ -100,9 +101,9 @@ namespace DivinityModManager.Views
 				};
 				BindingOperations.SetBinding(newEntry, MenuItem.CommandProperty, new Binding { Path = new PropertyPath("Command"), Source = key });
 				parentMenuItem.Items.Add(newEntry);
-				if (!String.IsNullOrWhiteSpace(menuSettings.Tooltip))
+				if (!String.IsNullOrWhiteSpace(menuSettings.ToolTip))
 				{
-					newEntry.ToolTip = menuSettings.Tooltip;
+					newEntry.ToolTip = menuSettings.ToolTip;
 				}
 				if (!String.IsNullOrWhiteSpace(menuSettings.Style))
 				{

@@ -172,22 +172,25 @@
 						<ColumnDefinition Width="*" />
 					</Grid.ColumnDefinitions>
 					<Menu x:Name="TopMenuBar" Padding="2">
-						<MenuItem x:Name="FileMenuItem" Header="File" />
-						<MenuItem x:Name="EditMenuItem" Header="Edit" />
-						<MenuItem x:Name="SettingsMenuItem" Header="Settings" />
-						<MenuItem x:Name="ViewMenuItem" Header="View" />
-						<MenuItem x:Name="GoMenuItem" Header="Go" />
-						<MenuItem
-							x:Name="ToolsMenuItem"
-							Header="Tools"
-							Style="{StaticResource MenuItemHightlightBlink}">
-							<MenuItem x:Name="UpdatesParentMenuItem" Header="Check For Updates">
+						<MenuItem Header="File" />
+						<MenuItem Header="Edit" />
+						<MenuItem Header="Settings" />
+						<MenuItem Header="View" />
+						<MenuItem Header="Go" />
+						<MenuItem Header="Download">
+							<MenuItem Header="Check For Mod Updates...">
 								<MenuItem x:Name="UpdateAllSourcesMenuItem" Header="All" />
+								<Separator />
 								<MenuItem x:Name="UpdateGitHubMenuItem" Header="GitHub" />
 								<MenuItem x:Name="UpdateNexusModsMenuItem" Header="Nexus Mods" />
 								<MenuItem x:Name="UpdateSteamWorkshopMenuItem" Header="Steam Workshop" />
 							</MenuItem>
+							<Separator />
 						</MenuItem>
+						<MenuItem
+							x:Name="ToolsMenuItem"
+							Header="Tools"
+							Style="{StaticResource MenuItemHightlightBlink}" />
 						<MenuItem x:Name="HelpMenuItem" Header="Help" />
 					</Menu>
 					<StackPanel

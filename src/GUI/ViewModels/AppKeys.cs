@@ -122,22 +122,25 @@ namespace DivinityModManager.ViewModels
 		[MenuSettings("Go", "Launch Game")]
 		public Hotkey LaunchGame { get; private set; } = new Hotkey(Key.G, ModifierKeys.Control | ModifierKeys.Shift);
 
+		[MenuSettings("Download", "Download & Extract the Script Extender...")]
+		public Hotkey DownloadScriptExtender { get; private set; } = new Hotkey(Key.None);
+
+		[MenuSettings("Download", @"Download nxm:\\ Link...", ToolTip = "Download a NexusMods link for a mod file or a collection", AddSeparator = true)]
+		public Hotkey DownloadNXMLink { get; private set; } = new Hotkey(Key.None);
+
 		[MenuSettings("Tools", "Extract Selected Mods To...")]
 		public Hotkey ExtractSelectedMods { get; private set; } = new Hotkey(Key.OemPeriod, ModifierKeys.Control);
 
 		[MenuSettings("Tools", "Extract Active Adventure Mod To...")]
 		public Hotkey ExtractSelectedAdventure { get; private set; } = new Hotkey(Key.None);
 
-		[MenuSettings("Tools", "Toggle Version Generator Window", Tooltip = "A tool for mod authors to generate version numbers for a mod's meta.lsx")]
+		[MenuSettings("Tools", "Toggle Version Generator Window", ToolTip = "A tool for mod authors to generate version numbers for a mod's meta.lsx")]
 		public Hotkey ToggleVersionGeneratorWindow { get; private set; } = new Hotkey(Key.G, ModifierKeys.Control);
-
-		[MenuSettings("Tools", "Download & Extract the Script Extender...")]
-		public Hotkey DownloadScriptExtender { get; private set; } = new Hotkey(Key.T, ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt);
 
 		[MenuSettings("Tools", "Speak Active Order")]
 		public Hotkey SpeakActiveModOrder { get; private set; } = new Hotkey(Key.Home, ModifierKeys.Control);
 
-		[MenuSettings("Help", "Check for Updates")]
+		[MenuSettings("Help", "Check for Updates...")]
 		public Hotkey CheckForUpdates { get; private set; } = new Hotkey(Key.F7);
 
 		[MenuSettings("Help", "Donate a Coffee...")]

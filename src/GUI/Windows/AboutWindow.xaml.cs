@@ -1,7 +1,7 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace DivinityModManager.Views
+namespace DivinityModManager.Windows
 {
 	public class AboutWindowBase : HideWindowBase<AboutWindowViewModel> { }
 
