@@ -54,6 +54,8 @@ namespace DivinityModManager.Windows
 					}
 				}
 			};
+
+			Hide();
 		}
 
 		protected override void OnSourceInitialized(EventArgs e)
