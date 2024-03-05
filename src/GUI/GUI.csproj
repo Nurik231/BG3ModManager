@@ -62,7 +62,7 @@
 	</Target>
 
 	<ItemGroup>
-		<ProjectReference Include="$(SolutionDir)\src\Core\DivinityModManagerCore.csproj" />
+		<ProjectReference Include="$(SolutionDir)src\Core\Core.csproj" />
 		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
 	</ItemGroup>
 

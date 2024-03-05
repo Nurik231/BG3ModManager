@@ -1,4 +1,5 @@
 ﻿using DivinityModManager.Controls;
+using DivinityModManager.ViewModels;
 using DivinityModManager.Windows;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;

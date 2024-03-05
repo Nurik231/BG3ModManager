@@ -1,9 +1,8 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DivinityModManagerCore", "src\Core\DivinityModManagerCore.csproj", "{E24CFB13-F468-4B1D-BC4D-245CD4BD1A23}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "src\Core\Core.csproj", "{E24CFB13-F468-4B1D-BC4D-245CD4BD1A23}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GUI", "src\GUI\GUI.csproj", "{14BD698D-2A4F-44BB-A41E-6E36D80A8459}"
 EndProject
@@ -19,6 +18,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusModsNET", "External\NexusModsNET\NexusModsNET\NexusModsNET.csproj", "{1C53A73F-8A5F-4B55-8065-BA05728FA4D9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "src\Tests\Tests.csproj", "{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{84149593-A52D-4981-94AD-B3150F153735}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{9EA7F551-AFBF-4BB0-A060-7204B4944537}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,7 +76,11 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{E24CFB13-F468-4B1D-BC4D-245CD4BD1A23} = {84149593-A52D-4981-94AD-B3150F153735}
+		{14BD698D-2A4F-44BB-A41E-6E36D80A8459} = {84149593-A52D-4981-94AD-B3150F153735}
+		{2F2EF4FE-7254-425A-8DE9-47457CC057C6} = {9EA7F551-AFBF-4BB0-A060-7204B4944537}
 		{1C53A73F-8A5F-4B55-8065-BA05728FA4D9} = {97DFC101-8AFC-4AED-ADDC-39E5FEC4D415}
+		{F6423DF6-678E-45A4-AB8C-B60B9EFF1CD7} = {9EA7F551-AFBF-4BB0-A060-7204B4944537}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D06B5DA3-3018-43F3-B9F0-2D9D89DB489E}

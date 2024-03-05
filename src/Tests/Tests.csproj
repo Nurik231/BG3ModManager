@@ -15,7 +15,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
-		<ProjectReference Include="$(SolutionDir)\src\Core\DivinityModManagerCore.csproj" />
+		<ProjectReference Include="$(SolutionDir)src\Core\Core.csproj" />
 		<!--<ProjectReference Include="$(SolutionDir)\src\GUI\GUI.csproj" />-->
 	</ItemGroup>
 
