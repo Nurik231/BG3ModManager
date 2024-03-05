@@ -10,20 +10,6 @@ namespace DivinityModManager.Windows
 {
 	public class HelpWindowBase : HideWindowBase<HelpWindowViewModel> { }
 
-	public class HelpWindowViewModel : ReactiveObject
-	{
-		[Reactive] public string WindowTitle { get; set; }
-		[Reactive] public string HelpTitle { get; set; }
-		[Reactive] public string HelpText { get; set; }
-
-		public HelpWindowViewModel()
-		{
-			WindowTitle = "Help";
-			HelpTitle = "";
-			HelpText = "";
-		}
-	}
-
 	public partial class HelpWindow : HelpWindowBase
 	{
 		private readonly Lazy<Markdown> _fallbackMarkdown = new(() => new Markdown());

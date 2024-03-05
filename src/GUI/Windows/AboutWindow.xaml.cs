@@ -1,19 +1,11 @@
-﻿using ReactiveUI;
+﻿using DivinityModManager.ViewModels;
+
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace DivinityModManager.Windows
 {
 	public class AboutWindowBase : HideWindowBase<AboutWindowViewModel> { }
-
-	public class AboutWindowViewModel : ReactiveObject
-	{
-		[Reactive] public string Title { get; set; }
-
-		public AboutWindowViewModel()
-		{
-			Title = "About";
-		}
-	}
 
 	/// <summary>
 	/// Interaction logic for AboutWindow.xaml
