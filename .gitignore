@@ -6,6 +6,9 @@ _Backup/
 # External Libraries, such as lslib
 External/lslib
 
+# WIP
+src/Avalonia
+
 ## Visual Studio Code specific files and folder
 .vscode/*
 !.vscode/settings.json
