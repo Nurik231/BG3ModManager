@@ -6,7 +6,6 @@
 	xmlns:ag="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
-	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:dapp="clr-namespace:DivinityModManager;assembly=DivinityModManagerCore"
@@ -15,6 +14,7 @@
 	xmlns:local="clr-namespace:DivinityModManager.Windows"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:reactiveui="http://reactiveui.net"
+	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:vm="clr-namespace:DivinityModManager.ViewModels"
 	Title="NexusMods Collection Downloader"
 	d:DataContext="{d:DesignInstance vm:CollectionDownloadWindowDesignViewModel,
@@ -31,75 +31,10 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="../Themes/MainResourceDictionary.xaml" />
 			</ResourceDictionary.MergedDictionaries>
-			<controls:AutomationTooltip x:Key="NexusModToolTip" DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}">
-				<Grid>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="*" />
-						<ColumnDefinition Width="Auto" />
-					</Grid.ColumnDefinitions>
-					<StackPanel
-						x:Name="InfoStackPanel"
-						MaxWidth="700"
-						Background="Transparent"
-						Orientation="Vertical">
-						<StackPanel.Resources>
-							<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
-								<Setter Property="TextWrapping" Value="Wrap" />
-								<Setter Property="Margin" Value="2" />
-								<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}" />
-								<!--<Setter Property="FontFamily" Value="Arial" />-->
-							</Style>
-						</StackPanel.Resources>
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto" />
-								<ColumnDefinition Width="*" />
-							</Grid.ColumnDefinitions>
-							<TextBlock
-								FontSize="16"
-								FontWeight="Bold"
-								Foreground="{DynamicResource {x:Static adonisUI:Brushes.AlertBrush}}"
-								Style="{StaticResource TitleWithDropShadow}"
-								Text="{Binding Name}" />
-							<TextBlock Grid.Column="1" Text="{Binding Version}" />
-						</Grid>
-
-						<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
-						<StackPanel Orientation="Horizontal">
-							<TextBlock
-								Style="{StaticResource TitleWithDropShadow}"
-								Text="{Binding AuthorDisplayText}"
-								TextWrapping="Wrap" />
-							<Image
-								MaxWidth="16"
-								MaxHeight="16"
-								Margin="4"
-								RenderOptions.BitmapScalingMode="HighQuality"
-								Source="{Binding AuthorAvatarUrl, Converter={StaticResource UriToBitmapImageConverter}}"
-								Stretch="UniformToFill"
-								Visibility="{Binding AuthorAvatarVisibility, FallbackValue=Collapsed}" />
-						</StackPanel>
-						<TextBlock
-							Text="{Binding Description}"
-							TextWrapping="Wrap"
-							Visibility="{Binding DescriptionVisibility}" />
-						<StackPanel Orientation="Vertical">
-							<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
-							<TextBlock Margin="2" Text="{Binding CreatedDateText}" />
-							<TextBlock Margin="2" Text="{Binding UpdatedDateText}" />
-							<TextBlock Text="{Binding SizeText}" />
-						</StackPanel>
-						<Image
-							MaxWidth="256"
-							MaxHeight="256"
-							RenderOptions.BitmapScalingMode="HighQuality"
-							Source="{Binding ImageUrl, Converter={StaticResource UriToBitmapImageConverter}}"
-							Stretch="UniformToFill"
-							Visibility="{Binding ImageVisibility}" />
-					</StackPanel>
-				</Grid>
-			</controls:AutomationTooltip>
-			<GridView x:Key="ModsListViewGridView" AllowsColumnReorder="True" ColumnHeaderContainerStyle="{StaticResource GridViewLeftContainerStyle}">
+			<GridView
+				x:Key="ModsListViewGridView"
+				AllowsColumnReorder="True"
+				ColumnHeaderContainerStyle="{StaticResource GridViewLeftContainerStyle}">
 				<GridView.Columns>
 					<GridViewColumn
 						Width="40"
@@ -153,7 +88,7 @@
 										AutomationProperties.HelpText="{Binding Text, RelativeSource={RelativeSource Self}}"
 										Tag="{Binding}"
 										Text="{Binding Name}"
-										ToolTip="{StaticResource NexusModToolTip}" />
+										ToolTip="{StaticResource NexusModsCollectionModToolTip}" />
 								</controls:ModEntryGrid>
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
@@ -238,19 +173,43 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="240" />
 					</Grid.ColumnDefinitions>
-					<StackPanel Orientation="Horizontal" Margin="12,0,0,0">
+					<StackPanel Margin="12,0,0,0" Orientation="Horizontal">
 						<ToggleButton
-				x:Name="SetGridViewButton"
-				Margin="4"
-				Content="{StaticResource ListViewIcon}"
-				Style="{DynamicResource {x:Static adonisUI:Styles.ToolbarToggleButton}}"
-				ToolTip="View as List" />
+							x:Name="SetGridViewButton"
+							Margin="4"
+							ToolTip="View as List"
+							ToolTipService.InitialShowDelay="0">
+							<ToggleButton.Style>
+								<Style BasedOn="{StaticResource {x:Static adonisUI:Styles.ToolbarToggleButton}}" TargetType="ToggleButton">
+									<Style.Triggers>
+										<Trigger Property="IsChecked" Value="False">
+											<Setter Property="Content" Value="{StaticResource ListViewIcon}" />
+										</Trigger>
+										<Trigger Property="IsChecked" Value="True">
+											<Setter Property="Content" Value="{StaticResource ListViewIconToggled}" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</ToggleButton.Style>
+						</ToggleButton>
 						<ToggleButton
-				x:Name="SetCardViewButton"
-				Margin="4"
-				Content="{StaticResource CardViewIcon}"
-				Style="{DynamicResource {x:Static adonisUI:Styles.ToolbarToggleButton}}"
-				ToolTip="View as Cards" />
+							x:Name="SetCardViewButton"
+							Margin="4"
+							ToolTip="View as Cards"
+							ToolTipService.InitialShowDelay="0">
+							<ToggleButton.Style>
+								<Style BasedOn="{StaticResource {x:Static adonisUI:Styles.ToolbarToggleButton}}" TargetType="ToggleButton">
+									<Style.Triggers>
+										<Trigger Property="IsChecked" Value="False">
+											<Setter Property="Content" Value="{StaticResource CardViewIcon}" />
+										</Trigger>
+										<Trigger Property="IsChecked" Value="True">
+											<Setter Property="Content" Value="{StaticResource CardViewIconToggled}" />
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</ToggleButton.Style>
+						</ToggleButton>
 					</StackPanel>
 					<TextBlock
 						Grid.Column="1"
@@ -261,8 +220,19 @@
 				</Grid>
 
 				<Grid>
-					<views:ModListView DisplayMemberPath="DummyValue"  x:Name="ModsGridListView" GridViewColumnHeader.Click="SortView" ItemsSource="{Binding Mods}" View="{StaticResource ModsListViewGridView}" Visibility="Collapsed" />
-					<ListView DisplayMemberPath="DummyValue" x:Name="ModsCardListView" ItemsSource="{Binding Mods}" Style="{StaticResource CardViewBase}" View="{StaticResource ModsListViewCardView}"  />
+					<views:ModListView
+						x:Name="ModsGridListView"
+						DisplayMemberPath="DummyValue"
+						GridViewColumnHeader.Click="SortView"
+						ItemsSource="{Binding Mods}"
+						View="{StaticResource ModsListViewGridView}"
+						Visibility="Collapsed" />
+					<ListView
+						x:Name="ModsCardListView"
+						DisplayMemberPath="DummyValue"
+						ItemsSource="{Binding Mods}"
+						Style="{StaticResource CardViewBase}"
+						View="{StaticResource ModsListViewCardView}" />
 				</Grid>
 
 			</ag:AutoGrid>

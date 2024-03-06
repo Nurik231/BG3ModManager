@@ -1973,6 +1973,74 @@
 		</Setter>
 	</Style>
 
+	<controls:AutomationTooltip x:Key="NexusModsCollectionModToolTip" DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+			<StackPanel
+				MaxWidth="700"
+				Background="Transparent"
+				Orientation="Vertical">
+				<StackPanel.Resources>
+					<Style BasedOn="{StaticResource {x:Type TextBlock}}" TargetType="TextBlock">
+						<Setter Property="TextWrapping" Value="Wrap" />
+						<Setter Property="Margin" Value="2" />
+						<Setter Property="Foreground" Value="{DynamicResource {x:Static adonisUI:Brushes.ForegroundBrush}}" />
+						<!--<Setter Property="FontFamily" Value="Arial" />-->
+					</Style>
+				</StackPanel.Resources>
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<TextBlock
+						FontSize="16"
+						FontWeight="Bold"
+						Foreground="{DynamicResource {x:Static adonisUI:Brushes.AlertBrush}}"
+						Style="{StaticResource TitleWithDropShadow}"
+						Text="{Binding Name}" />
+					<TextBlock Grid.Column="1" Text="{Binding Version}" />
+				</Grid>
+
+				<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
+				<StackPanel Orientation="Horizontal">
+					<TextBlock
+						Style="{StaticResource TitleWithDropShadow}"
+						Text="{Binding AuthorDisplayText}"
+						TextWrapping="Wrap" />
+					<Image
+						MaxWidth="16"
+						MaxHeight="16"
+						Margin="4"
+						RenderOptions.BitmapScalingMode="HighQuality"
+						Source="{Binding AuthorAvatarUrl, Converter={StaticResource UriToBitmapImageConverter}}"
+						Stretch="UniformToFill"
+						Visibility="{Binding AuthorAvatarVisibility, FallbackValue=Collapsed}" />
+				</StackPanel>
+				<TextBlock
+					Text="{Binding Description}"
+					TextWrapping="Wrap"
+					Visibility="{Binding DescriptionVisibility}" />
+				<StackPanel Orientation="Vertical">
+					<Separator Background="{DynamicResource {x:Static adonisUI:Brushes.Layer1HighlightBorderBrush}}" />
+					<TextBlock Margin="2" Text="{Binding CreatedDateText}" />
+					<TextBlock Margin="2" Text="{Binding UpdatedDateText}" />
+					<TextBlock Text="{Binding SizeText}" />
+				</StackPanel>
+				<Image
+					MaxWidth="256"
+					MaxHeight="256"
+					RenderOptions.BitmapScalingMode="HighQuality"
+					Source="{Binding ImageUrl, Converter={StaticResource UriToBitmapImageConverter}}"
+					Stretch="UniformToFill"
+					Visibility="{Binding ImageVisibility}" />
+			</StackPanel>
+		</Grid>
+	</controls:AutomationTooltip>
+
 	<Style
 		x:Key="CardViewBase"
 		BasedOn="{StaticResource {x:Type ListBox}}"
@@ -2072,9 +2140,13 @@
 
 				<autogrid:AutoGrid
 					Grid.Row="1"
+					Margin="8"
 					Columns="*"
 					RowCount="4"
-					Rows="auto,auto,auto,*">
+					Rows="auto,auto,auto,*"
+					Tag="{Binding}"
+					ToolTip="{StaticResource NexusModsCollectionModToolTip}"
+					ToolTipService.InitialShowDelay="2">
 					<TextBlock Text="{Binding Name}" TextWrapping="Wrap" />
 					<TextBlock
 						FontSize="12"
@@ -2104,8 +2176,7 @@
 						VerticalAlignment="Stretch"
 						Foreground="LightGray"
 						Text="{Binding Description}"
-						TextWrapping="Wrap"
-						ToolTip="{Binding Description}" />
+						TextWrapping="Wrap" />
 				</autogrid:AutoGrid>
 			</Grid>
 		</Border>

@@ -116,20 +116,7 @@
 		x:Shared="false"
 		Source="{svgc:SvgImage Source=/Resources/Icons/Folder_16x.svg,
 		                       AppName=BG3ModManager}" />
-	<Image
-		x:Key="ListViewIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{svgc:SvgImage Source=/Resources/Icons/ListView_16x.svg,
-		                       AppName=BG3ModManager}" />
-	<Image
-		x:Key="CardViewIcon"
-		Width="16"
-		Height="16"
-		x:Shared="false"
-		Source="{svgc:SvgImage Source=/Resources/Icons/ViewPortrait_16x.svg,
-		                       AppName=BG3ModManager}" />
+
 	<svgc:SvgBitmap
 		x:Key="HelpIcon"
 		Width="16"
@@ -137,4 +124,56 @@
 		x:Shared="false"
 		AppName="BG3ModManager"
 		UriSource="/Resources/Icons/StatusHelp_16x.svg" />
+
+	<svgc:SvgBitmap
+		x:Key="ListViewIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		AppName="BG3ModManager"
+		UriSource="/Resources/Icons/ListView_16x.svg" />
+
+	<svgc:SvgBitmap
+		x:Key="ListViewIconToggled"
+		Width="16"
+		Height="16"
+		x:Shared="false">
+		<svgc:SvgBitmap.SvgSource>
+			<![CDATA[
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+	<style type="text/css">.icon-canvas-transparent{opacity:0;fill:#86a9eb;} .icon-vs-out{fill:#86a9eb;} .icon-vs-bg{fill:#384a6b;} .icon-vs-fg{fill:#6b82e8;}</style>
+	<rect class="icon-canvas-transparent" width="16" height="16" id="canvas"/>
+	<rect class="icon-vs-out" width="16" height="15" id="outline"/>
+	<path class="icon-vs-bg" d="M1 1v13h14v-13h-14zm13 12h-12v-11h12v11zm-4-8h-6v-1h6v1zm-6 1h8v1h-8v-1zm6 3h-6v-1h6v1zm-6 1h8v1h-8v-1z" id="iconBg"/>
+	<path class="icon-vs-fg" d="M2 2v11h12v-11h-12zm2 2h6v1h-6v-1zm0 4h6v1h-6v-1zm8 3h-8v-1h8v1zm0-4h-8v-1h8v1z" id="iconFg"/>
+</svg>
+			]]>
+		</svgc:SvgBitmap.SvgSource>
+	</svgc:SvgBitmap>
+
+	<svgc:SvgBitmap
+		x:Key="CardViewIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		AppName="BG3ModManager"
+		UriSource="/Resources/Icons/ViewPortrait_16x.svg" />
+
+	<svgc:SvgBitmap
+		x:Key="CardViewIconToggled"
+		Width="16"
+		Height="16"
+		x:Shared="false">
+		<svgc:SvgBitmap.SvgSource>
+			<![CDATA[
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+	<style type="text/css">.icon-canvas-transparent{opacity:0;fill:#86a9eb;} .icon-vs-out{fill:#86a9eb;} .icon-vs-bg{fill:#384a6b;} .icon-vs-fg{fill:#6b82e8;}</style>
+	<path class="icon-canvas-transparent" d="M16 16h-16v-16h16v16z" id="canvas"/>
+	<path class="icon-vs-out" d="M2 16v-16h13v16h-13z" id="outline"/>
+	<path class="icon-vs-bg" d="M14 1h-11v14h11v-14zm-10 13v-12h9v12h-9zm1-1v-10h7v10h-7z" id="iconBg"/>
+	<path class="icon-vs-fg" d="M13 2h-9v12h9v-12zm-8 11v-10h7v10h-7z" id="iconFg"/>
+</svg>
+			]]>
+		</svgc:SvgBitmap.SvgSource>
+	</svgc:SvgBitmap>
 </ResourceDictionary>
