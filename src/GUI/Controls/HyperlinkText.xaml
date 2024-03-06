@@ -8,6 +8,6 @@
 	x:Name="MainTextBlock"
 	mc:Ignorable="d">
 	<Hyperlink x:Name="Hyperlink">
-		<TextBlock Text="{Binding ElementName=MainTextBlock, Path=DisplayText}" />
+		<TextBlock x:Name="DisplayTextTextBlock" />
 	</Hyperlink>
 </TextBlock>

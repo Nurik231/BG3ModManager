@@ -12,50 +12,56 @@ namespace DivinityModManager.Controls
 	/// </summary>
 	public partial class HyperlinkText : TextBlock
 	{
+		private static readonly PropertyChangedCallback _updateText = new PropertyChangedCallback(UpdateHyperlinkText);
+		public static readonly DependencyProperty URLProperty = DependencyProperty.Register("URL", typeof(string), typeof(HyperlinkText), new PropertyMetadata("", new PropertyChangedCallback(OnURLChanged)));
+		public static readonly DependencyProperty DisplayTextProperty = DependencyProperty.Register("DisplayText", typeof(string), typeof(HyperlinkText), new PropertyMetadata("", _updateText));
+		public static readonly DependencyProperty UseUrlForDisplayTextProperty = DependencyProperty.Register("UseUrlForDisplayText", typeof(bool), typeof(HyperlinkText), new PropertyMetadata(false, _updateText));
+
 		public string URL
 		{
-			get { return (string)GetValue(URLProperty); }
-			set { SetValue(URLProperty, value); }
-		}
-
-		// Using a DependencyProperty as the backing store for URL.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty URLProperty =
-			DependencyProperty.Register("URL", typeof(string), typeof(HyperlinkText), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnURLChanged)));
-
-		private static void OnURLChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			string url = (string)e.NewValue;
-			Uri uri = null;
-			if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri))
-			{
-				HyperlinkText x = (HyperlinkText)d;
-				x.Hyperlink.NavigateUri = uri;
-				x.ToolTip = url;
-				if (String.IsNullOrEmpty(x.DisplayText) || x.UseUrlForDisplayText)
-				{
-					x.DisplayText = url;
-				}
-			}
+			get => (string)GetValue(URLProperty);
+			set => SetValue(URLProperty, value);
 		}
 
 		public string DisplayText
 		{
-			get { return (string)GetValue(DisplayTextProperty); }
-			set { SetValue(DisplayTextProperty, value); }
+			get => (string)GetValue(DisplayTextProperty);
+			set => SetValue(DisplayTextProperty, value);
 		}
-
-		// Using a DependencyProperty as the backing store for DisplayText.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty DisplayTextProperty =
-			DependencyProperty.Register("DisplayText", typeof(string), typeof(HyperlinkText), new PropertyMetadata(""));
 
 		public bool UseUrlForDisplayText
 		{
-			get { return (bool)GetValue(UseUrlForDisplayTextProperty); }
-			set { SetValue(UseUrlForDisplayTextProperty, value); }
+			get => (bool)GetValue(UseUrlForDisplayTextProperty);
+			set => SetValue(UseUrlForDisplayTextProperty, value);
 		}
 
-		public static readonly DependencyProperty UseUrlForDisplayTextProperty =
-			DependencyProperty.Register("UseUrlForDisplayText", typeof(bool), typeof(HyperlinkText), new PropertyMetadata(false));
+		private static void OnURLChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			if (d is HyperlinkText hyperLinkText && e.NewValue is string url && Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
+			{
+				hyperLinkText.Hyperlink.NavigateUri = uri;
+				hyperLinkText.UpdateDisplayText();
+			}
+		}
+
+		private static void UpdateHyperlinkText(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			if (d is HyperlinkText hyperLinkText)
+			{
+				hyperLinkText.UpdateDisplayText();
+			}
+		}
+
+		private void UpdateDisplayText()
+		{
+			var outputText = DisplayText;
+			if (String.IsNullOrEmpty(outputText) || UseUrlForDisplayText)
+			{
+				outputText = URL;
+			}
+			DisplayTextTextBlock.Text = outputText;
+			ToolTip = URL;
+		}
 
 		public HyperlinkText()
 		{
