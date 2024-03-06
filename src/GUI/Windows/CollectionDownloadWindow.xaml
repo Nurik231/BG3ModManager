@@ -17,10 +17,10 @@
 	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:vm="clr-namespace:DivinityModManager.ViewModels"
 	Title="NexusMods Collection Downloader"
+	Width="1563"
+	Height="759"
 	d:DataContext="{d:DesignInstance vm:CollectionDownloadWindowDesignViewModel,
 	                                 IsDesignTimeCreatable=True}"
-	d:DesignHeight="936"
-	d:DesignWidth="1024"
 	Background="{DynamicResource {x:Static adonisUI:Brushes.Layer0BackgroundBrush}}"
 	Foreground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
 	TitleBarBackground="#f57842"
@@ -87,7 +87,7 @@
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>
 					<GridViewColumn
-						Width="100"
+						Width="Auto"
 						Header="Author"
 						HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 						<GridViewColumn.CellTemplate>
@@ -128,19 +128,6 @@
 						<GridViewColumn.CellTemplate>
 							<DataTemplate>
 								<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Category, Mode=OneWay}" />
-							</DataTemplate>
-						</GridViewColumn.CellTemplate>
-					</GridViewColumn>
-					<GridViewColumn
-						Width="Auto"
-						Header="Optional"
-						HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
-						<GridViewColumn.CellTemplate>
-							<DataTemplate>
-								<CheckBox
-									Focusable="False"
-									IsChecked="{Binding IsOptional}"
-									IsHitTestVisible="False" />
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>
@@ -263,7 +250,6 @@
 				<Grid>
 					<views:ModListView
 						x:Name="ModsGridListView"
-						DisplayMemberPath="DummyValue"
 						Grid.IsSharedSizeScope="True"
 						GridViewColumnHeader.Click="SortView"
 						ItemsSource="{Binding Mods}"
@@ -271,7 +257,6 @@
 						Visibility="Visible" />
 					<ListView
 						x:Name="ModsCardListView"
-						DisplayMemberPath="DummyValue"
 						ItemsSource="{Binding Mods}"
 						Style="{StaticResource CardViewBase}"
 						View="{StaticResource ModsListViewCardView}"
