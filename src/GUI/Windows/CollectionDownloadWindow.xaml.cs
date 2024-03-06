@@ -34,7 +34,11 @@ namespace DivinityModManager.Windows
 
 		private async Task OpenWindow(IInteractionContext<NexusGraphCollectionRevision, bool> context)
 		{
-			ViewModel.Load(context.Input);
+			await Observable.Start(() =>
+			{
+				ViewModel.Load(context.Input);
+				App.WM.CollectionDownload.Toggle(true);
+			}, RxApp.MainThreadScheduler);
 			var result = await TaskResult;
 			context.SetOutput(result);
 		}

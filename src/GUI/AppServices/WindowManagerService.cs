@@ -2,9 +2,12 @@
 
 using DivinityModManager.Windows;
 
+using ReactiveUI;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,17 +26,20 @@ namespace DivinityModManager.AppServices
 		{
 			var b = !Window.IsVisible || forceOpen;
 
-			_onToggle.OnNext(b);
+			RxApp.MainThreadScheduler.Schedule(() =>
+			{
+				_onToggle.OnNext(b);
 
-			if (b)
-			{
-				Window.Show();
-				Window.Owner = MainWindow.Self;
-			}
-			else
-			{
-				Window.Close();
-			}
+				if (b)
+				{
+					Window.Show();
+					Window.Owner = MainWindow.Self;
+				}
+				else
+				{
+					Window.Close();
+				}
+			});
 		}
 
 		public WindowWrapper(T window)
