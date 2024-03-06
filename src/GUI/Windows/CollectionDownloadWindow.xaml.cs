@@ -80,6 +80,9 @@ namespace DivinityModManager.Windows
 				this.BindCommand(ViewModel, vm => vm.SetGridViewCommand, view => view.SetGridViewButton);
 				this.BindCommand(ViewModel, vm => vm.SetCardViewCommand, view => view.SetCardViewButton);
 
+				this.BindCommand(ViewModel, vm => vm.EnableAllCommand, view => view.EnableAllButton);
+				this.BindCommand(ViewModel, vm => vm.DisableAllCommand, view => view.DisableAllButton);
+
 				this.OneWayBind(ViewModel, vm => vm.IsCardView, view => view.SetGridViewButton.IsChecked, b => !b);
 				this.OneWayBind(ViewModel, vm => vm.IsCardView, view => view.SetCardViewButton.IsChecked);
 			});

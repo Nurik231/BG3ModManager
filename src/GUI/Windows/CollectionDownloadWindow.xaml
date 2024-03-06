@@ -19,8 +19,8 @@
 	Title="NexusMods Collection Downloader"
 	d:DataContext="{d:DesignInstance vm:CollectionDownloadWindowDesignViewModel,
 	                                 IsDesignTimeCreatable=True}"
-	d:DesignHeight="450"
-	d:DesignWidth="800"
+	d:DesignHeight="936"
+	d:DesignWidth="1024"
 	Background="{DynamicResource {x:Static adonisUI:Brushes.Layer0BackgroundBrush}}"
 	Foreground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
 	TitleBarBackground="#f57842"
@@ -51,17 +51,10 @@
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>
-					<GridViewColumn Width="40" HeaderContainerStyle="{StaticResource GridViewCenteredContainerStyle}">
-						<GridViewColumn.Header>
-							<CheckBox
-								x:Name="CheckboxHeader"
-								Margin="4,0"
-								Command="{Binding SelectAllCommand}"
-								CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"
-								IsChecked="True"
-								Style="{StaticResource VanillaCheckBox}"
-								ToolTip="Download" />
-						</GridViewColumn.Header>
+					<GridViewColumn
+						Width="Auto"
+						Header="Enabled"
+						HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 						<GridViewColumn.CellTemplate>
 							<DataTemplate>
 								<CheckBox
@@ -99,17 +92,42 @@
 						HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 						<GridViewColumn.CellTemplate>
 							<DataTemplate>
-								<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Author, Mode=OneWay}" />
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" SharedSizeGroup="AuthorNameColumn" />
+										<ColumnDefinition Width="16" />
+									</Grid.ColumnDefinitions>
+									<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Author, Mode=OneWay}" />
+									<Image
+										Grid.Column="1"
+										MaxWidth="16"
+										MaxHeight="16"
+										HorizontalAlignment="Right"
+										RenderOptions.BitmapScalingMode="HighQuality"
+										Source="{Binding AuthorAvatarUrl, Converter={StaticResource UriToBitmapImageConverter}}"
+										Stretch="UniformToFill"
+										Visibility="{Binding AuthorAvatarVisibility}" />
+								</Grid>
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>
 					<GridViewColumn
-						Width="80"
+						Width="Auto"
 						Header="Version"
 						HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
 						<GridViewColumn.CellTemplate>
 							<DataTemplate>
 								<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Version, Mode=OneWay}" />
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn
+						Width="Auto"
+						Header="Category"
+						HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Style="{StaticResource TextBlockAutoToolTip}" Text="{Binding Category, Mode=OneWay}" />
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>
@@ -123,6 +141,16 @@
 									Focusable="False"
 									IsChecked="{Binding IsOptional}"
 									IsHitTestVisible="False" />
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn
+						Width="250"
+						Header="Nexus URL"
+						HeaderTemplate="{StaticResource GridViewTextblockHeaderTemplate}">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<controls:HyperlinkText DisplayText="{Binding NexusModsURLDisplayText}" URL="{Binding NexusModsURL}" />
 							</DataTemplate>
 						</GridViewColumn.CellTemplate>
 					</GridViewColumn>
@@ -173,44 +201,57 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="240" />
 					</Grid.ColumnDefinitions>
-					<StackPanel Margin="12,0,0,0" Orientation="Horizontal">
-						<ToggleButton
-							x:Name="SetGridViewButton"
-							Margin="4"
-							ToolTip="View as List"
-							ToolTipService.InitialShowDelay="0">
-							<ToggleButton.Style>
-								<Style BasedOn="{StaticResource {x:Static adonisUI:Styles.ToolbarToggleButton}}" TargetType="ToggleButton">
-									<Style.Triggers>
-										<Trigger Property="IsChecked" Value="False">
-											<Setter Property="Content" Value="{StaticResource ListViewIcon}" />
-										</Trigger>
-										<Trigger Property="IsChecked" Value="True">
-											<Setter Property="Content" Value="{StaticResource ListViewIconToggled}" />
-										</Trigger>
-									</Style.Triggers>
-								</Style>
-							</ToggleButton.Style>
-						</ToggleButton>
-						<ToggleButton
-							x:Name="SetCardViewButton"
-							Margin="4"
-							ToolTip="View as Cards"
-							ToolTipService.InitialShowDelay="0">
-							<ToggleButton.Style>
-								<Style BasedOn="{StaticResource {x:Static adonisUI:Styles.ToolbarToggleButton}}" TargetType="ToggleButton">
-									<Style.Triggers>
-										<Trigger Property="IsChecked" Value="False">
-											<Setter Property="Content" Value="{StaticResource CardViewIcon}" />
-										</Trigger>
-										<Trigger Property="IsChecked" Value="True">
-											<Setter Property="Content" Value="{StaticResource CardViewIconToggled}" />
-										</Trigger>
-									</Style.Triggers>
-								</Style>
-							</ToggleButton.Style>
-						</ToggleButton>
-					</StackPanel>
+					<ToolBarTray>
+						<ToolBar Margin="12,0,0,0">
+							<ToggleButton
+								x:Name="SetGridViewButton"
+								ToolTip="View as List"
+								ToolTipService.InitialShowDelay="0">
+								<ToggleButton.Style>
+									<Style BasedOn="{StaticResource {x:Static adonisUI:Styles.ToolbarToggleButton}}" TargetType="ToggleButton">
+										<Style.Triggers>
+											<Trigger Property="IsChecked" Value="False">
+												<Setter Property="Content" Value="{StaticResource ListViewIcon}" />
+											</Trigger>
+											<Trigger Property="IsChecked" Value="True">
+												<Setter Property="Content" Value="{StaticResource ListViewIconToggled}" />
+											</Trigger>
+										</Style.Triggers>
+									</Style>
+								</ToggleButton.Style>
+							</ToggleButton>
+							<ToggleButton
+								x:Name="SetCardViewButton"
+								ToolTip="View as Cards"
+								ToolTipService.InitialShowDelay="0">
+								<ToggleButton.Style>
+									<Style BasedOn="{StaticResource {x:Static adonisUI:Styles.ToolbarToggleButton}}" TargetType="ToggleButton">
+										<Style.Triggers>
+											<Trigger Property="IsChecked" Value="False">
+												<Setter Property="Content" Value="{StaticResource CardViewIcon}" />
+											</Trigger>
+											<Trigger Property="IsChecked" Value="True">
+												<Setter Property="Content" Value="{StaticResource CardViewIconToggled}" />
+											</Trigger>
+										</Style.Triggers>
+									</Style>
+								</ToggleButton.Style>
+							</ToggleButton>
+							<Separator />
+							<Button
+								x:Name="EnableAllButton"
+								Content="{StaticResource CheckboxCheckAllIcon}"
+								Style="{DynamicResource {x:Static adonisUI:Styles.ToolbarButton}}"
+								ToolTip="Enable All"
+								ToolTipService.InitialShowDelay="0" />
+							<Button
+								x:Name="DisableAllButton"
+								Content="{StaticResource CheckboxClearAllIcon}"
+								Style="{DynamicResource {x:Static adonisUI:Styles.ToolbarButton}}"
+								ToolTip="Disable All"
+								ToolTipService.InitialShowDelay="0" />
+						</ToolBar>
+					</ToolBarTray>
 					<TextBlock
 						Grid.Column="1"
 						FontSize="20"
@@ -223,20 +264,26 @@
 					<views:ModListView
 						x:Name="ModsGridListView"
 						DisplayMemberPath="DummyValue"
+						Grid.IsSharedSizeScope="True"
 						GridViewColumnHeader.Click="SortView"
 						ItemsSource="{Binding Mods}"
 						View="{StaticResource ModsListViewGridView}"
-						Visibility="Collapsed" />
+						Visibility="Visible" />
 					<ListView
 						x:Name="ModsCardListView"
 						DisplayMemberPath="DummyValue"
 						ItemsSource="{Binding Mods}"
 						Style="{StaticResource CardViewBase}"
-						View="{StaticResource ModsListViewCardView}" />
+						View="{StaticResource ModsListViewCardView}"
+						Visibility="Collapsed" />
 				</Grid>
 
 			</ag:AutoGrid>
-			<UniformGrid Margin="4" HorizontalAlignment="Center">
+			<UniformGrid
+				Margin="4"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				Rows="1">
 				<Button
 					x:Name="ConfirmButton"
 					Margin="4,0"

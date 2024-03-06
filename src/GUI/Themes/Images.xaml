@@ -176,4 +176,20 @@
 			]]>
 		</svgc:SvgBitmap.SvgSource>
 	</svgc:SvgBitmap>
+
+	<svgc:SvgBitmap
+		x:Key="CheckboxCheckAllIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		AppName="BG3ModManager"
+		UriSource="/Resources/Icons/CheckboxCheckAll_16x.svg" />
+
+	<svgc:SvgBitmap
+		x:Key="CheckboxClearAllIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		AppName="BG3ModManager"
+		UriSource="/Resources/Icons/CheckboxClearAll_16x.svg" />
 </ResourceDictionary>

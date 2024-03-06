@@ -41,11 +41,12 @@ namespace DivinityModManager.Models.NexusMods
 		[ObservableAsProperty] public string AuthorDisplayText { get; }
 		[ObservableAsProperty] public string CreatedDateText { get; }
 		[ObservableAsProperty] public string UpdatedDateText { get; }
+		public string NexusModsURL { get; }
+		public string NexusModsURLDisplayText { get; }
 		[ObservableAsProperty] public Visibility DescriptionVisibility { get; }
 		[ObservableAsProperty] public Visibility AuthorAvatarVisibility { get; }
 		[ObservableAsProperty] public Visibility ImageVisibility { get; }
 
-		
 
 		public NexusModsCollectionModData(NexusGraphCollectionRevisionMod mod)
 		{
@@ -65,6 +66,9 @@ namespace DivinityModManager.Models.NexusMods
 			SizeInBytes = ModFileData.SizeInBytes;
 			Category = ModFileData.Mod.Category;
 			IsOptional = mod.Optional;
+
+			NexusModsURL = $"https://www.nexusmods.com/{DivinityApp.NEXUSMODS_GAME_DOMAIN}/mods/{modFile.ModId}";
+			NexusModsURLDisplayText = $"/{DivinityApp.NEXUSMODS_GAME_DOMAIN}/mods/{modFile.ModId}";
 
 			this.WhenAnyValue(x => x.SizeInBytes).Select(StringUtils.BytesToString).ToUIProperty(this, x => x.SizeText);
 			this.WhenAnyValue(x => x.Author).Select(x => $"Created by {x}").ToUIProperty(this, x => x.AuthorDisplayText);

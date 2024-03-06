@@ -1,30 +1,19 @@
 ﻿using DivinityModManager.Models.NexusMods;
-using DivinityModManager.Models.Updates;
 using DivinityModManager.Util;
-using DivinityModManager.Views;
 
-using DynamicData;
 using DynamicData.Binding;
 
 using NexusModsNET.DataModels.GraphQL.Types;
 
-using Ookii.Dialogs.Wpf;
-
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
+
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -46,6 +35,8 @@ namespace DivinityModManager.ViewModels
 		public ICommand SelectAllCommand { get; }
 		public ICommand SetGridViewCommand { get; }
 		public ICommand SetCardViewCommand { get; }
+		public ICommand EnableAllCommand { get; }
+		public ICommand DisableAllCommand { get; }
 		public ICommand ConfirmCommand { get; set; }
 		public ICommand CancelCommand { get; set; }
 
@@ -74,6 +65,14 @@ namespace DivinityModManager.ViewModels
 			return text;
 		}
 
+		private void SelectAll(bool b)
+		{
+			foreach (var mod in Mods) 
+			{
+				mod.IsSelected = b;
+			}
+		}
+
 		public CollectionDownloadWindowViewModel()
 		{
 			Mods = new ObservableCollectionExtended<NexusModsCollectionModData>();
@@ -97,6 +96,8 @@ namespace DivinityModManager.ViewModels
 
 			SetGridViewCommand = ReactiveCommand.Create(() => IsCardView = false);
 			SetCardViewCommand = ReactiveCommand.Create(() => IsCardView = true);
+			EnableAllCommand = ReactiveCommand.Create(() => SelectAll(true));
+			DisableAllCommand = ReactiveCommand.Create(() => SelectAll(false));
 		}
 	}
 
@@ -109,24 +110,25 @@ namespace DivinityModManager.ViewModels
 				PictureUrl = "https://staticdelivery.nexusmods.com/mods/3474/images/746/746-1691682009-457832810.png",
 				CreatedAt = DateTimeOffset.Now,
 				UpdatedAt = DateTimeOffset.Now,
-				Version = "1.0.0",
-				Category = "General"
+				Version = "1.13",
+				Category = "Gameplay",
+				ModId = 746
 			};
 			var mod2 = new NexusGraphMod()
 			{
-				PictureUrl = "https://staticdelivery.nexusmods.com/mods/3474/images/832/832-1691856555-1641696071.png",
+				PictureUrl = "https://staticdelivery.nexusmods.com/mods/3474/images/956/956-1692067257-2128087246.png",
 				CreatedAt = DateTimeOffset.Now,
 				UpdatedAt = DateTimeOffset.Now,
-				Version = "1.0.0",
-				Category = "Spells"
+				Version = "1.0.0.1",
+				Category = "Gameplay"
 			};
 			var mod3 = new NexusGraphMod()
 			{
-				PictureUrl = "https://staticdelivery.nexusmods.com/mods/3474/images/691/691-1691538521-579579604.jpeg",
+				PictureUrl = "https://staticdelivery.nexusmods.com/mods/3474/images/522/522-1691008217-392937994.jpeg",
 				CreatedAt = DateTimeOffset.Now,
 				UpdatedAt = DateTimeOffset.Now,
-				Version = "6.0",
-				Category = "Classes"
+				Version = "3.0",
+				Category = "Gameplay"
 			};
 			var user = new NexusGraphUser()
 			{
@@ -150,9 +152,9 @@ namespace DivinityModManager.ViewModels
 					User = user
 				},
 				ModFiles = new NexusGraphCollectionRevisionMod[3] {
-					new(){ Optional = true, File = new NexusGraphModFile(){ SizeInBytes = 2002, Name = "Better Bags", Description = "Mod desc", Owner = user, Mod = mod1}},
-					new(){ File = new NexusGraphModFile(){ SizeInBytes = 2276, Name = "No concentration Shield Of Faith with 3 target AOE", Description = "No concentration Shield Of Faith", Owner = user, Mod = mod2}},
-					new(){ File = new NexusGraphModFile(){ SizeInBytes = 1366, Name = "Paladin Unleashed - The Divine Warrior - Lay on Hands Restored and Auras Buffed", Description = "Channeling, smiting and laying on hands now that is what the unleashed divine Paladin does best! Don't worry, they are trained to be completely professional while carrying out their divine duties! In fact, they are ever watchful of her allies and ready to protect them from would be evildoers!", Owner = user, Mod = mod3}},
+					new(){ Optional = true, File = new NexusGraphModFile(){ SizeInBytes = 66920, Name = "Companion AI", Description = "This mod will give you 10 AI for you to choose from for any class or any role your companions may have. there are also 3 blank customizable AI for you to edit it yourself, just like in Baldur's Gate 1&amp;2 in case you want to.", Owner = new NexusGraphUser(){ Name = "TPadvance", Avatar = "https://avatars.nexusmods.com/3054620/100" }, Mod = mod1}},
+					new(){ File = new NexusGraphModFile(){ SizeInBytes = 2773, Name = "Extra Warlock Spell Slots", Description = "This mod adds additional spell slots to the Warlock class.", Owner = new NexusGraphUser(){ Name = "Some1ellse", Avatar = "https://avatars.nexusmods.com/8049857/100" }, Mod = mod2}},
+					new(){ File = new NexusGraphModFile(){ SizeInBytes = 1302, Name = "Carry Weight Increased - Up To Over 9000", Description = "Get ready for your extensive loot hoarding with plenty of options to bolster your carry weight limit. Ranges from a minor x1.5 increase all the way up to the quite legendary x9000!", Owner = new NexusGraphUser(){ Name = "Mharius", Avatar = "https://avatars.nexusmods.com/14200939/100" }, Mod = mod3}},
 				}
 			};
 			RxApp.MainThreadScheduler.Schedule(() =>
