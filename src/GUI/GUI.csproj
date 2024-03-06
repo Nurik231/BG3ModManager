@@ -3,11 +3,11 @@
 		<TargetFramework>net472</TargetFramework>
 		<LangVersion>9.0</LangVersion>
 		<UseWPF>true</UseWPF>
+		<StartupObject>DivinityModManager.Program</StartupObject>
 		<ApplicationIcon>BG3ModManager.ico</ApplicationIcon>
 		<RootNamespace>DivinityModManager</RootNamespace>
 		<AssemblyName>BG3ModManager</AssemblyName>
 		<AssemblyTitle>BG3ModManager</AssemblyTitle>
-		<StartupObject>DivinityModManager.Program</StartupObject>
 		<AssemblyVersion>1.0.10.0</AssemblyVersion>
 		<FileVersion>1.0.10.0</FileVersion>
 		<Product>Baldur's Gate 3 Mod Manager</Product>
