@@ -2094,7 +2094,10 @@
 	</Style>
 
 	<DataTemplate x:Key="NexusCollectionModCard" DataType="nexusData:NexusModsCollectionModData">
-		<Border Background="#33000000" BorderThickness="0">
+		<Border
+			x:Name="TopBorder"
+			Background="#33000000"
+			BorderThickness="0">
 			<Border.Effect>
 				<DropShadowEffect
 					BlurRadius="4"
@@ -2147,13 +2150,16 @@
 					BorderThickness="2"
 					IsChecked="{Binding IsSelected}"
 					ToolTip="Select Mod for Download"
-					Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverterReversed}, Mode=OneWay}">
+					Visibility="Hidden">
 					<CheckBox.Style>
 						<Style TargetType="CheckBox">
 							<Style.Triggers>
-								<Trigger Property="Border.IsMouseOver" Value="True">
+								<Trigger Property="{Binding ElementName=TopBorder, Path=IsMouseOver}" Value="True">
 									<Setter Property="Visibility" Value="Visible" />
 								</Trigger>
+								<DataTrigger Binding="{Binding IsSelected}" Value="True">
+									<Setter Property="Visibility" Value="Visible" />
+								</DataTrigger>
 							</Style.Triggers>
 						</Style>
 					</CheckBox.Style>
@@ -2164,10 +2170,7 @@
 					Margin="8"
 					Columns="*"
 					RowCount="4"
-					Rows="auto,auto,auto,*"
-					Tag="{Binding}"
-					ToolTip="{StaticResource NexusModsCollectionModToolTip}"
-					ToolTipService.InitialShowDelay="2">
+					Rows="auto,auto,auto,*">
 					<TextBlock Text="{Binding Name}" TextWrapping="Wrap" />
 					<TextBlock
 						FontSize="12"
@@ -2197,7 +2200,8 @@
 						VerticalAlignment="Stretch"
 						Foreground="LightGray"
 						Text="{Binding Description}"
-						TextWrapping="Wrap" />
+						TextWrapping="Wrap"
+						ToolTip="{Binding Description}" />
 				</autogrid:AutoGrid>
 			</Grid>
 		</Border>
