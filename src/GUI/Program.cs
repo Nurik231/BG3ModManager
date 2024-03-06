@@ -32,8 +32,13 @@ namespace DivinityModManager
 					{
 						Console.WriteLine($"Error sending args to server:\n{ex}");
 					}
+#if DEBUG
+					return true;
+#endif
 				}
+#if !DEBUG
 				return true;
+#endif
 			}
 			return false;
 		}
@@ -41,12 +46,12 @@ namespace DivinityModManager
 		[STAThread]
 		static void Main(string[] args)
 		{
+			//Only close if args are passed in and we're a debug build,
+			//otherwise always close if another instance exists in release
 			if (EnsureSingleInstance(args))
 			{
-#if !DEBUG
 				System.Environment.Exit(0);
 				return;
-#endif
 			}
 			_splash = new SplashScreen("Resources/BG3MMSplashScreen.png");
 			_splash.Show(false, false);
