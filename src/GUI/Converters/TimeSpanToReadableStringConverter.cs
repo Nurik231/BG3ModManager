@@ -1,28 +1,26 @@
 ﻿using Humanizer;
 
-using System;
 using System.Windows.Data;
 
-namespace DivinityModManager.Converters
-{
-	public class TimeSpanToReadableStringConverter : IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-		{
-			if (value is TimeSpan time)
-			{
-				if (time <= TimeSpan.Zero)
-				{
-					return "0 minutes (Disabled)";
-				}
-				return time.Humanize(2);
-			}
-			return String.Empty;
-		}
+namespace DivinityModManager.Converters;
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+public class TimeSpanToReadableStringConverter : IValueConverter
+{
+	public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+	{
+		if (value is TimeSpan time)
 		{
-			return TimeSpan.Zero;
+			if (time <= TimeSpan.Zero)
+			{
+				return "0 minutes (Disabled)";
+			}
+			return time.Humanize(2);
 		}
+		return String.Empty;
+	}
+
+	public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+	{
+		return TimeSpan.Zero;
 	}
 }

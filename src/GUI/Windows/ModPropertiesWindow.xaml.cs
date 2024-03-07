@@ -1,100 +1,86 @@
-﻿using System.IO;
+﻿using DivinityModManager.ViewModels;
 
-using DivinityModManager.Models;
-using DivinityModManager.Util;
-using DivinityModManager.ViewModels;
-using DivinityModManager.Windows;
 using DynamicData;
 
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Windows;
-using System.Windows.Input;
+namespace DivinityModManager.Windows;
 
-namespace DivinityModManager.Windows
+public class ModPropertiesWindowBase : HideWindowBase<ModConfigPropertiesViewModel> { }
+
+
+/// <summary>
+/// Interaction logic for SingleModConfigWindow.xaml
+/// </summary>
+public partial class ModPropertiesWindow : ModPropertiesWindowBase
 {
-	public class ModPropertiesWindowBase : HideWindowBase<ModConfigPropertiesViewModel> { }
-
-	
-	/// <summary>
-	/// Interaction logic for SingleModConfigWindow.xaml
-	/// </summary>
-	public partial class ModPropertiesWindow : ModPropertiesWindowBase
+	private void ConfirmAndClose()
 	{
-		private void ConfirmAndClose()
+		ViewModel.Apply();
+		Hide();
+	}
+
+	private void CancelAndClose()
+	{
+		ViewModel.OnClose();
+		Hide();
+	}
+
+	private readonly object LargeFileIcon;
+	private readonly object LargeFolderIcon;
+
+	private object GetModTypeIcon(bool isEditorMod) => isEditorMod ? LargeFolderIcon : LargeFileIcon;
+
+	public ModPropertiesWindow()
+	{
+		InitializeComponent();
+
+		ViewModel = new ModConfigPropertiesViewModel()
 		{
-			ViewModel.Apply();
-			Hide();
-		}
+			OKCommand = ReactiveCommand.Create(ConfirmAndClose),
+			CancelCommand = ReactiveCommand.Create(CancelAndClose)
+		};
 
-		private void CancelAndClose()
+		LargeFileIcon = FindResource("LargeFileIcon");
+		LargeFolderIcon = FindResource("LargeFolderIcon");
+
+		/*ConfigAutoGrid.Loaded += (o, e) =>
 		{
-			ViewModel.OnClose();
-			Hide();
-		}
+			ConfigAutoGrid.Rows = String.Join(",", Enumerable.Repeat("auto", ConfigAutoGrid.RowCount));
+		};*/
 
-		private readonly object LargeFileIcon;
-		private readonly object LargeFolderIcon;
+		ModNexusModsIDUpDown.Minimum = DivinityApp.NEXUSMODS_MOD_ID_START;
 
-		private object GetModTypeIcon(bool isEditorMod) => isEditorMod ? LargeFolderIcon : LargeFileIcon;
+		this.Activated += (o, e) => ViewModel.IsActive = true;
+		this.Deactivated += (o, e) => ViewModel.IsActive = false;
 
-		public ModPropertiesWindow()
+		this.WhenActivated(d =>
 		{
-			InitializeComponent();
+			this.OneWayBind(ViewModel, vm => vm.Title, v => v.Title);
 
-			ViewModel = new ModConfigPropertiesViewModel()
-			{
-				OKCommand = ReactiveCommand.Create(ConfirmAndClose),
-				CancelCommand = ReactiveCommand.Create(CancelAndClose)
-			};
+			this.OneWayBind(ViewModel, vm => vm.Mod.FileName, v => v.ModFileNameText.Text);
+			this.OneWayBind(ViewModel, vm => vm.Mod.Name, v => v.ModNameText.Text);
+			this.OneWayBind(ViewModel, vm => vm.Mod.Description, v => v.ModDescriptionText.Text);
+			this.OneWayBind(ViewModel, vm => vm.ModFilePath, v => v.ModPathText.Text);
 
-			LargeFileIcon = FindResource("LargeFileIcon");
-			LargeFolderIcon = FindResource("LargeFolderIcon");
+			this.Bind(ViewModel, vm => vm.NexusModsId, v => v.ModNexusModsIDUpDown.Value);
+			this.Bind(ViewModel, vm => vm.GitHubAuthor, v => v.ModGitHubAuthorText.Text);
+			this.Bind(ViewModel, vm => vm.GitHubRepository, v => v.ModGitHubRepositoryText.Text);
 
-			/*ConfigAutoGrid.Loaded += (o, e) =>
-			{
-				ConfigAutoGrid.Rows = String.Join(",", Enumerable.Repeat("auto", ConfigAutoGrid.RowCount));
-			};*/
+			this.Bind(ViewModel, vm => vm.Notes, v => v.ModNotesTextBox.Text);
 
-			ModNexusModsIDUpDown.Minimum = DivinityApp.NEXUSMODS_MOD_ID_START;
+			this.OneWayBind(ViewModel, vm => vm.ModType, v => v.ModTypeText.Text);
+			this.OneWayBind(ViewModel, vm => vm.ModSizeText, v => v.ModSizeText.Text);
+			this.OneWayBind(ViewModel, vm => vm.AuthorLabelVisibility, v => v.AuthorLabel.Visibility);
+			this.OneWayBind(ViewModel, vm => vm.RepoLabelVisibility, v => v.RepoLabel.Visibility);
 
-			this.Activated += (o, e) => ViewModel.IsActive = true;
-			this.Deactivated += (o, e) => ViewModel.IsActive = false;
+			this.OneWayBind(ViewModel, vm => vm.Mod.IsEditorMod, v => v.ModTypeIconControl.Content, GetModTypeIcon);
 
-			this.WhenActivated(d =>
-			{
-				this.OneWayBind(ViewModel, vm => vm.Title, v => v.Title);
+			this.BindCommand(ViewModel, vm => vm.ApplyCommand, v => v.ApplyButton);
+			this.BindCommand(ViewModel, vm => vm.OKCommand, v => v.OKButton);
+			this.BindCommand(ViewModel, vm => vm.CancelCommand, v => v.CancelButton);
 
-				this.OneWayBind(ViewModel, vm => vm.Mod.FileName, v => v.ModFileNameText.Text);
-				this.OneWayBind(ViewModel, vm => vm.Mod.Name, v => v.ModNameText.Text);
-				this.OneWayBind(ViewModel, vm => vm.Mod.Description, v => v.ModDescriptionText.Text);
-				this.OneWayBind(ViewModel, vm => vm.ModFilePath, v => v.ModPathText.Text);
-
-				this.Bind(ViewModel, vm => vm.NexusModsId, v => v.ModNexusModsIDUpDown.Value);
-				this.Bind(ViewModel, vm => vm.GitHubAuthor, v => v.ModGitHubAuthorText.Text);
-				this.Bind(ViewModel, vm => vm.GitHubRepository, v => v.ModGitHubRepositoryText.Text);
-
-				this.Bind(ViewModel, vm => vm.Notes, v => v.ModNotesTextBox.Text);
-
-				this.OneWayBind(ViewModel, vm => vm.ModType, v => v.ModTypeText.Text);
-				this.OneWayBind(ViewModel, vm => vm.ModSizeText, v => v.ModSizeText.Text);
-				this.OneWayBind(ViewModel, vm => vm.AuthorLabelVisibility, v => v.AuthorLabel.Visibility);
-				this.OneWayBind(ViewModel, vm => vm.RepoLabelVisibility, v => v.RepoLabel.Visibility);
-
-				this.OneWayBind(ViewModel, vm => vm.Mod.IsEditorMod, v => v.ModTypeIconControl.Content, GetModTypeIcon);
-
-				this.BindCommand(ViewModel, vm => vm.ApplyCommand, v => v.ApplyButton);
-				this.BindCommand(ViewModel, vm => vm.OKCommand, v => v.OKButton);
-				this.BindCommand(ViewModel, vm => vm.CancelCommand, v => v.CancelButton);
-
-				HelpStackPanel.ToolTip = "Set the NexusMods ID to allow auto-updating (provided a NexusMods API key is set)\n\nSetting a valid GitHub Author/Repository will also allow auto-updating from GitHub";
-			});
-		}
+			HelpStackPanel.ToolTip = "Set the NexusMods ID to allow auto-updating (provided a NexusMods API key is set)\n\nSetting a valid GitHub Author/Repository will also allow auto-updating from GitHub";
+		});
 	}
 }

@@ -1,18 +1,16 @@
-﻿using System;
-using System.Windows.Data;
+﻿using System.Windows.Data;
 
-namespace DivinityModManager.Converters
+namespace DivinityModManager.Converters;
+
+class DivinityGameLaunchWindowActionToStringConverter : IValueConverter
 {
-	class DivinityGameLaunchWindowActionToStringConverter : IValueConverter
+	public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 	{
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-		{
-			return value.ToString();
-		}
+		return value.ToString();
+	}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-		{
-			return (DivinityGameLaunchWindowAction)Enum.Parse(typeof(DivinityGameLaunchWindowAction), value.ToString(), true);
-		}
+	public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+	{
+		return (DivinityGameLaunchWindowAction)Enum.Parse(typeof(DivinityGameLaunchWindowAction), value.ToString(), true);
 	}
 }

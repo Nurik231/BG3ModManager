@@ -1,12 +1,7 @@
-﻿using DivinityModManager.Controls;
-using DivinityModManager.Models;
-using DivinityModManager.ViewModels;
-using DivinityModManager.Windows;
-using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+﻿using DivinityModManager.ViewModels;
 
-using System;
-using System.Reactive;
+using ReactiveUI;
+
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -17,40 +12,39 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace DivinityModManager.Windows
+namespace DivinityModManager.Windows;
+
+public class VersionGeneratorWindowBase : HideWindowBase<VersionGeneratorViewModel> { }
+
+/// <summary>
+/// Interaction logic for VersionGenerator.xaml
+/// </summary>
+public partial class VersionGeneratorWindow : VersionGeneratorWindowBase
 {
-	public class VersionGeneratorWindowBase : HideWindowBase<VersionGeneratorViewModel> { }
+	private static readonly Regex _numberOnlyRegex = new("[^0-9]+");
 
-	/// <summary>
-	/// Interaction logic for VersionGenerator.xaml
-	/// </summary>
-	public partial class VersionGeneratorWindow : VersionGeneratorWindowBase
+	public VersionGeneratorWindow()
 	{
-		private static readonly Regex _numberOnlyRegex = new("[^0-9]+");
+		InitializeComponent();
 
-		public VersionGeneratorWindow()
+		ViewModel = new VersionGeneratorViewModel(AlertBar);
+
+		this.WhenActivated(d =>
 		{
-			InitializeComponent();
+			d(this.Bind(ViewModel, vm => vm.Text, v => v.VersionNumberTextBox.Text));
+			d(this.Bind(ViewModel, vm => vm.Version.Major, v => v.MajorUpDown.Value));
+			d(this.Bind(ViewModel, vm => vm.Version.Minor, v => v.MinorUpDown.Value));
+			d(this.Bind(ViewModel, vm => vm.Version.Revision, v => v.RevisionUpDown.Value));
+			d(this.Bind(ViewModel, vm => vm.Version.Build, v => v.BuildUpDown.Value));
+			d(this.BindCommand(ViewModel, vm => vm.CopyCommand, v => v.CopyButton));
+			d(this.BindCommand(ViewModel, vm => vm.ResetCommand, v => v.ResetButton));
 
-			ViewModel = new VersionGeneratorViewModel(AlertBar);
-
-			this.WhenActivated(d =>
+			var tbEvents = this.VersionNumberTextBox.Events();
+			d(tbEvents.LostKeyboardFocus.ObserveOn(RxApp.MainThreadScheduler).InvokeCommand(ViewModel.UpdateVersionFromTextCommand));
+			d(tbEvents.PreviewTextInput.ObserveOn(RxApp.MainThreadScheduler).Subscribe((e) =>
 			{
-				d(this.Bind(ViewModel, vm => vm.Text, v => v.VersionNumberTextBox.Text));
-				d(this.Bind(ViewModel, vm => vm.Version.Major, v => v.MajorUpDown.Value));
-				d(this.Bind(ViewModel, vm => vm.Version.Minor, v => v.MinorUpDown.Value));
-				d(this.Bind(ViewModel, vm => vm.Version.Revision, v => v.RevisionUpDown.Value));
-				d(this.Bind(ViewModel, vm => vm.Version.Build, v => v.BuildUpDown.Value));
-				d(this.BindCommand(ViewModel, vm => vm.CopyCommand, v => v.CopyButton));
-				d(this.BindCommand(ViewModel, vm => vm.ResetCommand, v => v.ResetButton));
-
-				var tbEvents = this.VersionNumberTextBox.Events();
-				d(tbEvents.LostKeyboardFocus.ObserveOn(RxApp.MainThreadScheduler).InvokeCommand(ViewModel.UpdateVersionFromTextCommand));
-				d(tbEvents.PreviewTextInput.ObserveOn(RxApp.MainThreadScheduler).Subscribe((e) =>
-				{
-					e.Handled = _numberOnlyRegex.IsMatch(e.Text);
-				}));
-			});
-		}
+				e.Handled = _numberOnlyRegex.IsMatch(e.Text);
+			}));
+		});
 	}
 }

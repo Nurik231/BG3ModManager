@@ -1,78 +1,76 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace DivinityModManager.Converters
+namespace DivinityModManager.Converters;
+
+public class BoolToVisibilityConverter : IValueConverter
 {
-	public class BoolToVisibilityConverter : IValueConverter
+	public static Visibility FromBool(bool b) => b ? Visibility.Visible : Visibility.Collapsed;
+
+	public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 	{
-		public static Visibility FromBool(bool b) => b ? Visibility.Visible : Visibility.Collapsed;
-
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		bool reverse = false;
+		if (parameter != null)
 		{
-			bool reverse = false;
-			if (parameter != null)
+			if (parameter is int reverseInt)
 			{
-				if (parameter is int reverseInt)
-				{
-					reverse = reverseInt > 0;
-				}
-				else if (parameter is bool r)
-				{
-					reverse = r;
-				}
-				DivinityApp.Log($"BoolToVisibilityConverter param: {parameter} | {parameter.GetType()}");
+				reverse = reverseInt > 0;
 			}
-
-			if (value is bool b)
+			else if (parameter is bool r)
 			{
-				if (!reverse)
-				{
-					return b ? Visibility.Visible : Visibility.Collapsed;
-				}
-				else
-				{
-					return !b ? Visibility.Visible : Visibility.Collapsed;
-				}
+				reverse = r;
 			}
-			return Visibility.Visible;
+			DivinityApp.Log($"BoolToVisibilityConverter param: {parameter} | {parameter.GetType()}");
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		if (value is bool b)
 		{
-			if (value is Visibility visbility)
+			if (!reverse)
 			{
-				if (visbility == Visibility.Visible)
-				{
-					return true;
-				}
+				return b ? Visibility.Visible : Visibility.Collapsed;
 			}
-			return false;
-		}
-	}
-
-	public class BoolToVisibilityConverterReversed : IValueConverter
-	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-		{
-			if (value is bool b)
+			else
 			{
 				return !b ? Visibility.Visible : Visibility.Collapsed;
 			}
-			return Visibility.Collapsed;
 		}
+		return Visibility.Visible;
+	}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+	{
+		if (value is Visibility visbility)
 		{
-			if (value is Visibility visbility)
+			if (visbility == Visibility.Visible)
 			{
-				if (visbility == Visibility.Visible)
-				{
-					return false;
-				}
+				return true;
 			}
-			return true;
 		}
+		return false;
+	}
+}
+
+public class BoolToVisibilityConverterReversed : IValueConverter
+{
+	public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+	{
+		if (value is bool b)
+		{
+			return !b ? Visibility.Visible : Visibility.Collapsed;
+		}
+		return Visibility.Collapsed;
+	}
+
+	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+	{
+		if (value is Visibility visbility)
+		{
+			if (visbility == Visibility.Visible)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }

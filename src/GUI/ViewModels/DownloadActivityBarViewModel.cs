@@ -3,74 +3,71 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Input;
 
-namespace DivinityModManager.ViewModels
+namespace DivinityModManager.ViewModels;
+
+public class DownloadActivityBarViewModel : ReactiveObject
 {
-	public class DownloadActivityBarViewModel : ReactiveObject
+	[Reactive] private double ProgressValue { get; set; }
+	[Reactive] private string ProgressText { get; set; }
+	[Reactive] public bool IsActive { get; private set; }
+	[Reactive] public Action CancelAction { get; set; }
+
+	[ObservableAsProperty] public double CurrentValue { get; }
+	[ObservableAsProperty] public string CurrentText { get; }
+	[ObservableAsProperty] public Visibility IsVisible { get; }
+	[ObservableAsProperty] public bool IsAnimating { get; }
+
+	public ICommand CancelCommand { get; private set; }
+
+	public void UpdateProgress(double value, string text = "")
 	{
-		[Reactive] private double ProgressValue { get; set; }
-		[Reactive] private string ProgressText { get; set; }
-		[Reactive] public bool IsActive { get; private set; }
-		[Reactive] public Action CancelAction { get; set; }
+		RxApp.MainThreadScheduler.Schedule(() =>
+		{
+			ProgressValue = value;
+			if (!String.IsNullOrEmpty(text))
+			{
+				ProgressText = text;
+			}
+		});
+	}
 
-		[ObservableAsProperty] public double CurrentValue { get; }
-		[ObservableAsProperty] public string CurrentText { get; }
-		[ObservableAsProperty] public Visibility IsVisible { get; }
-		[ObservableAsProperty] public bool IsAnimating { get; }
-
-		public ICommand CancelCommand { get; private set; }
-
-		public void UpdateProgress(double value, string text = "")
+	public void Cancel()
+	{
+		if (CancelAction != null)
+		{
+			CancelAction.Invoke();
+		}
+		else if (!String.IsNullOrEmpty(ProgressText))
 		{
 			RxApp.MainThreadScheduler.Schedule(() =>
 			{
-				ProgressValue = value;
-				if (!String.IsNullOrEmpty(text))
-				{
-					ProgressText = text;
-				}
+				ProgressValue = 0d;
+				ProgressText = "";
+				IsActive = false;
 			});
 		}
+	}
 
-		public void Cancel()
-		{
-			if (CancelAction != null)
-			{
-				CancelAction.Invoke();
-			}
-			else if (!String.IsNullOrEmpty(ProgressText))
-			{
-				RxApp.MainThreadScheduler.Schedule(() =>
-				{
-					ProgressValue = 0d;
-					ProgressText = "";
-					IsActive = false;
-				});
-			}
-		}
+	private double Clamp(double value)
+	{
+		return Math.Min(100, Math.Max(0, value));
+	}
 
-		private double Clamp(double value)
-		{
-			return Math.Min(100, Math.Max(0, value));
-		}
+	public DownloadActivityBarViewModel()
+	{
+		this.WhenAnyValue(x => x.ProgressValue).Select(Clamp).ToUIProperty(this, x => x.CurrentValue, 0d);
+		this.WhenAnyValue(x => x.ProgressText).ToUIProperty(this, x => x.CurrentText, "");
+		this.WhenAnyValue(x => x.CurrentValue, x => x < 100).ToUIProperty(this, x => x.IsAnimating, true);
 
-		public DownloadActivityBarViewModel()
-		{
-			this.WhenAnyValue(x => x.ProgressValue).Select(Clamp).ToUIProperty(this, x => x.CurrentValue, 0d);
-			this.WhenAnyValue(x => x.ProgressText).ToUIProperty(this, x => x.CurrentText, "");
-			this.WhenAnyValue(x => x.CurrentValue, x => x < 100).ToUIProperty(this, x => x.IsAnimating, true);
+		this.WhenAnyValue(x => x.CurrentText, x => x.CurrentValue).Select(x => !String.IsNullOrEmpty(x.Item1) || x.Item2 > 0).BindTo(this, x => x.IsActive);
 
-			this.WhenAnyValue(x => x.CurrentText, x => x.CurrentValue).Select(x => !String.IsNullOrEmpty(x.Item1) || x.Item2 > 0).BindTo(this, x => x.IsActive);
+		this.WhenAnyValue(x => x.IsActive).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.IsVisible, Visibility.Collapsed);
 
-			this.WhenAnyValue(x => x.IsActive).Select(PropertyConverters.BoolToVisibility).ToUIProperty(this, x => x.IsVisible, Visibility.Collapsed);
-
-			CancelCommand = ReactiveCommand.Create(Cancel);
-		}
+		CancelCommand = ReactiveCommand.Create(Cancel);
 	}
 }

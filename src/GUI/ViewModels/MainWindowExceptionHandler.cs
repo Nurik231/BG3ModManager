@@ -1,47 +1,45 @@
 ﻿using ReactiveUI;
 
-using System;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 
-namespace DivinityModManager.ViewModels
+namespace DivinityModManager.ViewModels;
+
+public class MainWindowExceptionHandler : IObserver<Exception>
 {
-	public class MainWindowExceptionHandler : IObserver<Exception>
+	private readonly MainWindowViewModel _viewModel;
+
+	public MainWindowExceptionHandler(MainWindowViewModel vm)
 	{
-		private MainWindowViewModel _viewModel;
+		_viewModel = vm;
+	}
 
-		public MainWindowExceptionHandler(MainWindowViewModel vm)
+	public void OnNext(Exception value)
+	{
+		DivinityApp.Log($"Error: [{value.Source}]({value.GetType()}): {value.Message}\n{value.StackTrace}");
+		//if (Debugger.IsAttached) Debugger.Break();
+		//RxApp.MainThreadScheduler.Schedule(() => { throw value; });
+	}
+
+	public void OnError(Exception error)
+	{
+		DivinityApp.Log($"Error: [{error.Source}]({error.GetType()}): {error.Message}\n{error.StackTrace}");
+		if (Debugger.IsAttached) Debugger.Break();
+
+		RxApp.MainThreadScheduler.Schedule(() =>
 		{
-			_viewModel = vm;
-		}
-
-		public void OnNext(Exception value)
-		{
-			DivinityApp.Log($"Error: [{value.Source}]({value.GetType()}): {value.Message}\n{value.StackTrace}");
-			//if (Debugger.IsAttached) Debugger.Break();
-			//RxApp.MainThreadScheduler.Schedule(() => { throw value; });
-		}
-
-		public void OnError(Exception error)
-		{
-			DivinityApp.Log($"Error: [{error.Source}]({error.GetType()}): {error.Message}\n{error.StackTrace}");
-			if (Debugger.IsAttached) Debugger.Break();
-
-			RxApp.MainThreadScheduler.Schedule(() =>
+			if (_viewModel.MainProgressIsActive)
 			{
-				if (_viewModel.MainProgressIsActive)
-				{
-					_viewModel.MainProgressIsActive = false;
-				}
-				_viewModel.View.AlertBar.SetDangerAlert(error.Message);
-				//throw error;
-			});
-		}
+				_viewModel.MainProgressIsActive = false;
+			}
+			_viewModel.View.AlertBar.SetDangerAlert(error.Message);
+			//throw error;
+		});
+	}
 
-		public void OnCompleted()
-		{
-			if (Debugger.IsAttached) Debugger.Break();
-			//RxApp.MainThreadScheduler.Schedule(() => { throw new NotImplementedException(); });
-		}
+	public void OnCompleted()
+	{
+		if (Debugger.IsAttached) Debugger.Break();
+		//RxApp.MainThreadScheduler.Schedule(() => { throw new NotImplementedException(); });
 	}
 }

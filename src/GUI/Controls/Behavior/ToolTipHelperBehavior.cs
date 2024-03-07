@@ -1,44 +1,43 @@
 ﻿using System.Windows;
 
-namespace DivinityModManager.Controls.Behavior
+namespace DivinityModManager.Controls.Behavior;
+
+public class ToolTipHelperBehavior
 {
-	public class ToolTipHelperBehavior
+	public static bool GetDisableMouseEvents(DependencyObject element)
 	{
-		public static bool GetDisableMouseEvents(DependencyObject element)
-		{
-			return (bool)element.GetValue(DisableMouseEventsProperty);
-		}
+		return (bool)element.GetValue(DisableMouseEventsProperty);
+	}
 
-		public static void SetDisableMouseEvents(DependencyObject element, bool value)
-		{
-			element.SetValue(DisableMouseEventsProperty, value);
-		}
+	public static void SetDisableMouseEvents(DependencyObject element, bool value)
+	{
+		element.SetValue(DisableMouseEventsProperty, value);
+	}
 
-		public static readonly DependencyProperty DisableMouseEventsProperty =
-			DependencyProperty.RegisterAttached(
-			"DisableMouseEvents",
-			typeof(bool),
-			typeof(ScreenReaderHelperBehavior),
-			new UIPropertyMetadata(false, OnDisableMouseEvents));
+	public static readonly DependencyProperty DisableMouseEventsProperty =
+		DependencyProperty.RegisterAttached(
+		"DisableMouseEvents",
+		typeof(bool),
+		typeof(ScreenReaderHelperBehavior),
+		new UIPropertyMetadata(false, OnDisableMouseEvents));
 
-		static void OnDisableMouseEvents(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+	static void OnDisableMouseEvents(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+	{
+		if (depObj is UIElement element)
 		{
-			if (depObj is UIElement element)
+			if ((bool)e.NewValue == true)
 			{
-				if ((bool)e.NewValue == true)
-				{
-					element.PreviewMouseDown += OnPreviewMouseDown;
-				}
-				else
-				{
-					element.PreviewMouseDown -= OnPreviewMouseDown;
-				}
+				element.PreviewMouseDown += OnPreviewMouseDown;
+			}
+			else
+			{
+				element.PreviewMouseDown -= OnPreviewMouseDown;
 			}
 		}
+	}
 
-		private static void OnPreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-		{
-			e.Handled = true;
-		}
+	private static void OnPreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+	{
+		e.Handled = true;
 	}
 }

@@ -1,41 +1,39 @@
-﻿using DivinityModManager.Controls;
-using DivinityModManager.Controls.Views;
+﻿using DivinityModManager.Controls.Views;
 
 using System.Windows.Automation;
 using System.Windows.Automation.Peers;
 
-namespace DivinityModManager.Util.ScreenReader
+namespace DivinityModManager.Util.ScreenReader;
+
+public class ModListViewAutomationPeer : CachedAutomationPeer
 {
-	public class ModListViewAutomationPeer : CachedAutomationPeer
+	private readonly ModListView _listView;
+
+	public ModListViewAutomationPeer(ModListView owner) : base(owner)
 	{
-		private ModListView _listView;
+		_listView = owner;
+	}
 
-		public ModListViewAutomationPeer(ModListView owner) : base(owner)
-		{
-			_listView = owner;
-		}
+	protected override string GetNameCore()
+	{
+		return Owner.GetValue(AutomationProperties.NameProperty) as string ?? string.Empty;
+	}
 
-		protected override string GetNameCore()
-		{
-			return Owner.GetValue(AutomationProperties.NameProperty) as string ?? string.Empty;
-		}
+	protected override AutomationControlType GetAutomationControlTypeCore()
+	{
+		return AutomationControlType.List;
+	}
 
-		protected override AutomationControlType GetAutomationControlTypeCore()
+	override public bool HasNullChildElement()
+	{
+		foreach (var c in _listView.Items)
 		{
-			return AutomationControlType.List;
-		}
-
-		override public bool HasNullChildElement()
-		{
-			foreach (var c in _listView.Items)
+			if (c == null)
 			{
-				if (c == null)
-				{
-					DivinityApp.Log("Found a null entry in ModListViewAutomationPeer");
-					return true;
-				}
+				DivinityApp.Log("Found a null entry in ModListViewAutomationPeer");
+				return true;
 			}
-			return false;
 		}
+		return false;
 	}
 }

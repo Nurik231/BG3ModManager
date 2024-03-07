@@ -1,27 +1,26 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace DivinityModManager.Util
+namespace DivinityModManager.Util;
+
+public static class BindingHelper
 {
-	public static class BindingHelper
+	public static void CreateCommandBinding(Button button, string vmProperty, object source)
 	{
-		public static void CreateCommandBinding(Button button, string vmProperty, object source)
+		Binding binding = new(vmProperty)
 		{
-			Binding binding = new(vmProperty)
-			{
-				Source = source,
-				Mode = BindingMode.OneWay
-			};
-			button.SetBinding(Button.CommandProperty, binding);
-		}
-		public static void CreateCommandBinding(MenuItem button, string vmProperty, object source)
+			Source = source,
+			Mode = BindingMode.OneWay
+		};
+		button.SetBinding(Button.CommandProperty, binding);
+	}
+	public static void CreateCommandBinding(MenuItem button, string vmProperty, object source)
+	{
+		Binding binding = new(vmProperty)
 		{
-			Binding binding = new(vmProperty)
-			{
-				Source = source,
-				Mode = BindingMode.OneWay
-			};
-			button.SetBinding(MenuItem.CommandProperty, binding);
-		}
+			Source = source,
+			Mode = BindingMode.OneWay
+		};
+		button.SetBinding(MenuItem.CommandProperty, binding);
 	}
 }

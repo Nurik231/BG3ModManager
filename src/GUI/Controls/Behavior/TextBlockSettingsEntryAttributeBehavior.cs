@@ -1,76 +1,74 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace DivinityModManager.Controls.Behavior
+namespace DivinityModManager.Controls.Behavior;
+
+public class TextBlockSettingsEntryAttributeBehavior
 {
-	public class TextBlockSettingsEntryAttributeBehavior
+	public static readonly DependencyProperty PropertyProperty =
+		DependencyProperty.RegisterAttached(
+		"Property",
+		typeof(string),
+		typeof(TextBlockSettingsEntryAttributeBehavior),
+		new UIPropertyMetadata("", OnPropertySet));
+
+	public static readonly DependencyProperty TargetTypeProperty =
+		DependencyProperty.RegisterAttached(
+		"TargetType",
+		typeof(Type),
+		typeof(TextBlockSettingsEntryAttributeBehavior),
+		new UIPropertyMetadata(null, OnTargetTypeSet));
+
+	public static string GetProperty(DependencyObject element)
 	{
-		public static readonly DependencyProperty PropertyProperty =
-			DependencyProperty.RegisterAttached(
-			"Property",
-			typeof(string),
-			typeof(TextBlockSettingsEntryAttributeBehavior),
-			new UIPropertyMetadata("", OnPropertySet));
+		return (string)element.GetValue(PropertyProperty);
+	}
 
-		public static readonly DependencyProperty TargetTypeProperty =
-			DependencyProperty.RegisterAttached(
-			"TargetType",
-			typeof(Type),
-			typeof(TextBlockSettingsEntryAttributeBehavior),
-			new UIPropertyMetadata(null, OnTargetTypeSet));
+	public static void SetProperty(DependencyObject element, string value)
+	{
+		element.SetValue(PropertyProperty, value);
+	}
 
-		public static string GetProperty(DependencyObject element)
+	public static Type GetTargetType(DependencyObject element)
+	{
+		return (Type)element.GetValue(TargetTypeProperty);
+	}
+
+	public static void SetTargetType(DependencyObject element, Type value)
+	{
+		element.SetValue(TargetTypeProperty, value);
+	}
+
+	private static void UpdateElement(TextBlock element, string propName = "", Type targetType = null)
+	{
+		if (targetType == null) targetType = GetTargetType(element);
+		if (String.IsNullOrEmpty(propName)) propName = GetProperty(element);
+		if (targetType != null && !String.IsNullOrEmpty(propName))
 		{
-			return (string)element.GetValue(PropertyProperty);
-		}
-
-		public static void SetProperty(DependencyObject element, string value)
-		{
-			element.SetValue(PropertyProperty, value);
-		}
-
-		public static Type GetTargetType(DependencyObject element)
-		{
-			return (Type)element.GetValue(TargetTypeProperty);
-		}
-
-		public static void SetTargetType(DependencyObject element, Type value)
-		{
-			element.SetValue(TargetTypeProperty, value);
-		}
-
-		private static void UpdateElement(TextBlock element, string propName = "", Type targetType = null)
-		{
-			if (targetType == null) targetType = GetTargetType(element);
-			if (String.IsNullOrEmpty(propName)) propName = GetProperty(element);
-			if (targetType != null && !String.IsNullOrEmpty(propName))
+			PropertyInfo prop = targetType.GetProperty(propName);
+			SettingsEntryAttribute settingsEntry = prop.GetCustomAttribute<SettingsEntryAttribute>();
+			if (settingsEntry != null)
 			{
-				PropertyInfo prop = targetType.GetProperty(propName);
-				SettingsEntryAttribute settingsEntry = prop.GetCustomAttribute<SettingsEntryAttribute>();
-				if (settingsEntry != null)
-				{
-					element.Text = settingsEntry.DisplayName;
-					element.ToolTip = settingsEntry.Tooltip;
-				}
+				element.Text = settingsEntry.DisplayName;
+				element.ToolTip = settingsEntry.Tooltip;
 			}
 		}
+	}
 
-		static void OnPropertySet(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+	static void OnPropertySet(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+	{
+		if (sender is TextBlock element && e.NewValue is string propName)
 		{
-			if (sender is TextBlock element && e.NewValue is string propName)
-			{
-				UpdateElement(element, propName);
-			}
+			UpdateElement(element, propName);
 		}
+	}
 
-		static void OnTargetTypeSet(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+	static void OnTargetTypeSet(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+	{
+		if (sender is TextBlock element && e.NewValue is Type type)
 		{
-			if (sender is TextBlock element && e.NewValue is Type type)
-			{
-				UpdateElement(element, "", type);
-			}
+			UpdateElement(element, "", type);
 		}
 	}
 }

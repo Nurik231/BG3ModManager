@@ -4,102 +4,96 @@ using DivinityModManager.Windows;
 
 using ReactiveUI;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
-namespace DivinityModManager.AppServices
+namespace DivinityModManager.AppServices;
+
+public class WindowWrapper<T> where T : Window
 {
-	public class WindowWrapper<T> where T : Window
+	public T Window { get; }
+
+	private readonly Subject<bool> _onToggle = new();
+	public IObservable<bool> OnToggle => _onToggle;
+
+	public void Toggle(bool forceOpen = false)
 	{
-		public T Window { get; }
+		var b = !Window.IsVisible || forceOpen;
 
-		private readonly Subject<bool> _onToggle = new();
-		public IObservable<bool> OnToggle => _onToggle;
-
-		public void Toggle(bool forceOpen = false)
+		RxApp.MainThreadScheduler.Schedule(() =>
 		{
-			var b = !Window.IsVisible || forceOpen;
+			_onToggle.OnNext(b);
 
-			RxApp.MainThreadScheduler.Schedule(() =>
+			if (b)
 			{
-				_onToggle.OnNext(b);
+				Window.Show();
+				Window.Owner = MainWindow.Self;
+			}
+			else
+			{
+				Window.Close();
+			}
+		});
+	}
 
-				if (b)
-				{
-					Window.Show();
-					Window.Owner = MainWindow.Self;
-				}
-				else
-				{
-					Window.Close();
-				}
-			});
-		}
+	public WindowWrapper(T window)
+	{
+		Window = window;
+	}
+}
 
-		public WindowWrapper(T window)
+public class WindowManagerService
+{
+	public WindowWrapper<AboutWindow> About { get; }
+	public WindowWrapper<AppUpdateWindow> AppUpdate { get; }
+	public WindowWrapper<CollectionDownloadWindow> CollectionDownload { get; }
+	public WindowWrapper<HelpWindow> Help { get; }
+	public WindowWrapper<ModPropertiesWindow> ModProperties { get; }
+	public WindowWrapper<NxmDownloadWindow> NxmDownload { get; }
+	public WindowWrapper<SettingsWindow> Settings { get; }
+	public WindowWrapper<VersionGeneratorWindow> VersionGenerator { get; }
+
+	private readonly List<Window> _windows = new();
+
+	public void UpdateColorScheme(Uri theme)
+	{
+		foreach (var window in _windows)
 		{
-			Window = window;
+			ResourceLocator.SetColorScheme(window.Resources, theme);
 		}
 	}
 
-	public class WindowManagerService
+	public WindowManagerService()
 	{
-		public WindowWrapper<AboutWindow> About { get; }
-		public WindowWrapper<AppUpdateWindow> AppUpdate { get; }
-		public WindowWrapper<CollectionDownloadWindow> CollectionDownload { get; }
-		public WindowWrapper<HelpWindow> Help { get; }
-		public WindowWrapper<ModPropertiesWindow> ModProperties { get; }
-		public WindowWrapper<NxmDownloadWindow> NxmDownload { get; }
-		public WindowWrapper<SettingsWindow> Settings { get; }
-		public WindowWrapper<VersionGeneratorWindow> VersionGenerator { get; }
+		About = new(new AboutWindow());
+		AppUpdate = new(new AppUpdateWindow());
+		CollectionDownload = new(new CollectionDownloadWindow());
+		Help = new(new HelpWindow());
+		ModProperties = new(new ModPropertiesWindow());
+		NxmDownload = new(new NxmDownloadWindow());
+		Settings = new(new SettingsWindow());
+		VersionGenerator = new(new VersionGeneratorWindow());
 
-		private readonly List<Window> _windows = new();
+		_windows.Add(About.Window);
+		_windows.Add(AppUpdate.Window);
+		_windows.Add(CollectionDownload.Window);
+		_windows.Add(Help.Window);
+		_windows.Add(ModProperties.Window);
+		_windows.Add(NxmDownload.Window);
+		_windows.Add(Settings.Window);
+		_windows.Add(VersionGenerator.Window);
 
-		public void UpdateColorScheme(Uri theme)
+		Settings.OnToggle.Subscribe(b =>
 		{
-			foreach(var window in _windows)
+			if (b)
 			{
-				ResourceLocator.SetColorScheme(window.Resources, theme);
-			}
-		}
-
-		public WindowManagerService()
-		{
-			About = new(new AboutWindow());
-			AppUpdate = new(new AppUpdateWindow());
-			CollectionDownload = new(new CollectionDownloadWindow());
-			Help = new(new HelpWindow());
-			ModProperties = new(new ModPropertiesWindow());
-			NxmDownload = new(new NxmDownloadWindow());
-			Settings = new(new SettingsWindow());
-			VersionGenerator = new(new VersionGeneratorWindow());
-
-			_windows.Add(About.Window);
-			_windows.Add(AppUpdate.Window);
-			_windows.Add(CollectionDownload.Window);
-			_windows.Add(Help.Window);
-			_windows.Add(ModProperties.Window);
-			_windows.Add(NxmDownload.Window);
-			_windows.Add(Settings.Window);
-			_windows.Add(VersionGenerator.Window);
-
-			Settings.OnToggle.Subscribe(b =>
-			{
-				if(b)
+				if (Settings.Window.ViewModel == null)
 				{
-					if(Settings.Window.ViewModel == null)
-					{
-						Settings.Window.Init(MainWindow.Self.ViewModel);
-					}
+					Settings.Window.Init(MainWindow.Self.ViewModel);
 				}
-				MainWindow.Self.ViewModel.Settings.SettingsWindowIsOpen = b;
-			});
-		}
+			}
+			MainWindow.Self.ViewModel.Settings.SettingsWindowIsOpen = b;
+		});
 	}
 }

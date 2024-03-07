@@ -1,44 +1,42 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace DivinityModManager.Converters
+namespace DivinityModManager.Converters;
+
+public class StringNotEmptyToVisibilityConverter : IValueConverter
 {
-	public class StringNotEmptyToVisibilityConverter : IValueConverter
+	public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 	{
-		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		bool reverse = false;
+		if (parameter != null)
 		{
-			bool reverse = false;
-			if (parameter != null)
+			if (parameter is int reverseInt)
 			{
-				if (parameter is int reverseInt)
-				{
-					reverse = reverseInt > 0;
-				}
-				else if (parameter is bool r)
-				{
-					reverse = r;
-				}
+				reverse = reverseInt > 0;
 			}
-
-			if (value is string v)
+			else if (parameter is bool r)
 			{
-				if (!reverse)
-				{
-					return !String.IsNullOrWhiteSpace(v) ? Visibility.Visible : Visibility.Collapsed;
-				}
-				else
-				{
-					return String.IsNullOrWhiteSpace(v) ? Visibility.Visible : Visibility.Collapsed;
-				}
+				reverse = r;
 			}
-			return Visibility.Visible;
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		if (value is string v)
 		{
-			return null;
+			if (!reverse)
+			{
+				return !String.IsNullOrWhiteSpace(v) ? Visibility.Visible : Visibility.Collapsed;
+			}
+			else
+			{
+				return String.IsNullOrWhiteSpace(v) ? Visibility.Visible : Visibility.Collapsed;
+			}
 		}
+		return Visibility.Visible;
+	}
+
+	public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+	{
+		return null;
 	}
 }

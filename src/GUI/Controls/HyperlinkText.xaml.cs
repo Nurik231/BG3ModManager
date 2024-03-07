@@ -1,79 +1,77 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Navigation;
 
-namespace DivinityModManager.Controls
+namespace DivinityModManager.Controls;
+
+/// <summary>
+/// Interaction logic for HyperlinkText.xaml
+/// </summary>
+public partial class HyperlinkText : TextBlock
 {
-	/// <summary>
-	/// Interaction logic for HyperlinkText.xaml
-	/// </summary>
-	public partial class HyperlinkText : TextBlock
+	private static readonly PropertyChangedCallback _updateText = new(UpdateHyperlinkText);
+	public static readonly DependencyProperty URLProperty = DependencyProperty.Register("URL", typeof(string), typeof(HyperlinkText), new PropertyMetadata("", new PropertyChangedCallback(OnURLChanged)));
+	public static readonly DependencyProperty DisplayTextProperty = DependencyProperty.Register("DisplayText", typeof(string), typeof(HyperlinkText), new PropertyMetadata("", _updateText));
+	public static readonly DependencyProperty UseUrlForDisplayTextProperty = DependencyProperty.Register("UseUrlForDisplayText", typeof(bool), typeof(HyperlinkText), new PropertyMetadata(false, _updateText));
+
+	public string URL
 	{
-		private static readonly PropertyChangedCallback _updateText = new PropertyChangedCallback(UpdateHyperlinkText);
-		public static readonly DependencyProperty URLProperty = DependencyProperty.Register("URL", typeof(string), typeof(HyperlinkText), new PropertyMetadata("", new PropertyChangedCallback(OnURLChanged)));
-		public static readonly DependencyProperty DisplayTextProperty = DependencyProperty.Register("DisplayText", typeof(string), typeof(HyperlinkText), new PropertyMetadata("", _updateText));
-		public static readonly DependencyProperty UseUrlForDisplayTextProperty = DependencyProperty.Register("UseUrlForDisplayText", typeof(bool), typeof(HyperlinkText), new PropertyMetadata(false, _updateText));
+		get => (string)GetValue(URLProperty);
+		set => SetValue(URLProperty, value);
+	}
 
-		public string URL
+	public string DisplayText
+	{
+		get => (string)GetValue(DisplayTextProperty);
+		set => SetValue(DisplayTextProperty, value);
+	}
+
+	public bool UseUrlForDisplayText
+	{
+		get => (bool)GetValue(UseUrlForDisplayTextProperty);
+		set => SetValue(UseUrlForDisplayTextProperty, value);
+	}
+
+	private static void OnURLChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+	{
+		if (d is HyperlinkText hyperLinkText && e.NewValue is string url && Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
 		{
-			get => (string)GetValue(URLProperty);
-			set => SetValue(URLProperty, value);
+			hyperLinkText.Hyperlink.NavigateUri = uri;
+			hyperLinkText.UpdateDisplayText();
 		}
+	}
 
-		public string DisplayText
+	private static void UpdateHyperlinkText(DependencyObject d, DependencyPropertyChangedEventArgs e)
+	{
+		if (d is HyperlinkText hyperLinkText)
 		{
-			get => (string)GetValue(DisplayTextProperty);
-			set => SetValue(DisplayTextProperty, value);
+			hyperLinkText.UpdateDisplayText();
 		}
+	}
 
-		public bool UseUrlForDisplayText
+	private void UpdateDisplayText()
+	{
+		var outputText = DisplayText;
+		if (String.IsNullOrEmpty(outputText) || UseUrlForDisplayText)
 		{
-			get => (bool)GetValue(UseUrlForDisplayTextProperty);
-			set => SetValue(UseUrlForDisplayTextProperty, value);
+			outputText = URL;
 		}
+		DisplayTextTextBlock.Text = outputText;
+		ToolTip = URL;
+	}
 
-		private static void OnURLChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			if (d is HyperlinkText hyperLinkText && e.NewValue is string url && Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
-			{
-				hyperLinkText.Hyperlink.NavigateUri = uri;
-				hyperLinkText.UpdateDisplayText();
-			}
-		}
+	public HyperlinkText()
+	{
+		InitializeComponent();
 
-		private static void UpdateHyperlinkText(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			if (d is HyperlinkText hyperLinkText)
-			{
-				hyperLinkText.UpdateDisplayText();
-			}
-		}
+		Hyperlink.RequestNavigate += Hyperlink_RequestNavigate;
+	}
 
-		private void UpdateDisplayText()
-		{
-			var outputText = DisplayText;
-			if (String.IsNullOrEmpty(outputText) || UseUrlForDisplayText)
-			{
-				outputText = URL;
-			}
-			DisplayTextTextBlock.Text = outputText;
-			ToolTip = URL;
-		}
-
-		public HyperlinkText()
-		{
-			InitializeComponent();
-
-			Hyperlink.RequestNavigate += Hyperlink_RequestNavigate;
-		}
-
-		private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-		{
-			Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-			e.Handled = true;
-		}
+	private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+	{
+		Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+		e.Handled = true;
 	}
 }

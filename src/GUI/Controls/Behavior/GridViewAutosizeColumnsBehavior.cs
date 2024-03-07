@@ -1,144 +1,140 @@
 ﻿using DivinityModManager.Models;
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace DivinityModManager.Controls.Behavior
+namespace DivinityModManager.Controls.Behavior;
+
+public class GridViewAutoSizeColumnsBehavior
 {
-	public class GridViewAutoSizeColumnsBehavior
+	public static bool GetGridViewAutoSizeColumns(ListView listView)
 	{
-		public static bool GetGridViewAutoSizeColumns(ListView listView)
-		{
-			return (bool)listView.GetValue(GridViewAutoSizeColumnsProperty);
-		}
+		return (bool)listView.GetValue(GridViewAutoSizeColumnsProperty);
+	}
 
-		public static void SetGridViewAutoSizeColumns(ListView listView, bool value)
-		{
-			listView.SetValue(GridViewAutoSizeColumnsProperty, value);
-		}
+	public static void SetGridViewAutoSizeColumns(ListView listView, bool value)
+	{
+		listView.SetValue(GridViewAutoSizeColumnsProperty, value);
+	}
 
-		public static readonly DependencyProperty GridViewAutoSizeColumnsProperty =
-			DependencyProperty.RegisterAttached(
-			"AutoSizeColumns",
-			typeof(bool),
-			typeof(GridViewAutoSizeColumnsBehavior),
-			new UIPropertyMetadata(false, OnAutoSizeColumnsChanged));
+	public static readonly DependencyProperty GridViewAutoSizeColumnsProperty =
+		DependencyProperty.RegisterAttached(
+		"AutoSizeColumns",
+		typeof(bool),
+		typeof(GridViewAutoSizeColumnsBehavior),
+		new UIPropertyMetadata(false, OnAutoSizeColumnsChanged));
 
-		static void OnAutoSizeColumnsChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+	static void OnAutoSizeColumnsChanged(DependencyObject depObj, DependencyPropertyChangedEventArgs e)
+	{
+		if (depObj is ListView listView)
 		{
-			if (depObj is ListView listView)
+			if (e.NewValue is bool enabled)
 			{
-				if (e.NewValue is bool enabled)
+				if (enabled)
 				{
-					if (enabled)
-					{
-						listView.Loaded += OnDataChangedChanged;
-						//listView.SizeChanged += OnGridViewSizeChanged;
-					}
-					else
-					{
-						listView.Loaded -= OnDataChangedChanged;
-						//listView.SizeChanged -= OnGridViewSizeChanged;
-					}
+					listView.Loaded += OnDataChangedChanged;
+					//listView.SizeChanged += OnGridViewSizeChanged;
+				}
+				else
+				{
+					listView.Loaded -= OnDataChangedChanged;
+					//listView.SizeChanged -= OnGridViewSizeChanged;
 				}
 			}
 		}
+	}
 
-		static void OnGridViewSizeChanged(object sender, RoutedEventArgs e)
+	static void OnGridViewSizeChanged(object sender, RoutedEventArgs e)
+	{
+		if (sender is ListView listView)
 		{
-			if (sender is ListView listView)
+			if (listView.View is GridView gridView)
 			{
-				if (listView.View is GridView gridView)
+				if (gridView.Columns.Count >= 2)
 				{
-					if (gridView.Columns.Count >= 2)
+					// take into account vertical scrollbar
+					var actualWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+
+					for (var i = 2; i < gridView.Columns.Count; i++)
 					{
-						// take into account vertical scrollbar
-						var actualWidth = listView.ActualWidth - SystemParameters.VerticalScrollBarWidth;
+						actualWidth -= gridView.Columns[i].ActualWidth;
+					}
 
-						for (var i = 2; i < gridView.Columns.Count; i++)
-						{
-							actualWidth -= gridView.Columns[i].ActualWidth;
-						}
-
-						if (actualWidth > 0 && gridView.Columns.Count >= 2)
-						{
-							gridView.Columns[1].Width = actualWidth;
-						}
+					if (actualWidth > 0 && gridView.Columns.Count >= 2)
+					{
+						gridView.Columns[1].Width = actualWidth;
 					}
 				}
 			}
 		}
+	}
 
-		static void OnDataChangedChanged(object sender, EventArgs e)
+	static void OnDataChangedChanged(object sender, EventArgs e)
+	{
+		if (sender is ListView listView)
 		{
-			if (sender is ListView listView)
+			if (listView.View is GridView gridView)
 			{
-				if (listView.View is GridView gridView)
+				if (gridView.Columns.Count >= 2)
 				{
-					if (gridView.Columns.Count >= 2)
+					if (listView.ItemsSource is IEnumerable<DivinityModData> mods && mods.Count() > 0)
 					{
-						if (listView.ItemsSource is IEnumerable<DivinityModData> mods && mods.Count() > 0)
-						{
-							var longestName = mods.OrderByDescending(m => m.Name.Length).FirstOrDefault()?.Name;
-							gridView.Columns[1].Width = MeasureText(listView, longestName,
-								listView.FontFamily,
-								listView.FontStyle,
-								listView.FontWeight,
-								listView.FontStretch,
-								listView.FontSize).Width;
-						}
+						var longestName = mods.OrderByDescending(m => m.Name.Length).FirstOrDefault()?.Name;
+						gridView.Columns[1].Width = MeasureText(listView, longestName,
+							listView.FontFamily,
+							listView.FontStyle,
+							listView.FontWeight,
+							listView.FontStretch,
+							listView.FontSize).Width;
 					}
 				}
 			}
 		}
+	}
 
-		private static Size MeasureTextSize(Visual target, string text, FontFamily fontFamily, FontStyle fontStyle,
-			FontWeight fontWeight, FontStretch fontStretch, double fontSize)
+	private static Size MeasureTextSize(Visual target, string text, FontFamily fontFamily, FontStyle fontStyle,
+		FontWeight fontWeight, FontStretch fontStretch, double fontSize)
+	{
+		var typeFace = new Typeface(fontFamily, fontStyle, fontWeight, fontStretch);
+		var ft = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"), FlowDirection.LeftToRight, typeFace, fontSize, Brushes.Black, VisualTreeHelper.GetDpi(target).PixelsPerDip);
+		return new Size(ft.Width, ft.Height);
+	}
+
+	private static Size MeasureText(Visual target, string text,
+		FontFamily fontFamily,
+		FontStyle fontStyle,
+		FontWeight fontWeight,
+		FontStretch fontStretch, double fontSize)
+	{
+		Typeface typeface = new(fontFamily, fontStyle, fontWeight, fontStretch);
+		GlyphTypeface glyphTypeface;
+
+		if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
 		{
-			var typeFace = new Typeface(fontFamily, fontStyle, fontWeight, fontStretch);
-			var ft = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"), FlowDirection.LeftToRight, typeFace, fontSize, Brushes.Black, VisualTreeHelper.GetDpi(target).PixelsPerDip);
-			return new Size(ft.Width, ft.Height);
+			return MeasureTextSize(target, text, fontFamily, fontStyle, fontWeight, fontStretch, fontSize);
 		}
 
-		private static Size MeasureText(Visual target, string text,
-			FontFamily fontFamily,
-			FontStyle fontStyle,
-			FontWeight fontWeight,
-			FontStretch fontStretch, double fontSize)
+		double totalWidth = 0;
+		double height = 0;
+
+		for (int n = 0; n < text.Length; n++)
 		{
-			Typeface typeface = new(fontFamily, fontStyle, fontWeight, fontStretch);
-			GlyphTypeface glyphTypeface;
+			ushort glyphIndex = glyphTypeface.CharacterToGlyphMap[text[n]];
 
-			if (!typeface.TryGetGlyphTypeface(out glyphTypeface))
+			double width = glyphTypeface.AdvanceWidths[glyphIndex] * fontSize;
+
+			double glyphHeight = glyphTypeface.AdvanceHeights[glyphIndex] * fontSize;
+
+			if (glyphHeight > height)
 			{
-				return MeasureTextSize(target, text, fontFamily, fontStyle, fontWeight, fontStretch, fontSize);
+				height = glyphHeight;
 			}
 
-			double totalWidth = 0;
-			double height = 0;
-
-			for (int n = 0; n < text.Length; n++)
-			{
-				ushort glyphIndex = glyphTypeface.CharacterToGlyphMap[text[n]];
-
-				double width = glyphTypeface.AdvanceWidths[glyphIndex] * fontSize;
-
-				double glyphHeight = glyphTypeface.AdvanceHeights[glyphIndex] * fontSize;
-
-				if (glyphHeight > height)
-				{
-					height = glyphHeight;
-				}
-
-				totalWidth += width;
-			}
-
-			return new Size(totalWidth, height);
+			totalWidth += width;
 		}
+
+		return new Size(totalWidth, height);
 	}
 }
