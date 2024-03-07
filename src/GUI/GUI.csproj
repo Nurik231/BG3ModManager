@@ -71,6 +71,7 @@
 	</Target>
 
 	<ItemGroup>
+		<ProjectReference Include="$(SolutionDir)External\lslib\LSLib\LSLib.csproj" />
 		<ProjectReference Include="$(SolutionDir)src\Core\Core.csproj" />
 		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
 	</ItemGroup>
@@ -94,12 +95,6 @@
 		<PackageReference Include="ReactiveUI.WPF" Version="19.5.41" />
 		<PackageReference Include="SharpCompress" Version="0.36.0" />
 		<PackageReference Include="SharpVectors.Wpf" Version="1.8.4" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="LSLib">
-			<HintPath>$(SolutionDir)External\lslib\LSLib.dll</HintPath>
-		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>

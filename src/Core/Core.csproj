@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
+		<ProjectReference Include="$(SolutionDir)External\lslib\LSLib\LSLib.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -38,11 +39,5 @@
 		<PackageReference Include="System.Reactive" Version="6.0.0" />
 		<PackageReference Include="SharpCompress" Version="0.36.0" />
 		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-	</ItemGroup>
-	
-	<ItemGroup>
-		<Reference Include="LSLib">
-			<HintPath>$(SolutionDir)External\lslib\LSLib.dll</HintPath>
-		</Reference>
 	</ItemGroup>
 </Project>
