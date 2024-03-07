@@ -71,8 +71,9 @@
 	</Target>
 
 	<ItemGroup>
-		<ProjectReference Include="$(SolutionDir)src\Core\Core.csproj" />
-		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
+		<ProjectReference Include="..\..\External\lslib\LSLib\LSLib.csproj" />
+		<ProjectReference Include="..\..\src\Core\Core.csproj" />
+		<ProjectReference Include="..\..\External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
