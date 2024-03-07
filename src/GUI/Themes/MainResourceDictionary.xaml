@@ -2161,9 +2161,9 @@
 					<CheckBox.Style>
 						<Style TargetType="CheckBox">
 							<Style.Triggers>
-								<Trigger Property="{Binding ElementName=TopBorder, Path=IsMouseOver}" Value="True">
+								<DataTrigger Binding="{Binding ElementName=TopBorder, Path=IsMouseOver}" Value="True">
 									<Setter Property="Visibility" Value="Visible" />
-								</Trigger>
+								</DataTrigger>
 								<DataTrigger Binding="{Binding IsSelected}" Value="True">
 									<Setter Property="Visibility" Value="Visible" />
 								</DataTrigger>

@@ -323,8 +323,6 @@ namespace DivinityModManager.Windows
 				)
 				.Select(e => (e.EventArgs.Key == Key.LeftShift || e.EventArgs.Key == Key.RightShift) && e.EventArgs.IsDown)
 				.BindTo(ViewModel, x => x.CanForceLaunchGame);
-
-				App.WM.CollectionDownload.Toggle(true);
 			});
 
 			Show();

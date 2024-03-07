@@ -1,6 +1,4 @@
-﻿using Alphaleonis.Win32.Filesystem;
-
-using DivinityModManager.Models;
+﻿using DivinityModManager.Models;
 using DivinityModManager.Util;
 
 using SharpCompress.Archives;

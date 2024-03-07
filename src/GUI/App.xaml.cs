@@ -25,14 +25,18 @@ namespace DivinityModManager
 
 		public static WindowManagerService WM => Services.Get<WindowManagerService>();
 
+		private static string _appDir;
+
 		public App()
 		{
-			Directory.SetCurrentDirectory(DivinityApp.GetAppDirectory());
+			_appDir = DivinityApp.GetAppDirectory();
+			Directory.SetCurrentDirectory(_appDir);
 			// Fix for loading C++ dlls from _Lib
 			AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
+
 			var assembly = Assembly.GetExecutingAssembly();
-			var appName = ((AssemblyProductAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyProductAttribute), false)).Product;
+			var appName = ((AssemblyProductAttribute)Attribute.GetCustomAttribute(assembly, typeof(AssemblyProductAttribute), false))?.Product;
 			var version = assembly.GetName().Version.ToString();
 			var productName = Regex.Replace(appName.Trim(), @"\s+", String.Empty);
 
@@ -81,7 +85,7 @@ namespace DivinityModManager
 		{
 			var assyName = new AssemblyName(args.Name);
 
-			var newPath = Path.Combine("_Lib", assyName.Name);
+			var newPath = Path.Combine(_appDir, "_Lib", assyName.Name);
 			if (!newPath.EndsWith(".dll"))
 			{
 				newPath += ".dll";

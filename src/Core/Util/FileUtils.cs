@@ -403,8 +403,11 @@ namespace DivinityModManager.Util
 			return false;
 		}
 
+		private static readonly EnumerationOptions _defaultOpts = new() { AttributesToSkip = FileAttributes.Hidden };
+
 		public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions? opts = null, Func<string,bool> inclusionFilter = null)
 		{
+			opts ??= _defaultOpts;
 			if (inclusionFilter != null)
 			{
 				return Directory.EnumerateFiles(path, "*", opts).Where(inclusionFilter);
@@ -414,7 +417,8 @@ namespace DivinityModManager.Util
 
 		public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions? opts = null, Func<string,bool> inclusionFilter = null)
 		{
-			if(inclusionFilter != null)
+			opts ??= _defaultOpts;
+			if (inclusionFilter != null)
 			{
 				return Directory.EnumerateDirectories(path, "*", opts).Where(inclusionFilter);
 			}

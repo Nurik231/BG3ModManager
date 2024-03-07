@@ -45,13 +45,4 @@
 			<HintPath>$(SolutionDir)External\lslib\LSLib.dll</HintPath>
 		</Reference>
 	</ItemGroup>
-	
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<ItemGroup>
-			<FilesToMove Include="$(OutputPath)$(AssemblyName).dll" />
-			<LSLib Include="$(OutputPath)LSLib.dll;$(OutputPath)LSLibNative.dll" />
-		</ItemGroup>
-		<Copy SourceFiles="@(FilesToMove)" DestinationFolder="$(SolutionDir)bin\$(Configuration)\_Lib\" OverwriteReadOnlyFiles="true" />
-		<Copy SourceFiles="@(LSLib)" DestinationFolder="$(SolutionDir)bin\$(Configuration)\_Lib\" OverwriteReadOnlyFiles="true" />
-	</Target>
 </Project>
