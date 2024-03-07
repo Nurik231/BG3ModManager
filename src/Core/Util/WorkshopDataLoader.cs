@@ -201,7 +201,7 @@ public static class WorkshopDataLoader
 		int totalFound = 0;
 		foreach (var mod in mods)
 		{
-			string name = Uri.EscapeUriString(mod.DisplayName);
+			string name = Uri.EscapeDataString(mod.DisplayName);
 			string url = $"https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/?key={apiKey}&appid={appid}&search_text={name}&return_short_description=true&return_tags=true&numperpage=99&return_metadata=true&requiredtags[0]=Definitive+Edition";
 			string responseData = "";
 			try
