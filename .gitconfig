@@ -1,0 +1,2 @@
+[alias]
+  addlib = "!f() { git submodule add --name $1 \"$2\" External/$1 ; git submodule update --recursive --init ; }; f"
