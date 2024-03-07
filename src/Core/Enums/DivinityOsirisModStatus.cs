@@ -1,9 +1,8 @@
-﻿namespace DivinityModManager
+﻿namespace DivinityModManager;
+
+public enum DivinityOsirisModStatus
 {
-	public enum DivinityOsirisModStatus
-	{
-		NONE,
-		SCRIPTS,
-		MODFIXER
-	}
+	NONE,
+	SCRIPTS,
+	MODFIXER
 }

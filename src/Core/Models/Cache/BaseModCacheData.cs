@@ -1,29 +1,28 @@
 ﻿using System.Runtime.Serialization;
 
-namespace DivinityModManager.Models.Cache
+namespace DivinityModManager.Models.Cache;
+
+public interface IModCacheData
 {
-	public interface IModCacheData
+	long LastUpdated { get; set; }
+	string LastVersion { get; set; }
+	bool CacheUpdated { get; set; }
+}
+
+[DataContract]
+public class BaseModCacheData<T> : IModCacheData
+{
+	[DataMember] public long LastUpdated { get; set; }
+	[DataMember] public string LastVersion { get; set; }
+	[DataMember] public Dictionary<string, T> Mods { get; set; } = new Dictionary<string, T>();
+
+	public bool CacheUpdated { get; set; }
+
+	public BaseModCacheData()
 	{
-		long LastUpdated { get; set; }
-		string LastVersion { get; set; }
-		bool CacheUpdated { get; set; }
-	}
+		LastUpdated = -1;
+		LastVersion = "";
 
-	[DataContract]
-	public class BaseModCacheData<T> : IModCacheData
-	{
-		[DataMember] public long LastUpdated { get; set; }
-		[DataMember] public string LastVersion { get; set; }
-		[DataMember] public Dictionary<string, T> Mods { get; set; } = new Dictionary<string, T>();
-
-		public bool CacheUpdated { get; set; }
-
-		public BaseModCacheData()
-		{
-			LastUpdated = -1;
-			LastVersion = "";
-
-			Mods = new Dictionary<string, T>();
-		}
+		Mods = new Dictionary<string, T>();
 	}
 }

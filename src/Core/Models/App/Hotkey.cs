@@ -11,167 +11,166 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Windows.Input;
 
-namespace DivinityModManager.Models.App
+namespace DivinityModManager.Models.App;
+
+public interface IHotkey
 {
-	public interface IHotkey
+	Key Key { get; set; }
+	ModifierKeys Modifiers { get; set; }
+	ICommand Command { get; }
+	bool Enabled { get; set; }
+	string DisplayName { get; set; }
+}
+
+[DataContract]
+public class Hotkey : ReactiveObject, IHotkey
+{
+	public string ID { get; set; }
+
+	[Reactive] public string DisplayName { get; set; }
+
+	[ObservableAsProperty] public string ToolTip { get; }
+
+	[Reactive] public string DisplayBindingText { get; private set; }
+
+	[DataMember]
+	[JsonConverter(typeof(StringEnumConverter))]
+	[Reactive] public Key Key { get; set; }
+
+	[DataMember]
+	[JsonConverter(typeof(StringEnumConverter))]
+	[Reactive] public ModifierKeys Modifiers { get; set; }
+
+	public ReactiveCommand<Unit, Unit> Command { get; set; }
+	ICommand IHotkey.Command => this.Command;
+
+	[Reactive] public ICommand ResetCommand { get; private set; }
+	[Reactive] public ICommand ClearCommand { get; private set; }
+
+	[Reactive] public bool Enabled { get; set; }
+	[Reactive] public bool CanEdit { get; set; }
+
+	[ObservableAsProperty] public bool IsDefault { get; }
+	[Reactive] public bool IsSelected { get; set; }
+
+	[ObservableAsProperty] public string ModifiedText { get; }
+
+	private readonly Key _defaultKey = Key.None;
+	private readonly ModifierKeys _defaultModifiers = ModifierKeys.None;
+
+	public Key DefaultKey => _defaultKey;
+	public ModifierKeys DefaultModifiers => _defaultModifiers;
+
+	[Reactive] public bool CanExecuteCommand { get; private set; }
+
+	private readonly List<IObservable<bool>> _canExecuteConditions = new();
+	private CompositeDisposable _disposables = new();
+	private IObservable<bool> _canExecute;
+
+	private readonly List<Action> _actions;
+
+	// Big thanks to https://sachabarbs.wordpress.com/2013/10/18/reactive-command-with-dynamic-predicates/
+
+	private void SetupSubscription()
 	{
-		Key Key { get; set; }
-		ModifierKeys Modifiers { get; set; }
-		ICommand Command { get; }
-		bool Enabled { get; set; }
-		string DisplayName { get; set; }
+		_disposables?.Dispose();
+		_disposables = new CompositeDisposable
+		{
+			_canExecute.Subscribe(b => CanExecuteCommand = b)
+		};
 	}
 
-	[DataContract]
-	public class Hotkey : ReactiveObject, IHotkey
+	public void AddCanExecuteCondition(IObservable<bool> canExecute)
 	{
-		public string ID { get; set; }
+		_canExecuteConditions.Add(canExecute);
+		_canExecute = _canExecute.CombineLatest(_canExecuteConditions.Last(), (b1, b2) => b1 && b2).DistinctUntilChanged();
+		SetupSubscription();
+	}
 
-		[Reactive] public string DisplayName { get; set; }
+	public void AddAction(Action action, IObservable<bool> actionCanExecute = null)
+	{
+		_actions.Add(action);
 
-		[ObservableAsProperty] public string ToolTip { get; }
-
-		[Reactive] public string DisplayBindingText { get; private set; }
-
-		[DataMember]
-		[JsonConverter(typeof(StringEnumConverter))]
-		[Reactive] public Key Key { get; set; }
-
-		[DataMember]
-		[JsonConverter(typeof(StringEnumConverter))]
-		[Reactive] public ModifierKeys Modifiers { get; set; }
-
-		public ReactiveCommand<Unit, Unit> Command { get; set; }
-		ICommand IHotkey.Command => this.Command;
-
-		[Reactive] public ICommand ResetCommand { get; private set; }
-		[Reactive] public ICommand ClearCommand { get; private set; }
-
-		[Reactive] public bool Enabled { get; set; }
-		[Reactive] public bool CanEdit { get; set; }
-
-		[ObservableAsProperty] public bool IsDefault { get; }
-		[Reactive] public bool IsSelected { get; set; }
-
-		[ObservableAsProperty] public string ModifiedText { get; }
-
-		private readonly Key _defaultKey = Key.None;
-		private readonly ModifierKeys _defaultModifiers = ModifierKeys.None;
-
-		public Key DefaultKey => _defaultKey;
-		public ModifierKeys DefaultModifiers => _defaultModifiers;
-
-		[Reactive] public bool CanExecuteCommand { get; private set; }
-
-		private readonly List<IObservable<bool>> _canExecuteConditions = new();
-		private CompositeDisposable _disposables = new();
-		private IObservable<bool> _canExecute;
-
-		private readonly List<Action> _actions;
-
-		// Big thanks to https://sachabarbs.wordpress.com/2013/10/18/reactive-command-with-dynamic-predicates/
-
-		private void SetupSubscription()
+		if (actionCanExecute != null)
 		{
-			_disposables?.Dispose();
-			_disposables = new CompositeDisposable
-			{
-				_canExecute.Subscribe(b => CanExecuteCommand = b)
-			};
+			AddCanExecuteCondition(actionCanExecute);
 		}
+	}
 
-		public void AddCanExecuteCondition(IObservable<bool> canExecute)
-		{
-			_canExecuteConditions.Add(canExecute);
-			_canExecute = _canExecute.CombineLatest(_canExecuteConditions.Last(), (b1, b2) => b1 && b2).DistinctUntilChanged();
-			SetupSubscription();
-		}
+	public void Invoke()
+	{
+		_actions.ForEach(a => a.Invoke());
+	}
 
-		public void AddAction(Action action, IObservable<bool> actionCanExecute = null)
-		{
-			_actions.Add(action);
+	public void ResetToDefault()
+	{
+		Key = _defaultKey;
+		Modifiers = _defaultModifiers;
+		UpdateDisplayBindingText();
+	}
 
-			if (actionCanExecute != null)
-			{
-				AddCanExecuteCondition(actionCanExecute);
-			}
-		}
+	public void Clear()
+	{
+		Key = Key.None;
+		Modifiers = ModifierKeys.None;
+		UpdateDisplayBindingText();
+	}
 
-		public void Invoke()
-		{
-			_actions.ForEach(a => a.Invoke());
-		}
+	public void UpdateDisplayBindingText()
+	{
+		DisplayBindingText = ToString();
+	}
 
-		public void ResetToDefault()
-		{
-			Key = _defaultKey;
-			Modifiers = _defaultModifiers;
-			UpdateDisplayBindingText();
-		}
+	public Hotkey(Key key = Key.None, ModifierKeys modifiers = ModifierKeys.None)
+	{
+		DisplayName = "";
+		Key = key;
+		Modifiers = modifiers;
+		_defaultKey = key;
+		_defaultModifiers = modifiers;
 
-		public void Clear()
-		{
-			Key = Key.None;
-			Modifiers = ModifierKeys.None;
-			UpdateDisplayBindingText();
-		}
+		Enabled = true;
+		CanEdit = true;
 
-		public void UpdateDisplayBindingText()
-		{
-			DisplayBindingText = ToString();
-		}
+		_actions = new List<Action>();
 
-		public Hotkey(Key key = Key.None, ModifierKeys modifiers = ModifierKeys.None)
-		{
-			DisplayName = "";
-			Key = key;
-			Modifiers = modifiers;
-			_defaultKey = key;
-			_defaultModifiers = modifiers;
+		DisplayBindingText = ToString();
 
-			Enabled = true;
-			CanEdit = true;
+		_canExecute = this.WhenAnyValue(x => x.Enabled);
+		SetupSubscription();
 
-			_actions = new List<Action>();
+		Command = ReactiveCommand.Create(Invoke, this.WhenAnyValue(x => x.CanExecuteCommand).ObserveOn(RxApp.MainThreadScheduler), RxApp.MainThreadScheduler);
 
-			DisplayBindingText = ToString();
+		this.WhenAnyValue(x => x.Key, x => x.Modifiers).Select(x => x.Item1 == _defaultKey && x.Item2 == _defaultModifiers).ToUIProperty(this, x => x.IsDefault, true);
 
-			_canExecute = this.WhenAnyValue(x => x.Enabled);
-			SetupSubscription();
+		var isDefaultObservable = this.WhenAnyValue(x => x.IsDefault);
 
-			Command = ReactiveCommand.Create(Invoke, this.WhenAnyValue(x => x.CanExecuteCommand).ObserveOn(RxApp.MainThreadScheduler), RxApp.MainThreadScheduler);
+		isDefaultObservable.Select(b => !b ? "*" : "").ToUIProperty(this, x => x.ModifiedText, "");
 
-			this.WhenAnyValue(x => x.Key, x => x.Modifiers).Select(x => x.Item1 == _defaultKey && x.Item2 == _defaultModifiers).ToUIProperty(this, x => x.IsDefault, true);
+		this.WhenAnyValue(x => x.DisplayName, x => x.IsDefault).Select(x => x.Item2 ? $"{x.Item1} (Modified)" : x.Item1).ToUIProperty(this, x => x.ToolTip);
 
-			var isDefaultObservable = this.WhenAnyValue(x => x.IsDefault);
+		var canReset = isDefaultObservable.Select(b => !b);
+		var canClear = this.WhenAnyValue(x => x.Key, x => x.Modifiers, (k, m) => k != Key.None);
 
-			isDefaultObservable.Select(b => !b ? "*" : "").ToUIProperty(this, x => x.ModifiedText, "");
+		ResetCommand = ReactiveCommand.Create(ResetToDefault, canReset);
+		ClearCommand = ReactiveCommand.Create(Clear, canClear);
+	}
 
-			this.WhenAnyValue(x => x.DisplayName, x => x.IsDefault).Select(x => x.Item2 ? $"{x.Item1} (Modified)" : x.Item1).ToUIProperty(this, x => x.ToolTip);
+	public override string ToString()
+	{
+		var str = new StringBuilder();
 
-			var canReset = isDefaultObservable.Select(b => !b);
-			var canClear = this.WhenAnyValue(x => x.Key, x => x.Modifiers, (k, m) => k != Key.None);
+		if (Modifiers.HasFlag(ModifierKeys.Control))
+			str.Append("Ctrl + ");
+		if (Modifiers.HasFlag(ModifierKeys.Shift))
+			str.Append("Shift + ");
+		if (Modifiers.HasFlag(ModifierKeys.Alt))
+			str.Append("Alt + ");
+		if (Modifiers.HasFlag(ModifierKeys.Windows))
+			str.Append("Win + ");
 
-			ResetCommand = ReactiveCommand.Create(ResetToDefault, canReset);
-			ClearCommand = ReactiveCommand.Create(Clear, canClear);
-		}
+		str.Append(Key.GetKeyName());
 
-		public override string ToString()
-		{
-			var str = new StringBuilder();
-
-			if (Modifiers.HasFlag(ModifierKeys.Control))
-				str.Append("Ctrl + ");
-			if (Modifiers.HasFlag(ModifierKeys.Shift))
-				str.Append("Shift + ");
-			if (Modifiers.HasFlag(ModifierKeys.Alt))
-				str.Append("Alt + ");
-			if (Modifiers.HasFlag(ModifierKeys.Windows))
-				str.Append("Win + ");
-
-			str.Append(Key.GetKeyName());
-
-			return str.ToString();
-		}
+		return str.ToString();
 	}
 }

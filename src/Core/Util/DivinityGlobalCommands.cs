@@ -10,49 +10,67 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Windows;
 
-namespace DivinityModManager.Util
+namespace DivinityModManager.Util;
+
+public class DivinityGlobalCommands : ReactiveObject
 {
-	public class DivinityGlobalCommands : ReactiveObject
+	private IDivinityAppViewModel _viewModel;
+
+	public IDivinityAppViewModel ViewModel => _viewModel;
+
+	public void SetViewModel(IDivinityAppViewModel vm)
 	{
-		private IDivinityAppViewModel _viewModel;
+		_viewModel = vm;
+		this.RaisePropertyChanged(nameof(ViewModel));
+	}
 
-		public IDivinityAppViewModel ViewModel => _viewModel;
+	public ReactiveCommand<string, Unit> OpenFileCommand { get; }
+	public ReactiveCommand<string, Unit> OpenInFileExplorerCommand { get; }
+	public ReactiveCommand<Unit, Unit> ClearMissingModsCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> ToggleNameDisplayCommand { get; }
+	public ReactiveCommand<string, Unit> CopyToClipboardCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> DeleteModCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> DeleteSelectedModsCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> OpenGitHubPageCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> OpenNexusModsPageCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageInSteamCommand { get; }
+	public ReactiveCommand<object, Unit> OpenURLCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> ToggleForceAllowInLoadOrderCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> CopyModAsDependencyCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> OpenModPropertiesCommand { get; }
+	public ReactiveCommand<DivinityModData, Unit> ValidateStatsCommand { get; }
 
-		public void SetViewModel(IDivinityAppViewModel vm)
+	public void OpenFile(string path)
+	{
+		if (File.Exists(path))
 		{
-			_viewModel = vm;
-			this.RaisePropertyChanged(nameof(ViewModel));
+			try
+			{
+				Process.Start(Path.GetFullPath(path));
+			}
+			catch (System.ComponentModel.Win32Exception) // No File Association
+			{
+				Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
+			}
 		}
+		else if (Directory.Exists(path))
+		{
+			Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
+		}
+		else
+		{
+			_viewModel.ShowAlert($"Error opening '{path}': File does not exist!", AlertType.Danger, 10);
+		}
+	}
 
-		public ReactiveCommand<string, Unit> OpenFileCommand { get; }
-		public ReactiveCommand<string, Unit> OpenInFileExplorerCommand { get; }
-		public ReactiveCommand<Unit, Unit> ClearMissingModsCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> ToggleNameDisplayCommand { get; }
-		public ReactiveCommand<string, Unit> CopyToClipboardCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> DeleteModCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> DeleteSelectedModsCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> OpenGitHubPageCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> OpenNexusModsPageCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageInSteamCommand { get; }
-		public ReactiveCommand<object, Unit> OpenURLCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> ToggleForceAllowInLoadOrderCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> CopyModAsDependencyCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> OpenModPropertiesCommand { get; }
-		public ReactiveCommand<DivinityModData, Unit> ValidateStatsCommand { get; }
-
-		public void OpenFile(string path)
+	public void OpenInFileExplorer(string path)
+	{
+		if (!String.IsNullOrEmpty(path))
 		{
 			if (File.Exists(path))
 			{
-				try
-				{
-					Process.Start(Path.GetFullPath(path));
-				}
-				catch (System.ComponentModel.Win32Exception) // No File Association
-				{
-					Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
-				}
+				Process.Start("explorer.exe", $"/select, \"{Path.GetFullPath(path)}\"");
 			}
 			else if (Directory.Exists(path))
 			{
@@ -63,176 +81,157 @@ namespace DivinityModManager.Util
 				_viewModel.ShowAlert($"Error opening '{path}': File does not exist!", AlertType.Danger, 10);
 			}
 		}
+	}
 
-		public void OpenInFileExplorer(string path)
+	public void CopyToClipboard(string text)
+	{
+		try
 		{
-			if (!String.IsNullOrEmpty(path))
+			if (!String.IsNullOrEmpty(text))
 			{
-				if (File.Exists(path))
-				{
-					Process.Start("explorer.exe", $"/select, \"{Path.GetFullPath(path)}\"");
-				}
-				else if (Directory.Exists(path))
-				{
-					Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
-				}
-				else
-				{
-					_viewModel.ShowAlert($"Error opening '{path}': File does not exist!", AlertType.Danger, 10);
-				}
-			}
-		}
-
-		public void CopyToClipboard(string text)
-		{
-			try
-			{
-				if (!String.IsNullOrEmpty(text))
-				{
-					Clipboard.SetText(text);
-					_viewModel.ShowAlert($"Copied to clipboard: {text}", 0, 10);
-				}
-			}
-			catch (Exception ex)
-			{
-				_viewModel.ShowAlert($"Error copying text to clipboard: {ex}", AlertType.Danger, 10);
-			}
-		}
-
-		public void OpenURL(string url)
-		{
-			if (!String.IsNullOrEmpty(url))
-			{
-				FileUtils.TryOpenPath(url);
-			}
-		}
-
-		public void OpenGitHubPage(DivinityModData mod)
-		{
-			var url = mod.GetURL(ModSourceType.GITHUB);
-			if (!String.IsNullOrEmpty(url))
-			{
-				FileUtils.TryOpenPath(url);
-			}
-		}
-
-		public void OpenNexusModsPage(DivinityModData mod)
-		{
-			var url = mod.GetURL(ModSourceType.NEXUSMODS);
-			if (!String.IsNullOrEmpty(url))
-			{
-				FileUtils.TryOpenPath(url);
-			}
-		}
-
-		public void OpenSteamWorkshopPage(DivinityModData mod)
-		{
-			var url = mod.GetURL(ModSourceType.STEAM);
-			if (!String.IsNullOrEmpty(url))
-			{
-				FileUtils.TryOpenPath(url);
-			}
-		}
-
-		public void OpenSteamWorkshopPageInSteam(DivinityModData mod)
-		{
-			var url = mod.GetURL(ModSourceType.STEAM, true);
-			if (!String.IsNullOrEmpty(url))
-			{
-				FileUtils.TryOpenPath(url);
-			}
-		}
-
-		public void ToggleForceAllowInLoadOrder(DivinityModData mod)
-		{
-			RxApp.MainThreadScheduler.Schedule(() =>
-			{
-				mod.ForceAllowInLoadOrder = !mod.ForceAllowInLoadOrder;
-				if (mod.ForceAllowInLoadOrder)
-				{
-					ViewModel.AddActiveMod(mod);
-				}
-				else
-				{
-					ViewModel.RemoveActiveMod(mod);
-				}
-			});
-		}
-
-		public void ClearMissingMods()
-		{
-			_viewModel.ClearMissingMods();
-		}
-
-		public void CopyModAsDependency(DivinityModData mod)
-		{
-			try
-			{
-				var safeName = System.Security.SecurityElement.Escape(mod.Name);
-				var text = String.Format(DivinityApp.XML_MODULE_SHORT_DESC_FORMATTED, mod.Folder, mod.MD5, safeName, mod.UUID, mod.Version.VersionInt);
 				Clipboard.SetText(text);
-				_viewModel.ShowAlert($"Copied ModuleShortDesc for mod '{mod.Name}' to clipboard", 0, 10);
-			}
-			catch (Exception ex)
-			{
-				_viewModel.ShowAlert($"Error copying text to clipboard: {ex}", AlertType.Danger, 10);
+				_viewModel.ShowAlert($"Copied to clipboard: {text}", 0, 10);
 			}
 		}
-
-		public void OpenModProperties(DivinityModData mod)
+		catch (Exception ex)
 		{
-			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
+			_viewModel.ShowAlert($"Error copying text to clipboard: {ex}", AlertType.Danger, 10);
 		}
+	}
 
-		public void ValidateModStats(DivinityModData mod)
+	public void OpenURL(string url)
+	{
+		if (!String.IsNullOrEmpty(url))
 		{
-
-
-			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
+			FileUtils.TryOpenPath(url);
 		}
+	}
 
-		public DivinityGlobalCommands()
+	public void OpenGitHubPage(DivinityModData mod)
+	{
+		var url = mod.GetURL(ModSourceType.GITHUB);
+		if (!String.IsNullOrEmpty(url))
 		{
-			var canExecuteViewModelCommands = this.WhenAnyValue(x => x.ViewModel, x => x.ViewModel.IsLocked, (vm, b) => vm != null && !b);
+			FileUtils.TryOpenPath(url);
+		}
+	}
 
-			OpenFileCommand = ReactiveCommand.Create<string>(OpenFile, canExecuteViewModelCommands);
-			OpenInFileExplorerCommand = ReactiveCommand.Create<string>(OpenInFileExplorer, canExecuteViewModelCommands);
-			ClearMissingModsCommand = ReactiveCommand.Create(ClearMissingMods, canExecuteViewModelCommands);
+	public void OpenNexusModsPage(DivinityModData mod)
+	{
+		var url = mod.GetURL(ModSourceType.NEXUSMODS);
+		if (!String.IsNullOrEmpty(url))
+		{
+			FileUtils.TryOpenPath(url);
+		}
+	}
 
-			ToggleNameDisplayCommand = ReactiveCommand.Create<DivinityModData>((mod) =>
+	public void OpenSteamWorkshopPage(DivinityModData mod)
+	{
+		var url = mod.GetURL(ModSourceType.STEAM);
+		if (!String.IsNullOrEmpty(url))
+		{
+			FileUtils.TryOpenPath(url);
+		}
+	}
+
+	public void OpenSteamWorkshopPageInSteam(DivinityModData mod)
+	{
+		var url = mod.GetURL(ModSourceType.STEAM, true);
+		if (!String.IsNullOrEmpty(url))
+		{
+			FileUtils.TryOpenPath(url);
+		}
+	}
+
+	public void ToggleForceAllowInLoadOrder(DivinityModData mod)
+	{
+		RxApp.MainThreadScheduler.Schedule(() =>
+		{
+			mod.ForceAllowInLoadOrder = !mod.ForceAllowInLoadOrder;
+			if (mod.ForceAllowInLoadOrder)
 			{
-				mod.DisplayFileForName = !mod.DisplayFileForName;
-				var b = mod.DisplayFileForName;
-				foreach (var m in _viewModel.Mods)
+				ViewModel.AddActiveMod(mod);
+			}
+			else
+			{
+				ViewModel.RemoveActiveMod(mod);
+			}
+		});
+	}
+
+	public void ClearMissingMods()
+	{
+		_viewModel.ClearMissingMods();
+	}
+
+	public void CopyModAsDependency(DivinityModData mod)
+	{
+		try
+		{
+			var safeName = System.Security.SecurityElement.Escape(mod.Name);
+			var text = String.Format(DivinityApp.XML_MODULE_SHORT_DESC_FORMATTED, mod.Folder, mod.MD5, safeName, mod.UUID, mod.Version.VersionInt);
+			Clipboard.SetText(text);
+			_viewModel.ShowAlert($"Copied ModuleShortDesc for mod '{mod.Name}' to clipboard", 0, 10);
+		}
+		catch (Exception ex)
+		{
+			_viewModel.ShowAlert($"Error copying text to clipboard: {ex}", AlertType.Danger, 10);
+		}
+	}
+
+	public void OpenModProperties(DivinityModData mod)
+	{
+		RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
+	}
+
+	public void ValidateModStats(DivinityModData mod)
+	{
+
+
+		RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
+	}
+
+	public DivinityGlobalCommands()
+	{
+		var canExecuteViewModelCommands = this.WhenAnyValue(x => x.ViewModel, x => x.ViewModel.IsLocked, (vm, b) => vm != null && !b);
+
+		OpenFileCommand = ReactiveCommand.Create<string>(OpenFile, canExecuteViewModelCommands);
+		OpenInFileExplorerCommand = ReactiveCommand.Create<string>(OpenInFileExplorer, canExecuteViewModelCommands);
+		ClearMissingModsCommand = ReactiveCommand.Create(ClearMissingMods, canExecuteViewModelCommands);
+
+		ToggleNameDisplayCommand = ReactiveCommand.Create<DivinityModData>((mod) =>
+		{
+			mod.DisplayFileForName = !mod.DisplayFileForName;
+			var b = mod.DisplayFileForName;
+			foreach (var m in _viewModel.Mods)
+			{
+				if (m.IsSelected)
 				{
-					if (m.IsSelected)
-					{
-						m.DisplayFileForName = b;
-					}
+					m.DisplayFileForName = b;
 				}
-			}, canExecuteViewModelCommands);
+			}
+		}, canExecuteViewModelCommands);
 
-			CopyToClipboardCommand = ReactiveCommand.Create<string>(CopyToClipboard, canExecuteViewModelCommands);
+		CopyToClipboardCommand = ReactiveCommand.Create<string>(CopyToClipboard, canExecuteViewModelCommands);
 
-			DeleteModCommand = ReactiveCommand.Create<DivinityModData>(mod =>
-			{
-				_viewModel.DeleteMod(mod);
-			}, canExecuteViewModelCommands);
+		DeleteModCommand = ReactiveCommand.Create<DivinityModData>(mod =>
+		{
+			_viewModel.DeleteMod(mod);
+		}, canExecuteViewModelCommands);
 
-			DeleteSelectedModsCommand = ReactiveCommand.Create<DivinityModData>(mod =>
-			{
-				_viewModel.DeleteSelectedMods(mod);
-			}, canExecuteViewModelCommands);
+		DeleteSelectedModsCommand = ReactiveCommand.Create<DivinityModData>(mod =>
+		{
+			_viewModel.DeleteSelectedMods(mod);
+		}, canExecuteViewModelCommands);
 
-			OpenURLCommand = ReactiveCommand.Create<object>(x => OpenURL(x.ToString()), canExecuteViewModelCommands);
-			OpenGitHubPageCommand = ReactiveCommand.Create<DivinityModData>(OpenGitHubPage, canExecuteViewModelCommands);
-			OpenNexusModsPageCommand = ReactiveCommand.Create<DivinityModData>(OpenNexusModsPage, canExecuteViewModelCommands);
-			OpenSteamWorkshopPageCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPage, canExecuteViewModelCommands);
-			OpenSteamWorkshopPageInSteamCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPageInSteam, canExecuteViewModelCommands);
-			ToggleForceAllowInLoadOrderCommand = ReactiveCommand.Create<DivinityModData>(ToggleForceAllowInLoadOrder, canExecuteViewModelCommands);
-			CopyModAsDependencyCommand = ReactiveCommand.Create<DivinityModData>(CopyModAsDependency, canExecuteViewModelCommands);
-			OpenModPropertiesCommand = ReactiveCommand.Create<DivinityModData>(OpenModProperties, canExecuteViewModelCommands);
-			ValidateStatsCommand = ReactiveCommand.Create<DivinityModData>(ValidateModStats, canExecuteViewModelCommands);
-		}
+		OpenURLCommand = ReactiveCommand.Create<object>(x => OpenURL(x.ToString()), canExecuteViewModelCommands);
+		OpenGitHubPageCommand = ReactiveCommand.Create<DivinityModData>(OpenGitHubPage, canExecuteViewModelCommands);
+		OpenNexusModsPageCommand = ReactiveCommand.Create<DivinityModData>(OpenNexusModsPage, canExecuteViewModelCommands);
+		OpenSteamWorkshopPageCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPage, canExecuteViewModelCommands);
+		OpenSteamWorkshopPageInSteamCommand = ReactiveCommand.Create<DivinityModData>(OpenSteamWorkshopPageInSteam, canExecuteViewModelCommands);
+		ToggleForceAllowInLoadOrderCommand = ReactiveCommand.Create<DivinityModData>(ToggleForceAllowInLoadOrder, canExecuteViewModelCommands);
+		CopyModAsDependencyCommand = ReactiveCommand.Create<DivinityModData>(CopyModAsDependency, canExecuteViewModelCommands);
+		OpenModPropertiesCommand = ReactiveCommand.Create<DivinityModData>(OpenModProperties, canExecuteViewModelCommands);
+		ValidateStatsCommand = ReactiveCommand.Create<DivinityModData>(ValidateModStats, canExecuteViewModelCommands);
 	}
 }

@@ -1,39 +1,38 @@
 ﻿using ReactiveUI;
 
-namespace DivinityModManager.Models.Conflicts
+namespace DivinityModManager.Models.Conflicts;
+
+public class DivinityConflictEntryData : ReactiveObject
 {
-	public class DivinityConflictEntryData : ReactiveObject
+	private string target;
+
+	public string Target
 	{
-		private string target;
-
-		public string Target
-		{
-			get => target;
-			set { this.RaiseAndSetIfChanged(ref target, value); }
-		}
-
-		private string name;
-
-		public string Name
-		{
-			get => name;
-			set { this.RaiseAndSetIfChanged(ref name, value); }
-		}
-
-		public List<DivinityConflictModData> ConflictModDataList { get; set; } = new List<DivinityConflictModData>();
+		get => target;
+		set { this.RaiseAndSetIfChanged(ref target, value); }
 	}
 
-	public class DivinityConflictModData : ReactiveObject
+	private string name;
+
+	public string Name
 	{
-		private readonly DivinityModData modData;
-		public DivinityModData Mod => modData;
+		get => name;
+		set { this.RaiseAndSetIfChanged(ref name, value); }
+	}
 
-		public string Value { get; set; }
+	public List<DivinityConflictModData> ConflictModDataList { get; set; } = new List<DivinityConflictModData>();
+}
 
-		public DivinityConflictModData(DivinityModData mod, string val = "")
-		{
-			modData = mod;
-			Value = val;
-		}
+public class DivinityConflictModData : ReactiveObject
+{
+	private readonly DivinityModData modData;
+	public DivinityModData Mod => modData;
+
+	public string Value { get; set; }
+
+	public DivinityConflictModData(DivinityModData mod, string val = "")
+	{
+		modData = mod;
+		Value = val;
 	}
 }

@@ -1,8 +1,7 @@
-﻿namespace DivinityModManager.Models.App
+﻿namespace DivinityModManager.Models.App;
+
+public class ModSettingsParseResults
 {
-	public class ModSettingsParseResults
-	{
-		public List<string> ModOrder { get; set; }
-		public List<DivinityProfileActiveModData> ActiveMods { get; set; }
-	}
+	public List<string> ModOrder { get; set; }
+	public List<DivinityProfileActiveModData> ActiveMods { get; set; }
 }

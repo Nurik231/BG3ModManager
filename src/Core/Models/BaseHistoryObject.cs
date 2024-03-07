@@ -5,76 +5,75 @@ using ReactiveUI;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace DivinityModManager.Models
+namespace DivinityModManager.Models;
+
+public class BaseHistoryObject : ReactiveObject
 {
-	public class BaseHistoryObject : ReactiveObject
+	public IHistory History { get; set; }
+
+	public virtual void Snapshot(Action undo, Action redo)
 	{
-		public IHistory History { get; set; }
+		History.Snapshot(undo, redo);
+	}
 
-		public virtual void Snapshot(Action undo, Action redo)
+	public bool UpdateWithHistory<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+	{
+		if (!Equals(field, value))
 		{
-			History.Snapshot(undo, redo);
-		}
-
-		public bool UpdateWithHistory<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-		{
-			if (!Equals(field, value))
+			if (History != null)
 			{
-				if (History != null)
+				var undoValue = field;
+				var redoValue = value;
+
+				History.Snapshot(() =>
 				{
-					var undoValue = field;
-					var redoValue = value;
-
-					History.Snapshot(() =>
-					{
-						this.SetProperty(this, propertyName, undoValue);
-					}, () =>
-					{
-						this.SetProperty(this, propertyName, redoValue);
-					});
-				}
-
-				this.RaiseAndSetIfChanged(ref field, value, propertyName);
-				return true;
-			}
-			return false;
-		}
-
-		public bool UpdateWithHistory<T>(ref T field, T value, Action undo, Action redo, [CallerMemberName] string propertyName = null)
-		{
-			if (!Equals(field, value))
-			{
-				if (History != null)
+					this.SetProperty(this, propertyName, undoValue);
+				}, () =>
 				{
-					History.Snapshot(undo, redo);
-				}
-
-				this.RaiseAndSetIfChanged(ref field, value, propertyName);
-				return true;
+					this.SetProperty(this, propertyName, redoValue);
+				});
 			}
-			return false;
-		}
 
-		private bool SetProperty<T>(object targetObject, string propertyName, T value)
+			this.RaiseAndSetIfChanged(ref field, value, propertyName);
+			return true;
+		}
+		return false;
+	}
+
+	public bool UpdateWithHistory<T>(ref T field, T value, Action undo, Action redo, [CallerMemberName] string propertyName = null)
+	{
+		if (!Equals(field, value))
 		{
-			var prop = this.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
-			if (prop != null && prop.CanWrite)
+			if (History != null)
 			{
-				prop.SetValue(this, value);
-				return true;
+				History.Snapshot(undo, redo);
 			}
-			return false;
-		}
 
-		private bool SetField<T>(string fieldName, T value, string propertyName = null)
-		{
-			var field = this.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
-			if (field != null)
-			{
-				field.SetValue(this, value);
-				return true;
-			}
-			return false;
+			this.RaiseAndSetIfChanged(ref field, value, propertyName);
+			return true;
 		}
+		return false;
+	}
+
+	private bool SetProperty<T>(object targetObject, string propertyName, T value)
+	{
+		var prop = this.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance);
+		if (prop != null && prop.CanWrite)
+		{
+			prop.SetValue(this, value);
+			return true;
+		}
+		return false;
+	}
+
+	private bool SetField<T>(string fieldName, T value, string propertyName = null)
+	{
+		var field = this.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+		if (field != null)
+		{
+			field.SetValue(this, value);
+			return true;
+		}
+		return false;
 	}
 }

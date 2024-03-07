@@ -6,74 +6,73 @@ using Newtonsoft.Json;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace DivinityModManager.ModUpdater.Cache
+namespace DivinityModManager.ModUpdater.Cache;
+
+public class NexusModsCacheHandler : ReactiveObject, IExternalModCacheHandler<NexusModsCachedData>
 {
-	public class NexusModsCacheHandler : ReactiveObject, IExternalModCacheHandler<NexusModsCachedData>
+	public ModSourceType SourceType => ModSourceType.NEXUSMODS;
+	public string FileName => "nexusmodsdata.json";
+	public JsonSerializerSettings SerializerSettings { get; }
+	[Reactive] public bool IsEnabled { get; set; }
+	public NexusModsCachedData CacheData { get; set; }
+
+	public string APIKey { get; set; }
+	public string AppName { get; set; }
+	public string AppVersion { get; set; }
+
+	public NexusModsCacheHandler(JsonSerializerSettings serializerSettings)
 	{
-		public ModSourceType SourceType => ModSourceType.NEXUSMODS;
-		public string FileName => "nexusmodsdata.json";
-		public JsonSerializerSettings SerializerSettings { get; }
-		[Reactive] public bool IsEnabled { get; set; }
-		public NexusModsCachedData CacheData { get; set; }
+		SerializerSettings = serializerSettings;
+		CacheData = new NexusModsCachedData();
+		IsEnabled = false;
+	}
 
-		public string APIKey { get; set; }
-		public string AppName { get; set; }
-		public string AppVersion { get; set; }
-
-		public NexusModsCacheHandler(JsonSerializerSettings serializerSettings)
+	public void OnCacheUpdated(NexusModsCachedData cachedData)
+	{
+		foreach (var entry in cachedData.Mods)
 		{
-			SerializerSettings = serializerSettings;
-			CacheData = new NexusModsCachedData();
-			IsEnabled = false;
-		}
-
-		public void OnCacheUpdated(NexusModsCachedData cachedData)
-		{
-			foreach (var entry in cachedData.Mods)
+			if (CacheData.Mods.TryGetValue(entry.Key, out var existing))
 			{
-				if (CacheData.Mods.TryGetValue(entry.Key, out var existing))
-				{
-					if (existing.UpdatedTimestamp < entry.Value.UpdatedTimestamp || !existing.IsUpdated)
-					{
-						CacheData.Mods[entry.Key] = entry.Value;
-					}
-				}
-				else
+				if (existing.UpdatedTimestamp < entry.Value.UpdatedTimestamp || !existing.IsUpdated)
 				{
 					CacheData.Mods[entry.Key] = entry.Value;
 				}
 			}
-		}
-
-		public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken token)
-		{
-			var nexusModsService = Services.Get<INexusModsService>();
-			if (nexusModsService.CanFetchData)
+			else
 			{
-				DivinityApp.Log("Checking for Nexus Mods updates.");
-				var result = await nexusModsService.FetchModInfoAsync(mods, token);
+				CacheData.Mods[entry.Key] = entry.Value;
+			}
+		}
+	}
 
-				if (result.Success)
+	public async Task<bool> Update(IEnumerable<DivinityModData> mods, CancellationToken token)
+	{
+		var nexusModsService = Services.Get<INexusModsService>();
+		if (nexusModsService.CanFetchData)
+		{
+			DivinityApp.Log("Checking for Nexus Mods updates.");
+			var result = await nexusModsService.FetchModInfoAsync(mods, token);
+
+			if (result.Success)
+			{
+				DivinityApp.Log($"Fetched NexusMods mod info for {result.UpdatedMods.Count} mod(s).");
+
+				foreach (var mod in mods.Where(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START).Select(x => x.NexusModsData))
 				{
-					DivinityApp.Log($"Fetched NexusMods mod info for {result.UpdatedMods.Count} mod(s).");
-
-					foreach (var mod in mods.Where(x => x.NexusModsData.ModId >= DivinityApp.NEXUSMODS_MOD_ID_START).Select(x => x.NexusModsData))
-					{
-						CacheData.Mods[mod.UUID] = mod;
-					}
-
-					return true;
+					CacheData.Mods[mod.UUID] = mod;
 				}
-				else
-				{
-					DivinityApp.Log($"Failed to update NexusMods info:\n{result.FailureMessage}");
-				}
+
+				return true;
 			}
 			else
 			{
-				DivinityApp.Log("NexusModsAPIKey not set, or daily/hourly limit reached. Skipping.");
+				DivinityApp.Log($"Failed to update NexusMods info:\n{result.FailureMessage}");
 			}
-			return false;
 		}
+		else
+		{
+			DivinityApp.Log("NexusModsAPIKey not set, or daily/hourly limit reached. Skipping.");
+		}
+		return false;
 	}
 }

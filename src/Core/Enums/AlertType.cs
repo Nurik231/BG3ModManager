@@ -1,10 +1,9 @@
-﻿namespace DivinityModManager
+﻿namespace DivinityModManager;
+
+public enum AlertType
 {
-	public enum AlertType
-	{
-		Info,
-		Success,
-		Warning,
-		Danger
-	}
+	Info,
+	Success,
+	Warning,
+	Danger
 }

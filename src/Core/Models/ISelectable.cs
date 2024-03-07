@@ -1,11 +1,10 @@
 ﻿using System.Windows;
 
-namespace DivinityModManager.Models
+namespace DivinityModManager.Models;
+
+public interface ISelectable
 {
-	public interface ISelectable
-	{
-		bool IsSelected { get; set; }
-		Visibility Visibility { get; set; }
-		bool CanDrag { get; }
-	}
+	bool IsSelected { get; set; }
+	Visibility Visibility { get; set; }
+	bool CanDrag { get; }
 }

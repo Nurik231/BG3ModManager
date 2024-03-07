@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel;
 
-namespace DivinityModManager
+namespace DivinityModManager;
+
+public enum DivinityGameLaunchWindowAction
 {
-	public enum DivinityGameLaunchWindowAction
-	{
-		[Description("None")]
-		None,
-		[Description("Minimize")]
-		Minimize,
-		[Description("Close")]
-		Close
-	}
+	[Description("None")]
+	None,
+	[Description("Minimize")]
+	Minimize,
+	[Description("Close")]
+	Close
 }

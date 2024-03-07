@@ -2,42 +2,41 @@
 
 using System.Text.RegularExpressions;
 
-namespace DivinityModManager.Models.NexusMods
+namespace DivinityModManager.Models.NexusMods;
+
+public struct NexusModFileVersionData
 {
-	public struct NexusModFileVersionData
+	public long ModId { get; set; }
+	public long FileId { get; set; }
+	public bool Success { get; set; }
+
+	static readonly Regex _filePattern = new(@"^.*?-(\d+)-(.*?)(\d+)");
+
+	public static NexusModFileVersionData FromFilePath(string path)
 	{
-		public long ModId { get; set; }
-		public long FileId { get; set; }
-		public bool Success { get; set; }
+		var name = Path.GetFileNameWithoutExtension(path);
+		var match = _filePattern.Match(name);
 
-		static readonly Regex _filePattern = new(@"^.*?-(\d+)-(.*?)(\d+)");
+		long modId = -1;
+		long fileId = -1;
 
-		public static NexusModFileVersionData FromFilePath(string path)
+		if (match.Success)
 		{
-			var name = Path.GetFileNameWithoutExtension(path);
-			var match = _filePattern.Match(name);
-
-			long modId = -1;
-			long fileId = -1;
-
-			if (match.Success)
+			if (long.TryParse(match.Groups[1]?.Value, out var mid))
 			{
-				if (long.TryParse(match.Groups[1]?.Value, out var mid))
-				{
-					modId = mid;
-				}
-				if (long.TryParse(match.Groups[3]?.Value, out var fid))
-				{
-					fileId = fid;
-				}
+				modId = mid;
 			}
-
-			return new NexusModFileVersionData()
+			if (long.TryParse(match.Groups[3]?.Value, out var fid))
 			{
-				ModId = modId,
-				FileId = fileId,
-				Success = match.Success
-			};
+				fileId = fid;
+			}
 		}
+
+		return new NexusModFileVersionData()
+		{
+			ModId = modId,
+			FileId = fileId,
+			Success = match.Success
+		};
 	}
 }

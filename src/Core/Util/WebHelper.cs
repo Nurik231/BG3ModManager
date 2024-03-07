@@ -2,89 +2,89 @@
 using System.Net;
 using System.Net.Http;
 
-namespace DivinityModManager.Util
+namespace DivinityModManager.Util;
+
+public struct WebRequestHeaderValue
 {
-	public struct WebRequestHeaderValue
+	public HttpRequestHeader HttpRequestHeader { get; set; }
+	public string Value { get; set; }
+}
+public static class WebHelper
+{
+	public static readonly HttpClient Client = new();
+
+	public static void SetupClient()
 	{
-		public HttpRequestHeader HttpRequestHeader { get; set; }
-		public string Value { get; set; }
+		// Required for GitHub permissions
+		Client.DefaultRequestHeaders.Add("User-Agent", "BG3ModManager");
 	}
-	public static class WebHelper
+
+	public static async Task<Stream> DownloadFileAsStreamAsync(string downloadUrl, CancellationToken token)
 	{
-		public static readonly HttpClient Client = new();
-
-		public static void SetupClient()
+		try
 		{
-			// Required for GitHub permissions
-			Client.DefaultRequestHeaders.Add("User-Agent", "BG3ModManager");
-		}
+			using (var webClient = new WebClient())
+			{
+				int receivedBytes = 0;
 
-		public static async Task<Stream> DownloadFileAsStreamAsync(string downloadUrl, CancellationToken token)
+				Stream stream = await webClient.OpenReadTaskAsync(downloadUrl);
+				MemoryStream ms = new();
+				var buffer = new byte[128000];
+				int read = 0;
+				var totalBytes = int.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
+
+				while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+				{
+					ms.Write(buffer, 0, read);
+					receivedBytes += read;
+				}
+				stream.Close();
+				return ms;
+			}
+		}
+		catch (Exception ex)
+		{
+			DivinityApp.Log($"Error downloading url ({downloadUrl}):\n{ex}");
+		}
+		return null;
+	}
+
+	public static string DownloadUrlAsString(string downloadUrl)
+	{
+		using (System.Net.WebClient webClient = new())
 		{
 			try
 			{
-				using (var webClient = new WebClient())
-				{
-					int receivedBytes = 0;
-
-					Stream stream = await webClient.OpenReadTaskAsync(downloadUrl);
-					MemoryStream ms = new();
-					var buffer = new byte[128000];
-					int read = 0;
-					var totalBytes = int.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
-
-					while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
-					{
-						ms.Write(buffer, 0, read);
-						receivedBytes += read;
-					}
-					stream.Close();
-					return ms;
-				}
+				return webClient.DownloadString(downloadUrl);
 			}
 			catch (Exception ex)
 			{
-				DivinityApp.Log($"Error downloading url ({downloadUrl}):\n{ex}");
+				DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
 			}
-			return null;
+			return "";
 		}
+	}
 
-		public static string DownloadUrlAsString(string downloadUrl)
+	public static async Task<string> DownloadUrlAsStringAsync(string downloadUrl)
+	{
+		using (System.Net.WebClient webClient = new())
 		{
-			using (System.Net.WebClient webClient = new())
+			try
 			{
-				try
-				{
-					return webClient.DownloadString(downloadUrl);
-				}
-				catch (Exception ex)
-				{
-					DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
-				}
-				return "";
+				return await webClient.DownloadStringTaskAsync(downloadUrl);
 			}
-		}
-
-		public static async Task<string> DownloadUrlAsStringAsync(string downloadUrl)
-		{
-			using (System.Net.WebClient webClient = new())
+			catch (Exception ex)
 			{
-				try
-				{
-					return await webClient.DownloadStringTaskAsync(downloadUrl);
-				}
-				catch (Exception ex)
-				{
-					DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
-				}
-				return "";
+				DivinityApp.Log($"Error downloading '{downloadUrl}' as string:\n{ex}");
 			}
+			return "";
 		}
+	}
 
-		#region OLD
+	#region OLD
 
-		// Get/Post sources from here: https://stackoverflow.com/a/27108442
-		/*
+	// Get/Post sources from here: https://stackoverflow.com/a/27108442
+	/*
         public static string Get(string uri, params WebRequestHeaderValue[] webRequestHeaders)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
@@ -212,6 +212,5 @@ namespace DivinityModManager.Util
             return "";
         }
         */
-		#endregion
-	}
+	#endregion
 }

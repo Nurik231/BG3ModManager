@@ -1,11 +1,10 @@
-﻿namespace DivinityModManager.Models.NexusMods.NXM
-{
-	public interface INexusModsProtocol
-	{
-		string GameDomain { get; set; }
+﻿namespace DivinityModManager.Models.NexusMods.NXM;
 
-		bool IsValid { get; }
-		string AsUrl { get; }
-		NexusModsProtocolType ProtocolType { get; }
-	}
+public interface INexusModsProtocol
+{
+	string GameDomain { get; set; }
+
+	bool IsValid { get; }
+	string AsUrl { get; }
+	NexusModsProtocolType ProtocolType { get; }
 }

@@ -6,124 +6,123 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace DivinityModManager.Models.Cache
+namespace DivinityModManager.Models.Cache;
+
+[DataContract]
+public class SteamWorkshopCachedData : BaseModCacheData<DivinityModWorkshopCachedData>
 {
-	[DataContract]
-	public class SteamWorkshopCachedData : BaseModCacheData<DivinityModWorkshopCachedData>
+	[DataMember] public List<string> NonWorkshopMods { get; set; }
+
+	public void AddOrUpdate(string uuid, IWorkshopPublishFileDetails d, List<string> tags)
 	{
-		[DataMember] public List<string> NonWorkshopMods { get; set; }
-
-		public void AddOrUpdate(string uuid, IWorkshopPublishFileDetails d, List<string> tags)
+		// Mods may have the same UUID, so use the WorkshopID instead.
+		var cachedData = Mods.Values.FirstOrDefault(x => x.ModId == d.PublishedFileId);
+		if (cachedData != null)
 		{
-			// Mods may have the same UUID, so use the WorkshopID instead.
-			var cachedData = Mods.Values.FirstOrDefault(x => x.ModId == d.PublishedFileId);
-			if (cachedData != null)
-			{
-				cachedData.LastUpdated = d.TimeUpdated;
-				cachedData.Created = d.TimeCreated;
-				cachedData.Tags = tags;
-			}
-			else
-			{
-				Mods.Add(uuid, new DivinityModWorkshopCachedData()
-				{
-					Created = d.TimeCreated,
-					LastUpdated = d.TimeUpdated,
-					UUID = uuid,
-					ModId = d.PublishedFileId,
-					Tags = tags
-				});
-			}
-			NonWorkshopMods.Remove(uuid);
-			CacheUpdated = true;
+			cachedData.LastUpdated = d.TimeUpdated;
+			cachedData.Created = d.TimeCreated;
+			cachedData.Tags = tags;
 		}
-
-		public void AddNonWorkshopMod(string uuid)
+		else
 		{
-			if (!NonWorkshopMods.Any(x => x == uuid))
+			Mods.Add(uuid, new DivinityModWorkshopCachedData()
 			{
-				NonWorkshopMods.Add(uuid);
-			}
-			CacheUpdated = true;
+				Created = d.TimeCreated,
+				LastUpdated = d.TimeUpdated,
+				UUID = uuid,
+				ModId = d.PublishedFileId,
+				Tags = tags
+			});
 		}
+		NonWorkshopMods.Remove(uuid);
+		CacheUpdated = true;
+	}
 
-		public string Serialize()
+	public void AddNonWorkshopMod(string uuid)
+	{
+		if (!NonWorkshopMods.Any(x => x == uuid))
 		{
-			StringBuilder sb = new();
-			StringWriter sw = new(sb);
+			NonWorkshopMods.Add(uuid);
+		}
+		CacheUpdated = true;
+	}
 
-			using (JsonWriter writer = new JsonTextWriter(sw))
+	public string Serialize()
+	{
+		StringBuilder sb = new();
+		StringWriter sw = new(sb);
+
+		using (JsonWriter writer = new JsonTextWriter(sw))
+		{
+			try
 			{
-				try
+				writer.WriteStartObject();
+
+				writer.WritePropertyName("LastUpdated");
+				writer.WriteValue(LastUpdated);
+
+				writer.WritePropertyName("LastVersion");
+				writer.WriteValue(LastVersion);
+
+				writer.WritePropertyName("Mods");
+				writer.WriteStartArray();
+
+				foreach (var data in Mods.Values)
 				{
 					writer.WriteStartObject();
 
+					writer.WritePropertyName("UUID");
+					writer.WriteValue(data.UUID);
+
+					writer.WritePropertyName("ModId");
+					writer.WriteValue(data.ModId);
+
+					//writer.WritePropertyName("Created");
+					//writer.WriteValue(data.Created);
+
 					writer.WritePropertyName("LastUpdated");
-					writer.WriteValue(LastUpdated);
+					writer.WriteValue(data.LastUpdated);
 
-					writer.WritePropertyName("LastVersion");
-					writer.WriteValue(LastVersion);
-
-					writer.WritePropertyName("Mods");
+					writer.WritePropertyName("Tags");
 					writer.WriteStartArray();
 
-					foreach (var data in Mods.Values)
+					if (data.Tags != null && data.Tags.Count > 0)
 					{
-						writer.WriteStartObject();
-
-						writer.WritePropertyName("UUID");
-						writer.WriteValue(data.UUID);
-
-						writer.WritePropertyName("ModId");
-						writer.WriteValue(data.ModId);
-
-						//writer.WritePropertyName("Created");
-						//writer.WriteValue(data.Created);
-
-						writer.WritePropertyName("LastUpdated");
-						writer.WriteValue(data.LastUpdated);
-
-						writer.WritePropertyName("Tags");
-						writer.WriteStartArray();
-
-						if (data.Tags != null && data.Tags.Count > 0)
+						foreach (var tag in data.Tags)
 						{
-							foreach (var tag in data.Tags)
-							{
-								writer.WriteValue(tag);
-							}
+							writer.WriteValue(tag);
 						}
-
-						writer.WriteEndArray();
-
-						writer.WriteEndObject();
 					}
 
-					writer.WriteEndArray();
-
-					writer.WritePropertyName("NonWorkshopMods");
-					writer.WriteStartArray();
-					foreach (var uuid in NonWorkshopMods)
-					{
-						writer.WriteValue(uuid);
-					}
 					writer.WriteEndArray();
 
 					writer.WriteEndObject();
 				}
-				catch (Exception ex)
+
+				writer.WriteEndArray();
+
+				writer.WritePropertyName("NonWorkshopMods");
+				writer.WriteStartArray();
+				foreach (var uuid in NonWorkshopMods)
 				{
-					DivinityApp.Log("Error serializing cache:");
-					DivinityApp.Log(ex.ToString());
+					writer.WriteValue(uuid);
 				}
+				writer.WriteEndArray();
+
+				writer.WriteEndObject();
 			}
-
-			return sb.ToString();
+			catch (Exception ex)
+			{
+				DivinityApp.Log("Error serializing cache:");
+				DivinityApp.Log(ex.ToString());
+			}
 		}
 
-		public SteamWorkshopCachedData() : base()
-		{
-			NonWorkshopMods = new List<string>();
-		}
+		return sb.ToString();
+	}
+
+	public SteamWorkshopCachedData() : base()
+	{
+		NonWorkshopMods = new List<string>();
 	}
 }

@@ -1,13 +1,12 @@
-﻿namespace DivinityModManager
+﻿namespace DivinityModManager;
+
+public enum DivinityExtenderModStatus
 {
-	public enum DivinityExtenderModStatus
-	{
-		NONE,
-		SUPPORTS,
-		REQUIRED,
-		REQUIRED_OLD,
-		REQUIRED_DISABLED,
-		REQUIRED_MISSING,
-		REQUIRED_MISSING_UPDATER
-	}
+	NONE,
+	SUPPORTS,
+	REQUIRED,
+	REQUIRED_OLD,
+	REQUIRED_DISABLED,
+	REQUIRED_MISSING,
+	REQUIRED_MISSING_UPDATER
 }

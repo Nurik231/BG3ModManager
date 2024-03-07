@@ -1,8 +1,8 @@
-﻿namespace DivinityModManager.AppServices.Data
+﻿namespace DivinityModManager.AppServices.Data;
+
+public static class NexusModsQuery
 {
-	public static class NexusModsQuery
-	{
-		public static readonly string CollectionRevision = @"
+	public static readonly string CollectionRevision = @"
 query collectionRevision($slug: String, $adult: Boolean, $domain: String, $revision: Int) {
     collectionRevision(slug: $slug, viewAdultContent: $adult, domainName: $domain, revision: $revision) {
 		externalResources {
@@ -107,5 +107,4 @@ query collectionRevision($slug: String, $adult: Boolean, $domain: String, $revis
     }
 }
 ";
-	}
 }

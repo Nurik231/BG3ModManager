@@ -1,16 +1,15 @@
 ﻿using System.ComponentModel;
 
-namespace DivinityModManager
+namespace DivinityModManager;
+
+public enum ModSourceType
 {
-	public enum ModSourceType
-	{
-		[Description("None")]
-		NONE,
-		[Description("GitHub")]
-		GITHUB,
-		[Description("Nexus Mods")]
-		NEXUSMODS,
-		[Description("Steam Workshop")]
-		STEAM
-	}
+	[Description("None")]
+	NONE,
+	[Description("GitHub")]
+	GITHUB,
+	[Description("Nexus Mods")]
+	NEXUSMODS,
+	[Description("Steam Workshop")]
+	STEAM
 }

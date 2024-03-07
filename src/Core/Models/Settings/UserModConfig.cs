@@ -12,37 +12,36 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Windows.Input;
 
-namespace DivinityModManager.Models.Settings
+namespace DivinityModManager.Models.Settings;
+
+[DataContract]
+public class UserModConfig : BaseSettings<UserModConfig>, ISerializableSettings
 {
-	[DataContract]
-	public class UserModConfig : BaseSettings<UserModConfig>, ISerializableSettings
+	[Newtonsoft.Json.JsonConverter(typeof(DictionaryToSourceCacheConverter<ModConfig>)), DataMember]
+	public SourceCache<ModConfig, string> Mods { get; set; }
+
+	[DataMember] public Dictionary<string, long> LastUpdated { get; set; }
+
+	private ICommand AutosaveCommand { get; }
+
+	public void TrySave()
 	{
-		[Newtonsoft.Json.JsonConverter(typeof(DictionaryToSourceCacheConverter<ModConfig>)), DataMember]
-		public SourceCache<ModConfig, string> Mods { get; set; }
+		this.Save(out _);
+	}
 
-		[DataMember] public Dictionary<string, long> LastUpdated { get; set; }
+	public UserModConfig() : base("usermodconfig.json")
+	{
+		Mods = new SourceCache<ModConfig, string>(x => x.Id);
+		LastUpdated = new Dictionary<string, long>();
 
-		private ICommand AutosaveCommand { get; }
+		var props = typeof(ModConfig)
+		.GetRuntimeProperties()
+		.Where(prop => Attribute.IsDefined(prop, typeof(ReactiveAttribute)))
+		.Select(prop => prop.Name)
+		.ToArray();
 
-		public void TrySave()
-		{
-			this.Save(out _);
-		}
+		AutosaveCommand = ReactiveCommand.Create(TrySave);
 
-		public UserModConfig() : base("usermodconfig.json")
-		{
-			Mods = new SourceCache<ModConfig, string>(x => x.Id);
-			LastUpdated = new Dictionary<string, long>();
-
-			var props = typeof(ModConfig)
-			.GetRuntimeProperties()
-			.Where(prop => Attribute.IsDefined(prop, typeof(ReactiveAttribute)))
-			.Select(prop => prop.Name)
-			.ToArray();
-
-			AutosaveCommand = ReactiveCommand.Create(TrySave);
-
-			Mods.Connect().WhenAnyPropertyChanged(props).Throttle(TimeSpan.FromMilliseconds(25)).Select(x => Unit.Default).InvokeCommand(AutosaveCommand);
-		}
+		Mods.Connect().WhenAnyPropertyChanged(props).Throttle(TimeSpan.FromMilliseconds(25)).Select(x => Unit.Default).InvokeCommand(AutosaveCommand);
 	}
 }

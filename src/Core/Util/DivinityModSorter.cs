@@ -1,12 +1,11 @@
 ﻿using DivinityModManager.Models;
 
-namespace DivinityModManager.Util
+namespace DivinityModManager.Util;
+
+public static class DivinityModSorter
 {
-	public static class DivinityModSorter
+	public static IEnumerable<DivinityModData> SortAlphabetical(IEnumerable<DivinityModData> mods)
 	{
-		public static IEnumerable<DivinityModData> SortAlphabetical(IEnumerable<DivinityModData> mods)
-		{
-			return mods.OrderBy(x => x.DisplayName, StringComparer.OrdinalIgnoreCase);
-		}
+		return mods.OrderBy(x => x.DisplayName, StringComparer.OrdinalIgnoreCase);
 	}
 }

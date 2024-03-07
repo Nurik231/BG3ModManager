@@ -1,11 +1,10 @@
-﻿namespace DivinityModManager.Models.Steam
-{
-	public interface IWorkshopPublishFileDetails
-	{
-		long PublishedFileId { get; set; }
-		long TimeCreated { get; set; }
-		long TimeUpdated { get; set; }
+﻿namespace DivinityModManager.Models.Steam;
 
-		List<WorkshopTag> Tags { get; set; }
-	}
+public interface IWorkshopPublishFileDetails
+{
+	long PublishedFileId { get; set; }
+	long TimeCreated { get; set; }
+	long TimeUpdated { get; set; }
+
+	List<WorkshopTag> Tags { get; set; }
 }

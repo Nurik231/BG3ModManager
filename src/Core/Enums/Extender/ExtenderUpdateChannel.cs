@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel;
 
-namespace DivinityModManager.Enums.Extender
+namespace DivinityModManager.Enums.Extender;
+
+public enum ExtenderUpdateChannel
 {
-	public enum ExtenderUpdateChannel
-	{
-		[Description("Release")]
-		Release,
-		[Description("Devel")]
-		Devel
-	}
+	[Description("Release")]
+	Release,
+	[Description("Devel")]
+	Devel
 }

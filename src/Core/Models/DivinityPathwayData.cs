@@ -6,67 +6,66 @@ using ReactiveUI.Fody.Helpers;
 
 using System.IO;
 
-namespace DivinityModManager.Models
+namespace DivinityModManager.Models;
+
+public class DivinityPathwayData : ReactiveObject
 {
-	public class DivinityPathwayData : ReactiveObject
+	/// <summary>
+	/// The path to the root game folder, i.e. SteamLibrary\steamapps\common\Baldur's Gate 3
+	/// </summary>
+	[Reactive] public string InstallPath { get; set; }
+
+	/// <summary>
+	/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3
+	/// </summary>
+	[Reactive] public string AppDataGameFolder { get; set; }
+
+	/// <summary>
+	/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods
+	/// </summary>
+	[Reactive] public string AppDataModsPath { get; set; }
+
+	/// <summary>
+	/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\PlayerProfiles
+	/// </summary>
+	[Reactive] public string AppDataProfilesPath { get; set; }
+
+	/// <summary>
+	/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\DMCampaigns
+	/// </summary>
+	[Reactive] public string AppDataCampaignsPath { get; set; }
+
+	[Reactive] public string LastSaveFilePath { get; set; }
+
+	[Reactive] public string ScriptExtenderLatestReleaseUrl { get; set; }
+	[Reactive] public string ScriptExtenderLatestReleaseVersion { get; set; }
+
+	public DivinityPathwayData()
 	{
-		/// <summary>
-		/// The path to the root game folder, i.e. SteamLibrary\steamapps\common\Baldur's Gate 3
-		/// </summary>
-		[Reactive] public string InstallPath { get; set; }
+		InstallPath = "";
+		AppDataGameFolder = "";
+		AppDataModsPath = "";
+		AppDataCampaignsPath = "";
+		LastSaveFilePath = "";
+		ScriptExtenderLatestReleaseUrl = "";
+		ScriptExtenderLatestReleaseVersion = "";
+	}
 
-		/// <summary>
-		/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3
-		/// </summary>
-		[Reactive] public string AppDataGameFolder { get; set; }
-
-		/// <summary>
-		/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods
-		/// </summary>
-		[Reactive] public string AppDataModsPath { get; set; }
-
-		/// <summary>
-		/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\PlayerProfiles
-		/// </summary>
-		[Reactive] public string AppDataProfilesPath { get; set; }
-
-		/// <summary>
-		/// The path to %LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\DMCampaigns
-		/// </summary>
-		[Reactive] public string AppDataCampaignsPath { get; set; }
-
-		[Reactive] public string LastSaveFilePath { get; set; }
-
-		[Reactive] public string ScriptExtenderLatestReleaseUrl { get; set; }
-		[Reactive] public string ScriptExtenderLatestReleaseVersion { get; set; }
-
-		public DivinityPathwayData()
+	public string ScriptExtenderSettingsFile(ModManagerSettings settings)
+	{
+		if (settings.GameExecutablePath.IsExistingFile())
 		{
-			InstallPath = "";
-			AppDataGameFolder = "";
-			AppDataModsPath = "";
-			AppDataCampaignsPath = "";
-			LastSaveFilePath = "";
-			ScriptExtenderLatestReleaseUrl = "";
-			ScriptExtenderLatestReleaseVersion = "";
+			return Path.Combine(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_CONFIG_FILE);
 		}
+		return "";
+	}
 
-		public string ScriptExtenderSettingsFile(ModManagerSettings settings)
+	public string ScriptExtenderUpdaterConfigFile(ModManagerSettings settings)
+	{
+		if (settings.GameExecutablePath.IsExistingFile())
 		{
-			if (settings.GameExecutablePath.IsExistingFile())
-			{
-				return Path.Combine(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_CONFIG_FILE);
-			}
-			return "";
+			return Path.Combine(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE);
 		}
-
-		public string ScriptExtenderUpdaterConfigFile(ModManagerSettings settings)
-		{
-			if (settings.GameExecutablePath.IsExistingFile())
-			{
-				return Path.Combine(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE);
-			}
-			return "";
-		}
+		return "";
 	}
 }

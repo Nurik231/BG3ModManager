@@ -1,17 +1,16 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-namespace DivinityModManager.Models.View
-{
-	public class EnumEntry : ReactiveObject
-	{
-		[Reactive] public string Description { get; set; }
-		[Reactive] public object Value { get; set; }
+namespace DivinityModManager.Models.View;
 
-		public EnumEntry(string description, object value)
-		{
-			Description = description;
-			Value = value;
-		}
+public class EnumEntry : ReactiveObject
+{
+	[Reactive] public string Description { get; set; }
+	[Reactive] public object Value { get; set; }
+
+	public EnumEntry(string description, object value)
+	{
+		Description = description;
+		Value = value;
 	}
 }

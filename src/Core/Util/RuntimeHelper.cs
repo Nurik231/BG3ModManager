@@ -1,41 +1,40 @@
 ﻿using System.IO;
 
-namespace DivinityModManager.Util
+namespace DivinityModManager.Util;
+
+public static class RuntimeHelper
 {
-	public static class RuntimeHelper
+	private static readonly string NET_CORE_DIR = @"C:\Program Files\dotnet\shared\Microsoft.NETCore.App";
+
+	private static Version PathToVersion(string path)
 	{
-		private static readonly string NET_CORE_DIR = @"C:\Program Files\dotnet\shared\Microsoft.NETCore.App";
-
-		private static Version PathToVersion(string path)
+		if (Version.TryParse(Path.GetFileName(path), out var version))
 		{
-			if (Version.TryParse(Path.GetFileName(path), out var version))
-			{
-				return version;
-			}
-			return null;
+			return version;
 		}
+		return null;
+	}
 
-		public static bool NetCoreRuntimeGreaterThanOrEqualTo(int majorVersion)
+	public static bool NetCoreRuntimeGreaterThanOrEqualTo(int majorVersion)
+	{
+		if (Directory.Exists(NET_CORE_DIR))
 		{
-			if (Directory.Exists(NET_CORE_DIR))
+			try
 			{
-				try
+				var versions = Directory.EnumerateDirectories(NET_CORE_DIR).Select(PathToVersion);
+				foreach (var version in versions)
 				{
-					var versions = Directory.EnumerateDirectories(NET_CORE_DIR).Select(PathToVersion);
-					foreach (var version in versions)
+					if (version != null && version.Major >= majorVersion)
 					{
-						if (version != null && version.Major >= majorVersion)
-						{
-							return true;
-						}
+						return true;
 					}
 				}
-				catch (Exception ex)
-				{
-					DivinityApp.Log($"Error checking directories for .NET:\n{ex}");
-				}
 			}
-			return false;
+			catch (Exception ex)
+			{
+				DivinityApp.Log($"Error checking directories for .NET:\n{ex}");
+			}
 		}
+		return false;
 	}
 }

@@ -1,9 +1,8 @@
-﻿namespace DivinityModManager.Models.NexusMods.NXM
+﻿namespace DivinityModManager.Models.NexusMods.NXM;
+
+public enum NexusModsProtocolType
 {
-	public enum NexusModsProtocolType
-	{
-		None,
-		ModFile,
-		Collection
-	}
+	None,
+	ModFile,
+	Collection
 }
