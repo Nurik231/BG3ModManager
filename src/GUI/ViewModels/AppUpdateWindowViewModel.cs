@@ -36,11 +36,11 @@ public class AppUpdateWindowViewModel : ReactiveObject
 
 		if (!args.ChangelogURL.EndsWith(".md"))
 		{
-			markdownText = WebHelper.DownloadUrlAsString(DivinityApp.URL_CHANGELOG_RAW);
+			markdownText = WebHelper.DownloadUrlAsStringAsync(DivinityApp.URL_CHANGELOG_RAW, CancellationToken.None).Result;
 		}
 		else
 		{
-			markdownText = WebHelper.DownloadUrlAsString(args.ChangelogURL);
+			markdownText = WebHelper.DownloadUrlAsStringAsync(args.ChangelogURL, CancellationToken.None).Result;
 		}
 		if (!String.IsNullOrEmpty(markdownText))
 		{

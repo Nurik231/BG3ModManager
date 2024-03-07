@@ -234,10 +234,12 @@ namespace DivinityModManager.AppServices
 			return taskResult;
 		}
 
-		private async Task<Stream> DownloadUrlAsStreamAsync(Uri downloadUrl, CancellationToken token)
+		private static async Task<Stream> DownloadUrlAsStreamAsync(string apiKey, Uri downloadUrl, CancellationToken token)
 		{
 			using var httpClient = new HttpClient();
-			httpClient.DefaultRequestHeaders.Add("apikey", ApiKey);
+			//TODO refactor into format Nexus expects, i.e. NexusApiClient/0.7.3 (Windows_NT 10.0.17134; x64) Node/8.9.3
+			httpClient.DefaultRequestHeaders.Add("User-Agent", "BG3ModManager");
+			httpClient.DefaultRequestHeaders.Add("apikey", apiKey);
 			try
 			{
 				var fileStream = await httpClient.GetStreamAsync(downloadUrl, token);
@@ -245,6 +247,7 @@ namespace DivinityModManager.AppServices
 			}
 			catch (Exception ex)
 			{
+				DivinityApp.Log($"Error downloading url ({downloadUrl}):\n{ex}");
 				return Stream.Null;
 			}
 		}
@@ -296,7 +299,7 @@ namespace DivinityModManager.AppServices
 									DivinityApp.Log($"Downloading {file.Uri} to {filePath}");
 									DownloadProgressText = $"Downloading {fileName}...";
 									DownloadProgressValue = 0;
-									using var stream = await DownloadUrlAsStreamAsync(file.Uri, token);
+									using var stream = await DownloadUrlAsStreamAsync(ApiKey, file.Uri, token);
 									using var outputStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 128000, true);
 									await stream.CopyToAsync(outputStream, 128000, token);
 									DownloadResults.Add(filePath);

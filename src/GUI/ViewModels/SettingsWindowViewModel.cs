@@ -138,7 +138,7 @@ public class SettingsWindowViewModel : ReactiveObject
 	{
 		var url = String.Format(DivinityApp.EXTENDER_MANIFESTS_URL, channel.GetDescription());
 		DivinityApp.Log($"Checking for script extender manifest info at '{url}'");
-		var text = await WebHelper.DownloadUrlAsStringAsync(url);
+		var text = await WebHelper.DownloadUrlAsStringAsync(url, CancellationToken.None);
 		//#if DEBUG
 		//			DivinityApp.Log($"Manifest info:\n{text}");
 		//#endif
