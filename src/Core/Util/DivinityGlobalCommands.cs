@@ -1,7 +1,9 @@
-﻿using Alphaleonis.Win32.Filesystem;
+﻿using System.IO;
 
 using DivinityModManager.Models;
 using DivinityModManager.ViewModels;
+
+using LSLib.LS.Stats;
 
 using ReactiveUI;
 
@@ -26,21 +28,22 @@ namespace DivinityModManager.Util
 			this.RaisePropertyChanged(nameof(ViewModel));
 		}
 
-		public ReactiveCommand<string, Unit> OpenFileCommand { get; private set; }
-		public ReactiveCommand<string, Unit> OpenInFileExplorerCommand { get; private set; }
-		public ReactiveCommand<Unit, Unit> ClearMissingModsCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> ToggleNameDisplayCommand { get; private set; }
-		public ReactiveCommand<string, Unit> CopyToClipboardCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> DeleteModCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> DeleteSelectedModsCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> OpenGitHubPageCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> OpenNexusModsPageCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageInSteamCommand { get; private set; }
-		public ReactiveCommand<object, Unit> OpenURLCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> ToggleForceAllowInLoadOrderCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> CopyModAsDependencyCommand { get; private set; }
-		public ReactiveCommand<DivinityModData, Unit> OpenModPropertiesCommand { get; private set; }
+		public ReactiveCommand<string, Unit> OpenFileCommand { get; }
+		public ReactiveCommand<string, Unit> OpenInFileExplorerCommand { get; }
+		public ReactiveCommand<Unit, Unit> ClearMissingModsCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> ToggleNameDisplayCommand { get; }
+		public ReactiveCommand<string, Unit> CopyToClipboardCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> DeleteModCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> DeleteSelectedModsCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> OpenGitHubPageCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> OpenNexusModsPageCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> OpenSteamWorkshopPageInSteamCommand { get; }
+		public ReactiveCommand<object, Unit> OpenURLCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> ToggleForceAllowInLoadOrderCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> CopyModAsDependencyCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> OpenModPropertiesCommand { get; }
+		public ReactiveCommand<DivinityModData, Unit> ValidateStatsCommand { get; }
 
 		public void OpenFile(string path)
 		{
@@ -185,6 +188,13 @@ namespace DivinityModManager.Util
 			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
 		}
 
+		public void ValidateModStats(DivinityModData mod)
+		{
+			
+
+			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
+		}
+
 		public DivinityGlobalCommands()
 		{
 			var canExecuteViewModelCommands = this.WhenAnyValue(x => x.ViewModel, x => x.ViewModel.IsLocked, (vm, b) => vm != null && !b);
@@ -226,6 +236,7 @@ namespace DivinityModManager.Util
 			ToggleForceAllowInLoadOrderCommand = ReactiveCommand.Create<DivinityModData>(ToggleForceAllowInLoadOrder, canExecuteViewModelCommands);
 			CopyModAsDependencyCommand = ReactiveCommand.Create<DivinityModData>(CopyModAsDependency, canExecuteViewModelCommands);
 			OpenModPropertiesCommand = ReactiveCommand.Create<DivinityModData>(OpenModProperties, canExecuteViewModelCommands);
+			ValidateStatsCommand = ReactiveCommand.Create<DivinityModData>(ValidateModStats, canExecuteViewModelCommands);
 		}
 	}
 }

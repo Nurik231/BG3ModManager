@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<LangVersion>9.0</LangVersion>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>Latest</LangVersion>
 		<UseWPF>true</UseWPF>
 		<StartupObject>DivinityModManager.Program</StartupObject>
 		<ApplicationIcon>BG3ModManager.ico</ApplicationIcon>

@@ -1,4 +1,4 @@
-﻿using Alphaleonis.Win32.Filesystem;
+﻿using System.IO;
 
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
