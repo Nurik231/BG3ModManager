@@ -2,8 +2,6 @@
 using DivinityModManager.Models.GitHub;
 using DivinityModManager.Models.NexusMods;
 
-using System.Collections.Generic;
-
 namespace DivinityModManager.ModUpdater
 {
 	public class ModUpdaterResults

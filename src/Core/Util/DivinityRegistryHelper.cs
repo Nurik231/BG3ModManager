@@ -1,13 +1,9 @@
-﻿using System.IO;
-
-using Gameloop.Vdf;
+﻿using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 
 using Microsoft.Win32;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 
 namespace DivinityModManager.Util
 {
@@ -172,7 +168,7 @@ namespace DivinityModManager.Util
 						DivinityApp.Log($"Game not found. Looking for Steam libraries in file '{libraryFile}'.");
 						if (File.Exists(libraryFile))
 						{
-							List<string> libraryFolders = new List<string>();
+							List<string> libraryFolders = new();
 							try
 							{
 								var libraryData = VdfConvert.Deserialize(File.ReadAllText(libraryFile));

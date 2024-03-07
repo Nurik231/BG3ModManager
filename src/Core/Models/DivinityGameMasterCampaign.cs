@@ -1,11 +1,8 @@
-﻿using System.IO;
-
-using DivinityModManager.Extensions;
+﻿using DivinityModManager.Extensions;
 
 using LSLib.LS;
 
-using System;
-using System.Collections.Generic;
+using System.IO;
 
 namespace DivinityModManager.Models
 {

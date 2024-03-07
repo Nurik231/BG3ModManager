@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 
-using System;
 using System.Runtime.InteropServices;
 
 namespace DivinityModManager.Util
@@ -36,7 +35,7 @@ namespace DivinityModManager.Util
 		// http://www.pinvoke.net/default.aspx/shell32/SHQueryRecycleBin.html
 		public static int NumberOfFilesInRecycleBin()
 		{
-			SHQUERYRBINFO sqrbi = new SHQUERYRBINFO();
+			SHQUERYRBINFO sqrbi = new();
 			sqrbi.cbSize = Marshal.SizeOf(typeof(SHQUERYRBINFO));
 			int hresult = SHQueryRecycleBin(string.Empty, ref sqrbi);
 			return (int)sqrbi.i64NumItems;

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using DivinityModManager.Models;
+﻿using DivinityModManager.Models;
 using DivinityModManager.Models.App;
 using DivinityModManager.Models.NexusMods;
 
@@ -11,13 +9,9 @@ using SharpCompress.Compressors.Xz;
 using SharpCompress.Readers;
 using SharpCompress.Writers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Reactive.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 using ZstdSharp;
 

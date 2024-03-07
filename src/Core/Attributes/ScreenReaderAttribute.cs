@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DivinityModManager
+﻿namespace DivinityModManager
 {
 	public class ScreenReaderHelperAttribute : Attribute
 	{

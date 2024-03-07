@@ -3,8 +3,6 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-
 namespace DivinityModManager.Models.NexusMods
 {
 	public class NexusModsObservableApiLimits : ReactiveObject, INexusApiLimits

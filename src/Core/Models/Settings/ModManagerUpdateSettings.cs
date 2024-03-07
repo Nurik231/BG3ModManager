@@ -4,7 +4,6 @@ using DivinityModManager.Util;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 

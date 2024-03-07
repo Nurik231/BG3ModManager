@@ -4,8 +4,6 @@ using NexusModsNET.DataModels.GraphQL.Types;
 
 using ReactiveUI;
 
-using System.Threading;
-
 namespace DivinityModManager
 {
 	public struct DeleteFilesViewConfirmationData

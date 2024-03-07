@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace DivinityModManager.Models.Steam
+﻿namespace DivinityModManager.Models.Steam
 {
 	public interface IWorkshopPublishFileDetails
 	{

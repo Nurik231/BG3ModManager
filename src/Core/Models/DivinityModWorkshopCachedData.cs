@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace DivinityModManager.Models
+﻿namespace DivinityModManager.Models
 {
 	public class DivinityModWorkshopCachedData
 	{

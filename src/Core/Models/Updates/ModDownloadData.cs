@@ -1,14 +1,10 @@
-﻿using System.IO;
-
-using DivinityModManager.Util;
+﻿using DivinityModManager.Util;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
+using System.IO;
 using System.IO.Compression;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Models.Updates
 {

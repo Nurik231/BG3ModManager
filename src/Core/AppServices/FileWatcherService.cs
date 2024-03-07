@@ -3,9 +3,7 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
 using System.IO;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 

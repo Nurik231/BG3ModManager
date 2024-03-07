@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 
-using System.Collections.Generic;
-
 namespace DivinityModManager.Models.Steam
 {
 	public class QueryFilesResponse

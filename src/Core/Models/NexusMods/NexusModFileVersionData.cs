@@ -10,7 +10,7 @@ namespace DivinityModManager.Models.NexusMods
 		public long FileId { get; set; }
 		public bool Success { get; set; }
 
-		static readonly Regex _filePattern = new Regex(@"^.*?-(\d+)-(.*?)(\d+)");
+		static readonly Regex _filePattern = new(@"^.*?-(\d+)-(.*?)(\d+)");
 
 		public static NexusModFileVersionData FromFilePath(string path)
 		{

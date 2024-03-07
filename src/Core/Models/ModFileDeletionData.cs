@@ -1,10 +1,6 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace DivinityModManager.Models
 {
 	public class ModFileDeletionData : ReactiveObject

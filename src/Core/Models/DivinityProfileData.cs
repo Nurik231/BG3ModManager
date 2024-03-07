@@ -1,10 +1,7 @@
-﻿using System.IO;
-
-using ReactiveUI;
+﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Reactive.Linq;
 
 namespace DivinityModManager.Models

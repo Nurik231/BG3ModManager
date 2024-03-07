@@ -4,9 +4,6 @@ using Newtonsoft.Json.Converters;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -66,8 +63,8 @@ namespace DivinityModManager.Models.App
 
 		[Reactive] public bool CanExecuteCommand { get; private set; }
 
-		private readonly List<IObservable<bool>> _canExecuteConditions = new List<IObservable<bool>>();
-		private CompositeDisposable _disposables = new CompositeDisposable();
+		private readonly List<IObservable<bool>> _canExecuteConditions = new();
+		private CompositeDisposable _disposables = new();
 		private IObservable<bool> _canExecute;
 
 		private readonly List<Action> _actions;

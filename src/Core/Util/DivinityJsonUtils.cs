@@ -1,15 +1,10 @@
-﻿using System.IO;
-
-using LSLib.LS;
+﻿using LSLib.LS;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
-using System;
+using System.IO;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {

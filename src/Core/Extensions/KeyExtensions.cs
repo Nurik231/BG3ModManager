@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
 namespace DivinityModManager
 {
 	public static class KeyExtensions
 	{
-		private static readonly Dictionary<Key, string> KeyToName = new Dictionary<Key, string>
+		private static readonly Dictionary<Key, string> KeyToName = new()
 		{
 			{Key.Add, "+"},
 			{Key.D0, "0"},

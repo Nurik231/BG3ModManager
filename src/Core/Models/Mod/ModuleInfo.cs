@@ -2,7 +2,6 @@
 
 using LSLib.LS;
 
-using System;
 using System.Reflection;
 
 namespace DivinityModManager.Models.Mod
@@ -26,7 +25,7 @@ namespace DivinityModManager.Models.Mod
 		public string UUID;
 		public long Version64;
 
-		private static readonly NodeSerializationSettings nodeSerializationSettings = new NodeSerializationSettings();
+		private static readonly NodeSerializationSettings nodeSerializationSettings = new();
 
 		private static object TryGetAttribute(string property, Node node, Type fieldType)
 		{

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace DivinityModManager.Models.Updates
+﻿namespace DivinityModManager.Models.Updates
 {
 	public class UpdateResult
 	{

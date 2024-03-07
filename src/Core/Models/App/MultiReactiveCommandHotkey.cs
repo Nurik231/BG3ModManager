@@ -4,9 +4,7 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
@@ -27,7 +25,7 @@ namespace DivinityModManager.Models.App
 
 		[Reactive] public IObservable<bool> CanExecute { get; private set; }
 
-		private ObservableCollection<ReactiveCommand<Unit, Unit>> commands = new ObservableCollection<ReactiveCommand<Unit, Unit>>();
+		private readonly ObservableCollection<ReactiveCommand<Unit, Unit>> commands = new();
 
 		public ObservableCollection<ReactiveCommand<Unit, Unit>> Commands
 		{

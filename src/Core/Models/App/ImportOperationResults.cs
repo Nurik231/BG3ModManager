@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DivinityModManager.Models.App
+﻿namespace DivinityModManager.Models.App
 {
 	public struct ImportOperationError
 	{

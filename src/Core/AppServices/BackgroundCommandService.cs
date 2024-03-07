@@ -1,12 +1,9 @@
 ﻿using ReactiveUI;
 
-using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Reactive.Concurrency;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.AppServices
 {

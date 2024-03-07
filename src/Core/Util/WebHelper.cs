@@ -1,9 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {
@@ -14,7 +11,7 @@ namespace DivinityModManager.Util
 	}
 	public static class WebHelper
 	{
-		public static readonly HttpClient Client = new HttpClient();
+		public static readonly HttpClient Client = new();
 
 		public static void SetupClient()
 		{
@@ -31,7 +28,7 @@ namespace DivinityModManager.Util
 					int receivedBytes = 0;
 
 					Stream stream = await webClient.OpenReadTaskAsync(downloadUrl);
-					MemoryStream ms = new MemoryStream();
+					MemoryStream ms = new();
 					var buffer = new byte[128000];
 					int read = 0;
 					var totalBytes = int.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
@@ -54,7 +51,7 @@ namespace DivinityModManager.Util
 
 		public static string DownloadUrlAsString(string downloadUrl)
 		{
-			using (System.Net.WebClient webClient = new System.Net.WebClient())
+			using (System.Net.WebClient webClient = new())
 			{
 				try
 				{
@@ -70,7 +67,7 @@ namespace DivinityModManager.Util
 
 		public static async Task<string> DownloadUrlAsStringAsync(string downloadUrl)
 		{
-			using (System.Net.WebClient webClient = new System.Net.WebClient())
+			using (System.Net.WebClient webClient = new())
 			{
 				try
 				{

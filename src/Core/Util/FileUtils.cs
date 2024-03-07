@@ -1,15 +1,9 @@
-﻿using System.IO;
+﻿using LSLib.LS;
 
-using LSLib.LS;
-
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Reactive.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {
@@ -83,7 +77,7 @@ namespace DivinityModManager.Util
 		}
 
 
-		public static List<string> IgnoredPackageFiles = new List<string>(){
+		public static List<string> IgnoredPackageFiles = new(){
 			"ReConHistory.txt",
 			"dialoglog.txt",
 			"errors.txt",
@@ -405,7 +399,7 @@ namespace DivinityModManager.Util
 
 		private static readonly EnumerationOptions _defaultOpts = new() { AttributesToSkip = FileAttributes.Hidden };
 
-		public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions opts = null, Func<string,bool> inclusionFilter = null)
+		public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions opts = null, Func<string, bool> inclusionFilter = null)
 		{
 			opts ??= _defaultOpts;
 			if (inclusionFilter != null)
@@ -415,7 +409,7 @@ namespace DivinityModManager.Util
 			return Directory.EnumerateFiles(path, "*", opts);
 		}
 
-		public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions opts = null, Func<string,bool> inclusionFilter = null)
+		public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions opts = null, Func<string, bool> inclusionFilter = null)
 		{
 			opts ??= _defaultOpts;
 			if (inclusionFilter != null)

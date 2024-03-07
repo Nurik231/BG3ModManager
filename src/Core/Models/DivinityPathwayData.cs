@@ -1,10 +1,10 @@
-﻿using System.IO;
-
-using DivinityModManager.Extensions;
+﻿using DivinityModManager.Extensions;
 using DivinityModManager.Models.Settings;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+
+using System.IO;
 
 namespace DivinityModManager.Models
 {

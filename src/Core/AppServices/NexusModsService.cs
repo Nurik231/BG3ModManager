@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using DivinityModManager.AppServices.Data;
+﻿using DivinityModManager.AppServices.Data;
 using DivinityModManager.Models;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.NexusMods.NXM;
@@ -20,16 +18,12 @@ using Reactive.Bindings.Disposables;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager
 {
@@ -73,12 +67,12 @@ namespace DivinityModManager.AppServices
 		[Reactive] public string DownloadProgressText { get; private set; }
 		[Reactive] public bool CanCancel { get; private set; }
 
-		private readonly CompositeDisposable _downloadTasksCompositeDisposable = new CompositeDisposable();
+		private readonly CompositeDisposable _downloadTasksCompositeDisposable = new();
 
 		private readonly NexusModsObservableApiLimits _apiLimits;
 		public NexusModsObservableApiLimits ApiLimits => _apiLimits;
 
-		protected ObservableCollectionExtended<string> _downloadResults = new ObservableCollectionExtended<string>();
+		protected ObservableCollectionExtended<string> _downloadResults = new();
 		public ObservableCollectionExtended<string> DownloadResults => _downloadResults;
 
 		public bool IsInitialized => _client != null;
@@ -334,7 +328,7 @@ namespace DivinityModManager.AppServices
 							var collectionProtocol = (NexusDownloadCollectionProtocolData)data;
 							var allowAdultContent = Services.Settings.ManagerSettings.UpdateSettings.AllowAdultContent;
 
-							var queryData = new NexusGraphQueryCollectionRevisionRequestData(collectionProtocol.GameDomain, collectionProtocol.Slug, 
+							var queryData = new NexusGraphQueryCollectionRevisionRequestData(collectionProtocol.GameDomain, collectionProtocol.Slug,
 								collectionProtocol.Revision, allowAdultContent, NexusModsQuery.CollectionRevision);
 							var payload = JsonConvert.SerializeObject(queryData);
 							var content = new StringContent(payload, Encoding.UTF8, "application/json");

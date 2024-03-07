@@ -1,13 +1,11 @@
-﻿using System.IO;
-
-using DivinityModManager.Util;
+﻿using DivinityModManager.Util;
 
 using Newtonsoft.Json;
 
 using ReactiveUI;
 
-using System;
 using System.ComponentModel;
+using System.IO;
 
 namespace DivinityModManager.Models.Settings
 {

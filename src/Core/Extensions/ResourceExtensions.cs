@@ -1,9 +1,5 @@
 ﻿using LSLib.LS;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace DivinityModManager.Extensions
 {
 	static public class ResourceExtensions

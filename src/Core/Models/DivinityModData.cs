@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using DivinityModManager.Extensions;
+﻿using DivinityModManager.Extensions;
 using DivinityModManager.Models.GitHub;
 using DivinityModManager.Models.Mod;
 using DivinityModManager.Models.NexusMods;
@@ -13,11 +11,9 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
+using System.IO;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;

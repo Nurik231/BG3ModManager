@@ -1,9 +1,5 @@
 ﻿using DivinityModManager.Models;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace DivinityModManager.Util
 {
 	public static class DivinityModSorter

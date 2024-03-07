@@ -1,8 +1,5 @@
 ﻿using System.IO;
 
-using System;
-using System.Linq;
-
 namespace DivinityModManager.Util
 {
 	public static class RuntimeHelper

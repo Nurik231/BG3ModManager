@@ -1,14 +1,10 @@
-﻿using System.IO;
-
-using DivinityModManager.Models;
+﻿using DivinityModManager.Models;
 using DivinityModManager.ViewModels;
-
-using LSLib.LS.Stats;
 
 using ReactiveUI;
 
-using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -190,7 +186,7 @@ namespace DivinityModManager.Util
 
 		public void ValidateModStats(DivinityModData mod)
 		{
-			
+
 
 			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
 		}

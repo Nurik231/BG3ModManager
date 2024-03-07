@@ -4,12 +4,7 @@ using DivinityModManager.Models.Steam;
 
 using Newtonsoft.Json;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {
@@ -18,7 +13,7 @@ namespace DivinityModManager.Util
 		private static readonly string STEAM_API_GET_WORKSHOP_DATA_URL = "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?";
 		private static readonly string STEAM_API_GET_WORKSHOP_MODS_URL = "https://api.steampowered.com/IPublishedFileService/QueryFiles/v1/?";
 
-		private static readonly List<string> ignoredTags = new List<string> { "Add-on", "Adventure", "GM", "Arena", "Story", "Definitive Edition" };
+		private static readonly List<string> ignoredTags = new() { "Add-on", "Adventure", "GM", "Arena", "Story", "Definitive Edition" };
 		private static List<string> GetWorkshopTags(IWorkshopPublishFileDetails data)
 		{
 			var tags = data.Tags.Where(t => !ignoredTags.Contains(t.Tag)).Select(x => x.Tag).ToList();

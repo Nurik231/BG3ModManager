@@ -2,10 +2,7 @@
 
 using Newtonsoft.Json;
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 
@@ -52,8 +49,8 @@ namespace DivinityModManager.Models.Cache
 
 		public string Serialize()
 		{
-			StringBuilder sb = new StringBuilder();
-			StringWriter sw = new StringWriter(sb);
+			StringBuilder sb = new();
+			StringWriter sw = new(sb);
 
 			using (JsonWriter writer = new JsonTextWriter(sw))
 			{

@@ -3,7 +3,6 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
 using System.Reactive.Linq;
 
 namespace DivinityModManager.Models
@@ -155,6 +154,6 @@ namespace DivinityModManager.Models
 			UpdateVersion();
 		}
 
-		public static readonly DivinityModVersion2 Empty = new DivinityModVersion2(0);
+		public static readonly DivinityModVersion2 Empty = new(0);
 	}
 }

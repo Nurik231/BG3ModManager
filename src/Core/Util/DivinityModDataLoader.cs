@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using DivinityModManager.Extensions;
+﻿using DivinityModManager.Extensions;
 using DivinityModManager.Models;
 using DivinityModManager.Models.App;
 using DivinityModManager.Models.Mod;
@@ -13,14 +11,10 @@ using LSLib.LS.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -1332,7 +1326,7 @@ namespace DivinityModManager.Util
 				{
 					RecurseSubdirectories = true
 				};
-				var files = FileUtils.EnumerateFiles(directory, options, 
+				var files = FileUtils.EnumerateFiles(directory, options,
 					(f) => f.EndsWith(".json", SCOMP) && !f.Equals("settings.json", SCOMP));
 
 				foreach (var loadOrderFile in files)

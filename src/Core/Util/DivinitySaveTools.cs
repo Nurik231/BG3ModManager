@@ -1,9 +1,6 @@
-﻿using System.IO;
+﻿using LSLib.LS;
 
-using LSLib.LS;
-
-using System;
-using System.Linq;
+using System.IO;
 
 namespace DivinityModManager.Util
 {

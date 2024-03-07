@@ -1,8 +1,5 @@
 ﻿using LSLib.LS;
 
-using System;
-using System.Collections.Generic;
-
 namespace DivinityModManager.Models
 {
 	public class DivinityProfileActiveModData

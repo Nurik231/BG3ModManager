@@ -7,8 +7,6 @@ using Newtonsoft.Json;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 

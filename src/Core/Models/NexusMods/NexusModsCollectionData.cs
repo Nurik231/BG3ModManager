@@ -7,12 +7,6 @@ using NexusModsNET.DataModels.GraphQL.Types;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace DivinityModManager.Models.NexusMods
 {
 	public class NexusModsCollectionData : ReactiveObject

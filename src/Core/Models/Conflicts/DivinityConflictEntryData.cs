@@ -1,7 +1,5 @@
 ﻿using ReactiveUI;
 
-using System.Collections.Generic;
-
 namespace DivinityModManager.Models.Conflicts
 {
 	public class DivinityConflictEntryData : ReactiveObject

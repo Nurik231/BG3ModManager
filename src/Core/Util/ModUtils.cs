@@ -1,15 +1,9 @@
-﻿using System.IO;
-
-using DivinityModManager.Models;
+﻿using DivinityModManager.Models;
 
 using LSLib.LS;
 using LSLib.LS.Stats;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace DivinityModManager.Util
 {
@@ -17,7 +11,7 @@ namespace DivinityModManager.Util
 	{
 		private static void LoadModStats(Dictionary<string, ModInfo> mods, VFS vfs, StatLoader loader, string folderName)
 		{
-			if(mods.TryGetValue(folderName, out var mod))
+			if (mods.TryGetValue(folderName, out var mod))
 			{
 				foreach (var file in mod.Stats)
 				{
@@ -36,7 +30,7 @@ namespace DivinityModManager.Util
 			vfs.AttachGameDirectory(gameDataPath, true);
 			foreach (var mod in mods)
 			{
-				if(!mod.IsEditorMod && File.Exists(mod.FilePath))
+				if (!mod.IsEditorMod && File.Exists(mod.FilePath))
 				{
 					vfs.AttachPackage(mod.FilePath);
 				}
@@ -59,17 +53,17 @@ namespace DivinityModManager.Util
 			var definitions = new StatDefinitionRepository();
 			try
 			{
-				if(modResources.Mods.TryGetValue("Shared", out var shared))
+				if (modResources.Mods.TryGetValue("Shared", out var shared))
 				{
 					definitions.LoadDefinitions(vfs.Open(shared.ValueListsFile));
-					definitions.LoadDefinitions(vfs.Open(shared.ModifiersFile));					
+					definitions.LoadDefinitions(vfs.Open(shared.ModifiersFile));
 				}
 				else
 				{
 					throw new Exception("The 'Shared' base mod appears to be missing. This is not normal.");
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				DivinityApp.Log($"Error loading definitions:\n{ex}");
 			}
@@ -77,7 +71,7 @@ namespace DivinityModManager.Util
 			context.Definitions = definitions;
 
 			var dependencies = mods.SelectMany(x => x.Dependencies.Items.Select(x => x.Folder)).Distinct();
-			foreach(var dependency in dependencies)
+			foreach (var dependency in dependencies)
 			{
 				LoadModStats(modResources.Mods, vfs, loader, dependency);
 			}

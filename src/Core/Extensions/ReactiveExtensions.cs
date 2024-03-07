@@ -1,7 +1,6 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
 using System.Linq.Expressions;
 
 namespace DivinityModManager
@@ -18,7 +17,7 @@ namespace DivinityModManager
 		/// <param name="property"></param>
 		/// <param name="initialValue"></param>
 		/// <returns></returns>
-		public static ObservableAsPropertyHelper<TRet> ToUIProperty<TObj, TRet>(this IObservable<TRet> obs, TObj source, Expression<Func<TObj, TRet>> property, TRet initialValue = default(TRet)) where TObj : ReactiveObject
+		public static ObservableAsPropertyHelper<TRet> ToUIProperty<TObj, TRet>(this IObservable<TRet> obs, TObj source, Expression<Func<TObj, TRet>> property, TRet initialValue = default) where TObj : ReactiveObject
 		{
 			return obs.ToPropertyEx(source, property, initialValue, true, RxApp.MainThreadScheduler);
 		}
@@ -34,7 +33,7 @@ namespace DivinityModManager
 		/// <param name="property"></param>
 		/// <param name="initialValue"></param>
 		/// <returns></returns>
-		public static ObservableAsPropertyHelper<TRet> ToUIPropertyImmediate<TObj, TRet>(this IObservable<TRet> obs, TObj source, Expression<Func<TObj, TRet>> property, TRet initialValue = default(TRet)) where TObj : ReactiveObject
+		public static ObservableAsPropertyHelper<TRet> ToUIPropertyImmediate<TObj, TRet>(this IObservable<TRet> obs, TObj source, Expression<Func<TObj, TRet>> property, TRet initialValue = default) where TObj : ReactiveObject
 		{
 			return obs.ToPropertyEx(source, property, initialValue, false, RxApp.MainThreadScheduler);
 		}

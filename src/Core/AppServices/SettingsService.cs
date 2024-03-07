@@ -1,15 +1,11 @@
-﻿using System.IO;
-
-using DivinityModManager.Models;
+﻿using DivinityModManager.Models;
 using DivinityModManager.Models.App;
 using DivinityModManager.Models.Settings;
 using DivinityModManager.Util;
 
 using ReactiveUI;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 
 namespace DivinityModManager
 {

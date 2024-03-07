@@ -1,7 +1,5 @@
 ﻿using System.IO;
 
-using System;
-
 namespace DivinityModManager.Extensions
 {
 	public static class StringExtensions

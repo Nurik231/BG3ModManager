@@ -1,7 +1,5 @@
 ﻿using Splat;
 
-using System;
-
 namespace DivinityModManager
 {
 	public static class Services

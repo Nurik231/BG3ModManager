@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 
-using System;
-
 namespace DivinityModManager.Models
 {
 	[JsonObject(MemberSerialization.OptIn)]

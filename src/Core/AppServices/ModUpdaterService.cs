@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using DivinityModManager.Models;
+﻿using DivinityModManager.Models;
 using DivinityModManager.Models.GitHub;
 using DivinityModManager.Models.NexusMods;
 using DivinityModManager.Models.Settings;
@@ -13,13 +11,9 @@ using Newtonsoft.Json;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DivinityModManager
 {

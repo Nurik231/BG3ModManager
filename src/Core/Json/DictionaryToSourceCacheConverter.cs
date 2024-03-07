@@ -2,9 +2,6 @@
 
 using Newtonsoft.Json;
 
-using System;
-using System.Collections.Generic;
-
 namespace DivinityModManager.Json
 {
 	public interface IObjectWithId

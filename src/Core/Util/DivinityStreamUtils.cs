@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DivinityModManager.Util
+﻿namespace DivinityModManager.Util
 {
 	public static class DivinityStreamUtils
 	{
