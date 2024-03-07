@@ -1,4 +1,4 @@
-﻿using Alphaleonis.Win32.Filesystem;
+﻿using System.IO;
 
 using DivinityModManager.Models.App;
 using DivinityModManager.Util;
@@ -21,136 +21,139 @@ namespace DivinityModManager.ViewModels
 	public class AppKeys : ReactiveObject
 	{
 		[MenuSettings("File", "Import Mods...", true)]
-		public Hotkey ImportMod { get; private set; } = new Hotkey(Key.O, ModifierKeys.Control);
+		public Hotkey ImportMod { get; } = new Hotkey(Key.O, ModifierKeys.Control);
 
 		[MenuSettings("File", "Import Nexus Mods Data from Archives...", true)]
-		public Hotkey ImportNexusModsIds { get; private set; } = new Hotkey();
+		public Hotkey ImportNexusModsIds { get; } = new Hotkey();
 
 		[MenuSettings("File", "Add New Order", true)]
-		public Hotkey NewOrder { get; private set; } = new Hotkey(Key.N, ModifierKeys.Control);
+		public Hotkey NewOrder { get; } = new Hotkey(Key.N, ModifierKeys.Control);
 
 		[MenuSettings("File", "Save Order")]
-		public Hotkey Save { get; private set; } = new Hotkey(Key.S, ModifierKeys.Control);
+		public Hotkey Save { get; } = new Hotkey(Key.S, ModifierKeys.Control);
 
 		[MenuSettings("File", "Save Order As...", true)]
-		public Hotkey SaveAs { get; private set; } = new Hotkey(Key.S, ModifierKeys.Control | ModifierKeys.Alt);
+		public Hotkey SaveAs { get; } = new Hotkey(Key.S, ModifierKeys.Control | ModifierKeys.Alt);
 
 		[MenuSettings("File", "Import Order from Save...")]
-		public Hotkey ImportOrderFromSave { get; private set; } = new Hotkey(Key.I, ModifierKeys.Control);
+		public Hotkey ImportOrderFromSave { get; } = new Hotkey(Key.I, ModifierKeys.Control);
 
 		[MenuSettings("File", "Import Order from Save As New Order...")]
-		public Hotkey ImportOrderFromSaveAsNew { get; private set; } = new Hotkey(Key.I, ModifierKeys.Control | ModifierKeys.Shift);
+		public Hotkey ImportOrderFromSaveAsNew { get; } = new Hotkey(Key.I, ModifierKeys.Control | ModifierKeys.Shift);
 
 		[MenuSettings("File", "Import Order from File...")]
-		public Hotkey ImportOrderFromFile { get; private set; } = new Hotkey(Key.O, ModifierKeys.Control | ModifierKeys.Shift);
+		public Hotkey ImportOrderFromFile { get; } = new Hotkey(Key.O, ModifierKeys.Control | ModifierKeys.Shift);
 
 		[MenuSettings("File", "Import Order & Mods from Archive...", true)]
-		public Hotkey ImportOrderFromZipFile { get; private set; } = new Hotkey(Key.None);
+		public Hotkey ImportOrderFromZipFile { get; } = new Hotkey(Key.None);
 
 		[MenuSettings("File", "Load Order From Selected GM Campaign", true)]
-		public Hotkey ImportOrderFromSelectedGMCampaign { get; private set; } = new Hotkey(Key.None);
+		public Hotkey ImportOrderFromSelectedGMCampaign { get; } = new Hotkey(Key.None);
 
 		[MenuSettings("File", "Export Order to Game")]
-		public Hotkey ExportOrderToGame { get; private set; } = new Hotkey(Key.E, ModifierKeys.Control);
+		public Hotkey ExportOrderToGame { get; } = new Hotkey(Key.E, ModifierKeys.Control);
 
 		[MenuSettings("File", "Export Order to Text File...")]
-		public Hotkey ExportOrderToList { get; private set; } = new Hotkey(Key.E, ModifierKeys.Control | ModifierKeys.Shift);
+		public Hotkey ExportOrderToList { get; } = new Hotkey(Key.E, ModifierKeys.Control | ModifierKeys.Shift);
 
 		[MenuSettings("File", "Export Order to Archive (.zip)")]
-		public Hotkey ExportOrderToZip { get; private set; } = new Hotkey(Key.R, ModifierKeys.Control);
+		public Hotkey ExportOrderToZip { get; } = new Hotkey(Key.R, ModifierKeys.Control);
 
 		[MenuSettings("File", "Export Order to Archive As...", true)]
-		public Hotkey ExportOrderToArchiveAs { get; private set; } = new Hotkey(Key.R, ModifierKeys.Control | ModifierKeys.Shift);
+		public Hotkey ExportOrderToArchiveAs { get; } = new Hotkey(Key.R, ModifierKeys.Control | ModifierKeys.Shift);
 
 		[MenuSettings("File", "Reload All")]
-		public Hotkey Refresh { get; private set; } = new Hotkey(Key.F5);
+		public Hotkey Refresh { get; } = new Hotkey(Key.F5);
 
 		[MenuSettings("File", "Refresh Mod Updates")]
-		public Hotkey RefreshModUpdates { get; private set; } = new Hotkey(Key.F6);
+		public Hotkey RefreshModUpdates { get; } = new Hotkey(Key.F6);
 
 		[MenuSettings("Edit", "Moved Selected Mods to Opposite List", true)]
-		public Hotkey Confirm { get; private set; } = new Hotkey(Key.Enter);
+		public Hotkey Confirm { get; } = new Hotkey(Key.Enter);
 
 		[MenuSettings("Edit", "Focus Active Mods List")]
-		public Hotkey MoveFocusLeft { get; private set; } = new Hotkey(Key.Left);
+		public Hotkey MoveFocusLeft { get; } = new Hotkey(Key.Left);
 
 		[MenuSettings("Edit", "Focus Inactive Mods List")]
-		public Hotkey MoveFocusRight { get; private set; } = new Hotkey(Key.Right);
+		public Hotkey MoveFocusRight { get; } = new Hotkey(Key.Right);
 
 		[MenuSettings("Edit", "Go to Other List")]
-		public Hotkey SwapListFocus { get; private set; } = new Hotkey(Key.Tab);
+		public Hotkey SwapListFocus { get; } = new Hotkey(Key.Tab);
 
 		[MenuSettings("Edit", "Move to Top of Active List")]
-		public Hotkey MoveToTop { get; private set; } = new Hotkey(Key.PageUp, ModifierKeys.Control);
+		public Hotkey MoveToTop { get; } = new Hotkey(Key.PageUp, ModifierKeys.Control);
 
 		[MenuSettings("Edit", "Move to Bottom of Active List", true)]
-		public Hotkey MoveToBottom { get; private set; } = new Hotkey(Key.PageDown, ModifierKeys.Control);
+		public Hotkey MoveToBottom { get; } = new Hotkey(Key.PageDown, ModifierKeys.Control);
 
 		[MenuSettings("Edit", "Toggle Focus Filter for Current List", AddSeparator = true)]
-		public Hotkey ToggleFilterFocus { get; private set; } = new Hotkey(Key.F, ModifierKeys.Control);
+		public Hotkey ToggleFilterFocus { get; } = new Hotkey(Key.F, ModifierKeys.Control);
 
 		[MenuSettings("Edit", "Show File Names for Mods")]
-		public Hotkey ToggleFileNameDisplay { get; private set; } = new Hotkey(Key.None);
+		public Hotkey ToggleFileNameDisplay { get; } = new Hotkey(Key.None);
 
 		[MenuSettings("Edit", "Delete Selected Mods...", AddSeparator = true)]
-		public Hotkey DeleteSelectedMods { get; private set; } = new Hotkey(Key.Delete);
+		public Hotkey DeleteSelectedMods { get; } = new Hotkey(Key.Delete);
 
 		[MenuSettings("Settings", "Open Preferences")]
-		public Hotkey OpenPreferences { get; private set; } = new Hotkey(Key.P, ModifierKeys.Control);
+		public Hotkey OpenPreferences { get; } = new Hotkey(Key.P, ModifierKeys.Control);
 
 		[MenuSettings("Settings", "Open Keyboard Shortcuts")]
-		public Hotkey OpenKeybindings { get; private set; } = new Hotkey(Key.K, ModifierKeys.Control);
+		public Hotkey OpenKeybindings { get; } = new Hotkey(Key.K, ModifierKeys.Control);
 
 		[MenuSettings("Settings", "Toggle Light/Dark Mode")]
-		public Hotkey ToggleViewTheme { get; private set; } = new Hotkey(Key.L, ModifierKeys.Control);
+		public Hotkey ToggleViewTheme { get; } = new Hotkey(Key.L, ModifierKeys.Control);
 
 		[MenuSettings("View", "Toggle Updates View")]
-		public Hotkey ToggleUpdatesView { get; private set; } = new Hotkey(Key.U, ModifierKeys.Control);
+		public Hotkey ToggleUpdatesView { get; } = new Hotkey(Key.U, ModifierKeys.Control);
 
 		[MenuSettings("Go", "Open Mods Folder")]
-		public Hotkey OpenModsFolder { get; private set; } = new Hotkey(Key.D1, ModifierKeys.Control);
+		public Hotkey OpenModsFolder { get; } = new Hotkey(Key.D1, ModifierKeys.Control);
 
 		[MenuSettings("Go", "Open Game Folder")]
-		public Hotkey OpenGameFolder { get; private set; } = new Hotkey(Key.D2, ModifierKeys.Control);
+		public Hotkey OpenGameFolder { get; } = new Hotkey(Key.D2, ModifierKeys.Control);
 
 		[MenuSettings("Go", "Open Workshop Folder")]
-		public Hotkey OpenWorkshopFolder { get; private set; } = new Hotkey(Key.D3, ModifierKeys.Control);
+		public Hotkey OpenWorkshopFolder { get; } = new Hotkey(Key.D3, ModifierKeys.Control);
 
 		[MenuSettings("Go", "Open Extender Logs Folder")]
-		public Hotkey OpenLogsFolder { get; private set; } = new Hotkey(Key.D4, ModifierKeys.Control);
+		public Hotkey OpenLogsFolder { get; } = new Hotkey(Key.D4, ModifierKeys.Control);
 
 		[MenuSettings("Go", "Launch Game")]
-		public Hotkey LaunchGame { get; private set; } = new Hotkey(Key.G, ModifierKeys.Control | ModifierKeys.Shift);
+		public Hotkey LaunchGame { get; } = new Hotkey(Key.G, ModifierKeys.Control | ModifierKeys.Shift);
 
 		[MenuSettings("Download", "Download & Extract the Script Extender...")]
-		public Hotkey DownloadScriptExtender { get; private set; } = new Hotkey(Key.None);
+		public Hotkey DownloadScriptExtender { get; } = new Hotkey(Key.None);
 
 		[MenuSettings("Download", @"Download nxm:\\ Link...", ToolTip = "Download a NexusMods link for a mod file or a collection", AddSeparator = true)]
-		public Hotkey DownloadNXMLink { get; private set; } = new Hotkey(Key.None);
+		public Hotkey DownloadNXMLink { get; } = new Hotkey(Key.None);
+
+		[MenuSettings("Download", @"Open Collection Downloader Window")]
+		public Hotkey OpenCollectionDownloaderWindow { get; } = new Hotkey(Key.None);
 
 		[MenuSettings("Tools", "Extract Selected Mods To...")]
-		public Hotkey ExtractSelectedMods { get; private set; } = new Hotkey(Key.OemPeriod, ModifierKeys.Control);
+		public Hotkey ExtractSelectedMods { get; } = new Hotkey(Key.OemPeriod, ModifierKeys.Control);
 
 		[MenuSettings("Tools", "Extract Active Adventure Mod To...")]
-		public Hotkey ExtractSelectedAdventure { get; private set; } = new Hotkey(Key.None);
+		public Hotkey ExtractSelectedAdventure { get; } = new Hotkey(Key.None);
 
 		[MenuSettings("Tools", "Toggle Version Generator Window", ToolTip = "A tool for mod authors to generate version numbers for a mod's meta.lsx")]
-		public Hotkey ToggleVersionGeneratorWindow { get; private set; } = new Hotkey(Key.G, ModifierKeys.Control);
+		public Hotkey ToggleVersionGeneratorWindow { get; } = new Hotkey(Key.G, ModifierKeys.Control);
 
 		[MenuSettings("Tools", "Speak Active Order")]
-		public Hotkey SpeakActiveModOrder { get; private set; } = new Hotkey(Key.Home, ModifierKeys.Control);
+		public Hotkey SpeakActiveModOrder { get; } = new Hotkey(Key.Home, ModifierKeys.Control);
 
 		[MenuSettings("Help", "Check for Updates...")]
-		public Hotkey CheckForUpdates { get; private set; } = new Hotkey(Key.F7);
+		public Hotkey CheckForUpdates { get; } = new Hotkey(Key.F7);
 
 		[MenuSettings("Help", "Donate a Coffee...")]
-		public Hotkey OpenDonationLink { get; private set; } = new Hotkey(Key.F10);
+		public Hotkey OpenDonationLink { get; } = new Hotkey(Key.F10);
 
 		[MenuSettings("Help", "About")]
-		public Hotkey OpenAboutWindow { get; private set; } = new Hotkey(Key.F1);
+		public Hotkey OpenAboutWindow { get; } = new Hotkey(Key.F1);
 
 		[MenuSettings("Help", "Open Repository Page...")]
-		public Hotkey OpenRepositoryPage { get; private set; } = new Hotkey(Key.F11);
+		public Hotkey OpenRepositoryPage { get; } = new Hotkey(Key.F11);
 
 		private readonly SourceCache<Hotkey, string> keyMap = new((hk) => hk.ID);
 

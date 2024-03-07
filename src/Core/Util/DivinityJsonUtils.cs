@@ -15,9 +15,9 @@ namespace DivinityModManager.Util
 {
 	public static class DivinityJsonUtils
 	{
-		private static readonly JsonSerializerSettings _errorHandleSettings = new JsonSerializerSettings
+		private static readonly JsonSerializerSettings _errorHandleSettings = new()
 		{
-			Error = delegate (object sender, ErrorEventArgs args)
+			Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
 			{
 				DivinityApp.Log(args.ErrorContext.Error.Message);
 				args.ErrorContext.Handled = true;
@@ -85,7 +85,7 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				var fileBytes = await DivinityFileUtils.LoadFileAsBytesAsync(path, token);
+				var fileBytes = await FileUtils.LoadFileAsBytesAsync(path, token);
 				if (fileBytes != null)
 				{
 					var contents = Encoding.UTF8.GetString(fileBytes);

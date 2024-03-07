@@ -82,7 +82,7 @@ namespace DivinityModManager.Util
 			var success = false;
 			try
 			{
-				using var fileStream = File.Open(options.FilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				using var fileStream = new FileStream(options.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 				if (fileStream != null)
 				{
 					var info = NexusModFileVersionData.FromFilePath(options.FilePath);
@@ -103,7 +103,7 @@ namespace DivinityModManager.Util
 								options.Result.TotalPaks++;
 								using (var entryStream = file.OpenEntryStream())
 								{
-									using var fs = File.Create(outputFilePath, ARCHIVE_BUFFER, System.IO.FileOptions.Asynchronous);
+									using var fs = File.Create(outputFilePath, ARCHIVE_BUFFER, FileOptions.Asynchronous);
 									try
 									{
 										await entryStream.CopyToAsync(fs, ARCHIVE_BUFFER, options.Token);
@@ -180,12 +180,12 @@ namespace DivinityModManager.Util
 
 		public static async Task<bool> ImportCompressedFileAsync(ImportParameters options)
 		{
-			System.IO.FileStream fileStream = null;
+			FileStream fileStream = null;
 			double taskStepAmount = 1.0 / 4;
 			var success = false;
 			try
 			{
-				fileStream = File.Open(options.FilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				fileStream = new FileStream(options.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 				if (fileStream != null)
 				{
 					var info = NexusModFileVersionData.FromFilePath(options.FilePath);
@@ -226,7 +226,7 @@ namespace DivinityModManager.Util
 								{
 									try
 									{
-										mod.LastModified = File.GetChangeTime(options.FilePath);
+										mod.LastModified = File.GetLastWriteTime(options.FilePath);
 										mod.LastUpdated = mod.LastModified;
 									}
 									catch (Exception ex)
@@ -240,7 +240,7 @@ namespace DivinityModManager.Util
 										outputFilePath = Path.Combine(options.OutputDirectory, nameFromMeta);
 										mod.FilePath = outputFilePath;
 									}
-									using (var fs = File.Create(outputFilePath, ARCHIVE_BUFFER, System.IO.FileOptions.Asynchronous))
+									using (var fs = File.Create(outputFilePath, ARCHIVE_BUFFER, FileOptions.Asynchronous))
 									{
 										try
 										{
@@ -318,7 +318,7 @@ namespace DivinityModManager.Util
 			{
 				options.Result.TotalPaks++;
 
-				await DivinityFileUtils.CopyFileAsync(options.FilePath, outputFilePath, options.Token);
+				await FileUtils.CopyFileAsync(options.FilePath, outputFilePath, options.Token);
 
 				if (File.Exists(outputFilePath))
 				{

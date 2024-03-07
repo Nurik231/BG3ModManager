@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<LangVersion>Latest</LangVersion>
+		<UseWPF>true</UseWPF>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>DivinityModManager</RootNamespace>
 		<AssemblyName>DivinityModManagerCore</AssemblyName>
 		<AssemblyTitle>BG3MM Core</AssemblyTitle>
@@ -35,6 +37,7 @@
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 		<PackageReference Include="System.Reactive" Version="6.0.0" />
 		<PackageReference Include="SharpCompress" Version="0.36.0" />
+		<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -46,7 +49,7 @@
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<ItemGroup>
 			<FilesToMove Include="$(OutputPath)$(AssemblyName).dll" />
-			<LSLib Include="$(OutputPath)LSLib.dll;$(OutputPath)LSLibNative.dll;$(OutputPath)LZ4.dll;$(OutputPath)OpenTK.dll;$(OutputPath)QUT.ShiftReduceParser.dll;$(OutputPath)zlib.net.dll" />
+			<LSLib Include="$(OutputPath)LSLib.dll;$(OutputPath)LSLibNative.dll" />
 		</ItemGroup>
 		<Copy SourceFiles="@(FilesToMove)" DestinationFolder="$(SolutionDir)bin\$(Configuration)\_Lib\" OverwriteReadOnlyFiles="true" />
 		<Copy SourceFiles="@(LSLib)" DestinationFolder="$(SolutionDir)bin\$(Configuration)\_Lib\" OverwriteReadOnlyFiles="true" />

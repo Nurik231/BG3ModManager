@@ -8,7 +8,7 @@
 	xmlns:appdata="clr-namespace:DivinityModManager.Models.App;assembly=DivinityModManagerCore"
 	xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
-	xmlns:chrome="clr-namespace:Xceed.Wpf.Toolkit.Chromes;assembly=Xceed.Wpf.Toolkit"
+	xmlns:chrome="clr-namespace:Xceed.Wpf.Toolkit.Chromes;assembly=Xceed.Wpf.Toolkit.NET5"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
 	xmlns:dapp="clr-namespace:DivinityModManager;assembly=DivinityModManagerCore"
@@ -27,8 +27,8 @@
 	xmlns:views="clr-namespace:DivinityModManager.Controls.Views"
 	xmlns:vm="clr-namespace:DivinityModManager.ViewModels;assembly=DivinityModManagerCore"
 	xmlns:xc="http://schemas.xceed.com/wpf/xaml/toolkit"
-	xmlns:xconv="clr-namespace:Xceed.Wpf.Toolkit.Converters;assembly=Xceed.Wpf.Toolkit"
-	xmlns:xcthemes="clr-namespace:Xceed.Wpf.Toolkit.Themes;assembly=Xceed.Wpf.Toolkit"
+	xmlns:xconv="clr-namespace:Xceed.Wpf.Toolkit.Converters;assembly=Xceed.Wpf.Toolkit.NET5"
+	xmlns:xcthemes="clr-namespace:Xceed.Wpf.Toolkit.Themes;assembly=Xceed.Wpf.Toolkit.NET5"
 	x:Name="MainResources">
 	<ResourceDictionary.MergedDictionaries>
 		<ResourceDictionary Source="DefaultStyles/ComboBox.xaml" />
@@ -126,6 +126,13 @@
 			Header="Copy ModuleShortDesc to Clipboard"
 			Style="{StaticResource MenuItemCopyToClipboardStyle}"
 			ToolTip="Copy the mod's information as a ModuleShortDesc node, typically for dependencies in a meta.lsx" />
+		<Separator />
+		<MenuItem
+			Command="{Binding Path=ValidateStatsCommand, Source={x:Static dapp:DivinityApp.Commands}}"
+			CommandParameter="{Binding}"
+			Header="Validate Stats"
+			Icon="{StaticResource ValidateModelIcon}"
+			ToolTip="Run lslib's stats validator on this specific mod" />
 	</Collections:ArrayList>
 	<Style
 		x:Key="MenuItemModDeveloperStyle"

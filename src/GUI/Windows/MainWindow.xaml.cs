@@ -1,7 +1,7 @@
 ﻿using AdonisUI;
 using AdonisUI.Controls;
 
-using Alphaleonis.Win32.Filesystem;
+using System.IO;
 
 using AutoUpdaterDotNET;
 
@@ -99,7 +99,7 @@ namespace DivinityModManager.Windows
 				System.Windows.MessageBoxResult.No, MessageBoxStyle);
 			if (result == System.Windows.MessageBoxResult.Yes)
 			{
-				DivinityFileUtils.TryOpenPath(DivinityApp.GetAppDirectory("_Logs"));
+				FileUtils.TryOpenPath(DivinityApp.GetAppDirectory("_Logs"));
 			}
 		}
 
@@ -133,7 +133,7 @@ namespace DivinityModManager.Windows
 				System.Windows.MessageBoxResult.No, MessageBoxStyle);
 			if (result == System.Windows.MessageBoxResult.Yes)
 			{
-				DivinityFileUtils.TryOpenPath(DivinityApp.GetAppDirectory("_Logs"));
+				FileUtils.TryOpenPath(DivinityApp.GetAppDirectory("_Logs"));
 			}
 
 			//Shutdown if we had an exception when loading.
@@ -157,7 +157,7 @@ namespace DivinityModManager.Windows
 				System.Windows.MessageBoxResult.No, MessageBoxStyle);
 			if (result == System.Windows.MessageBoxResult.Yes)
 			{
-				DivinityFileUtils.TryOpenPath(DivinityApp.GetAppDirectory("_Logs"));
+				FileUtils.TryOpenPath(DivinityApp.GetAppDirectory("_Logs"));
 			}
 
 			if (doShutdown)
@@ -271,7 +271,7 @@ namespace DivinityModManager.Windows
 
 			Services.RegisterSingleton(new WindowManagerService());
 
-			if (File.Exists(Alphaleonis.Win32.Filesystem.Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "debug")))
+			if (File.Exists(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "debug")))
 			{
 				ViewModel.DebugMode = true;
 				ToggleLogging(true);
@@ -323,6 +323,8 @@ namespace DivinityModManager.Windows
 				)
 				.Select(e => (e.EventArgs.Key == Key.LeftShift || e.EventArgs.Key == Key.RightShift) && e.EventArgs.IsDown)
 				.BindTo(ViewModel, x => x.CanForceLaunchGame);
+
+				App.WM.CollectionDownload.Toggle(true);
 			});
 
 			Show();

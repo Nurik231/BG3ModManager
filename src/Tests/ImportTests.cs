@@ -72,7 +72,7 @@ namespace DivinityModManager.Tests
 
 			var files = new List<string> { metaPath, dummyFilePath };
 
-			Assert.True(await DivinityFileUtils.CreatePackageAsync(pakDataPath, files, pakPath, _cts.Token), "Failed to create pak");
+			Assert.True(await FileUtils.CreatePackageAsync(pakDataPath, files, pakPath, _cts.Token), "Failed to create pak");
 			var pakSize = new FileInfo(pakPath)?.Length;
 			Assert.True(pakSize >= 0, $"Intended pak size not correct ({pakSize}/{intendedPakSize})");
 

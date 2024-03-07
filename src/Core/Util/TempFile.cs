@@ -1,6 +1,5 @@
-﻿using Alphaleonis.Win32.Filesystem;
-
-using System;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,13 +7,13 @@ namespace DivinityModManager.Util
 {
 	public class TempFile : IDisposable
 	{
-		private readonly System.IO.FileStream _stream;
+		private readonly FileStream _stream;
 		private readonly string _path;
 		private readonly string _sourcePath;
 
 		private readonly int _bufferSize;
 
-		public System.IO.FileStream Stream => _stream;
+		public FileStream Stream => _stream;
 		public string FilePath => _path;
 		public string SourceFilePath => _sourcePath;
 
@@ -26,7 +25,7 @@ namespace DivinityModManager.Util
 			Directory.CreateDirectory(tempDir);
 			_path = Path.Combine(tempDir, Path.GetFileName(sourcePath));
 			_sourcePath = sourcePath;
-			_stream = File.Create(_path, _bufferSize, System.IO.FileOptions.Asynchronous | System.IO.FileOptions.DeleteOnClose, PathFormat.LongFullPath);
+			_stream = File.Create(_path, _bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 		}
 
 		public static async Task<TempFile> CreateAsync(string sourcePath, CancellationToken token)
@@ -36,7 +35,7 @@ namespace DivinityModManager.Util
 			return temp;
 		}
 
-		public static async Task<TempFile> CreateAsync(string sourcePath, System.IO.Stream sourceStream, CancellationToken token)
+		public static async Task<TempFile> CreateAsync(string sourcePath, Stream sourceStream, CancellationToken token)
 		{
 			var temp = new TempFile(sourcePath);
 			await temp.CopyAsync(sourceStream, token);
@@ -45,11 +44,11 @@ namespace DivinityModManager.Util
 
 		private async Task CopyAsync(CancellationToken token)
 		{
-			using var sourceStream = File.Open(_path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+			using var sourceStream = new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 			await sourceStream.CopyToAsync(_stream, _bufferSize, token);
 		}
 
-		private async Task CopyAsync(System.IO.Stream sourceStream, CancellationToken token)
+		private async Task CopyAsync(Stream sourceStream, CancellationToken token)
 		{
 			await sourceStream.CopyToAsync(_stream, _bufferSize, token);
 		}

@@ -107,7 +107,7 @@ namespace DivinityModManager.Util
 		{
 			if (!String.IsNullOrEmpty(url))
 			{
-				DivinityFileUtils.TryOpenPath(url);
+				FileUtils.TryOpenPath(url);
 			}
 		}
 
@@ -116,7 +116,7 @@ namespace DivinityModManager.Util
 			var url = mod.GetURL(ModSourceType.GITHUB);
 			if (!String.IsNullOrEmpty(url))
 			{
-				DivinityFileUtils.TryOpenPath(url);
+				FileUtils.TryOpenPath(url);
 			}
 		}
 
@@ -125,7 +125,7 @@ namespace DivinityModManager.Util
 			var url = mod.GetURL(ModSourceType.NEXUSMODS);
 			if (!String.IsNullOrEmpty(url))
 			{
-				DivinityFileUtils.TryOpenPath(url);
+				FileUtils.TryOpenPath(url);
 			}
 		}
 
@@ -134,7 +134,7 @@ namespace DivinityModManager.Util
 			var url = mod.GetURL(ModSourceType.STEAM);
 			if (!String.IsNullOrEmpty(url))
 			{
-				DivinityFileUtils.TryOpenPath(url);
+				FileUtils.TryOpenPath(url);
 			}
 		}
 
@@ -143,7 +143,7 @@ namespace DivinityModManager.Util
 			var url = mod.GetURL(ModSourceType.STEAM, true);
 			if (!String.IsNullOrEmpty(url))
 			{
-				DivinityFileUtils.TryOpenPath(url);
+				FileUtils.TryOpenPath(url);
 			}
 		}
 

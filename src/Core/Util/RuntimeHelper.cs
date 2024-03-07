@@ -24,7 +24,7 @@ namespace DivinityModManager.Util
 			{
 				try
 				{
-					var versions = Directory.EnumerateDirectories(NET_CORE_DIR, DirectoryEnumerationOptions.Folders).Select(PathToVersion);
+					var versions = Directory.EnumerateDirectories(NET_CORE_DIR).Select(PathToVersion);
 					foreach (var version in versions)
 					{
 						if (version != null && version.Major >= majorVersion)

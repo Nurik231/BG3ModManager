@@ -13,12 +13,10 @@ using System.Threading.Tasks;
 
 namespace DivinityModManager.Util
 {
-	/// <summary>
-	/// Gets a unique file name if the file already exists.
-	/// Source: https://stackoverflow.com/a/13050041
-	/// </summary>
-	public static class DivinityFileUtils
+	public static class FileUtils
 	{
+		public static readonly EnumerationOptions RecursiveOptions = new() { RecurseSubdirectories = true };
+
 		/// <summary>
 		/// Gets the drive type of the given path.
 		/// </summary>
@@ -60,6 +58,10 @@ namespace DivinityModManager.Util
 			return absolutePath?.TrimEnd('/', '\\') + "/";
 		}
 
+		/// <summary>
+		/// Gets a unique file name if the file already exists.
+		/// Source: https://stackoverflow.com/a/13050041
+		/// </summary>
 		public static string GetUniqueFilename(string fullPath)
 		{
 			if (!Path.IsPathRooted(fullPath))
@@ -184,13 +186,8 @@ namespace DivinityModManager.Util
 					filePath += Path.DirectorySeparatorChar;
 				}
 
-				var files = Directory.EnumerateFiles(filePath, DirectoryEnumerationOptions.Recursive | DirectoryEnumerationOptions.LargeCache, new DirectoryEnumerationFilters()
-				{
-					InclusionFilter = (f) =>
-					{
-						return !ignoredFiles.Any(x => IgnoreFile(f.FullPath, x));
-					}
-				}).ToDictionary(k => k.Replace(rootPath, String.Empty), v => v);
+				var files = EnumerateFiles(filePath, RecursiveOptions, (f) => !ignoredFiles.Any(x => IgnoreFile(f, x)))
+					.ToDictionary(k => k.Replace(rootPath, String.Empty), v => v);
 
 				foreach (var file in files)
 				{
@@ -201,9 +198,7 @@ namespace DivinityModManager.Util
 			}
 			else if (File.Exists(filePath))
 			{
-				var name = Common.GetRelativePath(rootPath, filePath);
-				//var key = filePath.Replace(rootPath, String.Empty);
-				DivinityApp.Log($"file({filePath}) name({name})");
+				var name = Path.GetRelativePath(rootPath, filePath);
 				var fileInfo = PackageBuildInputFile.CreateFromFilesystem(filePath, name);
 				build.Files.Add(fileInfo);
 			}
@@ -344,9 +339,9 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				using var file = File.Open(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 				var result = new byte[file.Length];
-				var totalBytesRead = await file.ReadAsync(result, 0, (int)file.Length, token);
+				var totalBytesRead = await file.ReadAsync(result.AsMemory(0, (int)file.Length), token);
 				return result;
 			}
 			catch (Exception ex)
@@ -360,8 +355,8 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				using var sourceFile = File.Open(copyFromPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
-				using var outputFile = File.Create(copyToPath, 128000, System.IO.FileOptions.Asynchronous, PathFormat.FullPath);
+				using var sourceFile = new FileStream(copyFromPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+				using var outputFile = File.Create(copyToPath, 128000, FileOptions.Asynchronous);
 				await sourceFile.CopyToAsync(outputFile, 128000, token); // 81920 default
 				return true;
 			}
@@ -406,6 +401,24 @@ namespace DivinityModManager.Util
 			}
 			catch (Exception ex) { }
 			return false;
+		}
+
+		public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions? opts = null, Func<string,bool> inclusionFilter = null)
+		{
+			if (inclusionFilter != null)
+			{
+				return Directory.EnumerateFiles(path, "*", opts).Where(inclusionFilter);
+			}
+			return Directory.EnumerateFiles(path, "*", opts);
+		}
+
+		public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions? opts = null, Func<string,bool> inclusionFilter = null)
+		{
+			if(inclusionFilter != null)
+			{
+				return Directory.EnumerateDirectories(path, "*", opts).Where(inclusionFilter);
+			}
+			return Directory.EnumerateDirectories(path, "*", opts);
 		}
 	}
 }

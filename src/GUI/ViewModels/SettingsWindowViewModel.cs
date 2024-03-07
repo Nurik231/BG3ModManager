@@ -447,7 +447,7 @@ HKEY_CLASSES_ROOT\nxm\shell\open\command
 
 			OpenSettingsFolderCommand = ReactiveCommand.Create(() =>
 			{
-				DivinityFileUtils.TryOpenPath(DivinityApp.GetAppDirectory(DivinityApp.DIR_DATA));
+				FileUtils.TryOpenPath(DivinityApp.GetAppDirectory(DivinityApp.DIR_DATA));
 			});
 
 			ResetSettingsCommand = ReactiveCommand.Create(() =>

@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<LangVersion>9.0</LangVersion>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<LangVersion>Latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>DivinityModManager.Tests</RootNamespace>
 		<AssemblyName>BG3ModManager.Tests</AssemblyName>
 		<PlatformTarget>x64</PlatformTarget>

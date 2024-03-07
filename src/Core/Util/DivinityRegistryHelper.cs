@@ -61,7 +61,7 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				var driveType = DivinityFileUtils.GetPathDriveType(path);
+				var driveType = FileUtils.GetPathDriveType(path);
 				if (driveType == System.IO.DriveType.Fixed)
 				{
 					if (JunctionPoint.Exists(path))

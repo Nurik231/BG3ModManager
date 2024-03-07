@@ -293,11 +293,11 @@ namespace DivinityModManager.Util
 		private static System.IO.FileStream GetAsyncStream(string filePath)
 		{
 			return new System.IO.FileStream(filePath,
-					System.IO.FileMode.Open,
-					System.IO.FileAccess.Read,
-					System.IO.FileShare.Read,
+					FileMode.Open,
+					FileAccess.Read,
+					FileShare.Read,
 					2048,
-					System.IO.FileOptions.Asynchronous);
+					FileOptions.Asynchronous);
 		}
 
 		private static async Task<DivinityModData> LoadEditorProjectFolderAsync(string folder, CancellationToken token)
@@ -327,7 +327,7 @@ namespace DivinityModManager.Util
 						modData.FilePath = folder;
 						try
 						{
-							modData.LastModified = File.GetChangeTime(metaFile);
+							modData.LastModified = File.GetLastWriteTime(metaFile);
 							modData.LastUpdated = modData.LastModified;
 						}
 						catch (PlatformNotSupportedException ex)
@@ -634,7 +634,7 @@ namespace DivinityModManager.Util
 				{
 					try
 					{
-						modData.LastModified = File.GetChangeTime(pakPath);
+						modData.LastModified = File.GetLastWriteTime(pakPath);
 						modData.LastUpdated = modData.LastModified;
 					}
 					catch (PlatformNotSupportedException ex)
@@ -704,7 +704,7 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		public static async Task<DivinityModData> LoadModDataFromPakAsync(System.IO.FileStream stream, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
+		public static async Task<DivinityModData> LoadModDataFromPakAsync(FileStream stream, string pakPath, Dictionary<string, DivinityModData> builtinMods, CancellationToken token)
 		{
 			try
 			{
@@ -712,7 +712,7 @@ namespace DivinityModManager.Util
 				{
 					stream.Position = 0;
 					var pr = new PackageReader();
-					using var pak = pr.Read(stream);
+					using var pak = pr.Read(pakPath, stream);
 					return await InternalLoadModDataFromPakAsync(pak, pakPath, builtinMods, token);
 				}
 			}
@@ -735,13 +735,8 @@ namespace DivinityModManager.Util
 			var modPaks = new List<string>();
 			try
 			{
-				var dirOptions = DirectoryEnumerationOptions.Files | DirectoryEnumerationOptions.Recursive;
-				var allPaks = Directory.EnumerateFiles(modsFolderPath, dirOptions,
-				new DirectoryEnumerationFilters()
-				{
-					InclusionFilter = (f) => Path.GetExtension(f.Extension).Equals(".pak", SCOMP),
-					RecursionFilter = (f) => !_IgnoredRecursiveFolders.Any(x => f.FullPath.Contains(x))
-				});
+				//RecursionFilter = (f) => !_IgnoredRecursiveFolders.Any(x => f.FullPath.Contains(x))
+				var allPaks = FileUtils.EnumerateFiles(modsFolderPath, FileUtils.RecursiveOptions, f => f.EndsWith(".pak", SCOMP) && !_IgnoredRecursiveFolders.Any(x => f.Contains(x)));
 				_AllPaksNames.UnionWith(allPaks.Select(p => Path.GetFileNameWithoutExtension(p)));
 				modPaks.AddRange(allPaks.Where(PakIsNotPartial));
 			}
@@ -804,7 +799,7 @@ namespace DivinityModManager.Util
 		{
 			if (node.Attributes.TryGetValue(key, out var att))
 			{
-				if (att.Type == NodeAttribute.DataType.DT_TranslatedString)
+				if (att.Type == AttributeType.TranslatedString)
 				{
 					TranslatedString ts = (TranslatedString)att.Value;
 					return ts.Value;
@@ -915,15 +910,7 @@ namespace DivinityModManager.Util
 			return null;
 		}
 
-		private static bool CanProcessGMMetaFile(FileSystemEntryInfo f)
-		{
-			return f.FileName.Equals("meta.lsf", SCOMP);
-		}
-
-		private static readonly DirectoryEnumerationFilters GMMetaFilters = new()
-		{
-			InclusionFilter = CanProcessGMMetaFile
-		};
+		private static bool IsMetaFile(string f) => Path.GetFileName(f).Equals("meta.lsf", SCOMP);
 
 		public static List<DivinityGameMasterCampaign> LoadGameMasterData(string folderPath, CancellationToken? token = null)
 		{
@@ -934,7 +921,7 @@ namespace DivinityModManager.Util
 				List<string> campaignMetaFiles = new();
 				try
 				{
-					var files = Directory.EnumerateFiles(folderPath, DirectoryEnumerationOptions.Files | DirectoryEnumerationOptions.Recursive, GMMetaFilters);
+					var files = FileUtils.EnumerateFiles(folderPath, FileUtils.RecursiveOptions, IsMetaFile);
 					if (files != null)
 					{
 						campaignMetaFiles.AddRange(files);
@@ -956,7 +943,7 @@ namespace DivinityModManager.Util
 						}
 						DivinityGameMasterCampaign campaignData = null;
 
-						using var fileStream = new System.IO.FileStream(metaPath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+						using var fileStream = new System.IO.FileStream(metaPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 						using var reader = new LSFReader(fileStream);
 
 						campaignData = ParseGameMasterCampaignMetaFile(reader.Read());
@@ -966,7 +953,7 @@ namespace DivinityModManager.Util
 							campaignData.FilePath = metaPath;
 							try
 							{
-								campaignData.LastModified = File.GetChangeTime(metaPath);
+								campaignData.LastModified = File.GetLastWriteTime(metaPath);
 							}
 							catch (PlatformNotSupportedException ex)
 							{
@@ -1161,7 +1148,7 @@ namespace DivinityModManager.Util
 		{
 			try
 			{
-				using var fs = File.Open(path, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+				using var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 				await fs.ReadAsync(new byte[fs.Length], 0, (int)fs.Length);
 				fs.Position = 0;
 				var resource = ResourceUtils.LoadResource(fs, resourceFormat, _loadParams);
@@ -1193,32 +1180,28 @@ namespace DivinityModManager.Util
 
 		private static FileInfo GetProfileFile(string path)
 		{
-			var files = Directory.EnumerateFiles(path, DirectoryEnumerationOptions.Files, new DirectoryEnumerationFilters()
+			var files = FileUtils.EnumerateFiles(path, null, (f) =>
 			{
-				InclusionFilter = (f) =>
+				var name = Path.GetFileName(f);
+				if (name.IndexOf("profile", SCOMP) > -1 && LarianFileTypes.Any(e => name.EndsWith(e, SCOMP)))
 				{
-					if (f.FileName.IndexOf("profile", SCOMP) > -1 && LarianFileTypes.Any(e => e.Equals(f.Extension, SCOMP)))
-					{
-						return true;
-					}
-					return false;
+					return true;
 				}
+				return false;
 			}).Select(x => new FileInfo(x)).OrderBy(x => x.LastWriteTime).ToList();
 			return files.FirstOrDefault();
 		}
 
 		private static FileInfo GetPlayerProfilesFile(string path)
 		{
-			var files = Directory.EnumerateFiles(path, DirectoryEnumerationOptions.Files, new DirectoryEnumerationFilters()
+			var files = FileUtils.EnumerateFiles(path, null, (f) =>
 			{
-				InclusionFilter = (f) =>
+				var name = Path.GetFileName(f);
+				if (name.IndexOf("playerprofiles", SCOMP) > -1 && LarianFileTypes.Any(e => name.EndsWith(e, SCOMP)))
 				{
-					if (f.FileName.IndexOf("playerprofiles", SCOMP) > -1 && LarianFileTypes.Any(e => e.Equals(f.Extension, SCOMP)))
-					{
-						return true;
-					}
-					return false;
+					return true;
 				}
+				return false;
 			}).Select(x => new FileInfo(x)).OrderBy(x => x.LastWriteTime).ToList();
 			return files.FirstOrDefault();
 		}
@@ -1287,7 +1270,7 @@ namespace DivinityModManager.Util
 
 			string contents = JsonConvert.SerializeObject(order, Newtonsoft.Json.Formatting.Indented);
 
-			DivinityFileUtils.WriteTextFile(outputFilePath, contents);
+			FileUtils.WriteTextFile(outputFilePath, contents);
 
 			order.FilePath = outputFilePath;
 
@@ -1301,7 +1284,7 @@ namespace DivinityModManager.Util
 
 			string contents = JsonConvert.SerializeObject(order, Newtonsoft.Json.Formatting.Indented);
 
-			await DivinityFileUtils.WriteTextFileAsync(outputFilePath, contents);
+			await FileUtils.WriteTextFileAsync(outputFilePath, contents);
 
 			order.FilePath = outputFilePath;
 
@@ -1314,13 +1297,7 @@ namespace DivinityModManager.Util
 
 			if (Directory.Exists(directory))
 			{
-				var files = Directory.EnumerateFiles(directory, DirectoryEnumerationOptions.Files | DirectoryEnumerationOptions.Recursive, new DirectoryEnumerationFilters()
-				{
-					InclusionFilter = (f) =>
-					{
-						return f.Extension.Equals(".json", SCOMP);
-					}
-				});
+				var files = FileUtils.EnumerateFiles(directory, FileUtils.RecursiveOptions, f => f.EndsWith(".json", SCOMP));
 
 				foreach (var loadOrderFile in files)
 				{
@@ -1351,13 +1328,12 @@ namespace DivinityModManager.Util
 
 			if (Directory.Exists(directory))
 			{
-				var files = Directory.EnumerateFiles(directory, DirectoryEnumerationOptions.Files | DirectoryEnumerationOptions.Recursive, new DirectoryEnumerationFilters()
+				var options = new EnumerationOptions()
 				{
-					InclusionFilter = (f) =>
-					{
-						return f.Extension.Equals(".json", SCOMP) && !f.FileName.Equals("settings.json", SCOMP);
-					}
-				});
+					RecurseSubdirectories = true
+				};
+				var files = FileUtils.EnumerateFiles(directory, options, 
+					(f) => f.EndsWith(".json", SCOMP) && !f.Equals("settings.json", SCOMP));
 
 				foreach (var loadOrderFile in files)
 				{
@@ -1547,7 +1523,7 @@ namespace DivinityModManager.Util
 					xw.Indentation = 2;
 					xml.WriteTo(xw);
 
-					await DivinityFileUtils.WriteTextFileAsync(outputFilePath, sw.ToString());
+					await FileUtils.WriteTextFileAsync(outputFilePath, sw.ToString());
 
 					return true;
 				}
@@ -1589,7 +1565,7 @@ namespace DivinityModManager.Util
 
 			string contents = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented);
 
-			await DivinityFileUtils.WriteTextFileAsync(settingsFilePath, contents);
+			await FileUtils.WriteTextFileAsync(settingsFilePath, contents);
 
 			DivinityApp.Log($"Updated {settingsFilePath}");
 			return true;
@@ -2004,11 +1980,11 @@ namespace DivinityModManager.Util
 			return baseMods;
 		}
 
-		public static ModuleInfo TryGetMetaFromPakFileStream(System.IO.FileStream stream, string filePath, CancellationToken token)
+		public static ModuleInfo TryGetMetaFromPakFileStream(FileStream stream, string filePath, CancellationToken token)
 		{
 			stream.Position = 0;
 			var pr = new PackageReader();
-			using var pak = pr.Read(stream);
+			using var pak = pr.Read(filePath, stream);
 			if (pak != null && pak.Files != null)
 			{
 				for (int i = 0; i < pak.Files.Count; i++)

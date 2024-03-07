@@ -44,7 +44,7 @@ namespace DivinityModManager.Models.Updates
 			}
 		}
 
-		private static System.IO.Stream MakeFileStream(string path) => File.Open(path, System.IO.FileMode.CreateNew, System.IO.FileAccess.Write, System.IO.FileShare.None, 4096, true);
+		private static System.IO.Stream MakeFileStream(string path) => new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, true);
 
 		public async Task<ModDownloadResult> DownloadAsync(string previousFilePath, string outputDirectory, CancellationToken token)
 		{
@@ -58,7 +58,7 @@ namespace DivinityModManager.Models.Updates
 					var outputFilePath = Path.Combine(outputDirectory, DownloadPath);
 					//This covers when an update changes the pak name
 					MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
-					await DivinityFileUtils.CopyFileAsync(DownloadPath, outputFilePath, token);
+					await FileUtils.CopyFileAsync(DownloadPath, outputFilePath, token);
 					result.Success = true;
 					result.OutputFilePath = outputFilePath;
 					return result;
@@ -68,7 +68,7 @@ namespace DivinityModManager.Models.Updates
 					if (IsIndirectDownload)
 					{
 						//Nexus non-premium users need to go to the website and get a nxm:// link to have download authorization.
-						DivinityFileUtils.TryOpenPath(DownloadPath);
+						FileUtils.TryOpenPath(DownloadPath);
 						result.Success = true;
 						result.OutputFilePath = DownloadPath;
 						return result;

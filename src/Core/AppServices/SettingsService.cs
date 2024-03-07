@@ -88,7 +88,7 @@ namespace DivinityModManager.AppServices
 						{
 							if (!String.IsNullOrEmpty(path))
 							{
-								DivinityModDataLoader.IgnoreBuiltinPath.Add(path.Replace(Path.DirectorySeparator, "/"));
+								DivinityModDataLoader.IgnoreBuiltinPath.Add(path.Replace(Path.DirectorySeparatorChar, '/'));
 							}
 						}
 					}

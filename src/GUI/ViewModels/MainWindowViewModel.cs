@@ -1,4 +1,4 @@
-﻿using Alphaleonis.Win32.Filesystem;
+﻿using System.IO;
 
 using AutoUpdaterDotNET;
 
@@ -601,7 +601,7 @@ Directory the zip will be extracted to:
 			else
 			{
 				DivinityApp.Log($"Getting a release download link failed for some reason. Opening repo url: {DivinityApp.EXTENDER_LATEST_URL}");
-				DivinityFileUtils.TryOpenPath(DivinityApp.EXTENDER_LATEST_URL);
+				FileUtils.TryOpenPath(DivinityApp.EXTENDER_LATEST_URL);
 			}
 		}
 
@@ -658,13 +658,7 @@ Directory the zip will be extracted to:
 			var extenderAppDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DivinityApp.EXTENDER_APPDATA_DIRECTORY);
 			if (Directory.Exists(extenderAppDataDir))
 			{
-				var enumerationFilter = new DirectoryEnumerationFilters()
-				{
-					InclusionFilter = (f) => f.FileName.Equals(DivinityApp.EXTENDER_APPDATA_DLL, StringComparison.OrdinalIgnoreCase)
-				};
-				if (t.HasValue) enumerationFilter.CancellationToken = t.Value;
-
-				var files = Directory.EnumerateFiles(extenderAppDataDir, DirectoryEnumerationOptions.Recursive | DirectoryEnumerationOptions.Files, enumerationFilter);
+				var files = FileUtils.EnumerateFiles(extenderAppDataDir, FileUtils.RecursiveOptions, (f) => f.EndsWith(DivinityApp.EXTENDER_APPDATA_DLL, StringComparison.OrdinalIgnoreCase));
 				var isInstalled = false;
 				var fullExtenderVersion = "";
 				int majorVersion = -1;
@@ -957,7 +951,7 @@ Directory the zip will be extracted to:
 				var appid = AppSettings.DefaultPathways.Steam.AppID ?? "1086940";
 				var steamUrl = $"steam://run/{appid}//{launchParams}";
 				DivinityApp.Log($"Opening game through steam via '{steamUrl}'");
-				DivinityFileUtils.TryOpenPath(steamUrl);
+				FileUtils.TryOpenPath(steamUrl);
 			}
 
 			if (Settings.ActionOnGameLaunch != DivinityGameLaunchWindowAction.None)
@@ -1026,7 +1020,7 @@ Directory the zip will be extracted to:
 			var canOpenModsFolder = this.WhenAnyValue(x => x.PathwayData.AppDataModsPath, (p) => !String.IsNullOrEmpty(p) && Directory.Exists(p));
 			Keys.OpenModsFolder.AddAction(() =>
 			{
-				DivinityFileUtils.TryOpenPath(PathwayData.AppDataModsPath);
+				FileUtils.TryOpenPath(PathwayData.AppDataModsPath);
 			}, canOpenModsFolder);
 
 			var canOpenGameFolder = Settings.WhenAnyValue(x => x.GameExecutablePath, (p) => !String.IsNullOrEmpty(p) && File.Exists(p));
@@ -1035,13 +1029,13 @@ Directory the zip will be extracted to:
 				var folder = Path.GetDirectoryName(Settings.GameExecutablePath);
 				if (Directory.Exists(folder))
 				{
-					DivinityFileUtils.TryOpenPath(folder);
+					FileUtils.TryOpenPath(folder);
 				}
 			}, canOpenGameFolder);
 
 			Keys.OpenLogsFolder.AddAction(() =>
 			{
-				DivinityFileUtils.TryOpenPath(Settings.ExtenderLogDirectory);
+				FileUtils.TryOpenPath(Settings.ExtenderLogDirectory);
 			}, canOpenLogDirectory);
 
 			Keys.OpenWorkshopFolder.AddAction(() =>
@@ -1049,7 +1043,7 @@ Directory the zip will be extracted to:
 				//DivinityApp.Log($"WorkshopSupportEnabled:{WorkshopSupportEnabled} canOpenWorkshopFolder CanExecute:{OpenWorkshopFolderCommand.CanExecute(null)}");
 				if (!String.IsNullOrEmpty(Settings.WorkshopPath) && Directory.Exists(Settings.WorkshopPath))
 				{
-					DivinityFileUtils.TryOpenPath(Settings.WorkshopPath);
+					FileUtils.TryOpenPath(Settings.WorkshopPath);
 				}
 			}, canOpenWorkshopFolder);
 
@@ -1842,7 +1836,7 @@ Directory the zip will be extracted to:
 			TempFile tempFile = null;
 			try
 			{
-				using var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true);
+				using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 				await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
 				fileStream.Position = 0;
 
@@ -1892,7 +1886,7 @@ Directory the zip will be extracted to:
 		private async Task<ModuleInfo> TryGetMetaFromCompressedFileAsync(string filePath, string extension, CancellationToken token)
 		{
 			ModuleInfo result = null;
-			using (var fileStream = File.Open(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read, 4096, true))
+			using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
 			{
 				await fileStream.ReadAsync(new byte[fileStream.Length], 0, (int)fileStream.Length);
 				fileStream.Position = 0;
@@ -2134,7 +2128,7 @@ Directory the zip will be extracted to:
 				{
 					taskResult.TotalPaks++;
 
-					await DivinityFileUtils.CopyFileAsync(filePath, outputFilePath, token);
+					await FileUtils.CopyFileAsync(filePath, outputFilePath, token);
 
 					if (File.Exists(outputFilePath))
 					{
@@ -2280,7 +2274,7 @@ Directory the zip will be extracted to:
 		{
 			var directory = prioritizePath;
 
-			if (!String.IsNullOrEmpty(prioritizePath) && DivinityFileUtils.TryGetDirectoryOrParent(prioritizePath, out var actualDir))
+			if (!String.IsNullOrEmpty(prioritizePath) && FileUtils.TryGetDirectoryOrParent(prioritizePath, out var actualDir))
 			{
 				directory = actualDir;
 			}
@@ -2291,7 +2285,7 @@ Directory the zip will be extracted to:
 					directory = Settings.LastImportDirectoryPath;
 				}
 
-				if (!Directory.Exists(directory) && !String.IsNullOrEmpty(PathwayData.LastSaveFilePath) && DivinityFileUtils.TryGetDirectoryOrParent(PathwayData.LastSaveFilePath, out var lastDir))
+				if (!Directory.Exists(directory) && !String.IsNullOrEmpty(PathwayData.LastSaveFilePath) && FileUtils.TryGetDirectoryOrParent(PathwayData.LastSaveFilePath, out var lastDir))
 				{
 					directory = lastDir;
 				}
@@ -3691,7 +3685,7 @@ Directory the zip will be extracted to:
 
 							DivinityApp.Log($"Creating package for editor mod '{mod.Name}' - '{outputPackage}'.");
 
-							if (await DivinityFileUtils.CreatePackageAsync(gameDataFolder, sourceFolders, outputPackage, token, DivinityFileUtils.IgnoredPackageFiles))
+							if (await FileUtils.CreatePackageAsync(gameDataFolder, sourceFolders, outputPackage, token, FileUtils.IgnoredPackageFiles))
 							{
 								var fileName = Path.GetFileName(outputPackage);
 								await WriteZipAsync(zipWriter, fileName, outputPackage, token);
@@ -3708,7 +3702,7 @@ Directory the zip will be extracted to:
 						var dir = Path.GetFullPath(Path.GetDirectoryName(outputPath));
 						if (Directory.Exists(dir))
 						{
-							DivinityFileUtils.TryOpenPath(dir);
+							FileUtils.TryOpenPath(dir);
 						}
 					});
 
@@ -4125,7 +4119,7 @@ Directory the zip will be extracted to:
 							string originalDirectory = Path.GetDirectoryName(dialog.FileName);
 							string desiredDirectory = Path.GetDirectoryName(renameDialog.FileName);
 
-							if (!String.IsNullOrEmpty(profileSavesDirectory) && DivinityFileUtils.IsSubdirectoryOf(profileSavesDirectory, desiredDirectory))
+							if (!String.IsNullOrEmpty(profileSavesDirectory) && FileUtils.IsSubdirectoryOf(profileSavesDirectory, desiredDirectory))
 							{
 								if (originalDirectory == desiredDirectory)
 								{
@@ -4591,7 +4585,7 @@ Directory the zip will be extracted to:
 							{
 								destination = outputDirectory;
 							}
-							var success = await DivinityFileUtils.ExtractPackageAsync(path, destination, MainProgressToken.Token);
+							var success = await FileUtils.ExtractPackageAsync(path, destination, MainProgressToken.Token);
 							if (success)
 							{
 								successes += 1;
@@ -4616,7 +4610,7 @@ Directory the zip will be extracted to:
 						if (successes >= totalWork)
 						{
 							ShowAlert($"Successfully extracted all selected mods to '{dialog.SelectedPath}'", AlertType.Success, 20);
-							DivinityFileUtils.TryOpenPath(openOutputPath);
+							FileUtils.TryOpenPath(openOutputPath);
 						}
 						else
 						{
@@ -4696,7 +4690,7 @@ Directory the zip will be extracted to:
 							destination = outputDirectory;
 						}
 						openOutputPath = destination;
-						success = await DivinityFileUtils.ExtractPackageAsync(path, destination, MainProgressToken.Token);
+						success = await FileUtils.ExtractPackageAsync(path, destination, MainProgressToken.Token);
 					}
 					catch (Exception ex)
 					{
@@ -4712,7 +4706,7 @@ Directory the zip will be extracted to:
 						if (success)
 						{
 							ShowAlert($"Successfully extracted adventure mod to '{dialog.SelectedPath}'", AlertType.Success, 20);
-							DivinityFileUtils.TryOpenPath(openOutputPath);
+							FileUtils.TryOpenPath(openOutputPath);
 						}
 						else
 						{
@@ -5093,6 +5087,8 @@ Directory the zip will be extracted to:
 
 			Keys.RefreshModUpdates.AddAction(() => RefreshModUpdatesCommand.Execute().Subscribe(), canRefreshModUpdates);
 
+			Keys.OpenCollectionDownloaderWindow.AddAction(() => App.WM.CollectionDownload.Toggle(true));
+
 			CheckForGitHubModUpdatesCommand = ReactiveCommand.Create(RefreshGitHubModsUpdatesBackground, this.WhenAnyValue(x => x.GitHubModSupportEnabled), RxApp.MainThreadScheduler);
 			CheckForNexusModsUpdatesCommand = ReactiveCommand.Create(RefreshNexusModsUpdatesBackground, this.WhenAnyValue(x => x.NexusModsSupportEnabled), RxApp.MainThreadScheduler);
 			CheckForSteamWorkshopUpdatesCommand = ReactiveCommand.Create(RefreshSteamWorkshopUpdatesBackground, this.WhenAnyValue(x => x.SteamWorkshopSupportEnabled), RxApp.MainThreadScheduler);
@@ -5115,12 +5111,12 @@ Directory the zip will be extracted to:
 
 			Keys.OpenDonationLink.AddAction(() =>
 			{
-				DivinityFileUtils.TryOpenPath(DivinityApp.URL_DONATION);
+				FileUtils.TryOpenPath(DivinityApp.URL_DONATION);
 			});
 
 			Keys.OpenRepositoryPage.AddAction(() =>
 			{
-				DivinityFileUtils.TryOpenPath(DivinityApp.URL_REPO);
+				FileUtils.TryOpenPath(DivinityApp.URL_REPO);
 			});
 
 			Keys.ToggleViewTheme.AddAction(() =>

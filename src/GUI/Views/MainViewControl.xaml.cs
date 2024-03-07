@@ -1,6 +1,6 @@
 ﻿using AdonisUI;
 
-using Alphaleonis.Win32.Filesystem;
+using System.IO;
 
 using DivinityModManager.Converters;
 using DivinityModManager.Models.App;
