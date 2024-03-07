@@ -79,7 +79,7 @@ public class ModDownloadData : ReactiveObject
 						var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(DownloadPath));
 						MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
 						using var outputFile = MakeFileStream(outputFilePath);
-						await webStream.CopyToAsync(outputFile, 4096, token);
+						await webStream.CopyToAsync(outputFile, 128000, token);
 						result.Success = true;
 						result.OutputFilePath = outputFilePath;
 					}
@@ -94,7 +94,7 @@ public class ModDownloadData : ReactiveObject
 								var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(entry.Name));
 								MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
 								using var outputFile = MakeFileStream(outputFilePath);
-								await entryStream.CopyToAsync(outputFile, 4096, token);
+								await entryStream.CopyToAsync(outputFile, 128000, token);
 								result.Success = true;
 								result.OutputFilePath = outputFilePath;
 							}

@@ -113,8 +113,6 @@ public static class FileUtils
 	{
 		try
 		{
-			if (token == null) token = CancellationToken.None;
-
 			ignoredFiles ??= IgnoredPackageFiles;
 
 			if (token.IsCancellationRequested) return false;

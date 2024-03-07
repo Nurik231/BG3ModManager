@@ -234,35 +234,19 @@ namespace DivinityModManager.AppServices
 			return taskResult;
 		}
 
-		private async Task<System.IO.Stream> DownloadUrlAsStreamAsync(Uri downloadUrl, CancellationToken token)
+		private async Task<Stream> DownloadUrlAsStreamAsync(Uri downloadUrl, CancellationToken token)
 		{
+			using var httpClient = new HttpClient();
+			httpClient.DefaultRequestHeaders.Add("apikey", ApiKey);
 			try
 			{
-				using var webClient = new WebClient();
-				webClient.Headers.Add("apikey", ApiKey);
-				double receivedBytes = 0;
-
-				var stream = await webClient.OpenReadTaskAsync(downloadUrl);
-				var ms = new System.IO.MemoryStream();
-				var buffer = new byte[4096];
-				int read = 0;
-				double totalBytes = double.Parse(webClient.ResponseHeaders[HttpResponseHeader.ContentLength]);
-
-				while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
-				{
-					ms.Write(buffer, 0, read);
-					receivedBytes += read;
-					DownloadProgressValue = (receivedBytes / totalBytes) * 100d;
-				}
-				DownloadProgressValue = 100d;
-				stream.Close();
-				return ms;
+				var fileStream = await httpClient.GetStreamAsync(downloadUrl, token);
+				return fileStream;
 			}
 			catch (Exception ex)
 			{
-				DivinityApp.Log($"Error downloading url ({downloadUrl}):\n{ex}");
+				return Stream.Null;
 			}
-			return null;
 		}
 
 		private static INexusModsProtocol GetProtocolData(string url)
@@ -313,9 +297,8 @@ namespace DivinityModManager.AppServices
 									DownloadProgressText = $"Downloading {fileName}...";
 									DownloadProgressValue = 0;
 									using var stream = await DownloadUrlAsStreamAsync(file.Uri, token);
-									using var outputStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create);
-									stream.Position = 0;
-									await stream.CopyToAsync(outputStream, 4096, token);
+									using var outputStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 128000, true);
+									await stream.CopyToAsync(outputStream, 128000, token);
 									DownloadResults.Add(filePath);
 									DivinityApp.Log("Download done.");
 									DownloadProgressText = $"Downloaded {fileName}";
