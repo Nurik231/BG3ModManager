@@ -3,9 +3,6 @@ _Assets/
 PublishRelease.py
 _Backup/
 
-# External Libraries, such as lslib
-External/lslib*
-
 # WIP
 src/Avalonia
 
