@@ -20,7 +20,7 @@
 		<OutputPath>$(SolutionDir)\bin\$(Configuration)\</OutputPath>
 		<OutputType>WinExe</OutputType>
 		<PlatformTarget>x64</PlatformTarget>
-		<Platforms>x64</Platforms>
+		<Platforms>AnyCPU</Platforms>
 		<NeutralLanguage>en</NeutralLanguage>
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 		<SupportedCultures>en-US</SupportedCultures>
@@ -44,12 +44,12 @@
 		<PreBuildEvent>rd /s /q $(TargetDir)_Lib</PreBuildEvent>
 	</PropertyGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<ItemGroup>
 			<LSLib Include="$(SolutionDir)External\lslib\Ijwhost.dll; $(SolutionDir)External\lslib\LSLib.dll; $(SolutionDir)External\lslib\LSLibNative.dll; $(SolutionDir)External\lslib\LZ4.dll; $(SolutionDir)External\lslib\LZ4pn.dll; $(SolutionDir)External\lslib\OpenTK.Mathematics.dll; $(SolutionDir)External\lslib\System.IO.Hashing.dll; $(SolutionDir)External\lslib\ZstdSharp.dll;" />
 		</ItemGroup>
 		<Copy SourceFiles="@(LSLib)" DestinationFolder="$(SolutionDir)bin\$(Configuration)\_Lib\" OverwriteReadOnlyFiles="true" />
-	</Target>
+	</Target>-->
 
 	<Target Name="SetupLibFolder" AfterTargets="AfterBuild" Condition="'$(TidyRelease)' == True">
 		<ItemGroup>
@@ -71,7 +71,6 @@
 	</Target>
 
 	<ItemGroup>
-		<ProjectReference Include="$(SolutionDir)External\lslib\LSLib\LSLib.csproj" />
 		<ProjectReference Include="$(SolutionDir)src\Core\Core.csproj" />
 		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
 	</ItemGroup>
