@@ -1,3 +1,6 @@
 [submodule "External/NexusModsNET"]
 	path = External/NexusModsNET
 	url = https://github.com/LaughingLeader/NexusModsNET
+[submodule "wpf-autogrid"]
+	path = External/wpf-autogrid
+	url = https://github.com/LaughingLeader/wpf-autogrid
