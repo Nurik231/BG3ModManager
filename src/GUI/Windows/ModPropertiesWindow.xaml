@@ -3,8 +3,7 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
-	xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
-	xmlns:c="clr-namespace:DivinityModManager.Controls"
+	xmlns:controls="clr-namespace:DivinityModManager.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:local="clr-namespace:DivinityModManager.Windows"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -53,7 +52,7 @@
 							<Setter Property="TextAlignment" Value="Left" />
 						</Style>
 					</TabItem.Resources>
-					<autogrid:AutoGrid
+					<controls:AutoGrid
 						Margin="10,0"
 						ChildMargin="4"
 						ColumnCount="2"
@@ -99,10 +98,10 @@
 
 						<TextBlock Text="Size:" />
 						<TextBlock x:Name="ModSizeText" TextWrapping="NoWrap" />
-					</autogrid:AutoGrid>
+					</controls:AutoGrid>
 				</TabItem>
 				<TabItem Header="Config">
-					<autogrid:AutoGrid
+					<controls:AutoGrid
 						Margin="10,0"
 						ChildMargin="4"
 						ColumnCount="2"
@@ -135,7 +134,7 @@
 						<TextBlock HorizontalAlignment="Right">
 							<Run BaselineAlignment="Center" Text="https://github.com/" />
 							<Grid>
-								<c:UnfocusableTextBox
+								<controls:UnfocusableTextBox
 									x:Name="ModGitHubAuthorText"
 									VerticalAlignment="Bottom"
 									Text="" />
@@ -152,7 +151,7 @@
 							</Grid>
 							<Run BaselineAlignment="Center" Text="/" />
 							<Grid>
-								<c:UnfocusableTextBox
+								<controls:UnfocusableTextBox
 									x:Name="ModGitHubRepositoryText"
 									VerticalAlignment="Bottom"
 									Text="" />
@@ -172,10 +171,10 @@
 						<Separator Grid.ColumnSpan="2" Margin="4,8" />
 						<!--<TextBlock Text="Steam Workshop ID" />
 	<TextBlock x:Name="SteamWorkshopIDTextBlock" />-->
-					</autogrid:AutoGrid>
+					</controls:AutoGrid>
 				</TabItem>
 				<TabItem Header="Notes">
-					<c:UnfocusableTextBox
+					<controls:UnfocusableTextBox
 						x:Name="ModNotesTextBox"
 						VerticalContentAlignment="Top"
 						AcceptsReturn="True"

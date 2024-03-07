@@ -3,7 +3,6 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
-	xmlns:ag="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
@@ -32,7 +31,7 @@
 		</ResourceDictionary>
 	</Window.Resources>
 	<Border BorderBrush="LightGray" BorderThickness="1">
-		<ag:AutoGrid
+		<controls:AutoGrid
 			Columns="*"
 			RowCount="3"
 			Rows="auto,*,auto">
@@ -47,6 +46,6 @@
 			<ScrollViewer VerticalScrollBarVisibility="Visible">
 				<TextBlock x:Name="ResultsTextBlock" />
 			</ScrollViewer>
-		</ag:AutoGrid>
+		</controls:AutoGrid>
 	</Border>
 </local:StatsValidatorWindowBase>

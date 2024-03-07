@@ -19,8 +19,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
-using WpfAutoGrid;
-
 using Xceed.Wpf.Toolkit;
 
 namespace DivinityModManager.Windows;

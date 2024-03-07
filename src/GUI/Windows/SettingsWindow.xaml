@@ -4,9 +4,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
-	xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
-	xmlns:c="clr-namespace:DivinityModManager.Controls"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -39,7 +37,7 @@
 			<controls:AutomationTooltip x:Key="ExtenderUpdateEntryToolTip" DataContext="{Binding RelativeSource={RelativeSource Mode=Self}, Path=PlacementTarget.Tag}">
 				<controls:AutomationTooltip.Resources>
 					<DataTemplate x:Key="RegularVersionTooltip">
-						<autogrid:AutoGrid
+						<controls:AutoGrid
 							Margin="10,0"
 							ChildMargin="4"
 							ColumnCount="2"
@@ -55,7 +53,7 @@
 							<TextBlock Text="{Binding Version}" />
 							<TextBlock Text="URL:" />
 							<TextBlock Text="{Binding URL}" />
-						</autogrid:AutoGrid>
+						</controls:AutoGrid>
 					</DataTemplate>
 					<DataTemplate x:Key="EmptyVersionTooltip">
 						<TextBlock Text="The extender will automatically update to the latest version of the selected UpdateChannel" />
@@ -93,7 +91,7 @@
 			<Style BasedOn="{StaticResource {x:Type CheckBox}}" TargetType="CheckBox">
 				<Setter Property="VerticalAlignment" Value="Center" />
 			</Style>
-			<Style TargetType="autogrid:AutoGrid">
+			<Style TargetType="controls:AutoGrid">
 				<Setter Property="Margin" Value="10,0" />
 				<Setter Property="ChildMargin" Value="4" />
 				<Setter Property="ColumnCount" Value="2" />
@@ -165,7 +163,7 @@
 						ToolTip="Mod Manager Settings (Data/settings.json)" />
 				</TabItem.Header>
 				<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-					<autogrid:AutoGrid x:Name="SettingsAutoGrid" />
+					<controls:AutoGrid x:Name="SettingsAutoGrid" />
 				</ScrollViewer>
 			</TabItem>
 			<TabItem x:Name="UpdateSettingsTab" FocusManager.FocusedElement="{Binding ElementName=UpdateSettingsAutoGrid}">
@@ -182,7 +180,7 @@
 						<RowDefinition Height="auto" />
 					</Grid.RowDefinitions>
 					<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-						<autogrid:AutoGrid x:Name="UpdateSettingsAutoGrid" />
+						<controls:AutoGrid x:Name="UpdateSettingsAutoGrid" />
 					</ScrollViewer>
 					<StackPanel Grid.Row="1">
 						<Button x:Name="AssociateWithNXMButton" Content="Associate with &quot;Download with manager&quot; links (nxm://)" />
@@ -198,7 +196,7 @@
 						ToolTip="Script Extender Settings (ScriptExtenderSettings.json)" />
 				</TabItem.Header>
 				<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-					<autogrid:AutoGrid x:Name="ExtenderSettingsAutoGrid" />
+					<controls:AutoGrid x:Name="ExtenderSettingsAutoGrid" />
 				</ScrollViewer>
 			</TabItem>
 			<TabItem x:Name="ScriptExtenderUpdaterTab" FocusManager.FocusedElement="{Binding ElementName=ExtenderUpdaterSettingsAutoGrid}">
@@ -215,7 +213,7 @@
 						<RowDefinition Height="auto" />
 					</Grid.RowDefinitions>
 					<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-						<autogrid:AutoGrid x:Name="ExtenderUpdaterSettingsAutoGrid">
+						<controls:AutoGrid x:Name="ExtenderUpdaterSettingsAutoGrid">
 							<TextBlock
 								x:Name="UpdateChannelTextBlock"
 								Grid.Column="0"
@@ -248,7 +246,7 @@
 									</ContextMenu>
 								</ComboBox.ContextMenu>
 							</ComboBox>
-						</autogrid:AutoGrid>
+						</controls:AutoGrid>
 					</ScrollViewer>
 				</Grid>
 			</TabItem>
@@ -337,7 +335,7 @@
 						Text="Advanced"
 						ToolTip="Advanced Mod Manager Settings (Data/settings.json)" />
 				</TabItem.Header>
-				<autogrid:AutoGrid
+				<controls:AutoGrid
 					x:Name="AdvancedSettingsAutoGrid"
 					Margin="10,0"
 					ChildMargin="8,4"
@@ -406,7 +404,7 @@
 						VerticalAlignment="Center"
 						Content="Delete Cache"
 						ToolTip="Delete the local mod cache, located in the mod manager's Data folder" />
-				</autogrid:AutoGrid>
+				</controls:AutoGrid>
 			</TabItem>
 		</TabControl>
 		<StatusBar Grid.Row="2" MinHeight="16">

@@ -73,7 +73,6 @@
 	<ItemGroup>
 		<ProjectReference Include="$(SolutionDir)src\Core\Core.csproj" />
 		<ProjectReference Include="$(SolutionDir)External\NexusModsNET\NexusModsNET\NexusModsNET.csproj" />
-		<ProjectReference Include="$(SolutionDir)External\wpf-autogrid\source\WpfAutoGrid\WpfAutoGrid.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

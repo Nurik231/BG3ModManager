@@ -6,7 +6,6 @@
 	xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
 	xmlns:appdata="clr-namespace:DivinityModManager.Models.App;assembly=DivinityModManagerCore"
-	xmlns:autogrid="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:chrome="clr-namespace:Xceed.Wpf.Toolkit.Chromes;assembly=Xceed.Wpf.Toolkit.NET5"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
@@ -2172,7 +2171,7 @@
 					</CheckBox.Style>
 				</CheckBox>
 
-				<autogrid:AutoGrid
+				<controls:AutoGrid
 					Grid.Row="1"
 					Margin="8"
 					Columns="*"
@@ -2209,7 +2208,7 @@
 						Text="{Binding Description}"
 						TextWrapping="Wrap"
 						ToolTip="{Binding Description}" />
-				</autogrid:AutoGrid>
+				</controls:AutoGrid>
 			</Grid>
 		</Border>
 	</DataTemplate>

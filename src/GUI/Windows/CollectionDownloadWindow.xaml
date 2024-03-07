@@ -3,7 +3,6 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
-	xmlns:ag="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
@@ -152,7 +151,7 @@
 		</ResourceDictionary>
 	</Window.Resources>
 	<Border BorderBrush="LightGray" BorderThickness="1">
-		<ag:AutoGrid
+		<controls:AutoGrid
 			Columns="*"
 			RowCount="3"
 			Rows="auto,*,auto">
@@ -178,7 +177,7 @@
 					Visibility="{Binding AuthorAvatarVisibility}" />
 				<Rectangle Height="2" Fill="LightGray" />
 			</StackPanel>
-			<ag:AutoGrid
+			<controls:AutoGrid
 				Columns="*"
 				RowCount="2"
 				Rows="auto,*">
@@ -263,7 +262,7 @@
 						Visibility="Collapsed" />
 				</Grid>
 
-			</ag:AutoGrid>
+			</controls:AutoGrid>
 			<UniformGrid
 				Margin="4"
 				HorizontalAlignment="Center"
@@ -282,6 +281,6 @@
 					Background="{DynamicResource {x:Static adonisUI:Brushes.ErrorBrush}}"
 					Content="Cancel" />
 			</UniformGrid>
-		</ag:AutoGrid>
+		</controls:AutoGrid>
 	</Border>
 </local:CollectionDownloadWindowBase>

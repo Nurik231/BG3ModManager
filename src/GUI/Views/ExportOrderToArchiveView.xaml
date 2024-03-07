@@ -3,7 +3,6 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:adonisUI="clr-namespace:AdonisUI;assembly=AdonisUI"
-	xmlns:ag="clr-namespace:WpfAutoGrid;assembly=WpfAutoGrid"
 	xmlns:behavior="clr-namespace:DivinityModManager.Controls.Behavior"
 	xmlns:controls="clr-namespace:DivinityModManager.Controls"
 	xmlns:conv="clr-namespace:DivinityModManager.Converters"
