@@ -4,12 +4,39 @@ using LSLib.LS;
 using LSLib.LS.Stats;
 
 using System.IO;
+using System.Xml;
 
 namespace DivinityModManager.Util;
 
 public static class ModUtils
 {
-	private static void LoadModStats(Dictionary<string, ModInfo> mods, VFS vfs, StatLoader loader, string folderName)
+	private static XmlDocument LoadXml(VFS vfs, string path)
+	{
+		if (path == null) return null;
+
+		using var stream = vfs.Open(path);
+
+		var doc = new XmlDocument();
+		doc.Load(stream);
+		return doc;
+	}
+
+	private static void LoadGuidResources(VFS vfs, StatLoader loader, ModInfo mod)
+	{
+		var actionResources = LoadXml(vfs, mod.ActionResourcesFile);
+		if (actionResources != null)
+		{
+			loader.LoadActionResources(actionResources);
+		}
+
+		var actionResourceGroups = LoadXml(vfs, mod.ActionResourceGroupsFile);
+		if (actionResourceGroups != null)
+		{
+			loader.LoadActionResourceGroups(actionResourceGroups);
+		}
+	}
+
+	private static void LoadMod(Dictionary<string, ModInfo> mods, VFS vfs, StatLoader loader, string folderName)
 	{
 		if (mods.TryGetValue(folderName, out var mod))
 		{
@@ -18,10 +45,11 @@ public static class ModUtils
 				using var statStream = vfs.Open(file);
 				loader.LoadStatsFromStream(file, statStream);
 			}
+			LoadGuidResources(vfs, loader, mod);
 		}
 	}
 
-	public static void ValidateStats(IEnumerable<DivinityModData> mods, string gameDataPath)
+	public static ValidateModStatsResults ValidateStats(IEnumerable<DivinityModData> mods, string gameDataPath)
 	{
 		var context = new StatLoadingContext();
 		var loader = new StatLoader(context);
@@ -45,7 +73,7 @@ public static class ModUtils
 			CollectLevels = false,
 			CollectStoryGoals = false,
 			CollectStats = true,
-			CollectGuidResources = false,
+			CollectGuidResources = true,
 		};
 
 		modHelper.Discover();
@@ -55,7 +83,7 @@ public static class ModUtils
 		{
 			if (modResources.Mods.TryGetValue("Shared", out var shared))
 			{
-				definitions.LoadDefinitions(vfs.Open(shared.ValueListsFile));
+				definitions.LoadEnumerations(vfs.Open(shared.ValueListsFile));
 				definitions.LoadDefinitions(vfs.Open(shared.ModifiersFile));
 			}
 			else
@@ -70,15 +98,33 @@ public static class ModUtils
 
 		context.Definitions = definitions;
 
-		var dependencies = mods.SelectMany(x => x.Dependencies.Items.Select(x => x.Folder)).Distinct();
-		foreach (var dependency in dependencies)
+		List<string> baseDependencies = ["Shared", "SharedDev", "Gustav", "GustavDev"];
+
+		foreach (var dependency in baseDependencies)
 		{
-			LoadModStats(modResources.Mods, vfs, loader, dependency);
+			LoadMod(modResources.Mods, vfs, loader, dependency);
+		}
+
+		var modDependencies = mods.SelectMany(x => x.Dependencies.Items.Select(x => x.Folder)).Distinct().Where(x => !baseDependencies.Contains(x));
+
+		foreach (var dependency in modDependencies)
+		{
+			LoadMod(modResources.Mods, vfs, loader, dependency);
 		}
 
 		loader.ResolveUsageRef();
 		loader.ValidateEntries();
 
 		context.Errors.Clear();
+
+		foreach (var mod in mods)
+		{
+			LoadMod(modResources.Mods, vfs, loader, mod.Folder);
+		}
+
+		loader.ResolveUsageRef();
+		loader.ValidateEntries();
+
+		return new ValidateModStatsResults(new List<DivinityModData>(mods), context.Errors);
 	}
 }

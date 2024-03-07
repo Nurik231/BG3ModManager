@@ -53,6 +53,7 @@ public class WindowManagerService
 	public WindowWrapper<NxmDownloadWindow> NxmDownload { get; }
 	public WindowWrapper<SettingsWindow> Settings { get; }
 	public WindowWrapper<VersionGeneratorWindow> VersionGenerator { get; }
+	public WindowWrapper<StatsValidatorWindow> StatsValidator { get; }
 
 	private readonly List<Window> _windows = new();
 
@@ -74,6 +75,7 @@ public class WindowManagerService
 		NxmDownload = new(new NxmDownloadWindow());
 		Settings = new(new SettingsWindow());
 		VersionGenerator = new(new VersionGeneratorWindow());
+		StatsValidator = new(new StatsValidatorWindow());
 
 		_windows.Add(About.Window);
 		_windows.Add(AppUpdate.Window);
@@ -83,6 +85,7 @@ public class WindowManagerService
 		_windows.Add(NxmDownload.Window);
 		_windows.Add(Settings.Window);
 		_windows.Add(VersionGenerator.Window);
+		_windows.Add(StatsValidator.Window);
 
 		Settings.OnToggle.Subscribe(b =>
 		{

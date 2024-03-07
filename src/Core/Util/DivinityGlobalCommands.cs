@@ -179,16 +179,15 @@ public class DivinityGlobalCommands : ReactiveObject
 		}
 	}
 
-	public void OpenModProperties(DivinityModData mod)
+	public static void OpenModProperties(DivinityModData mod)
 	{
 		RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
 	}
 
-	public void ValidateModStats(DivinityModData mod)
+	public static void ValidateModStats(DivinityModData mod)
 	{
-
-
-		RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
+		var results = ModUtils.ValidateStats([mod], Services.Settings.ManagerSettings.GameDataPath);
+		RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenValidateStatsResults.Handle(results));
 	}
 
 	public DivinityGlobalCommands()
