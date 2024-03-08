@@ -295,7 +295,7 @@ namespace DivinityModManager.AppServices
 									var outputFolder = DivinityApp.GetAppDirectory("Downloads");
 									Directory.CreateDirectory(outputFolder);
 									var fileName = Path.GetFileName(WebUtility.UrlDecode(file.Uri.AbsolutePath));
-									var filePath = Path.Combine(outputFolder, fileName);
+									var filePath = Path.Join(outputFolder, fileName);
 									DivinityApp.Log($"Downloading {file.Uri} to {filePath}");
 									DownloadProgressText = $"Downloading {fileName}...";
 									DownloadProgressValue = 0;

@@ -51,7 +51,7 @@ public class ModDownloadData : ReactiveObject
 			DivinityApp.Log($"Downloading {DownloadPath} - DownloadPathType({DownloadPathType}) DownloadSourceType({DownloadSourceType})");
 			if (DownloadPathType == ModDownloadPathType.FILE)
 			{
-				var outputFilePath = Path.Combine(outputDirectory, DownloadPath);
+				var outputFilePath = Path.Join(outputDirectory, DownloadPath);
 				//This covers when an update changes the pak name
 				MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
 				await FileUtils.CopyFileAsync(DownloadPath, outputFilePath, token);
@@ -76,7 +76,7 @@ public class ModDownloadData : ReactiveObject
 
 					if (DownloadPath.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 					{
-						var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(DownloadPath));
+						var outputFilePath = Path.Join(outputDirectory, Path.GetFileName(DownloadPath));
 						MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
 						using var outputFile = MakeFileStream(outputFilePath);
 						await webStream.CopyToAsync(outputFile, 128000, token);
@@ -91,7 +91,7 @@ public class ModDownloadData : ReactiveObject
 							if (entry.Name.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 							{
 								using var entryStream = entry.Open();
-								var outputFilePath = Path.Combine(outputDirectory, Path.GetFileName(entry.Name));
+								var outputFilePath = Path.Join(outputDirectory, Path.GetFileName(entry.Name));
 								MoveOldPakToRecycleBin(previousFilePath, outputFilePath);
 								using var outputFile = MakeFileStream(outputFilePath);
 								await entryStream.CopyToAsync(outputFile, 128000, token);

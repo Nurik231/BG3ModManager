@@ -18,7 +18,7 @@ public class DivinityGameMasterCampaign : DivinityModData
 			var conversionParams = ResourceConversionParameters.FromGameVersion(DivinityApp.GAME);
 			if (File.Exists(FilePath) && new FileInfo(FilePath)?.Length > 0)
 			{
-				var backupName = Path.Combine(Path.GetDirectoryName(FilePath), FileName + ".backup");
+				var backupName = Path.Join(Path.GetDirectoryName(FilePath), FileName + ".backup");
 				File.Copy(FilePath, backupName, true);
 			}
 

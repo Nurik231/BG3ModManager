@@ -235,7 +235,7 @@ public class SettingsWindowViewModel : ReactiveObject
 
 	public bool ExportExtenderSettings()
 	{
-		string outputFile = Path.Combine(Path.GetDirectoryName(Settings.GameExecutablePath), "ScriptExtenderSettings.json");
+		string outputFile = Path.Join(Path.GetDirectoryName(Settings.GameExecutablePath), "ScriptExtenderSettings.json");
 		try
 		{
 			_jsonConfigExportSettings.DefaultValueHandling = ExtenderSettings.ExportDefaultExtenderSettings ? DefaultValueHandling.Include : DefaultValueHandling.Ignore;
@@ -253,7 +253,7 @@ public class SettingsWindowViewModel : ReactiveObject
 
 	public bool ExportExtenderUpdaterSettings()
 	{
-		string outputFile = Path.Combine(Path.GetDirectoryName(Settings.GameExecutablePath), "ScriptExtenderUpdaterConfig.json");
+		string outputFile = Path.Join(Path.GetDirectoryName(Settings.GameExecutablePath), "ScriptExtenderUpdaterConfig.json");
 		try
 		{
 			_jsonConfigExportSettings.DefaultValueHandling = ExtenderSettings.ExportDefaultExtenderSettings ? DefaultValueHandling.Include : DefaultValueHandling.Ignore;
@@ -289,7 +289,7 @@ public class SettingsWindowViewModel : ReactiveObject
 					exeName = Path.GetFileName(Main.AppSettings.DefaultPathways.GOG.ExePath);
 				}
 
-				var exe = Path.Combine(Settings.GameExecutablePath, exeName);
+				var exe = Path.Join(Settings.GameExecutablePath, exeName);
 				if (File.Exists(exe))
 				{
 					Settings.GameExecutablePath = exe;
@@ -418,8 +418,8 @@ HKEY_CLASSES_ROOT\nxm\shell\open\command
 			}
 		});
 
-		Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Combine(Path.GetDirectoryName(x), DivinityApp.EXTENDER_CONFIG_FILE)).ToUIProperty(this, x => x.ExtenderSettingsFilePath);
-		Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Combine(Path.GetDirectoryName(x), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE)).ToUIProperty(this, x => x.ExtenderUpdaterSettingsFilePath);
+		Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Join(Path.GetDirectoryName(x), DivinityApp.EXTENDER_CONFIG_FILE)).ToUIProperty(this, x => x.ExtenderSettingsFilePath);
+		Settings.WhenAnyValue(x => x.GameExecutablePath).Select(x => Path.Join(Path.GetDirectoryName(x), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE)).ToUIProperty(this, x => x.ExtenderUpdaterSettingsFilePath);
 
 		var settingsProperties = new HashSet<string>();
 		settingsProperties.UnionWith(Settings.GetSettingsAttributes().Select(x => x.Property.Name));

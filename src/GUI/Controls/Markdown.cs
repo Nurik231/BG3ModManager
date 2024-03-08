@@ -444,7 +444,7 @@ public class Markdown : DependencyObject
 		{
 			if (!Uri.IsWellFormedUriString(url, UriKind.Absolute) && !System.IO.Path.IsPathRooted(url))
 			{
-				url = System.IO.Path.Combine(AssetPathRoot ?? string.Empty, url);
+				url = System.IO.Path.Join(AssetPathRoot ?? string.Empty, url);
 			}
 
 			imgSource = new BitmapImage();

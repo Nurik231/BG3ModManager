@@ -55,7 +55,7 @@ public class DivinityPathwayData : ReactiveObject
 	{
 		if (settings.GameExecutablePath.IsExistingFile())
 		{
-			return Path.Combine(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_CONFIG_FILE);
+			return Path.Join(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_CONFIG_FILE);
 		}
 		return "";
 	}
@@ -64,7 +64,7 @@ public class DivinityPathwayData : ReactiveObject
 	{
 		if (settings.GameExecutablePath.IsExistingFile())
 		{
-			return Path.Combine(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE);
+			return Path.Join(Path.GetDirectoryName(settings.GameExecutablePath), DivinityApp.EXTENDER_UPDATER_CONFIG_FILE);
 		}
 		return "";
 	}

@@ -251,9 +251,9 @@ public partial class MainWindow : MainWindowBase
 		_logsDir = DivinityApp.GetAppDirectory("_Logs");
 		var sysFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern.Replace("/", "-");
 #if DEBUG
-		_logFileName = Path.Combine(_logsDir, "debug_" + DateTime.Now.ToString(sysFormat + "_HH-mm-ss") + ".log");
+		_logFileName = Path.Join(_logsDir, "debug_" + DateTime.Now.ToString(sysFormat + "_HH-mm-ss") + ".log");
 #else
-		_logFileName = Path.Combine(_logsDir, "release_" + DateTime.Now.ToString(sysFormat + "_HH-mm-ss") + ".log");
+		_logFileName = Path.Join(_logsDir, "release_" + DateTime.Now.ToString(sysFormat + "_HH-mm-ss") + ".log");
 #endif
 
 		Application.Current.DispatcherUnhandledException += OnUIException;
@@ -268,7 +268,7 @@ public partial class MainWindow : MainWindowBase
 
 		Services.RegisterSingleton(new WindowManagerService());
 
-		if (File.Exists(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "debug")))
+		if (File.Exists(Path.Join(System.AppDomain.CurrentDomain.BaseDirectory, "debug")))
 		{
 			ViewModel.DebugMode = true;
 			ToggleLogging(true);

@@ -93,7 +93,7 @@ public static class ImportUtils
 						if (file.Key.EndsWith(".pak", StringComparison.OrdinalIgnoreCase))
 						{
 							var outputName = Path.GetFileName(file.Key);
-							var outputFilePath = Path.Combine(options.OutputDirectory, outputName);
+							var outputFilePath = Path.Join(options.OutputDirectory, outputName);
 							options.Result.TotalPaks++;
 							using (var entryStream = file.OpenEntryStream())
 							{
@@ -209,7 +209,7 @@ public static class ImportUtils
 						DivinityApp.Log($"Checking if compressed file ({options.FilePath} => {options.Extension}) is a pak.");
 						var outputName = Path.GetFileNameWithoutExtension(options.FilePath);
 						if (!outputName.EndsWith(".pak", StringComparison.OrdinalIgnoreCase)) outputName += ".pak";
-						var outputFilePath = Path.Combine(options.OutputDirectory, outputName);
+						var outputFilePath = Path.Join(options.OutputDirectory, outputName);
 
 						tempFile = await TempFile.CreateAsync(options.FilePath, decompressionStream, options.Token);
 
@@ -231,7 +231,7 @@ public static class ImportUtils
 								if (!outputName.Contains(mod.Name))
 								{
 									var nameFromMeta = $"{mod.Folder}.pak";
-									outputFilePath = Path.Combine(options.OutputDirectory, nameFromMeta);
+									outputFilePath = Path.Join(options.OutputDirectory, nameFromMeta);
 									mod.FilePath = outputFilePath;
 								}
 								using (var fs = File.Create(outputFilePath, ARCHIVE_BUFFER, FileOptions.Asynchronous))
@@ -307,7 +307,7 @@ public static class ImportUtils
 
 	public static async Task<bool> ImportPakAsync(ImportParameters options)
 	{
-		var outputFilePath = Path.Combine(options.OutputDirectory, Path.GetFileName(options.FilePath));
+		var outputFilePath = Path.Join(options.OutputDirectory, Path.GetFileName(options.FilePath));
 		try
 		{
 			options.Result.TotalPaks++;

@@ -69,7 +69,7 @@ public static class FileUtils
 			int n = 1;
 			do
 			{
-				fullPath = Path.Combine(path, String.Format("{0} ({1}){2}", filenameWOExt, (n++), ext));
+				fullPath = Path.Join(path, String.Format("{0} ({1}){2}", filenameWOExt, (n++), ext));
 			}
 			while (File.Exists(fullPath));
 		}
@@ -234,7 +234,7 @@ public static class FileUtils
 			try
 			{
 				//Put each pak into its own folder
-				string destination = Path.Combine(outputDirectory, Path.GetFileNameWithoutExtension(path));
+				string destination = Path.Join(outputDirectory, Path.GetFileNameWithoutExtension(path));
 
 				//Unless the foldername == the pak name and we're only extracting one pak
 				if (count == 1 && Path.GetDirectoryName(outputDirectory).Equals(Path.GetFileNameWithoutExtension(path)))

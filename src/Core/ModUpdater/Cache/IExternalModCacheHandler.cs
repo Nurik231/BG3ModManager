@@ -49,7 +49,7 @@ public static class IExternalModCacheDataExtensions
 		try
 		{
 			var parentDir = DivinityApp.GetAppDirectory("Data");
-			var filePath = Path.Combine(parentDir, handler.FileName);
+			var filePath = Path.Join(parentDir, handler.FileName);
 			if (!Directory.Exists(parentDir)) Directory.CreateDirectory(parentDir);
 
 			if (updateLastTimestamp)
@@ -81,7 +81,7 @@ public static class IExternalModCacheDataExtensions
 		try
 		{
 			var parentDir = DivinityApp.GetAppDirectory("Data");
-			var filePath = Path.Combine(parentDir, handler.FileName);
+			var filePath = Path.Join(parentDir, handler.FileName);
 			if (File.Exists(filePath))
 			{
 				RecycleBinHelper.DeleteFile(filePath, false, permanent);

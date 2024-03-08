@@ -100,7 +100,7 @@ public static class DivinityRegistryHelper
 	{
 		if (LastSteamInstallPath != "")
 		{
-			string workshopFolder = Path.Combine(LastSteamInstallPath, PATH_Steam_WorkshopFolder);
+			string workshopFolder = Path.Join(LastSteamInstallPath, PATH_Steam_WorkshopFolder);
 			DivinityApp.Log($"Looking for workshop folder at '{workshopFolder}'.");
 			if (Directory.Exists(workshopFolder))
 			{
@@ -117,7 +117,7 @@ public static class DivinityRegistryHelper
 			string steamWorkshopPath = GetSteamWorkshopPath();
 			if (!String.IsNullOrEmpty(steamWorkshopPath))
 			{
-				string workshopFolder = Path.Combine(steamWorkshopPath, "content", appid);
+				string workshopFolder = Path.Join(steamWorkshopPath, "content", appid);
 				DivinityApp.Log($"Looking for game workshop folder at '{workshopFolder}'.");
 				if (Directory.Exists(workshopFolder))
 				{
@@ -153,7 +153,7 @@ public static class DivinityRegistryHelper
 				{
 					return lastGamePath;
 				}
-				string folder = Path.Combine(LastSteamInstallPath, "steamapps", "common", steamGameInstallPath);
+				string folder = Path.Join(LastSteamInstallPath, "steamapps", "common", steamGameInstallPath);
 				DivinityApp.Log($"Looking for game at '{folder}'.");
 				if (Directory.Exists(folder))
 				{
@@ -164,7 +164,7 @@ public static class DivinityRegistryHelper
 				}
 				else
 				{
-					string libraryFile = Path.Combine(LastSteamInstallPath, PATH_Steam_LibraryFile);
+					string libraryFile = Path.Join(LastSteamInstallPath, PATH_Steam_LibraryFile);
 					DivinityApp.Log($"Game not found. Looking for Steam libraries in file '{libraryFile}'.");
 					if (File.Exists(libraryFile))
 					{
@@ -196,7 +196,7 @@ public static class DivinityRegistryHelper
 
 						foreach (var folderPath in libraryFolders)
 						{
-							string checkFolder = Path.Combine(folderPath, "steamapps", "common", steamGameInstallPath);
+							string checkFolder = Path.Join(folderPath, "steamapps", "common", steamGameInstallPath);
 							if (!String.IsNullOrEmpty(checkFolder) && Directory.Exists(checkFolder))
 							{
 								DivinityApp.Log($"Found game at '{checkFolder}'.");

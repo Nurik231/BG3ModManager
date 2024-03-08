@@ -341,7 +341,7 @@ public class DivinityModData : ReactiveObject, IDivinityModData, ISelectable
 		//Imported Classic Projects
 		if (!Folder.Contains(UUID))
 		{
-			outputPackage = Path.ChangeExtension(Path.Combine(Folder + "_" + UUID), "pak");
+			outputPackage = Path.ChangeExtension(Path.Join(Folder + "_" + UUID), "pak");
 		}
 		return outputPackage.Equals(fileName, comparison);
 	}

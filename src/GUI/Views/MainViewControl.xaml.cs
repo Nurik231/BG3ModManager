@@ -170,8 +170,8 @@ public partial class MainViewControl : MainViewControlViewBase
 						ViewModel.SelectedModOrder.Name = tb.Text;
 						var directory = Path.GetDirectoryName(ViewModel.SelectedModOrder.FilePath);
 						var ext = Path.GetExtension(ViewModel.SelectedModOrder.FilePath);
-						string outputName = DivinityModDataLoader.MakeSafeFilename(Path.Combine(ViewModel.SelectedModOrder.Name + ext), '_');
-						ViewModel.SelectedModOrder.FilePath = Path.Combine(directory, outputName);
+						string outputName = DivinityModDataLoader.MakeSafeFilename(Path.Join(ViewModel.SelectedModOrder.Name + ext), '_');
+						ViewModel.SelectedModOrder.FilePath = Path.Join(directory, outputName);
 						AlertBar.SetSuccessAlert($"Renamed load order name/path to '{ViewModel.SelectedModOrder.FilePath}'", 20);
 					}
 				}

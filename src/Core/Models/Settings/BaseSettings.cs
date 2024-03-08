@@ -40,7 +40,7 @@ public abstract class BaseSettings<T> : ReactiveObject where T : ISerializableSe
 		try
 		{
 			var directory = GetDirectory();
-			var filePath = Path.Combine(directory, FileName);
+			var filePath = Path.Join(directory, FileName);
 			Directory.CreateDirectory(directory);
 			var contents = JsonConvert.SerializeObject(this, _jsonSerializerSettings);
 			File.WriteAllText(filePath, contents);
@@ -60,7 +60,7 @@ public abstract class BaseSettings<T> : ReactiveObject where T : ISerializableSe
 		try
 		{
 			var directory = GetDirectory();
-			var filePath = Path.Combine(directory, FileName);
+			var filePath = Path.Join(directory, FileName);
 			if (File.Exists(filePath))
 			{
 				if (DivinityJsonUtils.TrySafeDeserializeFromPath<T>(filePath, out var settings))

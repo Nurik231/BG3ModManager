@@ -12,7 +12,7 @@ public static class DivinitySaveTools
 		{
 			string baseOldName = Path.GetFileNameWithoutExtension(pathToSave);
 			string baseNewName = Path.GetFileNameWithoutExtension(newName);
-			string output = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(pathToSave), newName), ".lsv");
+			string output = Path.ChangeExtension(Path.Join(Path.GetDirectoryName(pathToSave), newName), ".lsv");
 
 			var reader = new PackageReader();
 			using var package = reader.Read(pathToSave);

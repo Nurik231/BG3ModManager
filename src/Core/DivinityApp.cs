@@ -152,7 +152,7 @@ public static class DivinityApp
 	{
 		var exeDir = GetAppDirectory();
 		var paths = joinPath.Prepend(exeDir).ToArray();
-		return Path.Combine(paths);
+		return Path.Join(paths);
 	}
 
 	public static string GetExePath() => Process.GetCurrentProcess().MainModule.FileName;

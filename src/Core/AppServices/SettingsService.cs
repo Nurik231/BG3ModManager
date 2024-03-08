@@ -52,9 +52,9 @@ namespace DivinityModManager.AppServices
 		private void LoadAppSettings()
 		{
 			var resourcesFolder = DivinityApp.GetAppDirectory(DivinityApp.PATH_RESOURCES);
-			var appFeaturesPath = Path.Combine(resourcesFolder, DivinityApp.PATH_APP_FEATURES);
-			var defaultPathwaysPath = Path.Combine(resourcesFolder, DivinityApp.PATH_DEFAULT_PATHWAYS);
-			var ignoredModsPath = Path.Combine(resourcesFolder, DivinityApp.PATH_IGNORED_MODS);
+			var appFeaturesPath = Path.Join(resourcesFolder, DivinityApp.PATH_APP_FEATURES);
+			var defaultPathwaysPath = Path.Join(resourcesFolder, DivinityApp.PATH_DEFAULT_PATHWAYS);
+			var ignoredModsPath = Path.Join(resourcesFolder, DivinityApp.PATH_IGNORED_MODS);
 
 			DivinityApp.Log($"Loading resources from '{resourcesFolder}'");
 

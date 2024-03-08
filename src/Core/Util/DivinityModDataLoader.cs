@@ -320,7 +320,7 @@ public static partial class DivinityModDataLoader
 
 	private static async Task TryLoadConfigFiles(DivinityModData modData, string modsFolder, CancellationToken token)
 	{
-		var extenderConfigPath = Path.Combine(modsFolder, DivinityApp.EXTENDER_MOD_CONFIG);
+		var extenderConfigPath = Path.Join(modsFolder, DivinityApp.EXTENDER_MOD_CONFIG);
 		if (File.Exists(extenderConfigPath))
 		{
 			var extenderConfig = await LoadScriptExtenderConfigAsync(extenderConfigPath);
@@ -335,7 +335,7 @@ public static partial class DivinityModDataLoader
 			}
 		}
 
-		var modManagerConfigPath = Path.Combine(modsFolder, ModConfig.FileName);
+		var modManagerConfigPath = Path.Join(modsFolder, ModConfig.FileName);
 		if (File.Exists(modManagerConfigPath))
 		{
 			var modManagerConfig = await DivinityJsonUtils.DeserializeFromPathAsync<ModConfig>(extenderConfigPath, token);
@@ -348,7 +348,7 @@ public static partial class DivinityModDataLoader
 
 	private static async Task TryLoadConfigFiles(VFS vfs, DivinityModData modData, string modsFolder, CancellationToken token)
 	{
-		var extenderConfigPath = Path.Combine(modsFolder, DivinityApp.EXTENDER_MOD_CONFIG);
+		var extenderConfigPath = Path.Join(modsFolder, DivinityApp.EXTENDER_MOD_CONFIG);
 		if (vfs.FileExists(extenderConfigPath))
 		{
 			var extenderConfig = await LoadScriptExtenderConfigAsync(vfs.FindVFSFile(extenderConfigPath));
@@ -363,7 +363,7 @@ public static partial class DivinityModDataLoader
 			}
 		}
 
-		var modManagerConfigPath = Path.Combine(modsFolder, ModConfig.FileName);
+		var modManagerConfigPath = Path.Join(modsFolder, ModConfig.FileName);
 		if (vfs.FileExists(modManagerConfigPath))
 		{
 			var modManagerConfig = await DivinityJsonUtils.DeserializeFromAbstractAsync<ModConfig>(vfs.FindVFSFile(modManagerConfigPath), token);
@@ -377,7 +377,7 @@ public static partial class DivinityModDataLoader
 	[Obsolete("No longer necessary since LoadBuiltinModsAsync now finds loose mods")]
 	private static async Task<DivinityModData> LoadEditorProjectFolderAsync(string folder, CancellationToken token)
 	{
-		var metaFile = Path.Combine(folder, "meta.lsx");
+		var metaFile = Path.Join(folder, "meta.lsx");
 		if (File.Exists(metaFile))
 		{
 			using var fileStream = GetAsyncStream(metaFile);
@@ -1157,7 +1157,7 @@ public static partial class DivinityModDataLoader
 					FilePath = Path.GetFullPath(folder)
 				};
 
-				var modSettingsFile = Path.Combine(folder, "modsettings.lsx");
+				var modSettingsFile = Path.Join(folder, "modsettings.lsx");
 				var modSettings = await LoadModSettingsFileAsync(modSettingsFile);
 				profileData.ModOrder.AddRange(modSettings.ModOrder);
 				profileData.ActiveMods.AddRange(modSettings.ActiveMods);
@@ -1551,7 +1551,7 @@ public static partial class DivinityModDataLoader
 	{
 		if (Directory.Exists(folder))
 		{
-			string outputFilePath = Path.Combine(folder, "modsettings.lsx");
+			string outputFilePath = Path.Join(folder, "modsettings.lsx");
 			string contents = GenerateModSettingsFile(order);
 			try
 			{
@@ -1584,8 +1584,8 @@ public static partial class DivinityModDataLoader
 	{
 		Dictionary<string, object> settings = null;
 		//Patch 7 changes this to "Larian Studios" instead of "LarianStudios"
-		var folderDir = Path.Combine(appDataLarianFolder, @"Launcher\Settings");
-		var settingsFilePath = Path.Combine(folderDir, "preferences.json");
+		var folderDir = Path.Join(appDataLarianFolder, @"Launcher\Settings");
+		var settingsFilePath = Path.Join(folderDir, "preferences.json");
 		if (File.Exists(settingsFilePath))
 		{
 			settings = DivinityJsonUtils.SafeDeserializeFromPath<Dictionary<string, object>>(settingsFilePath);
@@ -1819,7 +1819,7 @@ public static partial class DivinityModDataLoader
 						DivinityLoadOrder loadOrder = new()
 						{
 							Name = orderName,
-							FilePath = Path.Combine(ordersFolder, MakeSafeFilename(Path.Combine(orderName + ".json"), '_'))
+							FilePath = Path.Join(ordersFolder, MakeSafeFilename(Path.Join(orderName + ".json"), '_'))
 						};
 
 						foreach (var c in modList)

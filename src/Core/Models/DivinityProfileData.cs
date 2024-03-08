@@ -35,6 +35,6 @@ public class DivinityProfileData : ReactiveObject
 
 	public DivinityProfileData()
 	{
-		this.WhenAnyValue(x => x.FilePath).Select(x => !String.IsNullOrEmpty(x) ? Path.Combine(x, "modsettings.lsx") : "").BindTo(this, x => x.ModSettingsFile);
+		this.WhenAnyValue(x => x.FilePath).Select(x => !String.IsNullOrEmpty(x) ? Path.Join(x, "modsettings.lsx") : "").BindTo(this, x => x.ModSettingsFile);
 	}
 }

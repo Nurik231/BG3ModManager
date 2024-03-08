@@ -83,7 +83,7 @@ public partial class App : Application
 	{
 		var assyName = new AssemblyName(args.Name);
 
-		var newPath = Path.Combine(_appDir, "_Lib", assyName.Name);
+		var newPath = Path.Join(_appDir, "_Lib", assyName.Name);
 		if (!newPath.EndsWith(".dll"))
 		{
 			newPath += ".dll";

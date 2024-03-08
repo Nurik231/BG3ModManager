@@ -20,7 +20,7 @@ public class TempFile : IDisposable
 		_bufferSize = bufferSize;
 		var tempDir = DivinityApp.GetAppDirectory("Temp");
 		Directory.CreateDirectory(tempDir);
-		_path = Path.Combine(tempDir, Path.GetFileName(sourcePath));
+		_path = Path.Join(tempDir, Path.GetFileName(sourcePath));
 		_sourcePath = sourcePath;
 		_stream = File.Create(_path, _bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 	}
