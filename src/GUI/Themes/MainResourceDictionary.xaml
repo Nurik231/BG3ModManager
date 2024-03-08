@@ -308,7 +308,7 @@
 	<Style
 		x:Key="DivinityModDataListItem"
 		BasedOn="{StaticResource {x:Type ListViewItem}}"
-		TargetType="{x:Type ListViewItem}">
+		TargetType="ListViewItem">
 		<Setter Property="behavior:ScreenReaderHelperBehavior.Automatic" Value="True" />
 		<!--<Style.Resources>
 			<LinearGradientBrush x:Key="ListItemHoverFill_Selected" StartPoint="0,0" EndPoint="0,1">
@@ -477,7 +477,7 @@
 	<Style
 		x:Key="DivinityModUpdateNewListItem"
 		BasedOn="{StaticResource {x:Type ListViewItem}}"
-		TargetType="{x:Type ListViewItem}">
+		TargetType="ListViewItem">
 		<Setter Property="Tag" Value="{Binding}" />
 		<Setter Property="ContextMenu">
 			<Setter.Value>
@@ -490,22 +490,16 @@
 						Command="{Binding Path=OpenSteamWorkshopPageCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
 						Header="Open Steam Workshop Page (Browser)..."
+						Icon="{StaticResource OpenInBrowserIcon}"
 						IsEnabled="{Binding CanOpenWorkshopLink}"
-						Visibility="{Binding OpenWorkshopLinkVisibility}">
-						<MenuItem.Icon>
-							<Image Source="{StaticResource OpenInBrowserImage}" />
-						</MenuItem.Icon>
-					</MenuItem>
+						Visibility="{Binding OpenWorkshopLinkVisibility}" />
 					<MenuItem
 						Command="{Binding Path=OpenSteamWorkshopPageInSteamCommand, Source={x:Static dapp:DivinityApp.Commands}}"
 						CommandParameter="{Binding}"
 						Header="Open Steam Workshop Page (Steam)..."
+						Icon="{StaticResource OpenSteamWorkshopFolderIcon}"
 						IsEnabled="{Binding CanOpenWorkshopLink}"
-						Visibility="{Binding OpenWorkshopLinkVisibility}">
-						<MenuItem.Icon>
-							<Image Source="{StaticResource OpenSteamWorkshopFolderImage}" />
-						</MenuItem.Icon>
-					</MenuItem>
+						Visibility="{Binding OpenWorkshopLinkVisibility}" />
 					<MenuItem Command="{Binding Path=ToggleNameDisplayCommand, Source={x:Static dapp:DivinityApp.Commands}}" CommandParameter="{Binding}">
 						<MenuItem.Header>
 							<TextBlock>

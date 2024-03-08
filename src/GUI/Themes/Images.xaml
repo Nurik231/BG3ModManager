@@ -73,6 +73,12 @@
 		x:Shared="false"
 		Source="{StaticResource OpenInBrowserImage}" />
 	<Image
+		x:Key="OpenSteamWorkshopFolderIcon"
+		Width="16"
+		Height="16"
+		x:Shared="false"
+		Source="{StaticResource OpenSteamWorkshopFolderImage}" />
+	<Image
 		x:Key="ModDeveloperIcon"
 		Width="16"
 		Height="16"
