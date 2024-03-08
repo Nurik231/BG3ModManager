@@ -152,7 +152,6 @@ public class DivinityModData : ReactiveObject, IDivinityModData, ISelectable
 	[Reactive] public string DisplayName { get; private set; }
 	[ObservableAsProperty] public bool CanAddToLoadOrder { get; }
 	[ObservableAsProperty] public bool CanDelete { get; }
-	[ObservableAsProperty] public bool HasColorOverride { get; }
 	[ObservableAsProperty] public string ScriptExtenderSupportToolTipText { get; }
 	[ObservableAsProperty] public string OsirisStatusToolTipText { get; }
 	[ObservableAsProperty] public string LastModifiedDateText { get; }
@@ -186,6 +185,7 @@ public class DivinityModData : ReactiveObject, IDivinityModData, ISelectable
 	[Reactive] public bool DeveloperMode { get; set; }
 	[Reactive] public string SelectedColor { get; set; }
 	[Reactive] public string ListColor { get; set; }
+	[Reactive] public bool HasColorOverride { get; set; }
 
 	public HashSet<string> Files { get; set; }
 
@@ -680,7 +680,9 @@ public class DivinityModData : ReactiveObject, IDivinityModData, ISelectable
 			}
 		});
 
-		this.WhenAnyValue(x => x.ListColor).Select(PropertyConverters.StringToBool).ToUIPropertyImmediate(this, x => x.HasColorOverride);
+		this.WhenAnyValue(x => x.ListColor, x => x.SelectedColor)
+			.Select(x => !String.IsNullOrEmpty(x.Item1) || !String.IsNullOrEmpty(x.Item2))
+			.BindTo(this, x => x.HasColorOverride);
 		this.WhenAnyValue(x => x.IsForceLoadedMergedMod, x => x.IsEditorMod, x => x.IsForceLoaded, x => x.ForceAllowInLoadOrder, x => x.IsActive)
 			.ObserveOn(RxApp.MainThreadScheduler).Subscribe(UpdateColors);
 
