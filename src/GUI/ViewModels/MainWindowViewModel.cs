@@ -1542,17 +1542,16 @@ Directory the zip will be extracted to:
 		}
 	}
 
-	private void MergeModLists(List<DivinityModData> finalMods, List<DivinityModData> newMods)
+	private void MergeModLists(ref List<DivinityModData> finalMods, List<DivinityModData> newMods, bool preferNew = false)
 	{
 		foreach (var mod in newMods)
 		{
 			var existing = finalMods.FirstOrDefault(x => x.UUID == mod.UUID);
 			if (existing != null)
 			{
-				if (existing.Version.VersionInt < mod.Version.VersionInt)
+				if (preferNew || existing.Version.VersionInt < mod.Version.VersionInt)
 				{
-					finalMods.Remove(existing);
-					finalMods.Add(existing);
+					finalMods.Replace(existing, mod);
 				}
 			}
 			else
@@ -1598,7 +1597,7 @@ Directory the zip will be extracted to:
 	{
 		List<DivinityModData> finalMods = new();
 		ModLoadingResults modLoadingResults = null;
-		List<DivinityModData> projects = null;
+		//List<DivinityModData> projects = null;
 		List<DivinityModData> baseMods = null;
 
 		var cancelTokenSource = GetCancellationToken(int.MaxValue);
@@ -1616,7 +1615,8 @@ Directory the zip will be extracted to:
 			cancelTokenSource = GetCancellationToken(int.MaxValue);
 			await IncreaseMainProgressValueAsync(taskStepAmount);
 
-			string modsDirectory = Path.Combine(Settings.GameDataPath, "Mods");
+			// No longer necessary since LSLib's VFS changes will pick up loose mods via LoadBuiltinModsAsync
+			/*string modsDirectory = Path.Combine(Settings.GameDataPath, "Mods");
 			if (Directory.Exists(modsDirectory))
 			{
 				DivinityApp.Log($"Loading mod projects from '{modsDirectory}'.");
@@ -1625,7 +1625,7 @@ Directory the zip will be extracted to:
 				projects = await RunTask(DivinityModDataLoader.LoadEditorProjectsAsync(modsDirectory, cancelTokenSource.Token), null);
 				cancelTokenSource = GetCancellationToken(int.MaxValue);
 				await IncreaseMainProgressValueAsync(taskStepAmount);
-			}
+			}*/
 		}
 
 		baseMods ??= new List<DivinityModData>();
@@ -1655,10 +1655,10 @@ Directory the zip will be extracted to:
 			await IncreaseMainProgressValueAsync(taskStepAmount);
 		}
 
-		if (baseMods != null) MergeModLists(finalMods, baseMods);
+		if (baseMods != null) MergeModLists(ref finalMods, baseMods);
 		if (modLoadingResults != null)
 		{
-			MergeModLists(finalMods, modLoadingResults.Mods);
+			MergeModLists(ref finalMods, modLoadingResults.Mods);
 			var dupeCount = modLoadingResults.Duplicates.Count;
 			if (dupeCount > 0)
 			{
@@ -1669,7 +1669,7 @@ Directory the zip will be extracted to:
 				}, RxApp.MainThreadScheduler);
 			}
 		}
-		if (projects != null) MergeModLists(finalMods, projects);
+		//if (projects != null) MergeModLists(ref finalMods, projects, true);
 
 		finalMods = finalMods.OrderBy(m => m.Name).ToList();
 		DivinityApp.Log($"Loaded '{finalMods.Count}' mods.");
