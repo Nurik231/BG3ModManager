@@ -186,8 +186,11 @@ public class DivinityGlobalCommands : ReactiveObject
 
 	public static void ValidateModStats(DivinityModData mod)
 	{
-		var results = ModUtils.ValidateStats([mod], Services.Settings.ManagerSettings.GameDataPath);
-		RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenValidateStatsResults.Handle(results));
+		RxApp.TaskpoolScheduler.Schedule(() =>
+		{
+			var results = ModUtils.ValidateStats([mod], Services.Settings.ManagerSettings.GameDataPath);
+			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenValidateStatsResults.Handle(results));
+		});
 	}
 
 	public DivinityGlobalCommands()

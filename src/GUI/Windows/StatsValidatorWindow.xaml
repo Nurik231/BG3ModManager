@@ -39,7 +39,7 @@
 			<TextBlock
 				Background="{DynamicResource {x:Static adonisUI:Brushes.Layer3BackgroundBrush}}"
 				FontSize="24"
-				Text="Stats Validation Results"
+				Text="Results"
 				TextAlignment="Center"
 				TextWrapping="Wrap" />
 
