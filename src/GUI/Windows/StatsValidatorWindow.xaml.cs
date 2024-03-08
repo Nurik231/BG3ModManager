@@ -1,6 +1,10 @@
-﻿using DivinityModManager.ViewModels;
+﻿using DivinityModManager.Models.View;
+using DivinityModManager.ViewModels;
+using DivinityModManager.Views.StatsValidator;
 
 using ReactiveUI;
+
+using Splat;
 
 using System.Reactive.Linq;
 
@@ -28,9 +32,11 @@ public partial class StatsValidatorWindow : StatsValidatorWindowBase
 
 		DivinityInteractions.OpenValidateStatsResults.RegisterHandler(OpenWindow);
 
-		this.WhenActivated(d =>
-		{
-			this.OneWayBind(ViewModel, vm => vm.OutputText, view => view.ResultsTextBlock.Text);
-		});
+		Locator.CurrentMutable.Register(() => new StatsValidatorFileEntryView(), typeof(IViewFor<StatsValidatorFileResults>));
+		Locator.CurrentMutable.Register(() => new StatsValidatorEntryView(), typeof(IViewFor<StatsValidatorErrorEntry>));
+
+		this.OneWayBind(ViewModel, vm => vm.ModName, view => view.TitleTextBlock.Text, name => $"{name} Results");
+		this.OneWayBind(ViewModel, vm => vm.OutputText, view => view.ResultsTextBlock.Text);
+		this.OneWayBind(ViewModel, vm => vm.Entries, view => view.EntriesTreeView.ItemsSource);
 	}
 }

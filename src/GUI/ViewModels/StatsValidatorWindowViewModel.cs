@@ -1,14 +1,25 @@
-﻿using LSLib.LS.Stats;
+﻿using DivinityModManager.Models;
+using DivinityModManager.Models.View;
+using DynamicData.Binding;
+
+using LSLib.LS.Stats;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 using System.IO;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 
 namespace DivinityModManager.ViewModels;
 public class StatsValidatorWindowViewModel : ReactiveObject
 {
+	[Reactive] public DivinityModData Mod { get; set; }
 	[Reactive] public string OutputText { get; private set; }
+
+	public ObservableCollectionExtended<StatsValidatorFileResults> Entries { get; }
+
+	[ObservableAsProperty] public string ModName { get; }
 
 	private static string FormatMessage(StatLoadingError message)
 	{
@@ -34,13 +45,39 @@ public class StatsValidatorWindowViewModel : ReactiveObject
 
 	public void Load(ValidateModStatsResults result)
 	{
-		if(result.Errors.Count > 0)
+		RxApp.MainThreadScheduler.Schedule(() =>
 		{
-			OutputText = String.Join(Environment.NewLine, result.Errors.Select(FormatMessage));
-		}
-		else
-		{
-			OutputText = "No errors found!";
-		}
+			Mod = result.Mods.FirstOrDefault();
+			Entries.Clear();
+
+			if (result.Errors.Count == 0)
+			{
+				OutputText = "No issues found!";
+			}
+			else
+			{
+				OutputText = $"{result.Errors.Count} issue(s):";
+			}
+
+			var entries = result.Errors.GroupBy(x => x.Location?.FileName);
+			foreach(var fileGroup in entries)
+			{
+				var name = fileGroup.Key;
+				if (String.IsNullOrEmpty(name)) name = "Unknown";
+				StatsValidatorFileResults fileResults = new() { FilePath = name };
+				foreach (var entry in fileGroup)
+				{
+					fileResults.Children.Add(new StatsValidatorErrorEntry(entry));
+				}
+				Entries.Add(fileResults);
+			}
+		});
+	}
+
+	public StatsValidatorWindowViewModel()
+	{
+		Entries = [];
+
+		this.WhenAnyValue(x => x.Mod).WhereNotNull().Select(x => x.DisplayName).ToUIProperty(this, x => x.ModName);
 	}
 }
