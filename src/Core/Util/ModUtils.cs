@@ -10,6 +10,8 @@ namespace DivinityModManager.Util;
 
 public static class ModUtils
 {
+	private record struct FileText(string FilePath, string[] Lines);
+
 	private static XmlDocument LoadXml(VFS vfs, string path)
 	{
 		if (path == null) return null;
@@ -49,7 +51,24 @@ public static class ModUtils
 		}
 	}
 
-	public static ValidateModStatsResults ValidateStats(IEnumerable<DivinityModData> mods, string gameDataPath)
+	private static readonly FileStreamOptions _defaultOpts = new () {
+		BufferSize = 128000,
+	};
+
+	private static async Task<FileText> GetFileTextAsync(VFS vfs, string path, CancellationToken token)
+	{
+		var file = vfs.FindVFSFile(path);
+		if(file != null)
+		{
+			using var stream = file.CreateContentReader();
+			using var sr = new StreamReader(stream, System.Text.Encoding.UTF8, false, 128000);
+			var text = await sr.ReadToEndAsync(token);
+			return new FileText(path, text.Split(Environment.NewLine, StringSplitOptions.None));
+		}
+		return new FileText(path, []);
+	}
+
+	public static async Task<ValidateModStatsResults> ValidateStatsAsync(IEnumerable<DivinityModData> mods, string gameDataPath, CancellationToken token)
 	{
 		var context = new StatLoadingContext();
 		var loader = new StatLoader(context);
@@ -58,9 +77,17 @@ public static class ModUtils
 		vfs.AttachGameDirectory(gameDataPath, true);
 		foreach (var mod in mods)
 		{
-			if (!mod.IsEditorMod && File.Exists(mod.FilePath))
+			if (!mod.IsEditorMod)
 			{
-				vfs.AttachPackage(mod.FilePath);
+				if (File.Exists(mod.FilePath)) vfs.AttachPackage(mod.FilePath);
+			}
+			else
+			{
+				//var publicFolder = Path.Join(gameDataPath, "Public", mod.FilePath);
+				//if(Directory.Exists(publicFolder))
+				//{
+				//	vfs.AttachRoot(mod.FilePath);
+				//}
 			}
 		}
 		vfs.FinishBuild();
@@ -125,6 +152,10 @@ public static class ModUtils
 		loader.ResolveUsageRef();
 		loader.ValidateEntries();
 
-		return new ValidateModStatsResults(new List<DivinityModData>(mods), context.Errors);
+		var files = context.Errors.Select(x => x.Location?.FileName).Where(x => !String.IsNullOrEmpty(x)).ToList().Distinct().ToList();
+		var textData = await Task.WhenAll(files.Select(x => GetFileTextAsync(vfs, x, token)).ToArray());
+		var fileDict = textData.ToDictionary(x => x.FilePath, x => x.Lines);
+
+		return new ValidateModStatsResults(new List<DivinityModData>(mods), context.Errors, fileDict);
 	}
 }

@@ -22,6 +22,7 @@
 	Foreground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
 	TitleBarBackground="#285444"
 	TitleBarForeground="{DynamicResource {x:Static adonisUI:Brushes.AccentForegroundBrush}}"
+	Topmost="False"
 	mc:Ignorable="d">
 	<Window.Resources>
 		<ResourceDictionary>
@@ -52,11 +53,17 @@
 					<Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
 						<Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
 						<Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+						<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 					</Style>
 				</TreeView.Resources>
 				<TreeView.ItemTemplate>
 					<HierarchicalDataTemplate DataType="{x:Type data:TreeViewEntry}" ItemsSource="{Binding Children}">
-						<reactiveui:ViewModelViewHost ViewModel="{Binding ViewModel}" />
+						<reactiveui:ViewModelViewHost
+							HorizontalAlignment="Stretch"
+							VerticalAlignment="Stretch"
+							HorizontalContentAlignment="Stretch"
+							VerticalContentAlignment="Stretch"
+							ViewModel="{Binding ViewModel}" />
 					</HierarchicalDataTemplate>
 				</TreeView.ItemTemplate>
 			</TreeView>

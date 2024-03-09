@@ -3,6 +3,8 @@
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
+using System.Windows.Input;
+
 namespace DivinityModManager.Models.View;
 public abstract class TreeViewEntry : ReactiveObject
 {
@@ -13,8 +15,12 @@ public abstract class TreeViewEntry : ReactiveObject
 
 	public abstract object ViewModel { get; }
 
+	public ICommand ToggleCommand { get; }
+
 	public TreeViewEntry()
 	{
 		Children = [];
+
+		ToggleCommand = ReactiveCommand.Create(() => IsExpanded = !IsExpanded);
 	}
 }

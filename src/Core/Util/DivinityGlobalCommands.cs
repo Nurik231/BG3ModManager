@@ -184,18 +184,30 @@ public class DivinityGlobalCommands : ReactiveObject
 		RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenModProperties.Handle(mod));
 	}
 
-	public static void ValidateModStats(DivinityModData mod)
+	private static CancellationTokenSource _statValidatorTokenSource;
+
+	public static async Task ValidateModStats(DivinityModData mod)
 	{
-		RxApp.TaskpoolScheduler.Schedule(() =>
+		_statValidatorTokenSource ??= new();
+		var results = await ModUtils.ValidateStatsAsync([mod], Services.Settings.ManagerSettings.GameDataPath, _statValidatorTokenSource.Token);
+		await Observable.Start(async () =>
 		{
-			var results = ModUtils.ValidateStats([mod], Services.Settings.ManagerSettings.GameDataPath);
-			RxApp.MainThreadScheduler.ScheduleAsync(async (sch, token) => await DivinityInteractions.OpenValidateStatsResults.Handle(results));
+			await DivinityInteractions.OpenValidateStatsResults.Handle(results);
+		}, RxApp.MainThreadScheduler);
+	}
+
+	private static void StartValidateModStats(DivinityModData mod)
+	{
+		RxApp.TaskpoolScheduler.ScheduleAsync(async (sch, token) =>
+		{
+			await ValidateModStats(mod);
 		});
 	}
 
 	public DivinityGlobalCommands()
 	{
-		var canExecuteViewModelCommands = this.WhenAnyValue(x => x.ViewModel, x => x.ViewModel.IsLocked, (vm, b) => vm != null && !b);
+		var canExecuteViewModelCommands = this.WhenAnyValue(x => x.ViewModel, x => x.ViewModel.IsLocked, (vm, b) => vm != null && !b)
+			.ObserveOn(RxApp.MainThreadScheduler);
 
 		OpenFileCommand = ReactiveCommand.Create<string>(OpenFile, canExecuteViewModelCommands);
 		OpenInFileExplorerCommand = ReactiveCommand.Create<string>(OpenInFileExplorer, canExecuteViewModelCommands);
@@ -234,6 +246,6 @@ public class DivinityGlobalCommands : ReactiveObject
 		ToggleForceAllowInLoadOrderCommand = ReactiveCommand.Create<DivinityModData>(ToggleForceAllowInLoadOrder, canExecuteViewModelCommands);
 		CopyModAsDependencyCommand = ReactiveCommand.Create<DivinityModData>(CopyModAsDependency, canExecuteViewModelCommands);
 		OpenModPropertiesCommand = ReactiveCommand.Create<DivinityModData>(OpenModProperties, canExecuteViewModelCommands);
-		ValidateStatsCommand = ReactiveCommand.Create<DivinityModData>(ValidateModStats, canExecuteViewModelCommands);
+		ValidateStatsCommand = ReactiveCommand.Create<DivinityModData>(StartValidateModStats, canExecuteViewModelCommands);
 	}
 }

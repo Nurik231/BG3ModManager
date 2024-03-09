@@ -2206,4 +2206,22 @@
 			</Grid>
 		</Border>
 	</DataTemplate>
+
+	<!--  Source: https://stackoverflow.com/a/72915152  -->
+	<Style x:Key="TransparentToggleButtonStyle" TargetType="ToggleButton">
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ToggleButton">
+					<Grid x:Name="RootGrid" Background="Transparent">
+						<ContentPresenter
+							x:Name="ContentPresenter"
+							HorizontalAlignment="Center"
+							VerticalAlignment="Center"
+							Content="{TemplateBinding Content}"
+							ContentTemplate="{TemplateBinding ContentTemplate}" />
+					</Grid>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
 </ResourceDictionary>

@@ -3,6 +3,7 @@ using DivinityModManager.Models.View;
 using DynamicData.Binding;
 
 using LSLib.LS.Stats;
+using LSLib.LS.Story.GoalParser;
 
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -42,6 +43,40 @@ public class StatsValidatorWindowViewModel : ReactiveObject
 		result += $"[{message.Code}] {message.Message}";
 		return result;
 	}
+	
+	private static string GetLineText(string filePath, StatLoadingError error, Dictionary<string, string[]> fileText)
+	{
+		if(fileText.TryGetValue(filePath, out var lines))
+		{
+			var uniqueContexts = new List<CodeLocation>
+			{
+				error.Location
+			};
+			if(error.Contexts != null)
+			{
+                uniqueContexts.AddRange(error.Contexts.Where(x => x.Location != null).Select(x => x.Location));
+            }
+
+            var location = uniqueContexts.DistinctBy(x => x.StartLine).FirstOrDefault();
+
+            var startLine = location.StartLine - 1;
+			var endLine = location.EndLine - 1;
+			if(startLine != endLine)
+			{
+				var lineText = new List<string>();
+				for(var i = startLine; i < endLine; i++)
+				{
+					lineText.Add(lines[i]);
+				}
+				return String.Join(Environment.NewLine, lineText);
+			}
+			else
+			{
+				return lines[startLine];
+			}
+		}
+		return String.Empty;
+	}
 
 	public void Load(ValidateModStatsResults result)
 	{
@@ -67,7 +102,7 @@ public class StatsValidatorWindowViewModel : ReactiveObject
 				StatsValidatorFileResults fileResults = new() { FilePath = name };
 				foreach (var entry in fileGroup)
 				{
-					fileResults.Children.Add(new StatsValidatorErrorEntry(entry));
+					fileResults.Children.Add(new StatsValidatorErrorEntry(entry, GetLineText(name, entry, result.FileText)));
 				}
 				Entries.Add(fileResults);
 			}

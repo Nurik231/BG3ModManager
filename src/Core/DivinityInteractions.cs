@@ -9,7 +9,7 @@ using ReactiveUI;
 namespace DivinityModManager;
 
 public record struct DeleteFilesViewConfirmationData(int Total, bool PermanentlyDelete, CancellationToken Token);
-public record struct ValidateModStatsResults(List<DivinityModData> Mods, List<StatLoadingError> Errors);
+public record struct ValidateModStatsResults(List<DivinityModData> Mods, List<StatLoadingError> Errors, Dictionary<string, string[]> FileText);
 
 
 public static class DivinityInteractions
